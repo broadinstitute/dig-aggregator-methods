@@ -1,0 +1,17 @@
+{
+    "aws": {
+        "s3": {
+            "bucket": "dig-analysis-data"
+        },
+        "emr": {
+            "subnetId": "subnet-ab89bbf3",
+            "sshKeyName": "GenomeStore REST",
+            "securityGroupIds": [
+                "sg-2b58c961"
+            ]
+        },
+        "rds": {
+            "instance": "dig-analysis-state"
+        }
+    }
+}
