@@ -1,0 +1,28 @@
+package org.broadinstitute.dig.aggregator.methods.gregor
+
+import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws.emr.Job
+
+class SortRegionsStage(implicit context: Context) extends Stage {
+  val annotatedRegions: Input.Source = Input.Source.Dataset("annotated_regions/*/*/")
+
+  /** Source inputs. */
+  override val sources: Seq[Input.Source] = Seq(annotatedRegions)
+
+  /** Map inputs to their outputs. */
+  override val rules: PartialFunction[Input, Outputs] = {
+    case annotatedRegions(annotation, dataset) => Outputs.Named(s"$annotation/$dataset")
+  }
+
+  /** Take any new datasets and convert them from JSON-list to BED file
+    * format with all the appropriate headers and fields. All the datasets
+    * are processed together by the Spark job, so what's in the results
+    * input doesn't matter.
+    */
+  override def make(output: String): Job = {
+    val script  = resourceUri("sortRegions.py")
+    val dataset = output
+
+    new Job(Job.PySpark(script, dataset))
+  }
+}
