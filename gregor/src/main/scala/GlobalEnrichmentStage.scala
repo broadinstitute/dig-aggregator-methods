@@ -60,6 +60,6 @@ class GlobalEnrichmentStage(implicit context: Context) extends Stage {
     }
 
     // append the final step
-    new Job(Job.PySpark(load, phenotype))
+    new Job(steps :+ Job.PySpark(load, phenotype))
   }
 }
