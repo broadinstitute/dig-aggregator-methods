@@ -66,7 +66,7 @@ class VepStage(implicit context: Context) extends Stage {
 
   /** Before the jobs actually run, perform this operation.
     */
-  override def prepareRun(): Unit = {
+  override def prepareJob(output: String): Unit = {
     context.s3.rm("out/varianteffect/effects/")
   }
 

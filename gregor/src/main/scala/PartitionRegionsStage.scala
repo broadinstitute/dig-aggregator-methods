@@ -3,7 +3,7 @@ package org.broadinstitute.dig.aggregator.methods.gregor
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws.emr.Job
 
-class SortRegionsStage(implicit context: Context) extends Stage {
+class PartitionRegionsStage(implicit context: Context) extends Stage {
   val annotatedRegions: Input.Source = Input.Source.Dataset("annotated_regions/*/*/")
 
   /** Source inputs. */

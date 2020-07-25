@@ -7,6 +7,7 @@
 
 GREGOR_ROOT=/mnt/var/gregor
 
+# s3 location to download from
 S3_BUCKET="s3://dig-analysis-data"
 S3_DIR="${S3_BUCKET}/out/gregor"
 
@@ -48,37 +49,30 @@ cd ${GREGOR_ROOT}
 aws s3 cp "${S3_BUCKET}/bin/gregor/GREGOR.v1.4.0.tar.gz" .
 tar zxf GREGOR.v1.4.0.tar.gz
 
+# At this point, the output of the MergeRegionsStage will be the same for every
+# run of GREGOR, so we can copy all the partitioned bed files locally.
 #
-# At this point, the output of the SortRegionsProcessor will be the same for every
-# run of GREGOR, so we can copy it from HDFS to the local machine once for all the
-# subsequent phenotype/ancestry combinations to use.
-#
-# The BED_INDEX_FILE will be used in every configuration file sent to GREGOR.
-#
+# The BED_INDEX_FILE will be used in every configuration file sent to GREGOR
+# as well, and contain the list of every file.
 
 # ensure that the regions directory exists and bed index file
 mkdir -p "${REGIONS_DIR}"
-touch "${BED_INDEX_FILE}"
 
-# find all the unique triplet directories of tissue/method/annotation
-PARTITIONS=($(aws s3 ls "${S3_DIR}/regions/partitioned/" --recursive | grep 'csv$' | awk -F/ '{print $7}' | sed 's/^partition=//' | sort | uniq))
+# copy all the partitions to the regions directory
+aws s3 cp "${S3_DIR}/regions/merged/" "${REGIONS_DIR}" --recursive --exclude=_SUCCESS
 
-echo "Unique partitions:"
-echo "----------------------------------------------------------------"
-echo "${PARTITIONS[@]}" | tr ' ' '\n'
-echo "----------------------------------------------------------------"
+# need to export or bash -c won't inherit
+export REGIONS_DIR
 
-# for each path, parse and fetch
-for PARTITION in "${PARTITIONS[@]}"; do
-  TMP_FILE=$(mktemp bed.XXXXXX)
-  BED_FILE="${REGIONS_DIR}/${PARTITION}"
+# flatten the partitions and strip the off csv file extension
+find "${REGIONS_DIR}" -type f -exec bash -c '
+  for csv do
+    base=${csv##*/} && mv "$csv" "${REGIONS_DIR}/${base%.*}"
+  done
+' bash {} +
 
-  # merge all the part files together into the temp file
-  hadoop fs -getmerge -nl -skip-empty-file "${S3_DIR}/regions/partitioned/*/*/partition=${PARTITION}/part-*" "${TMP_FILE}"
+# delete the empty partition directories
+find "${REGIONS_DIR}" -empty -type d -delete
 
-  # sort the bed file by chromosome and then start position
-  sort -k1,1 -k2,2n "${TMP_FILE}" -o "${BED_FILE}"
-
-  # add the bed file to the index
-  echo "${BED_FILE}" >> "${BED_INDEX_FILE}"
-done
+# write all the partition files to the index file
+find "${REGIONS_DIR}" -type f > "${BED_INDEX_FILE}"

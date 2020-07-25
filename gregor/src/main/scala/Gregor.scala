@@ -23,7 +23,8 @@ object Gregor extends Method {
     */
   override def initStages(implicit context: Context) = {
     addStage(new SnpListStage)
-    addStage(new SortRegionsStage)
+    addStage(new PartitionRegionsStage)
+    addStage(new MergeRegionsStage)
     addStage(new GlobalEnrichmentStage)
     addStage(new JoinRegionsStage)
   }

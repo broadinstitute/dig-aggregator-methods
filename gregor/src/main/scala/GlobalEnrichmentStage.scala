@@ -6,7 +6,7 @@ import org.broadinstitute.dig.aws.MemorySize
 import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job}
 
 class GlobalEnrichmentStage(implicit context: Context) extends Stage {
-  val regions: Input.Source = Input.Source.Success("out/gregor/regions/partitioned/")
+  val regions: Input.Source = Input.Source.Success("out/gregor/regions/merged/")
   val snp: Input.Source     = Input.Source.Success("out/gregor/snp/*/")
 
   /** All the processors this processor depends on.
