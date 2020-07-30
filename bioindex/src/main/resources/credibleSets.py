@@ -1,13 +1,8 @@
 import argparse
-import os
 
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.window import Window
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
 from pyspark.sql.functions import col, desc, rank
-
-# what bucket will be output to?
-OUT_BUCKET = f'dig-bio-index'  # {"test" if os.getenv("JOB_DRYRUN") else "index"}'
 
 
 def main():
@@ -22,7 +17,7 @@ def main():
 
     # read all
     srcdir = f's3://dig-analysis-data/credible_sets/*/{args.phenotype}/part-*'
-    outdir = f's3://{OUT_BUCKET}/credible_sets'
+    outdir = f's3://dig-bio-index/credible_sets'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
@@ -61,8 +56,7 @@ def main():
         .json(f'{outdir}/locus/{args.phenotype}')
 
     # load joined regions
-    regions = spark.read \
-        .json('s3://dig-analysis-data/out/gregor/regions/joined/part-*')
+    regions = spark.read.json('s3://dig-analysis-data/out/gregor/regions/joined/part-*')
 
     # for each credible find regions that overlap the top variants
     w = Window \
@@ -102,15 +96,8 @@ def main():
             col('regions.predictedTargetGene').alias('predictedTargetGene'),
             col('regions.targetStart').alias('targetStart'),
             col('regions.targetEnd').alias('targetEnd'),
-            col('regions.transcriptionStartSite').alias(
-                'transcriptionStartSite'),
-            col('regions.itemRgb').alias('itemRgb'),
-            col('regions.score').alias('score'),
+            col('regions.transcriptionStartSite').alias('transcriptionStartSite'),
         )
-
-    # TODO: Load global-enrichment for phenotype and join on tissueId,
-    #       annotation, method. Be sure the enrichments are in the same row
-    #       mapped by ancestry! E.g. "enrichment": { "EU": { "pValue" ... } }
 
     # drop the variant position, sort by credible set id,
     df.orderBy(['credibleSetId']) \

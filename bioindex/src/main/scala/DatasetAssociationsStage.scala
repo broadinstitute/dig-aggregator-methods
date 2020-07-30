@@ -7,17 +7,17 @@ import org.broadinstitute.dig.aws.emr._
 /** The final result of all aggregator methods is building the BioIndex. All
   * outputs are to the dig-bio-index bucket in S3.
   */
-class AssociationsStage(implicit context: Context) extends Stage {
+class DatasetAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val bottomLine = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
+  val variants = Input.Source.Dataset("variants/*/*/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(bottomLine)
+  override val sources: Seq[Input.Source] = Seq(variants)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case bottomLine(phenotype) => Outputs.Named(phenotype)
+    case variants(dataset, phenotype) => Outputs.Named(s"$dataset/$phenotype")
   }
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
@@ -29,12 +29,13 @@ class AssociationsStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    val phenotype = output
-    val srcdir    = s"out/metaanalysis/trans-ethnic/$phenotype/"
-    val outdir    = s"phenotype/$phenotype/"
+    val associations = resourceUri("datasetAssociations.py")
+    val plot         = resourceUri("plotAssociations.py")
+
+    // get best associations and build plots
     val steps = Seq(
-      Job.PySpark(resourceUri("associations.py"), phenotype),
-      Job.Script(resourceUri("plotAssociations.py"), srcdir, outdir)
+      Job.PySpark(associations, output),
+      Job.Script(plot, s"variants/$output", s"dataset/$output")
     )
 
     new Job(steps)

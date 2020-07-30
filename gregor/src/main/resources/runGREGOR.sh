@@ -43,12 +43,12 @@ fi
 # source location of SNP part files
 SNPS="${S3_DIR}/snp/${PHENOTYPE}/ancestry=${T2DKP_ANCESTRY}/part-*"
 
-# if there are no SNPs for this ancestry and phenotype, just skip it
+# if there are no SNPs, then there is nothing to do
 if ! hadoop fs -test -e "${SNPS}"; then
     exit 0
 fi
 
-# Download the SNP list for this phenotype and ancestry
+# download the SNP parts into a single file
 hadoop fs -getmerge -skip-empty-file "${SNPS}" "${SNP_FILE}"
 
 # write the configuration file for GREGOR
@@ -61,7 +61,7 @@ R2THRESHOLD         = ${R2}
 OUT_DIR             = ${OUT_DIR}
 LDWINDOWSIZE        = 1000000
 MIN_NEIGHBOR_NUM    = 500
-BEDFILE_IS_SORTED   = False
+BEDFILE_IS_SORTED   = True
 TOPNBEDFILES        = 2
 JOBNUMBER           = 10
 BATCHTYPE           = local

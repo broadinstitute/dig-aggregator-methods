@@ -20,7 +20,7 @@ class PartitionRegionsStage(implicit context: Context) extends Stage {
     * input doesn't matter.
     */
   override def make(output: String): Job = {
-    val script  = resourceUri("sortRegions.py")
+    val script  = resourceUri("partitionRegions.py")
     val dataset = output
 
     new Job(Job.PySpark(script, dataset))

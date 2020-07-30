@@ -6,9 +6,9 @@ import org.broadinstitute.dig.aws.emr.Job
 /** All regions need to be joined with the tissue ontology and results of
   * GREGOR to be more useful.
   */
-class JoinRegionsStage(implicit context: Context) extends Stage {
-  val regions: Input.Source = Input.Source.Success("out/gregor/regions/unsorted/")
+class JoinTissuesStage(implicit context: Context) extends Stage {
   val tissues: Input.Source = Input.Source.Success("tissues/")
+  val regions: Input.Source = Input.Source.Success("out/gregor/regions/unsorted/")
 
   /** All the processors this processor depends on.
     */
@@ -23,6 +23,6 @@ class JoinRegionsStage(implicit context: Context) extends Stage {
   /** Join regions with tissue ontology.
     */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("joinRegions.py")))
+    new Job(Job.PySpark(resourceUri("joinTissues.py")))
   }
 }

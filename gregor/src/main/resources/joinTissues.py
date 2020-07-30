@@ -16,20 +16,22 @@ def main():
     outdir = f'{S3_BUCKET}/out/gregor/regions/joined'
 
     # this is the schema written out by the regions processor
-    regions_schema = StructType([
-        StructField('chromosome', StringType(), nullable=False),
-        StructField('start', IntegerType(), nullable=False),
-        StructField('end', IntegerType(), nullable=False),
-        StructField('tissue', StringType(), nullable=False),
-        StructField('annotation', StringType(), nullable=False),
-        StructField('method', StringType(), nullable=False),
-        StructField('predictedTargetGene', StringType(), nullable=False),
-        StructField('targetStart', IntegerType(), nullable=False),
-        StructField('targetEnd', IntegerType(), nullable=False),
-        StructField('transcriptionStartSite', IntegerType(), nullable=False),
-        StructField('itemRgb', StringType(), nullable=False),
-        StructField('score', DoubleType(), nullable=False),
-    ])
+    regions_schema = StructType(
+        [
+            StructField('chromosome', StringType(), nullable=False),
+            StructField('start', IntegerType(), nullable=False),
+            StructField('end', IntegerType(), nullable=False),
+            StructField('tissue', StringType(), nullable=False),
+            StructField('annotation', StringType(), nullable=False),
+            StructField('method', StringType(), nullable=False),
+            StructField('predictedTargetGene', StringType(), nullable=False),
+            StructField('targetStart', IntegerType(), nullable=False),
+            StructField('targetEnd', IntegerType(), nullable=False),
+            StructField('transcriptionStartSite', IntegerType(), nullable=False),
+            StructField('itemRgb', StringType(), nullable=False),
+            StructField('score', DoubleType(), nullable=False),
+        ]
+    )
 
     #initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()

@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-
 import argparse
 import math
 import os
 import subprocess
+import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
@@ -42,8 +42,7 @@ CHROMOSOME_LEN = {
 }
 
 # start position and color of each chromosome
-CHROMOSOME_START = {}
-CHROMOSOME_COLOR = {}
+CHROMOSOME_FRAME = {}
 CHROMOSOME_XTICK = {}
 
 # map chromosome names
@@ -56,19 +55,11 @@ def build_chromosome_map():
     """
     pos = 0
     for i, chrom in enumerate(CHROMOSOMES):
-        CHROMOSOME_START[chrom] = pos
-        CHROMOSOME_COLOR[chrom] = COLORS[i % len(COLORS)]
-        CHROMOSOME_XTICK[chrom] = CHROMOSOME_START[chrom] + CHROMOSOME_LEN[chrom] // 2
+        CHROMOSOME_FRAME[chrom] = {'chromosome': chrom, 'x': pos, 'color': COLORS[i % len(COLORS)]}
+        CHROMOSOME_XTICK[chrom] = pos + CHROMOSOME_LEN[chrom] // 2
 
         # advance position to next chromosome
         pos += CHROMOSOME_LEN[chrom]
-
-
-def x_pos(chromosome, position):
-    """
-    Absolute position on the x-axis for a variant.
-    """
-    return CHROMOSOME_START[chromosome] + position
 
 
 def main():
@@ -82,12 +73,10 @@ def main():
 
     # parse command line arguments
     args = opts.parse_args()
-    dry_run = os.getenv("JOB_DRYRUN")
-    job_bucket = os.getenv("JOB_BUCKET")
 
     # source glob to read from and outdir to write to
-    srcdir = f'{job_bucket}/{args.srcdir.strip("/")}/*.json'
-    outdir = f's3://dig-bio-{"test" if dry_run else "index"}/plots/{args.outdir.strip("/")}'
+    srcdir = f's3://dig-analysis-data/{args.srcdir.strip("/")}/*.json'
+    outdir = f's3://dig-bio-index/plot/{args.outdir.strip("/")}'
 
     # local associations file
     associations = f'associations.json'
@@ -103,8 +92,18 @@ def main():
         associations,
     ])
 
+    # create a frame for the chromosome start positions
+    chrom_pos = pd.DataFrame.from_dict(CHROMOSOME_FRAME, orient='index') \
+        .set_index('chromosome')
+
     # load the entire dataset into a dataframe
     df = pd.read_json(associations, lines=True)
+
+    # remove invalid p-value records
+    df = df[pd.notna(df['pValue']) & (df['pValue'] > 0) & (df['pValue'] <= 1)]
+
+    # count the number of variants
+    n = df.shape[0]
 
     # make sure the chromosome column is a string type
     df['chromosome'] = df['chromosome'].astype(str)
@@ -118,11 +117,9 @@ def main():
     # remove any rows with an invalid chromosome
     df = df[df['chromosome'].map(lambda c: c in CHROMOSOMES)]
 
-    # add a column with the x-axis coordinate for the association
-    df['x'] = df.apply(lambda r: x_pos(r['chromosome'], r['position']), axis=1)
-
-    # add a color column based on the chromosome
-    df['color'] = df['chromosome'].map(lambda c: CHROMOSOME_COLOR[c])
+    # calculate the x-position on the manhattan plot and the color
+    df = df.merge(chrom_pos, on='chromosome')
+    df['x'] += df['position']
 
     # plot the associations
     ax = df.plot(kind='scatter', x='x', y='-log10(p)', s=5, color=df['color'])
@@ -131,7 +128,7 @@ def main():
     ax.set_xticklabels(CHROMOSOMES)
 
     # maximum position on the x-axis
-    xmax = CHROMOSOME_START['Y'] + CHROMOSOME_LEN['Y']
+    xmax = CHROMOSOME_FRAME['Y']['x'] + CHROMOSOME_LEN['Y']
 
     # significance lines
     ax.hlines(5, 0, xmax, linestyle='dashed', color='gray')
@@ -142,8 +139,12 @@ def main():
     fig.set_size_inches(15, 8)
     fig.savefig('manhattan.png')
 
+    # calculate the expected -log10(p) values
+    expected = pd.DataFrame([-math.log10(float(n - i) / n) for i in np.arange(0, n, 1)])
+
     # create a qq-plot of the associations
-    qq = sm.qqplot(df['-log10(p)'], line='q', fit=True)
+    pp = sm.ProbPlot(df['-log10(p)'], fit=True)
+    qq = pp.qqplot(other=expected, line='r', xlabel='expected -log10(p)', ylabel='-log10(p)')
     qq.set_size_inches(15, 8)
     qq.savefig('qq.png')
 

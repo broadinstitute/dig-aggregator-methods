@@ -44,16 +44,18 @@ def main():
     # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
+    # input summary stats schema
+    schema = StructType(
+        [
+            StructField('bed', StringType(), nullable=False),
+            StructField('SNPs', IntegerType(), nullable=False),
+            StructField('expectedSNPs', DoubleType(), nullable=True),
+            StructField('pValue', DoubleType(), nullable=True),
+        ]
+    )
+
     # don't run if there is no summary data for this phenotype
     if s3_test(srcdir):
-        schema = StructType(
-            [
-                StructField('bed', StringType(), nullable=False),
-                StructField('SNPs', IntegerType(), nullable=False),
-                StructField('expectedSNPs', DoubleType(), nullable=True),
-                StructField('pValue', DoubleType(), nullable=True),
-            ]
-        )
 
         # input filename -> phenotype and ancestry
         src_re = r'/out/gregor/summary/([^/]+)/([^/]+)/'
@@ -84,6 +86,14 @@ def main():
         # remove NA results, fix method, and write
         df.dropna() \
             .withColumn('method', method) \
+            .write \
+            .mode('overwrite') \
+            .json(outdir)
+
+    # if there are no results, write an empty frame to delete existing
+    else:
+        # can use the input schema since no records are being written
+        spark.createDataFrame([], schema) \
             .write \
             .mode('overwrite') \
             .json(outdir)

@@ -15,7 +15,7 @@ def main():
     outdir = f's3://{OUT_BUCKET}/genes'
 
     # all valid chromosomes
-    chromosomes = list(map(str, range(1, 23))) + ['X', 'Y', 'XY', 'M', 'MT']
+    chromosomes = list(map(str, range(1, 23))) + ['X', 'Y', 'XY', 'M']
 
     # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()

@@ -4,7 +4,7 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
-/** The final result of all aggregator methods is building the Bio Index. All
+/** The final result of all aggregator methods is building the BioIndex. All
   * outputs are to the dig-bio-index bucket in S3.
   */
 class GenesStage(implicit context: Context) extends Stage {

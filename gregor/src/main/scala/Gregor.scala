@@ -25,7 +25,7 @@ object Gregor extends Method {
     addStage(new SnpListStage)
     addStage(new PartitionRegionsStage)
     addStage(new MergeRegionsStage)
+    addStage(new JoinTissuesStage)
     addStage(new GlobalEnrichmentStage)
-    addStage(new JoinRegionsStage)
   }
 }
