@@ -43,7 +43,6 @@ fi
 # source location of SNP part files
 SNPS="${S3_DIR}/snp/${PHENOTYPE}/ancestry=${T2DKP_ANCESTRY}/part-*"
 
-# if there are no SNPs, then there is nothing to do
 if ! hadoop fs -test -e "${SNPS}"; then
     exit 0
 fi

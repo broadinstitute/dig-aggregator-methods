@@ -22,7 +22,7 @@ class DatasetAssociationsStage(implicit context: Context) extends Stage {
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
+    masterInstanceType = Ec2.Strategy.memoryOptimized(),
     masterVolumeSizeInGB = 200,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
