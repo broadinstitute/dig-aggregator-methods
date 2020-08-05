@@ -2,7 +2,6 @@ import argparse
 import os
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
 
 # what bucket will be output to?
 S3_BUCKET = os.getenv('JOB_BUCKET')

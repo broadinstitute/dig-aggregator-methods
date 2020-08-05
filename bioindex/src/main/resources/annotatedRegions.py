@@ -14,11 +14,17 @@ def main():
     # load all regions, tissues, and join
     df = spark.read.json(srcdir)
 
-    # join with tissues, sort, and write
+    # sort by annotation and then position
     df.orderBy(['annotation', 'chromosome', 'start']) \
         .write \
         .mode('overwrite') \
         .json(f'{outdir}/annotation')
+
+    # sort by position
+    df.orderBy(['chromosome', 'start']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{outdir}/locus')
 
     # done
     spark.stop()

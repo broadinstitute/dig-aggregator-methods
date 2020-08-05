@@ -24,7 +24,6 @@ object Vep extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new ListVariantsStage)
     addStage(new VepStage)
-    addStage(new CqsStage)
     addStage(new SnpStage)
     addStage(new CommonStage)
   }

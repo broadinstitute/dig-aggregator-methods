@@ -102,7 +102,8 @@ def main():
     # create the manhattan plot
     fig, ax = plt.subplots()
 
-    # setup the x-axis
+    # setup the axes
+    ax.set_ylabel('-log10(p)')
     ax.set_xlabel('chromosome')
     ax.set_xticks([CHROMOSOME_XTICK[c] for c in CHROMOSOMES])
     ax.set_xticklabels(CHROMOSOMES)
