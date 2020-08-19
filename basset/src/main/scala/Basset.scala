@@ -22,7 +22,7 @@ object Basset extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
-    addStage(new ListVariantsStage)     // this created the dig-analysis-data/out/varianteffect/variants *.csv files
+//    addStage(new ListVariantsStage)     // this created the dig-analysis-data/out/varianteffect/variants *.csv files
     addStage(new BassetStage)           // main stage for the python script
   }
 }

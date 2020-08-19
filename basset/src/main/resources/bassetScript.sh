@@ -12,8 +12,7 @@ echo "JOB_PREFIX     = ${JOB_PREFIX}"
 echo "Argument passed: $*"
 
 # set where the source and destination is in S3 and where VEP is
-S3DIR="s3://dig-analysis-data/out/varianteffect"
-S3OUTDIR="s3://dig-analysis-data/out/regionpytorch"
+S3DIR="s3://dig-analysis-data/out/"
 
 # get the name of the part file from the command line; set the output filename
 PART=$(basename -- "$1")
@@ -21,13 +20,13 @@ OUTFILE="${PART%.*}.json"
 WARNINGS="${OUTFILE}_warnings.txt"
 
 # copy the part file from S3 to local
-aws s3 cp "$S3DIR/variants/$PART" .
+aws s3 cp "$S3DIR/varianteffect/variants/$PART" .
 
 # run pytorch script
 python3 fullBassetScript.py -i "$PART" -b 100 -o "$OUTFILE"
 
 # copy the output of VEP back to S3
-aws s3 cp "$OUTFILE" "$S3OUTDIR/$OUTFILE"
+aws s3 cp "$OUTFILE" "$S3DIR/regionpytorch/$OUTFILE"
 
 # delete the input and output files; keep the cluster clean
 rm "$PART"

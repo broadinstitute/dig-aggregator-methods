@@ -18,7 +18,7 @@ import org.broadinstitute.dig.aws.emr._
   *   - its name, which defaults to its class name
   *   - the cluster definition used to provision EC2 instances
   */
-class BassetStage(implicit context: Context) extends Stage {
+class ReferenceStage(implicit context: Context) extends Stage {
 
   /** Cluster configuration used when running this stage. The super
     * class already has a default configuration defined, so it's easier
@@ -84,14 +84,18 @@ class BassetStage(implicit context: Context) extends Stage {
     val steps = Seq(
 //      Job.PySpark(sampleSparkJob, phenotype),
 //      Job.Script(sampleScript, phenotype)
-      Job.Script(sampleScript, phenotype)
+      Job.Script(bassetScript)
     )
 
     // add a step for each part file
     // runscript can be python script
     // can be parrallel since each file can be processed independently
+    // get all the variant part files to process, use only the part filename
+    val objects = context.s3.ls(s"out/varianteffect/variants/")
+    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+
     // _ is the input to the script
-    new Job(parts.map(Job.Script(runScript, _)), isParallel = true)   
+    new Job(parts.map(Job.Script(bassetScript, _)), isParallel = true)   
 
     // create the job
     new Job(steps)

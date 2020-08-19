@@ -27,7 +27,7 @@ class BassetStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("sampleBootstrap.sh"))    // put any installation stuff here (magma); pip install, etc
+      new BootstrapScript(resourceUri("bassetBootstrap.sh"))    // pip3 install and downloading binary files
     )
   )
 
@@ -36,8 +36,7 @@ class BassetStage(implicit context: Context) extends Stage {
     * Input sources are a glob-like S3 prefix to an object in S3. Wildcards
     * can be pattern matched in the rules of the stage.
     */
-//  val variants: Input.Source = Input.Source.Dataset("variants/*/*/")
-  val variants: Input.Source = Input.Source.Success("out/varianteffetct/variants/")   // has to end with /
+  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")   // has to end with /
 
   /** When run, all the input sources here will be checked to see if they
     * are new or updated.
@@ -73,25 +72,25 @@ class BassetStage(implicit context: Context) extends Stage {
      * The resourceUri function will upload the resource in the jar to a
      * unique location in S3 and return the URI to where it was uploaded.
      */
-//    val sampleSparkJob = resourceUri("sampleSparkJob.py")
-//    val sampleScript   = resourceUri("sampleScript.sh")
-    val bassetScript   = resourceUri("fullBassetScript.py")
+    val bassetScript   = resourceUri("bassetScript.sh")
 
     // we used the phenotype as the output in rules
 //    val phenotype = output
 
     // list of steps to execute for this job
     val steps = Seq(
-//      Job.PySpark(sampleSparkJob, phenotype),
-//      Job.Script(sampleScript, phenotype)
-      Job.Script(sampleScript, phenotype)
+      Job.Script(bassetScript)
     )
 
     // add a step for each part file
     // runscript can be python script
     // can be parrallel since each file can be processed independently
     // _ is the input to the script
-    new Job(parts.map(Job.Script(runScript, _)), isParallel = true)   
+    // get all the variant part files to process, use only the part filename
+    val objects = context.s3.ls(s"out/varianteffect/variants/")
+    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+
+    new Job(parts.map(Job.Script(bassetScript, _)), isParallel = true)   
 
     // create the job
     new Job(steps)
@@ -103,13 +102,13 @@ class BassetStage(implicit context: Context) extends Stage {
     /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/varianteffect/effects/")             // method to clear out directory where results go
+    context.s3.rm("out/regionpytorch/basset/")             // method to clear out directory where results go
   }
 
   /** On success, write the _SUCCESS file in the output directory.
     */
   override def success(output: String): Unit = {
-    context.s3.touch("out/varianteffect/effects/_SUCCESS")   // only Spark jobs create a _SUCCESS file by default; need to manually for sh/py jobs
+    context.s3.touch("out/regionpytorch/basset/_SUCCESS")   // only Spark jobs create a _SUCCESS file by default; need to manually for sh/py jobs
     ()
   }
 
