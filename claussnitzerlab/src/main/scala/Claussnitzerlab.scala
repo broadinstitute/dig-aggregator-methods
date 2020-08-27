@@ -22,6 +22,7 @@ object Claussnitzerlab extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
-    addStage(new ClaussnitzerlabStage)
+//    addStage(new ListVariantsStage)     // this created the dig-analysis-data/out/varianteffect/variants *.csv files
+    addStage(new ClaussnitzerlabStage)           // main stage for the python script
   }
 }

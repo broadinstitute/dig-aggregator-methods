@@ -27,7 +27,7 @@ class ClaussnitzerlabStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("sampleBootstrap.sh"))
+      new BootstrapScript(resourceUri("claussnitzerlabBootstrap.sh"))    // pip3 install and downloading binary files
     )
   )
 
@@ -36,7 +36,7 @@ class ClaussnitzerlabStage(implicit context: Context) extends Stage {
     * Input sources are a glob-like S3 prefix to an object in S3. Wildcards
     * can be pattern matched in the rules of the stage.
     */
-  val variants: Input.Source = Input.Source.Dataset("variants/*/*/")
+  val variants: Input.Source = Input.Source.Success("out/varianteffect/common/")   // has to end with /
 
   /** When run, all the input sources here will be checked to see if they
     * are new or updated.
@@ -52,7 +52,7 @@ class ClaussnitzerlabStage(implicit context: Context) extends Stage {
     * ignored, and the name of the phenotype is used as the output.
     */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants(dataset, phenotype) => Outputs.Named(phenotype)
+    case variants() => Outputs.Named("claussnitzerlab")
   }
 
   /** Once all the rules have been applied to the new and updated inputs,
@@ -72,19 +72,44 @@ class ClaussnitzerlabStage(implicit context: Context) extends Stage {
      * The resourceUri function will upload the resource in the jar to a
      * unique location in S3 and return the URI to where it was uploaded.
      */
-    val sampleSparkJob = resourceUri("sampleSparkJob.py")
-    val sampleScript   = resourceUri("sampleScript.sh")
+    val claussnitzerlabScript   = resourceUri("claussnitzerlabScript.sh")
+    val claussnitzerlabLibrary  = resourceUri("dcc_basset_lib.py")
+    val claussnitzerlabPyTorch  = resourceUri("fullNasaScript.py")
 
     // we used the phenotype as the output in rules
-    val phenotype = output
+//    val phenotype = output
 
-    // list of steps to execute for this job
-    val steps = Seq(
-      Job.PySpark(sampleSparkJob, phenotype),
-      Job.Script(sampleScript, phenotype)
-    )
 
-    // create the job
-    new Job(steps)
+    // add a step for each part file
+    // runscript can be python script
+    // can be parrallel since each file can be processed independently
+    // _ is the input to the script
+    // get all the variant part files to process, use only the part filename
+    val objects = context.s3.ls(s"out/varianteffect/common/")
+    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+
+    // create new job
+    // take(2) will help with only taking 2 part files to process; good for testing
+    new Job(parts.take(1).map(Job.Script(claussnitzerlabScript, _)), isParallel = true)      // for testing
+    // new Job(parts.map(Job.Script(claussnitzerlabScript, _)), isParallel = true)           // for production
+
   }
+
+  // add success amd prepareJob methods (see vep)
+  // spark does _success by default; create method for non spark jobs
+
+    /** Before the jobs actually run, perform this operation.
+    */
+  override def prepareJob(output: String): Unit = {
+    context.s3.rm("out/regionpytorch/claussnitzerlab/")             // method to clear out directory where results go
+  }
+
+  /** On success, write the _SUCCESS file in the output directory.
+    */
+  override def success(output: String): Unit = {
+    context.s3.touch("out/regionpytorch/claussnitzerlab/_SUCCESS")   // only Spark jobs create a _SUCCESS file by default; need to manually for sh/py jobs
+    ()
+  }
+
+
 }
