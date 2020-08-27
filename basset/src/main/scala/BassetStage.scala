@@ -36,7 +36,7 @@ class BassetStage(implicit context: Context) extends Stage {
     * Input sources are a glob-like S3 prefix to an object in S3. Wildcards
     * can be pattern matched in the rules of the stage.
     */
-  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")   // has to end with /
+  val variants: Input.Source = Input.Source.Success("out/varianteffect/common/")   // has to end with /
 
   /** When run, all the input sources here will be checked to see if they
     * are new or updated.
@@ -73,27 +73,31 @@ class BassetStage(implicit context: Context) extends Stage {
      * unique location in S3 and return the URI to where it was uploaded.
      */
     val bassetScript   = resourceUri("bassetScript.sh")
+    val bassetLibrary  = resourceUri("dcc_basset_lib.py")
+    val bassetPyTorch  = resourceUri("fullBassetScript.py")
 
     // we used the phenotype as the output in rules
 //    val phenotype = output
 
     // list of steps to execute for this job
-    val steps = Seq(
-      Job.Script(bassetScript)
-    )
+    // val steps = Seq(
+    //   Job.Script(bassetScript)
+    // )
 
     // add a step for each part file
     // runscript can be python script
     // can be parrallel since each file can be processed independently
     // _ is the input to the script
     // get all the variant part files to process, use only the part filename
-    val objects = context.s3.ls(s"out/varianteffect/variants/")
+    val objects = context.s3.ls(s"out/varianteffect/common/")
     val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
 
-    new Job(parts.map(Job.Script(bassetScript, _)), isParallel = true)   
+    // take(2) will help with only taking 2 part files to process; good for testing
+    new Job(parts.take(1).map(Job.Script(bassetScript, _)), isParallel = true)      // for testing
+    // new Job(parts.map(Job.Script(bassetScript, _)), isParallel = true)           // for production
 
     // create the job
-    new Job(steps)
+    // new Job(steps)
   }
 
   // add success amd prepareJob methods (see vep)

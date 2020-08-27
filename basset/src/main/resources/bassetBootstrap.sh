@@ -28,15 +28,8 @@
 
 
 # install the python libraries
-pip3 install torch==1.5.1
-pip3 install twobitreader
-
-# copy the basset python files and the model weights file
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/fullBassetScript.py .
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_labels.txt .
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/hg19.2bit .
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_pretrained_model_reloaded.pth .
-
-# make the output directory
-mkdir Out
+sudo pip3 install torch==1.5.1
+sudo pip3 install twobitreader
+sudo pip3 install numpy
+sudo pip3 install sklearn
 
