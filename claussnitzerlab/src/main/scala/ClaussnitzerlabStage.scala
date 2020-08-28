@@ -90,8 +90,8 @@ class ClaussnitzerlabStage(implicit context: Context) extends Stage {
 
     // create new job
     // take(2) will help with only taking 2 part files to process; good for testing
-    new Job(parts.take(1).map(Job.Script(claussnitzerlabScript, _)), isParallel = true)      // for testing
-    // new Job(parts.map(Job.Script(claussnitzerlabScript, _)), isParallel = true)           // for production
+    // new Job(parts.take(1).map(Job.Script(claussnitzerlabScript, _)), isParallel = true)      // for testing
+    new Job(parts.map(Job.Script(claussnitzerlabScript, _)), isParallel = true)           // for production
 
   }
 
