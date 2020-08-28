@@ -87,8 +87,8 @@ print("got chunk list of size {} and type {}".format(len(chunks), type(chunks)))
 # loop through chunks
 main_start_time = time.perf_counter()
 final_results = []
-# for chunk_index in range(0, len(chunks)):
-for chunk_index in range(6, 9):
+for chunk_index in range(0, len(chunks)):
+# for chunk_index in range(6, 9):
     variant_list = chunks[chunk_index]
 
     # get start time

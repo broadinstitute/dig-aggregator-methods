@@ -33,3 +33,13 @@ sudo pip3 install twobitreader
 sudo pip3 install numpy
 sudo pip3 install sklearn
 
+# create the work dir
+WORK_DIR="/mnt/var/basset"
+mkdir -p "${WORK_DIR}"
+
+# copy the basset python files and the model weights file
+aws s3 cp s3://dig-analysis-data/bin/regionpytorch/fullBassetScript.py "${WORK_DIR}"
+aws s3 cp s3://dig-analysis-data/bin/regionpytorch/dcc_basset_lib.py "${WORK_DIR}"
+aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_labels.txt "${WORK_DIR}"
+aws s3 cp s3://dig-analysis-data/bin/regionpytorch/hg19.2bit "${WORK_DIR}"
+aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_pretrained_model_reloaded.pth "${WORK_DIR}"

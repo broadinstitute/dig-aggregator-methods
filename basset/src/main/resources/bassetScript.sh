@@ -18,23 +18,19 @@ S3DIR="s3://dig-analysis-data/out"
 PART=$(basename -- "$1")
 OUTFILE="${PART%.*}basset.json"
 WARNINGS="${OUTFILE}_warnings.txt"
-WORK_DIR="/mnt/var/${JOB_METHOD}"
+WORK_DIR="/mnt/var/basset"
 
 # copy the part file from S3 to local
-aws s3 cp "$S3DIR/varianteffect/common/$PART" .
+aws s3 cp "$S3DIR/varianteffect/common/$PART" "${WORK_DIR}"
 
-# copy the basset python files and the model weights file
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/fullBassetScript.py .
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/dcc_basset_lib.py .
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_labels.txt .
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/hg19.2bit .
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_pretrained_model_reloaded.pth .
+# cd to the work directory
+cd "${WORK_DIR}"
 
 # run pytorch script
 python3 fullBassetScript.py -i "$PART" -b 100 -o "$OUTFILE"
 
 # copy the output of VEP back to S3
-aws s3 cp "$OUTFILE" "$S3DIR/regionpytorch/$OUTFILE"
+aws s3 cp "$OUTFILE" "$S3DIR/regionpytorch/basset/$OUTFILE"
 
 # delete the input and output files; keep the cluster clean
 rm "$PART"
@@ -42,7 +38,7 @@ rm "$OUTFILE"
 
 # check for a warnings file, upload that, too and then delete it
 if [ -e "$WARNINGS" ]; then
-    aws s3 cp "$WARNINGS" "$S3DIR/effects/warnings/$WARNINGS"
+    aws s3 cp "$WARNINGS" "$S3DIR/regionpytorch/basset/warnings/$WARNINGS"
     rm "$WARNINGS"
 fi
 
