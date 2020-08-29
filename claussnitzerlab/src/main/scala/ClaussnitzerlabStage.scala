@@ -26,6 +26,8 @@ class ClaussnitzerlabStage(implicit context: Context) extends Stage {
     */
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 16),
+    slaveInstanceType = Strategy.computeOptimized(vCPUs = 16),
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("claussnitzerlabBootstrap.sh"))    // pip3 install and downloading binary files
     )
