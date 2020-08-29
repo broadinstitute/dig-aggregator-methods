@@ -22,6 +22,7 @@ object Magma extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
-    addStage(new MagmaStage)
+//    addStage(new MagmaStage)
+    addStage(new GatherStep1InputStage)
   }
 }
