@@ -1,13 +1,28 @@
-# To add a new cell, type '# %%'
-# To add a new markdown cell, type '# %% [markdown]'
+# imports
+import argparse
+import os
+
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, BooleanType, DoubleType, IntegerType
 from pyspark.sql.functions import col, struct, explode, when, lit, array_max, array, split, regexp_replace
 
+# script inputs
+opts = argparse.ArgumentParser()
+# opts.add_argument('-n', type=int, default=50)
+opts.add_argument('phenotype')
+
+# parse command line
+args = opts.parse_args()
+
+# common variables
+# phenotype = 'BMI'
+phenotype = args.phenotype
+
 # EC2 development localhost directories
-# variant_srcdir = 's3://dig-analysis-data/out/varianteffect/snp/'
-# pvalue_srcdir = 's3://dig-analysis-data/out/metaanalysis/trans-ethnic/'
-# outdir = 's3:/dig-analysis-data/out/varianteffect/magma/step2'
+# srcdir = f'{S3_BUCKET}/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
+variant_srcdir = 's3://dig-analysis-data/out/varianteffect/snp/'
+pvalue_srcdir = 's3://dig-analysis-data/out/metaanalysis/trans-ethnic/'
+out_dir = 's3://dig-analysis-data/out/magma/step3VariantPValues'
 
 # development localhost directories
 # variant_srcdir = '/Users/mduby/Data/Broad/Magma/Snp'
@@ -15,12 +30,9 @@ from pyspark.sql.functions import col, struct, explode, when, lit, array_max, ar
 # out_dir = '/Users/mduby/Data/Broad/Magma/Out/Step2'
 
 # localhost development localhost directories
-variant_srcdir = '/home/javaprog/Data/Broad/Magma/Snp/'
-pvalue_srcdir = '/home/javaprog/Data/Broad/Magma/Phenotype/'
-out_dir = '/home/javaprog/Data/Broad/Magma/Out/Step2'
-
-# common variables
-phenotype = 'BMI'
+# variant_srcdir = '/home/javaprog/Data/Broad/Magma/Snp/'
+# pvalue_srcdir = '/home/javaprog/Data/Broad/Magma/Phenotype/'
+# out_dir = '/home/javaprog/Data/Broad/Magma/Out/Step2'
 
 # print
 print("the variant pValues input directory is: {}".format(pvalue_srcdir))
@@ -41,7 +53,7 @@ def load_rsids(input_srcdir):
 
 
 # open spark session
-spark = SparkSession.builder.appName('magma02').getOrCreate()
+spark = SparkSession.builder.appName('magma03').getOrCreate()
 print("got Spark session of type {}".format(type(spark)))
 
 # load the variants pValues
@@ -66,7 +78,7 @@ print("the loaded variant joined data frame has {} rows".format(df_export.count(
 df_export.show()
 
 # write out the one tab delimited file
-df_export.coalesce(1).write.mode('overwrite').option("delimiter", "\t").csv(out_dir, header='true')
+df_export.coalesce(1).write.mode('overwrite').option("delimiter", "\t").csv('%s/%s' % (out_dir, phenotype), header='true')
 print("wrote out the loaded variant data frame to directory {}".format(out_dir))
 
 # stop spark

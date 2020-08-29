@@ -1,3 +1,4 @@
+# imports
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, struct, explode, when, lit, array_max, array, split, regexp_replace
 
