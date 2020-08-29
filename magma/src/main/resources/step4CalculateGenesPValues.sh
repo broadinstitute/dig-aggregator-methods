@@ -19,7 +19,7 @@ S3DIR="s3://dig-analysis-data"
 PART1=$(basename -- "$1")
 PHENOTYPE=$(basename -- "$2")
 WARNINGS="magma_step2_warnings.txt"
-WORK_DIR="/mnt/var/magma/step2"
+WORK_DIR="/mnt/var/magma/step4"
 
 # copy the input file from S3 to local
 aws s3 cp "$S3DIR/out/magma/step2VariantToGene/geneVariants.txt" "${WORK_DIR}"

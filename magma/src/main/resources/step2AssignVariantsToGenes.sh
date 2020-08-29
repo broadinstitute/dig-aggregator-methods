@@ -18,20 +18,13 @@ S3DIR="s3://dig-analysis-data"
 # get the name of the part file from the command line; set the output filename
 PART=$(basename -- "$1")
 WARNINGS="magma_step2_warnings.txt"
-WORK_DIR="/mnt/var/magma/step1"
+WORK_DIR="/mnt/var/magma/step2"
 
 # copy the input file from S3 to local
-aws s3 cp "$S3DIR/out/magma/step1GatherVariants/part*" "${WORK_DIR}/inputVariants.txt"
-
-# copy the magma software into the directory
-aws s3 cp "$S3DIR/bin/magma/NCBI37.3.gene.loc" "${WORK_DIR}"
-aws s3 cp "$S3DIR/bin/magma/magma_v1.07bb_static.zip" "${WORK_DIR}"
+aws s3 cp "$S3DIR/out/magma/step1GatherVariants/$PART" "${WORK_DIR}/inputVariants.txt"
 
 # cd to the work directory
 cd "${WORK_DIR}"
-
-# unzip the magma executable
-unzip magma_v1.07bb_static.zip
 
 # run magma command
 ./magma --annotate --snp-loc ./inputVariants.txt --gene-loc ./NCBI37.3.gene.loc --out ./geneVariants

@@ -23,6 +23,7 @@ object Magma extends Method {
     */
   override def initStages(implicit context: Context) = {
 //    addStage(new MagmaStage)
-    addStage(new GatherStep1InputStage)
+    addStage(new MagmaStep1CreateVariantsStage)
+    addStage(new MagmaStep2AssignVariantsStage)
   }
 }

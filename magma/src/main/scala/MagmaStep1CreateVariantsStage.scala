@@ -21,7 +21,7 @@ import org.broadinstitute.dig.aws.emr._
 class GatherStep1InputStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants: Input.Source = Input.Source.Dataset("variants/")
+  val variants: Input.Source = Input.Source.Dataset("out/varianteffect/snp/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(variants)

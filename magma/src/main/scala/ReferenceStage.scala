@@ -18,7 +18,7 @@ import org.broadinstitute.dig.aws.emr._
   *   - its name, which defaults to its class name
   *   - the cluster definition used to provision EC2 instances
   */
-class MagmaStage(implicit context: Context) extends Stage {
+class MagmaStep1CreateVariantsStage(implicit context: Context) extends Stage {
 
   /** Cluster configuration used when running this stage. The super
     * class already has a default configuration defined, so it's easier
