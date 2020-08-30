@@ -32,7 +32,6 @@ class MagmaStep2AssignVariantsStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(variants)
 
   private lazy val step2Bootstrap = resourceUri("step2Bootstrap.sh")
-  private lazy val installScript    = resourceUri("installVEP.sh")
 
   /** Definition of each VM "cluster" of 1 machine that will run magma.
     */

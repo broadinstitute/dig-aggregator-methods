@@ -21,8 +21,13 @@ PHENOTYPE=$(basename -- "$2")
 WARNINGS="magma_step2_warnings.txt"
 WORK_DIR="/mnt/var/magma/step4"
 
+# log
+echo "PART1          = ${PART1}"
+echo "PHENOTYPE      = ${PHENOTYPE}"
+
 # copy the input file from S3 to local
 aws s3 cp "$S3DIR/out/magma/step2VariantToGene/geneVariants.txt" "${WORK_DIR}"
+aws s3 cp "$S3DIR/out/magma/step3VariantPValues/$PHENOTYPE/$PART1" "${WORK_DIR}/inputPvalueVariants.txt"
 
 # copy the magma software into the directory
 aws s3 cp "$S3DIR/bin/magma/g1000_eur.bed" "${WORK_DIR}"
@@ -46,6 +51,7 @@ aws s3 cp ./genePValues.genes.out "$S3DIR/out/magma/step4GenePValues/${PHENOTYPE
 # delete the input and output files; keep the cluster clean
 rm ./genePValues.genes.out
 rm ./geneVariants.txt
+rm "./${PART1}"
 
 # check for a warnings file, upload that, too and then delete it
 if [ -e "$WARNINGS" ]; then
