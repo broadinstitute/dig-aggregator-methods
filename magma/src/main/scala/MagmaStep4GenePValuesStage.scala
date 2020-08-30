@@ -29,7 +29,7 @@ class MagmaStep4GenePValuesStage(implicit context: Context) extends Stage {
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
+    masterInstanceType = Strategy.generalPurpose(mem = 32.gb),
 //    slaveInstanceType = Strategy.generalPurpose(mem = 32.gb),
 //    instances = 4
 //    masterInstanceType = Strategy.computeOptimized(vCPUs = 8),

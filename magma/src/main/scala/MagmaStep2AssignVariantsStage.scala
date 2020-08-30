@@ -36,7 +36,8 @@ class MagmaStep2AssignVariantsStage(implicit context: Context) extends Stage {
   /** Definition of each VM "cluster" of 1 machine that will run magma.
     */
   override def cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 8),
+    masterInstanceType = Strategy.generalPurpose(mem = 32.gb),
+//    masterInstanceType = Strategy.computeOptimized(vCPUs = 8),
     instances = 1,
     masterVolumeSizeInGB = 80,
     applications = Seq.empty,
