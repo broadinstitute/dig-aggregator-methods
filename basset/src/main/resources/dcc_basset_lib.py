@@ -40,6 +40,13 @@ def get_genomic_sequence(position, offset, chromosome, alt_allele=None):
     if len(sequence) > offset * 2:
         sequence = sequence[:offset * 2]
 
+    # fail if too big
+    # TODO - fix to shift
+    # TODO - also fix if start is negative, shift
+    if len(sequence) < offset * 2:
+        print("the position {} and chrom {} have a sequence less than {}".format(position, chromosome, offset * 2))
+        raise ValueError()
+
     # return
     return sequence.upper()
 
@@ -383,14 +390,14 @@ def get_input_tensor_from_variant_list(variant_list, genome_lookup, region_size,
         position = int(variant_pieces[1])
         alt_allele = variant_pieces[3]
 
-        # get the chrom
-        chromosome_lookup = genome_lookup['chr' + chrom]
-
-        # load the data
-        ref_sequence, alt_sequence = get_ref_alt_sequences(position, int(region_size/2), chromosome_lookup, alt_allele)
-
-        # verify the letters in the sequence
         try:
+            # get the chrom
+            chromosome_lookup = genome_lookup['chr' + chrom]
+
+            # load the data
+            ref_sequence, alt_sequence = get_ref_alt_sequences(position, int(region_size/2), chromosome_lookup, alt_allele)
+
+            # verify the letters in the sequence
             for test_sequence in (ref_sequence, alt_allele):
                 if not re.match("^[ACGT]*$", test_sequence):
                     # get letter N for unseuqnced regions; throw them out

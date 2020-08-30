@@ -3,6 +3,8 @@ package org.broadinstitute.dig.aggregator.methods.basset
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aws.Ec2.Strategy
+import org.broadinstitute.dig.aws.MemorySize
 
 /** This is a stage in your method.
   *
@@ -25,7 +27,9 @@ class BassetStage(implicit context: Context) extends Stage {
     * to just copy and override specific parts of it.
     */
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1,
+    instances = 2,
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 16),
+    slaveInstanceType = Strategy.computeOptimized(vCPUs = 16),
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("bassetBootstrap.sh"))    // pip3 install and downloading binary files
     )
