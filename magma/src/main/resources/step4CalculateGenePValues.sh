@@ -26,7 +26,7 @@ echo "PART1          = ${PART1}"
 echo "PHENOTYPE      = ${PHENOTYPE}"
 
 # copy the input file from S3 to local
-aws s3 cp "$S3DIR/out/magma/step2VariantToGene/geneVariants.txt" "${WORK_DIR}"
+# aws s3 cp "$S3DIR/out/magma/step2VariantToGene/geneVariants.txt" "${WORK_DIR}"  - move to bootstrap4.sh
 aws s3 cp "$S3DIR/out/magma/step3VariantPValues/$PHENOTYPE/$PART1" "${WORK_DIR}/inputPvalueVariants.txt"
 
 # copy the magma software into the directory
@@ -46,8 +46,7 @@ aws s3 cp ./genePValues.genes.out "$S3DIR/out/magma/step4GenePValues/${PHENOTYPE
 
 # delete the input and output files; keep the cluster clean
 rm ./genePValues.genes.out
-rm ./geneVariants.txt
-rm "./${PART1}"
+rm ./inputPvalueVariants.txt
 
 # check for a warnings file, upload that, too and then delete it
 if [ -e "$WARNINGS" ]; then
