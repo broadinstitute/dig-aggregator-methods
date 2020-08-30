@@ -34,13 +34,9 @@ aws s3 cp "$S3DIR/bin/magma/g1000_eur.bed" "${WORK_DIR}"
 aws s3 cp "$S3DIR/bin/magma/g1000_eur.bim" "${WORK_DIR}"
 aws s3 cp "$S3DIR/bin/magma/g1000_eur.fam" "${WORK_DIR}"
 aws s3 cp "$S3DIR/bin/magma/g1000_eur.synonyms" "${WORK_DIR}"
-aws s3 cp "$S3DIR/bin/magma/magma_v1.07bb_static.zip" "${WORK_DIR}"
 
 # cd to the work directory
 cd "${WORK_DIR}"
-
-# unzip the magma executable
-unzip magma_v1.07bb_static.zip
 
 # run magma command
 ./magma --bfile ./g1000_eur --pval ./inputPvalueVariants.txt ncol=subjects --gene-annot ./geneVariants.txt --out ./genePValues

@@ -72,7 +72,7 @@ df_variant_load.show()
 
 # join the two dataframes and add in rsIDs
 df_export = df_pvalue_load.join(df_variant_load, on='varId', how='inner')
-df_export = df_export.select('dbSNP', 'pValue', 'n').withColumnRenamed('n', 'subjects')
+df_export = df_export.select('dbSNP', 'pValue', 'n').withColumnRenamed('n', 'subjects').withColumnRenamed('dbSNP', 'SNP').withColumnRenamed('pValue', 'P')
 df_export = df_export.withColumn("subjects", df_export["subjects"].cast(IntegerType()))
 print("the loaded variant joined data frame has {} rows".format(df_export.count()))
 df_export.show()
