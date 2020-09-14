@@ -57,14 +57,14 @@ class MagmaStep4GenePValuesStage(implicit context: Context) extends Stage {
     */
   override def prepareJob(output: String): Unit = {
     val phenotype = output
-    context.s3.rm("out/magma/step4GenePValues/${phenotype}/")
+    context.s3.rm(s"out/magma/step4GenePValues/${phenotype}/")
   }
 
   /** On success, write the _SUCCESS file in the output directory.
     */
   override def success(output: String): Unit = {
     val phenotype = output
-    context.s3.touch("out/magma/step4GenePValues/${phenotype}/_SUCCESS")
+    context.s3.touch(s"out/magma/step4GenePValues/${phenotype}/_SUCCESS")
     ()
   }
 

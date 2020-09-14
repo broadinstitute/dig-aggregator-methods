@@ -27,5 +27,6 @@ object Magma extends Method {
     addStage(new MagmaStep2AssignVariantsStage)
     addStage(new MagmaStep3VariantPValuesStage)
     addStage(new MagmaStep4GenePValuesStage)
+    addStage(new MagmaCombineNcbiGenePValuesStage)
   }
 }
