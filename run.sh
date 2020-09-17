@@ -2,5 +2,5 @@
 METHOD="$1"
 shift
 pushd "$METHOD"
-sbt "run -c '../config.json' $*"
+sbt "run -c ../config.json $*"
 popd

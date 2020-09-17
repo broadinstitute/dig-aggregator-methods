@@ -32,7 +32,7 @@ def main():
     )
 
     # write associations sorted by phenotype, varId, then pValue
-    df.orderBy(['phenotype', 'varId', 'pValue']) \
+    df.orderBy(['varId', 'phenotype']) \
         .write \
         .mode('overwrite') \
         .json('%s/%s' % (outdir, args.phenotype))
