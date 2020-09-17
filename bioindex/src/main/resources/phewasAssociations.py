@@ -14,6 +14,15 @@ def main():
     # load all trans-ethnic, meta-analysis results for all variants
     df = spark.read.json(f'{srcdir}/*/part-*')
 
+    # limit the data being written
+    df = df.select(
+        df.varId,
+        df.phenotype,
+        df.pValue,
+        df.beta,
+        df.n,
+    )
+
     # write associations sorted by variant and then p-value
     df.filter(df.pValue < 0.05) \
         .orderBy(['varId', 'pValue']) \

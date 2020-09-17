@@ -74,16 +74,17 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
     val loadAnalysis     = resourceUri("loadAnalysis.py")
     val phenotype        = output
 
-    new Job(
-      Seq(
-        Job.PySpark(partition, phenotype),
-        // ancestry-specific analysis first and load it back
-        Job.Script(ancestrySpecific, phenotype),
-        Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
-        // trans-ethnic next using ancestry-specific results
-        Job.Script(transEthnic, phenotype),
-        Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
-      )
+    // steps run serially
+    val steps = Seq(
+      Job.PySpark(partition, phenotype),
+      // ancestry-specific analysis first and load it back
+      Job.Script(ancestrySpecific, phenotype),
+      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
+      // trans-ethnic next using ancestry-specific results
+      Job.Script(transEthnic, phenotype),
+      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
     )
+
+    new Job(steps)
   }
 }

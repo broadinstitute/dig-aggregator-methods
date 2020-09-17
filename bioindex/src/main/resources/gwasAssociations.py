@@ -1,8 +1,6 @@
 import argparse
 
 from pyspark.sql import SparkSession
-from pyspark.sql.window import Window
-from pyspark.sql.functions import rank
 
 
 def main():
@@ -30,10 +28,7 @@ def main():
     common = spark.read.json(f'{common_dir}/part-*')
 
     # find the most significant variants for this phenotype
-    w = Window().orderBy('pValue')
-    df = df.withColumn('rank', rank().over(w))
-    df = df.filter((df.pValue < 1e-5) | (df.rank <= 5000)) \
-        .drop('rank')
+    df = df.filter(df.pValue < 1e-5)
 
     # write associations sorted by variant and then p-value
     df.join(common, 'varId', how='left_outer') \
