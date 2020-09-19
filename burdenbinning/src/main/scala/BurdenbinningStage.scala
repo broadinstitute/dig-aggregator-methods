@@ -19,72 +19,29 @@ import org.broadinstitute.dig.aws.emr._
   *   - the cluster definition used to provision EC2 instances
   */
 class BurdenbinningStage(implicit context: Context) extends Stage {
+ import MemorySize.Implicits._
 
-  /** Cluster configuration used when running this stage. The super
-    * class already has a default configuration defined, so it's easier
-    * to just copy and override specific parts of it.
-    */
-  override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1,
-    bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("sampleBootstrap.sh"))
-    )
-  )
+  val variantEffects: Input.Source = Input.Source.Success("out/varianteffect/effects/")
 
-  /** Input sources need to be declared so they can be used in rules.
-    *
-    * Input sources are a glob-like S3 prefix to an object in S3. Wildcards
-    * can be pattern matched in the rules of the stage.
-    */
-  val variants: Input.Source = Input.Source.Dataset("variants/*/*/")
+  /** The output of variant effects is the input for burden binning results file. */
+  override val sources: Seq[Input.Source] = Seq(variantEffects)
 
-  /** When run, all the input sources here will be checked to see if they
-    * are new or updated.
-    */
-  override val sources: Seq[Input.Source] = Seq(variants)
-
-  /** For every input that is new/updated, this partial function is called,
-    * which pattern matches it against the inputs sources defined above and
-    * maps them to the output(s) that should be built.
-    *
-    * In our variants input source, there are two wildcards in the S3 prefix,
-    * which are matched to the dataset name and phenotype. The dataset is
-    * ignored, and the name of the phenotype is used as the output.
-    */
+  /** Process burden binning associations. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants(dataset, phenotype) => Outputs.Named(phenotype)
+    case variantEffects() => Outputs.Named("BurdenBinning")
   }
 
-  /** Once all the rules have been applied to the new and updated inputs,
-    * each of the outputs that needs built is send here. A job is returned,
-    * which is the series of steps that need to be executed on the cluster
-    * in order for the final output to be successfully built.
-    *
-    * It is assumed that all outputs for a given stage are independent of
-    * each other and can be executed in parallel across multiple, identical
-    * clusters.
-    */
+  /** Simple cluster with more memory. */
+  override val cluster: ClusterDef = super.cluster.copy(
+//    masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
+//    slaveInstanceType = Strategy.generalPurpose(mem = 32.gb),
+    instances = 4
+  )
+
+  /** Build the job. */
   override def make(output: String): Job = {
+    val script    = resourceUri("burdenBinning.py")
 
-    /* All job steps require a URI to a location in S3 where the script can
-     * be read from by the cluster.
-     *
-     * The resourceUri function will upload the resource in the jar to a
-     * unique location in S3 and return the URI to where it was uploaded.
-     */
-    val sampleSparkJob = resourceUri("sampleSparkJob.py")
-    val sampleScript   = resourceUri("sampleScript.sh")
-
-    // we used the phenotype as the output in rules
-    val phenotype = output
-
-    // list of steps to execute for this job
-    val steps = Seq(
-      Job.PySpark(sampleSparkJob, phenotype),
-      Job.Script(sampleScript, phenotype)
-    )
-
-    // create the job
-    new Job(steps)
+    new Job(Job.PySpark(script))
   }
 }
