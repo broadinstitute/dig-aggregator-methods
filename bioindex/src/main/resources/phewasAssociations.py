@@ -24,8 +24,7 @@ def main():
     )
 
     # write associations sorted by variant and then p-value
-    df.filter(df.pValue < 0.05) \
-        .orderBy(['varId', 'pValue']) \
+    df.orderBy(['varId', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(outdir)

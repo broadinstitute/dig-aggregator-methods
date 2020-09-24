@@ -1,23 +1,14 @@
-import argparse
-
 from pyspark.sql import SparkSession
 
 
 def main():
     """
-    Arguments: phenotype
+    Arguments: none
     """
-    opts = argparse.ArgumentParser()
-    opts.add_argument('phenotype')
-
-    # parse command line
-    args = opts.parse_args()
-
-    # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = f's3://dig-analysis-data/variants/*/{args.phenotype}/part-*'
+    srcdir = f's3://dig-analysis-data/variants/*/*/part-*'
     outdir = f's3://dig-bio-index/associations/variant'
 
     # load only the data needed across datasets for a phenotype
@@ -32,10 +23,10 @@ def main():
     )
 
     # write associations sorted by phenotype, varId, then pValue
-    df.orderBy(['varId', 'phenotype']) \
+    df.orderBy(['varId']) \
         .write \
         .mode('overwrite') \
-        .json('%s/%s' % (outdir, args.phenotype))
+        .json(outdir)
 
     # done
     spark.stop()

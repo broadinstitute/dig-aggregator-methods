@@ -24,6 +24,8 @@ class PhewasAssociationsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
     slaveInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
+    masterVolumeSizeInGB = 200,
+    slaveVolumeSizeInGB = 200,
     instances = 6
   )
 

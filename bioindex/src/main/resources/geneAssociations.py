@@ -1,5 +1,12 @@
 from pyspark.sql import SparkSession
 
+# NOTE: This fails to run on the 52k because spark < 3.0 has a bug and
+#       erroneously complains that there are multiple 'pvalue' columns
+#       in the ouput.
+#
+#       The data is very small and this can be run locally with Spark 3.0
+#       installed and then just copied back up to s3.
+
 
 def main():
     """
@@ -18,7 +25,7 @@ def main():
     df.orderBy(['gene', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json('%s/gene' % outdir)
+        .json('%s/52k' % outdir)
 
     # done
     spark.stop()

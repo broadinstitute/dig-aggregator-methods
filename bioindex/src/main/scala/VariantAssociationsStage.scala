@@ -17,20 +17,21 @@ class VariantAssociationsStage(implicit context: Context) extends Stage {
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants(dataset, phenotype) => Outputs.Named(phenotype)
+    case variants(_, _) => Outputs.Named("variants")
   }
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.memoryOptimized(),
+    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
+    slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
     masterVolumeSizeInGB = 200,
-    instances = 5,
+    slaveVolumeSizeInGB = 200,
+    instances = 10,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    val script = resourceUri("variantAssociations.py")
-    new Job(Seq(Job.PySpark(script, output)))
+    new Job(Seq(Job.PySpark(resourceUri("variantAssociations.py"))))
   }
 }
