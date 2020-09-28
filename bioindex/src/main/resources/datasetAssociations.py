@@ -35,9 +35,9 @@ def main():
     # order by p-value
     w = Window().orderBy('pValue')
 
-    # keep just the top 1000 variants per dataset
+    # keep just the top variants per dataset
     df = df.withColumn('rank', rank().over(w))
-    df = df.filter(df.rank <= 1000)
+    df = df.filter((df.pValue <= 0.05) | (df.rank <= 500))
 
     # write associations sorted by locus, merge into a single file
     df.drop('rank') \
