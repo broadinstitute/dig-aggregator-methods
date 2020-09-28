@@ -1,6 +1,6 @@
 # magma
 
-The magma process uses the bottom line pValue results for all the phenotypes to generate corresponding gene pValue files per phenotype.
+The Magma process uses the bottom line pValue results for all the phenotypes to generate corresponding gene pValue files per phenotype.
 
 ## Stages
 
