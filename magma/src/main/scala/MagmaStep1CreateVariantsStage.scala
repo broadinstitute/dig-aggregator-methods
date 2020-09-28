@@ -18,7 +18,7 @@ import org.broadinstitute.dig.aws.emr._
   *   - its name, which defaults to its class name
   *   - the cluster definition used to provision EC2 instances
   */
-class GatherStep1InputStage(implicit context: Context) extends Stage {
+class MagmaStep1CreateVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val variants: Input.Source = Input.Source.Dataset("out/varianteffect/snp/")
@@ -38,7 +38,7 @@ class GatherStep1InputStage(implicit context: Context) extends Stage {
 
   /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants() => Outputs.Named("variants")
+    case variants() => Outputs.Named("Magma01")
   }
 
   /** All that matters is that there are new datasets. The input datasets are
