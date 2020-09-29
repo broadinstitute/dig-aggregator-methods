@@ -72,7 +72,10 @@ Loads all the gene association EPACTS datasets and sorts them by gene and then p
 
 _NOTE: Right now, this is special for the 52k as it is the only EPACTS gene associations dataset we have, and is queried using the `gene-associations-52k` index._
 
-TODO: MAGMA
+The MAGMA results are also loaded and sorted/written to two different locations:
+
+* Sorted by gene, pValue and written to `gene_associations/gene/...` for the `gene-associations` index.
+* Sorted by phenotype, pValue and written to `finder/gene/...` for the `gene-finder` index.
 
 ### GenesStage
 
