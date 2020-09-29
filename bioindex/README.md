@@ -74,8 +74,12 @@ _NOTE: Right now, this is special for the 52k as it is the only EPACTS gene asso
 
 The MAGMA results are also loaded and sorted/written to two different locations:
 
-* Sorted by gene, pValue and written to `gene_associations/gene/...` for the `gene-associations` index.
-* Sorted by phenotype, pValue and written to `finder/gene/...` for the `gene-finder` index.
+* Sorted by gene, pValue and written to `gene_associations/gene/...`.
+* Sorted by phenotype, pValue and written to `finder/gene/...`.
+
+The `gene-associations` index can be used to lookup the phenotypes associated with a gene.
+
+The `gene-finder` index can be used to lookup genes associated with a phenotype.
 
 ### GenesStage
 
