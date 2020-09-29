@@ -1,31 +1,67 @@
+import argparse
+
 from pyspark.sql import SparkSession
 
-# NOTE: This fails to run on the 52k because spark < 3.0 has a bug and
-#       erroneously complains that there are multiple 'pvalue' columns
-#       in the ouput.
-#
-#       The data is very small and this can be run locally with Spark 3.0
-#       installed and then just copied back up to s3.
+OUTDIR = 's3://dig-bio-index/gene_associations'
 
 
-def main():
+def process_datasets(spark):
     """
-    Arguments: none
+    The datasets code, which fails to run, because Spark < 3.0 has a bug and
+    erroneously complains that there are multiple 'pvalue' columns in the
+    output.
+
+    The data should instead (it isn't big) be downloaded locally and the
+    spark job run locally using a Spark version >= 3.0 installed and then
+    the results just copied back to S3 manually.
     """
-    spark = SparkSession.builder.appName('bioindex').getOrCreate()
-
-    # load and output directory
-    srcdir = f's3://dig-analysis-data/gene_associations/*/*/'
-    outdir = f's3://dig-bio-index/gene_associations'
-
-    # load all the gene associations across all datasets + phenotypes
-    df = spark.read.json(srcdir)
+    df = spark.read.json('s3://dig-analysis-data/gene_associations/*/*/')
 
     # sort by gene, then by p-value
     df.orderBy(['gene', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json('%s/52k' % outdir)
+        .json('%s/52k' % OUTDIR)
+
+
+def process_magma(spark):
+    """
+    Load the MAGMA results and write them out both sorted by gene and by
+    phenotype, so they may be queried either way.
+    """
+    df = spark.read.json('s3://dig-analysis-data/out/magma/results/*/')
+
+    # sort by gene, then by p-value
+    df.orderBy(['gene', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json('%s/gene' % OUTDIR)
+
+    # sort by phenotype, then by p-value for the gene finder
+    df.orderBy(['phenotype', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json('s3://dig-bio-index/finder/gene')
+
+
+def main():
+    """
+    Arguments: --52k | --magma
+    """
+    opts = argparse.ArgumentParser()
+    opts.add_argument('--52k', action='store_true', dest='flag_52k')
+    opts.add_argument('--magma', action='store_true')
+
+    # parse CLI flags
+    args = opts.parse_args()
+
+    # initialize spark
+    spark = SparkSession.builder.appName('bioindex').getOrCreate()
+
+    if args.flag_52k:
+        process_datasets(spark)
+    if args.magma:
+        process_magma(spark)
 
     # done
     spark.stop()
