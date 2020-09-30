@@ -1,14 +1,13 @@
-# burdenbinning
+# Burden Binning
 
-This is the documentation about the method.
+The purden binning process is a PySpark script that loads all variants/gene transcript from the vep results bucket, joins with the frequency analysis results to get MAF values and then filters the variants into 7 bins (1 through 7, 1 being the most restrictive); the bins build on each other, so bin1 is contained in bin2 which is contained in bin3 etc.
 
-Please put some details here about the method, what its inputs are, what its
-outputs are, where it reads from, and where it writes to.
+The filters for the bins are described in the PDF file contained in the docs directory
+
+The unioned 7 bins are then written out to disk after being sorted by gene and bin number.
 
 ## Stages
 
-These are the stages of burdenbinning.
-
 ### BurdenbinningStage
 
-A description of what this stage does.
+The only stage for this process is the PySpark process described above
