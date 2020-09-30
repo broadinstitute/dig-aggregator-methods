@@ -4,14 +4,14 @@ from pyspark.sql.types import StructType, StructField, StringType, BooleanType, 
 from pyspark.sql.functions import col, struct, explode, when, lit, array, udf
 
 # load and output directory
-# vep_srcdir = 's3://dig-analysis-data/out/varianteffect/effects/part-*'
-# freq_srcdir = 's3://dig-analysis-data/out/frequencyanalysis/'
-# outdir = 's3://dig-bio-index/burden/variantgene'
+vep_srcdir = 's3://dig-analysis-data/out/varianteffect/effects/part-*'
+freq_srcdir = 's3://dig-analysis-data/out/frequencyanalysis/'
+outdir = 's3://dig-analysis-data/out/burdenbinning/results'
 
 # development localhost directories
-vep_srcdir = '/home/javaprog/Data/Broad/dig-analysis-data/out/varianteffect/effects/part-*'
-freq_srcdir = '/home/javaprog/Data/Broad/dig-analysis-data/out/frequencyanalysis/'
-outdir = '/home/javaprog/Data/Broad/dig-analysis-data/out/burdenbinning/results'
+# vep_srcdir = '/home/javaprog/Data/Broad/dig-analysis-data/out/varianteffect/effects/part-*'
+# freq_srcdir = '/home/javaprog/Data/Broad/dig-analysis-data/out/frequencyanalysis/'
+# outdir = '/home/javaprog/Data/Broad/dig-analysis-data/out/burdenbinning/results'
 
 # print
 # print("the input directory is: {}".format(vep_srcdir))
