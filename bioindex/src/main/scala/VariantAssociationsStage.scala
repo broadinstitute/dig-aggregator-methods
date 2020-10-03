@@ -10,14 +10,14 @@ import org.broadinstitute.dig.aws.emr._
 class VariantAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants = Input.Source.Dataset("variants/*/*/")
+  val variants = Input.Source.Success("out/metaanalysis/variants/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(variants)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants(_, _) => Outputs.Named("variants")
+    case variants(phenotype) => Outputs.Named("variants")
   }
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
@@ -26,12 +26,15 @@ class VariantAssociationsStage(implicit context: Context) extends Stage {
     slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
     masterVolumeSizeInGB = 200,
     slaveVolumeSizeInGB = 200,
-    instances = 10,
+    instances = 6,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Seq(Job.PySpark(resourceUri("variantAssociations.py"))))
+    val script = resourceUri("variantAssociations.py")
+    val step   = Job.PySpark(script)
+
+    new Job(Seq(step))
   }
 }
