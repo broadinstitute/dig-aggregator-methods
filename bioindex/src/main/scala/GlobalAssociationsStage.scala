@@ -22,11 +22,15 @@ class GlobalAssociationsStage(implicit context: Context) extends Stage {
 
   /** Simple cluster with a little more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb)
+    masterInstanceType = Ec2.Strategy.generalPurpose(mem = 32.gb),
+    slaveInstanceType = Ec2.Strategy.generalPurpose(mem = 32.gb)
   )
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("globalAssociations.py"), output))
+    val globalScript = resourceUri("globalAssociations.py")
+    val step         = Job.PySpark(globalScript, output)
+
+    new Job(Seq(step))
   }
 }

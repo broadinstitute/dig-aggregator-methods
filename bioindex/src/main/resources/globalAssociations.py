@@ -17,22 +17,25 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/{args.phenotype}/'
-    outdir = f's3://dig-bio-index/associations/gwas'
+    srcdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic'
+    outdir = f's3://dig-bio-index/associations/global'
 
     # common vep data
     common_dir = 's3://dig-analysis-data/out/varianteffect/common'
 
     # load all trans-ethnic, meta-analysis results for all variants
-    df = spark.read.json(f'{srcdir}/part-*')
+    df = spark.read.json(f'{srcdir}/*/part-*')
     common = spark.read.json(f'{common_dir}/part-*')
 
-    # find the most significant variants for this phenotype
-    df = df.filter(df.pValue < 1e-5)
+    # get significant associations for the phenotype
+    df = df.filter(df.phenotype == args.phenotype)
+    df = df.filter(df.pValue < 5e-8)
 
-    # write associations sorted by variant and then p-value
-    df.join(common, 'varId', how='left_outer') \
-        .coalesce(1) \
+    # join with common
+    df = df.join(common, 'varId', how='left_outer')
+
+    # coalesce, sort by p-value and write
+    df.coalesce(1) \
         .orderBy(['pValue']) \
         .write \
         .mode('overwrite') \
