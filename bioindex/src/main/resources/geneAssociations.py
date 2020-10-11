@@ -30,6 +30,19 @@ def process_magma(spark):
     phenotype, so they may be queried either way.
     """
     df = spark.read.json('s3://dig-analysis-data/out/magma/results/*/')
+    genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
+
+    # fix for join
+    genes = genes.withColumnRenamed('name', 'gene') \
+        .select(
+            genes.chromosome,
+            genes.start,
+            genes.end,
+            genes.type,
+        )
+
+    # join with genes for region data
+    df = df.join(genes, on='gene', how='inner')
 
     # sort by gene, then by p-value
     df.orderBy(['gene', 'pValue']) \

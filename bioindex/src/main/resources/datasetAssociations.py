@@ -37,6 +37,7 @@ def main():
 
     # keep just the top variants per dataset
     df = df.withColumn('rank', rank().over(w))
+    df = df.filter(df.rank <= 1500)
     df = df.filter((df.pValue <= 0.05) | (df.rank <= 500))
 
     # write associations sorted by locus, merge into a single file
