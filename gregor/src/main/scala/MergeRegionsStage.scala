@@ -45,11 +45,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
     val script    = resourceUri("mergeRegions.sh")
     val partition = output
 
-    // Even though each of these jobs is a single step, all the steps can be
-    // run in parallel across jobs and clusters. So, this helps improve the
-    // overall performance.
-
-    new Job(Seq(Job.Script(script, partition)), isParallel = true)
+    new Job(Seq(Job.Script(script, partition)))
   }
 
   /** Before the jobs actually run, perform this operation.

@@ -52,7 +52,8 @@ def main():
     )
 
     # output the regions partitioned for GREGOR in BED format
-    df.write \
+    df.coalesce(1) \
+        .write \
         .mode('overwrite') \
         .partitionBy('partition') \
         .csv(outdir, sep='\t', header=False)
