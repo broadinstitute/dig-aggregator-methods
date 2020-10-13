@@ -42,22 +42,22 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
     * BED files that can then be read by GREGOR.
     */
   override def make(output: String): Job = {
-    val script    = resourceUri("mergeRegions.sh")
+    val script    = resourceUri("mergeRegions.py")
     val partition = output
 
-    new Job(Seq(Job.Script(script, partition)))
+    new Job(Seq(Job.PySpark(script, partition)))
   }
 
   /** Before the jobs actually run, perform this operation.
     */
-  override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/gregor/regions/merged/${output}/")
-  }
+  //override def prepareJob(output: String): Unit = {
+  //  context.s3.rm(s"out/gregor/regions/merged/${output}/")
+  //}
 
   /** Update the success flag of the merged regions.
     */
-  override def success(output: String): Unit = {
-    context.s3.touch("out/gregor/regions/merged/_SUCCESS")
-    ()
-  }
+  //override def success(output: String): Unit = {
+  //  context.s3.touch("out/gregor/regions/merged/_SUCCESS")
+  //  ()
+  //}
 }
