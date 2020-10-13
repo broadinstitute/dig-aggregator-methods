@@ -9,13 +9,6 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(partitions)
 
-  /** Just need a single machine with no applications, but a good drive. */
-  override def cluster: ClusterDef = super.cluster.copy(
-    instances = 1,
-    masterVolumeSizeInGB = 200,
-    applications = Seq.empty
-  )
-
   /** The _SUCCESS file maps to a key prefix with partitioned bed files.
     *
     * Outputs will be the set of unique partition name prefixes. For example:
