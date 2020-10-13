@@ -43,7 +43,7 @@ def main():
 
     # sort by position, then write as a single file
     df = df.coalesce(1) \
-        .orderBy(['chromosome', 'position']) \
+        .orderBy(['chromosome', 'start']) \
         .write \
         .mode('overwrite') \
         .csv(outdir, sep='\t', header=False)
