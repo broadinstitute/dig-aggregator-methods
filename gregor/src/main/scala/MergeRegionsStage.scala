@@ -9,6 +9,13 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(partitions)
 
+  /** Just need a single machine with no applications, but a good drive. */
+  override def cluster: ClusterDef = super.cluster.copy(
+    instances = 1,
+    masterVolumeSizeInGB = 200,
+    applications = Seq.empty
+  )
+
   /** The _SUCCESS file maps to a key prefix with partitioned bed files.
     *
     * Outputs will be the set of unique partition name prefixes. For example:
@@ -18,39 +25,53 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
     *
     */
   override val rules: PartialFunction[Input, Outputs] = {
-    case input =>
-      val part = "/partition=([^/]+)/".r
+    case _ => "partitions"
+    // case input =>
+    //   val part = "/partition=([^/]+)/".r
 
-      // get all the partition names
-      val partitions = context.s3
-        .ls(input.dirname + "partition=")
-        .flatMap(obj => part.findFirstMatchIn(obj.key).map(_.group(1)))
-        .distinct
+    //   // get all the partition names
+    //   val partitions = context.s3
+    //     .ls(input.dirname + "partition=")
+    //     .flatMap(obj => part.findFirstMatchIn(obj.key).map(_.group(1)))
+    //     .distinct
 
-      // get the unique list of all partitioned, named outputs
-      Outputs.Named(partitions: _*)
+    //   // get the unique list of all partitioned, named outputs
+    //   Outputs.Named(partitions: _*)
   }
 
   /** The partition names are combined together across datasets into single
     * BED files that can then be read by GREGOR.
     */
   override def make(output: String): Job = {
-    val script    = resourceUri("mergeRegions.py")
-    val partition = output
+    val script = resourceUri("mergeRegions.sh")
+    val part   = "/partition=([^/]+)/".r
 
-    new Job(Seq(Job.PySpark(script, partition)))
+    // get all the partition names
+    val partitions = context.s3
+      .ls(input.dirname + "partition=")
+      .flatMap(obj => part.findFirstMatchIn(obj.key).map(_.group(1)))
+      .distinct
+
+    // create a step per partition
+    val steps = partitions.map(Job.Script(script, _))
+
+    // Even though each of these jobs is a single step, all the steps can be
+    // run in parallel across jobs and clusters. So, this helps improve the
+    // overall performance.
+
+    new Job(steps, isParallel = true)
   }
 
   /** Before the jobs actually run, perform this operation.
     */
-  //override def prepareJob(output: String): Unit = {
-  //  context.s3.rm(s"out/gregor/regions/merged/${output}/")
-  //}
+  override def prepareJob(output: String): Unit = {
+    context.s3.rm(s"out/gregor/regions/merged/${output}/")
+  }
 
   /** Update the success flag of the merged regions.
     */
-  //override def success(output: String): Unit = {
-  //  context.s3.touch("out/gregor/regions/merged/_SUCCESS")
-  //  ()
-  //}
+  override def success(output: String): Unit = {
+    context.s3.touch("out/gregor/regions/merged/_SUCCESS")
+    ()
+  }
 }
