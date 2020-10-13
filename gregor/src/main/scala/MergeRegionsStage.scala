@@ -13,7 +13,8 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterVolumeSizeInGB = 200,
-    applications = Seq.empty
+    applications = Seq.empty,
+    stepConcurrency = 5
   )
 
   /** The _SUCCESS file maps to a key prefix with partitioned bed files.
@@ -25,18 +26,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
     *
     */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => "partitions"
-    // case input =>
-    //   val part = "/partition=([^/]+)/".r
-
-    //   // get all the partition names
-    //   val partitions = context.s3
-    //     .ls(input.dirname + "partition=")
-    //     .flatMap(obj => part.findFirstMatchIn(obj.key).map(_.group(1)))
-    //     .distinct
-
-    //   // get the unique list of all partitioned, named outputs
-    //   Outputs.Named(partitions: _*)
+    case _ => Outputs.Named("partitions")
   }
 
   /** The partition names are combined together across datasets into single
@@ -47,13 +37,13 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
     val part   = "/partition=([^/]+)/".r
 
     // get all the partition names
-    val partitions = context.s3
-      .ls(input.dirname + "partition=")
+    val partitionNames = context.s3
+      .ls(partitions.prefix)
       .flatMap(obj => part.findFirstMatchIn(obj.key).map(_.group(1)))
       .distinct
 
     // create a step per partition
-    val steps = partitions.map(Job.Script(script, _))
+    val steps = partitionNames.map(Job.Script(script, _))
 
     // Even though each of these jobs is a single step, all the steps can be
     // run in parallel across jobs and clusters. So, this helps improve the
@@ -65,7 +55,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/gregor/regions/merged/${output}/")
+    context.s3.rm(s"out/gregor/regions/merged/")
   }
 
   /** Update the success flag of the merged regions.
