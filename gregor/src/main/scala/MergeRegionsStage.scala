@@ -49,7 +49,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
     // run in parallel across jobs and clusters. So, this helps improve the
     // overall performance.
 
-    new Job(steps, isParallel = true)
+    new Job(steps)
   }
 
   /** Before the jobs actually run, perform this operation.
