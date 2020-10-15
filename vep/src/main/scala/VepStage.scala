@@ -41,8 +41,10 @@ class VepStage(implicit context: Context) extends Stage {
     instances = 1,
     masterVolumeSizeInGB = 800,
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(clusterBootstrap)),
-    bootstrapSteps = Seq(Job.Script(installScript)),
+    bootstrapScripts = Seq(
+      new BootstrapScript(clusterBootstrap),
+      new BootstrapScript(installScript)
+    ),
     stepConcurrency = 5
   )
 
