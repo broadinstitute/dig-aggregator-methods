@@ -62,7 +62,7 @@ class VepStage(implicit context: Context) extends Stage {
     val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
 
     // add a step for each part file
-    new Job(parts.map(Job.Script(runScript, _)))
+    new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
   }
 
   /** Before the jobs actually run, perform this operation.
