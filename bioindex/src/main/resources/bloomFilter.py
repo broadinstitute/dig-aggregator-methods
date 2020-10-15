@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession, Row
+from pyspark.sql.functions import size, explode
 
 
 def main():
@@ -13,7 +14,7 @@ def main():
 
     # load all trans-ethnic, meta-analysis results for all variants
     associations = spark.read.json(f'{srcdir}/*/part-*')
-    associations = associations.filter(associations.pValue < 0.05) \
+    associations = associations.filter(associations.pValue < 0.01) \
         .select(
             associations.varId,
             associations.pValue,
@@ -36,6 +37,9 @@ def main():
 
     # join with the bloom filter
     df = df.join(bloom, on='varId', how='inner')
+
+    # remove any variants where the primary phenotype is the only one
+    df = df.filter(size(df.bloom) > 1)
 
     # sort by phenotype, then pValue, and write the filter
     df.orderBy(['phenotype', 'pValue']) \
