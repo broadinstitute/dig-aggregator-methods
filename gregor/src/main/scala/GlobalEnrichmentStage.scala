@@ -25,8 +25,10 @@ class GlobalEnrichmentStage(implicit context: Context) extends Stage {
     masterInstanceType = Strategy.computeOptimized(),
     instances = 1,
     masterVolumeSizeInGB = 800,
-    bootstrapScripts = Seq(new BootstrapScript(bootstrap)),
-    bootstrapSteps = Seq(Job.Script(install, r2))
+    bootstrapScripts = Seq(
+      new BootstrapScript(bootstrap),
+      new BootstrapScript(install, r2)
+    )
   )
 
   // map internal ancestries to that of GREGOR/1000g
