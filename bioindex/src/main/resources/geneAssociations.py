@@ -33,14 +33,13 @@ def process_magma(spark):
     genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
 
     # fix for join
-    genes = genes.withColumnRenamed('name', 'gene') \
-        .select(
-            genes.gene,
-            genes.chromosome,
-            genes.start,
-            genes.end,
-            genes.type,
-        )
+    genes = genes.select(
+        genes.name.alias('gene'),
+        genes.chromosome,
+        genes.start,
+        genes.end,
+        genes.type,
+    )
 
     # join with genes for region data
     df = df.join(genes, on='gene', how='inner')
