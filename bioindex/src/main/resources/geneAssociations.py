@@ -35,6 +35,7 @@ def process_magma(spark):
     # fix for join
     genes = genes.withColumnRenamed('name', 'gene') \
         .select(
+            genes.gene,
             genes.chromosome,
             genes.start,
             genes.end,
