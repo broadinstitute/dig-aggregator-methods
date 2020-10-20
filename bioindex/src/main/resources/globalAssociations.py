@@ -17,18 +17,17 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic'
+    srcdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/{args.phenotype}'
     outdir = f's3://dig-bio-index/associations/global'
 
     # common vep data
     common_dir = 's3://dig-analysis-data/out/varianteffect/common'
 
     # load all trans-ethnic, meta-analysis results for all variants
-    df = spark.read.json(f'{srcdir}/*/part-*')
+    df = spark.read.json(f'{srcdir}/part-*')
     common = spark.read.json(f'{common_dir}/part-*')
 
-    # get significant associations for the phenotype
-    df = df.filter(df.phenotype == args.phenotype)
+    # get only the globally significant associations
     df = df.filter(df.pValue < 5e-8)
 
     # join with common
