@@ -11,16 +11,7 @@ def main():
     outdir = f's3://dig-bio-index/regions'
 
     # load all regions, tissues, and join
-    df = spark.read.json('s3://dig-analysis-data/annotated_regions/*/*/part-*')
-    tissues_df = spark.read.json('s3://dig-analysis-data/tissues/ontology/part-*')
-
-    # fix up the regions
-    df = df \
-        .withColumnRenamed('name', 'annotation') \
-        .withColumnRenamed('biosample', 'tissueId')
-
-    # join with the tissue ontology
-    df = df.join(tissues_df, on='tissueId', how='left_outer')
+    df = spark.read.json('s3://dig-analysis-data/out/gregor/regions/joined/part-*')
 
     # sort by annotation and then position
     df.orderBy(['annotation', 'chromosome', 'start']) \

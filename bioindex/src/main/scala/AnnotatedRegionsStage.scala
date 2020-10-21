@@ -8,8 +8,7 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class AnnotatedRegionsStage(implicit context: Context) extends Stage {
-  val regions = Input.Source.Dataset("annotated_regions/")
-  val tissues = Input.Source.Dataset("tissues/")
+  val regions = Input.Source.Success("out/gregor/regions/joined/")
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
