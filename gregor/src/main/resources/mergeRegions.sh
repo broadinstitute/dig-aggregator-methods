@@ -20,3 +20,6 @@ sort -u -k1,1 -k2,2n "${TMP_FILE}" | grep -v '^$' > "${BED_FILE}"
 
 # write the bed file back to S3
 aws s3 cp "${BED_FILE}" "${S3_DIR}/regions/merged/partition=${PARTITION}/${BED_FILE}"
+
+# delete the merged file to leave space for future steps
+rm "${BED_FILE}"

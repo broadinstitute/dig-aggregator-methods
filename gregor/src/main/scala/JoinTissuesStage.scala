@@ -1,26 +1,21 @@
 package org.broadinstitute.dig.aggregator.methods.gregor
 
 import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws.emr.Job
+import org.broadinstitute.dig.aws.emr._
 
-/** All regions need to be joined with the tissue ontology and results of
-  * GREGOR to be more useful.
-  */
 class JoinTissuesStage(implicit context: Context) extends Stage {
-  val tissues: Input.Source = Input.Source.Success("tissues/")
-  val regions: Input.Source = Input.Source.Success("out/gregor/regions/unsorted/")
+  val regions: Input.Source = Input.Source.Dataset("annotated_regions/")
 
-  /** All the processors this processor depends on.
-    */
-  override val sources: Seq[Input.Source] = Seq(regions, tissues)
+  /** Source inputs. */
+  override val sources: Seq[Input.Source] = Seq(regions)
 
-  /** Each phenotype is an output.
+  /** Only a single output.
     */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => Outputs.Named("join")
+    case _ => Outputs.Named("regions")
   }
 
-  /** Join regions with tissue ontology.
+  /** Run the job for joining the tissue ontology with each region.
     */
   override def make(output: String): Job = {
     new Job(Job.PySpark(resourceUri("joinTissues.py")))

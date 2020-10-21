@@ -23,7 +23,7 @@ import org.broadinstitute.dig.aws.emr.configurations.{MapReduce, Spark}
 class CommonStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val cqs: Input.Source = Input.Source.Success("out/varianteffect/cqs/")
+  val cqs: Input.Source = Input.Source.Success("out/varianteffect/effects/")
   val snp: Input.Source = Input.Source.Success("out/varianteffect/snp/")
 
   /** Input sources. */

@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.emr._
 /** The final result of all aggregator methods is building the BioIndex. All
   * outputs are to the dig-bio-index bucket in S3.
   */
-class GwasAssociationsStage(implicit context: Context) extends Stage {
+class GlobalAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val bottomLine = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
@@ -22,11 +22,15 @@ class GwasAssociationsStage(implicit context: Context) extends Stage {
 
   /** Simple cluster with a little more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb)
+    masterInstanceType = Ec2.Strategy.generalPurpose(mem = 32.gb),
+    slaveInstanceType = Ec2.Strategy.generalPurpose(mem = 32.gb)
   )
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("gwasAssociations.py"), output))
+    val globalScript = resourceUri("globalAssociations.py")
+    val step         = Job.PySpark(globalScript, output)
+
+    new Job(Seq(step))
   }
 }

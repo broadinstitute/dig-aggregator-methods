@@ -41,8 +41,11 @@ class VepStage(implicit context: Context) extends Stage {
     instances = 1,
     masterVolumeSizeInGB = 800,
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(clusterBootstrap)),
-    bootstrapSteps = Seq(Job.Script(installScript))
+    bootstrapScripts = Seq(
+      new BootstrapScript(clusterBootstrap),
+      new BootstrapScript(installScript)
+    ),
+    stepConcurrency = 5
   )
 
   /** Map inputs to outputs. */
@@ -61,7 +64,7 @@ class VepStage(implicit context: Context) extends Stage {
     val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
 
     // add a step for each part file
-    new Job(parts.map(Job.Script(runScript, _)), isParallel = true)
+    new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
   }
 
   /** Before the jobs actually run, perform this operation.

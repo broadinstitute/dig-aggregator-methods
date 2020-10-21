@@ -1,4 +1,10 @@
 $method, $rest = $args
-cd "$method"
-sbt "run -c `"../config.json`" $($rest)"
-cd $PSScriptRoot
+
+Try {
+    cd "$method"
+    sbt "run -c `"../config.json`" $($rest)"
+}
+
+Finally {
+    cd $PSScriptRoot
+}

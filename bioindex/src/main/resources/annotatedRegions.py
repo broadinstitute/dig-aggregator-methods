@@ -8,11 +8,10 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = f's3://dig-analysis-data/out/gregor/regions/joined/part-*'
     outdir = f's3://dig-bio-index/regions'
 
     # load all regions, tissues, and join
-    df = spark.read.json(srcdir)
+    df = spark.read.json('s3://dig-analysis-data/out/gregor/regions/joined/part-*')
 
     # sort by annotation and then position
     df.orderBy(['annotation', 'chromosome', 'start']) \
