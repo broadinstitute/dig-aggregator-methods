@@ -20,6 +20,7 @@ def main():
         df.phenotype,
         df.pValue,
         df.beta,
+        df.stdErr,
         df.n,
     )
 
