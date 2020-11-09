@@ -3,6 +3,7 @@ package org.broadinstitute.dig.aggregator.methods.burdenbinning
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aws.Ec2.Strategy
 
 /** This is a stage in your method.
   *
