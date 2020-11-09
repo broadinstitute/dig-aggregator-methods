@@ -57,16 +57,19 @@ var_id = "varId"
 gene_ensemble_id = "ensemblId"
 burden_bin_id = "burdenBinId"
 maf = 'maf'
+gene_symbol = 'gene_symbol'
 
 # column variables for output
 var_id_col = col(var_id)
 gene_ensemble_id_col = col(gene_ensemble_id)
 burden_bin_id_col = col(burden_bin_id)
 maf_col = col(maf)
+gene_symbol_col = col(gene_symbol)
 
 # column variables for filters
-filter_lof_col = col("lof")
-filter_impact_col = col("impact")
+filter_pick_col = col(filter_pick)
+filter_lof_col = col(filter_lof)
+filter_impact_col = col(filter_impact)
 filter_polyphen2_hdiv_pred_col = col("polyphen2_hdiv_pred")
 filter_polyphen2_hvar_pred_col = col("polyphen2_hvar_pred")
 filter_sift_pred_col = col("sift_pred")
@@ -192,9 +195,12 @@ vep = spark.read.json(vep_srcdir)
 # format(vep.show())
 
 # create new data frame with only var id
-transcript_consequences = vep.select(vep.id, vep.transcript_consequences)     .withColumn('cqs', explode(col('transcript_consequences')))     .select(
+transcript_consequences = vep.select(vep.id, vep.transcript_consequences) \
+    .withColumn('cqs', explode(col('transcript_consequences'))) \
+    .select(
         col('id').alias('varId'),
         col('cqs.gene_id').alias(gene_ensemble_id),
+        col('cqs.' + gene_symbol).alias(gene_symbol),
         col('cqs.' + filter_lof).alias(filter_lof),
         col('cqs.' + filter_impact).alias(filter_impact),
 
@@ -213,12 +219,18 @@ transcript_consequences = vep.select(vep.id, vep.transcript_consequences)     .w
         col('cqs.' + filter_vest3_rankscore).alias(filter_vest3_rankscore),
         col('cqs.' + filter_cadd_raw_rankscore).alias(filter_cadd_raw_rankscore),
         col('cqs.' + filter_metasvm_pred).alias(filter_metasvm_pred),
+        col('cqs.' + filter_pick).alias(filter_pick),
         col('cqs.transcript_id')
     )
 
-
 # print
 print("the vep variant data count is: {}".format(transcript_consequences.count()))
+# transcript_consequences.show()
+
+# filter by pick 1
+transcript_consequences = transcript_consequences.filter(filter_pick_col == 1)
+# print
+print("the pick 1 vep variant data count is: {}".format(transcript_consequences.count()))
 # transcript_consequences.show()
 
 # join the transcripts dataframe with the maf dataframe
@@ -325,7 +337,7 @@ print("the final agregated bin dataframe is: {}".format(output_data_frame.count(
 
 # save out the output data frame to file
 output_data_frame \
-        .orderBy(gene_ensemble_id_col, burden_bin_id_col) \
+        .orderBy(gene_symbol_col, burden_bin_id_col) \
         .write \
         .mode('overwrite') \
         .json('%s' % outdir)
