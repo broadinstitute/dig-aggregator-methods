@@ -255,7 +255,7 @@ final_bin7_data_frame = dataframe_lof \
     .union(dataframe_impact_moderate) \
     .union(dataframe_level2_bin4and5and6and7) \
     .distinct()
-final_bin7_data_frame = final_bin7_data_frame.withColumn(burden_bin_id, lit('bin7_7'))
+final_bin7_data_frame = final_bin7_data_frame.withColumn(burden_bin_id, lit('0of5_1pct'))
 print("the final bin 7 dataframe is: {}".format(final_bin7_data_frame.count()))
 # final_bin7_data_frame.show()
 
@@ -268,7 +268,7 @@ final_bin6_data_frame = dataframe_level3_inclusion_bin6 \
     .union(dataframe_level2_bin4and5and6and7) \
     .union(dataframe_lof) \
     .distinct()
-final_bin6_data_frame = final_bin6_data_frame.withColumn(burden_bin_id, lit('bin6_7'))
+final_bin6_data_frame = final_bin6_data_frame.withColumn(burden_bin_id, lit('1of5_1pct'))
 print("the final bin 6 dataframe is: {}".format(final_bin6_data_frame.count()))
 # final_bin6_data_frame.show()
 
@@ -278,7 +278,7 @@ final_bin5_data_frame = dataframe_lof \
     .union(dataframe_level2_bin4and5and6and7) \
     .union(dataframe_impact_high) \
     .distinct()
-final_bin5_data_frame = final_bin5_data_frame.withColumn(burden_bin_id, lit('bin5_7'))
+final_bin5_data_frame = final_bin5_data_frame.withColumn(burden_bin_id, lit('5of5_LoF_LC'))
 print("the final bin 5 dataframe is: {}".format(final_bin5_data_frame.count()))
 # final_bin5_data_frame.show()
 
@@ -287,7 +287,7 @@ print("the final bin 5 dataframe is: {}".format(final_bin5_data_frame.count()))
 final_bin4_data_frame = dataframe_lof \
     .union(dataframe_level2_bin4and5and6and7) \
     .distinct()
-final_bin4_data_frame = final_bin4_data_frame.withColumn(burden_bin_id, lit('bin4_7'))
+final_bin4_data_frame = final_bin4_data_frame.withColumn(burden_bin_id, lit('5of5'))
 print("the final bin 4 dataframe is: {}".format(final_bin4_data_frame.count()))
 # final_bin4_data_frame.show()
 
@@ -299,7 +299,7 @@ dataframe_bin3_level2_inclusion = transcript_consequences.filter(condition_level
 final_bin3_data_frame = dataframe_lof \
     .union(dataframe_bin3_level2_inclusion) \
     .distinct()
-final_bin3_data_frame = final_bin3_data_frame.withColumn(burden_bin_id, lit('bin3_7'))
+final_bin3_data_frame = final_bin3_data_frame.withColumn(burden_bin_id, lit('11of11'))
 print("the final bin 3 dataframe is: {}".format(final_bin3_data_frame.count()))
 # final_bin7_data_frame.show()
 
@@ -311,13 +311,13 @@ dataframe_bin2_level2_inclusion = transcript_consequences.filter(condition_level
 final_bin2_data_frame = dataframe_lof \
     .union(dataframe_bin2_level2_inclusion) \
     .distinct()
-final_bin2_data_frame = final_bin2_data_frame.withColumn(burden_bin_id, lit('bin2_7'))
+final_bin2_data_frame = final_bin2_data_frame.withColumn(burden_bin_id, lit('16of16'))
 print("the final bin 2 dataframe is: {}".format(final_bin3_data_frame.count()))
 # final_bin2_data_frame.show()
 
 # BIN 1 of 7
 # create the final_1 df, just lof = HC
-final_bin1_data_frame = dataframe_lof.withColumn(burden_bin_id, lit('bin1_7')).distinct()
+final_bin1_data_frame = dataframe_lof.withColumn(burden_bin_id, lit('LoF_HC')).distinct()
 print("the final bin 1 dataframe is: {}".format(final_bin1_data_frame.count()))
 # final_bin1_data_frame.show()
 
