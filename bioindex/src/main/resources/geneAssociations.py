@@ -15,7 +15,7 @@ def process_datasets(spark):
     spark job run locally using a Spark version >= 3.0 installed and then
     the results just copied back to S3 manually.
     """
-    df = spark.read.json('s3://dig-analysis-data/gene_associations/*/*/')
+    df = spark.read.json('s3://dig-analysis-data/gene_associations/*/*/part-*')
 
     # sort by gene, then by p-value
     df.orderBy(['gene', 'pValue']) \
