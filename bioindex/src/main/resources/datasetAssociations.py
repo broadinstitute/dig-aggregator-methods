@@ -42,6 +42,7 @@ def main():
 
     # write associations sorted by locus, merge into a single file
     df.drop('rank') \
+        .coalesce(1) \
         .orderBy(['pValue']) \
         .write \
         .mode('overwrite') \
