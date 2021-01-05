@@ -29,16 +29,16 @@ def main():
     df = spark.read.json(srcdir)
     common = spark.read.json(common_dir)
 
-    # join the common data
-    df = df.join(common, 'varId', how='left_outer')
-
-    # order by p-value
+    # rank the variants by p-value, keep only the top 1500
     w = Window().orderBy('pValue')
 
     # keep just the top variants per dataset
     df = df.withColumn('rank', rank().over(w))
     df = df.filter(df.rank <= 1500)
     df = df.filter((df.pValue <= 0.05) | (df.rank <= 500))
+
+    # join common variant data last
+    df = df.join(common, 'varId', how='left_outer')
 
     # write associations sorted by locus, merge into a single file
     df.drop('rank') \
