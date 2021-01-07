@@ -12,25 +12,28 @@ from pyspark.sql.types import StructType, StructField, StringType, DoubleType, I
 from pyspark.sql.functions import col, isnan, lit, when  # pylint: disable=E0611
 
 # where in S3 meta-analysis data is
-s3_path = 's3://dig-analysis-data/out/metaanalysis'
+s3_bucket = 's3://dig-analysis-data'
+s3_path = '%s/out/metaanalysis' % s3_bucket
 s3_staging = '%s/staging' % s3_path
 
 # where local analysis happens
 localdir = '/mnt/var/metal'
 
 # this is the schema written out by the variant partition process
-variants_schema = StructType([
-    StructField('varId', StringType(), nullable=False),
-    StructField('chromosome', StringType(), nullable=False),
-    StructField('position', IntegerType(), nullable=False),
-    StructField('reference', StringType(), nullable=False),
-    StructField('alt', StringType(), nullable=False),
-    StructField('phenotype', StringType(), nullable=False),
-    StructField('pValue', DoubleType(), nullable=False),
-    StructField('beta', DoubleType(), nullable=False),
-    StructField('stdErr', DoubleType(), nullable=False),
-    StructField('n', DoubleType(), nullable=False),
-])
+variants_schema = StructType(
+    [
+        StructField('varId', StringType(), nullable=False),
+        StructField('chromosome', StringType(), nullable=False),
+        StructField('position', IntegerType(), nullable=False),
+        StructField('reference', StringType(), nullable=False),
+        StructField('alt', StringType(), nullable=False),
+        StructField('phenotype', StringType(), nullable=False),
+        StructField('pValue', DoubleType(), nullable=False),
+        StructField('beta', DoubleType(), nullable=False),
+        StructField('stdErr', DoubleType(), nullable=False),
+        StructField('n', DoubleType(), nullable=False),
+    ]
+)
 
 
 def metaanalysis_schema(samplesize=True, overlap=False):
@@ -156,8 +159,7 @@ def load_analysis(spark, path, overlap=False):
     stderr_outfile = '%s/scheme=STDERR/METAANALYSIS1.tbl' % path
 
     # load both files into data frames
-    samplesize_analysis = read_samplesize_analysis(spark, samplesize_outfile,
-                                                   overlap)
+    samplesize_analysis = read_samplesize_analysis(spark, samplesize_outfile, overlap)
     stderr_analysis = read_stderr_analysis(spark, stderr_outfile)
 
     # join the two analyses together by id
@@ -276,6 +278,43 @@ def load_trans_ethnic_analysis(phenotype):
             'n',
         )
 
+    # find all the unique ancestries that went into this analysis
+    datasets = spark.read.json(f'{s3_bucket}/variants/*/{phenotype}/metadata')
+    ancestries = datasets.select(datasets.ancestry).distinct().collect()
+
+    # NOTE: If non-mixed ancestries were used in the analysis, then Mixed
+    #       ancestries were NOT used. We need to now load the unique variants
+    #       from those datasets not present in the bottom-line and add them
+    #       verbatim to the bottom-line.
+
+    if (len(ancestries) > 1) or ('Mixed' not in ancestries):
+        print(f'Adding unique Mixed variants to bottom-line results for {phenotype}')
+
+        # load all the mixed ancestry-variants across the datasets
+        mixed = spark.read.json(f'{s3_bucket}/variants/*/{phenotype}/part-*')
+        mixed = mixed.filter(mixed.ancestry == 'Mixed') \
+
+        # find unique variants not present in bottom line
+        mixed = mixed.alias('m') \
+            .join(variants.alias('v'), on='varId', how='left_outer') \
+            .filter(col('v.pValue').isNull()) \
+            .select(
+                'varId',
+                'm.chromosome',
+                'm.position',
+                'm.reference',
+                'm.alt',
+                'm.phenotype',
+                'm.pValue',
+                'm.beta',
+                'm.zScore',
+                'm.stdErr',
+                'm.n',
+            )
+
+        # append the unique variants to the bottom-line
+        variants = variants.unionAll(mixed)
+
     # write the variants
     variants.write.mode('overwrite').json(outdir)
 
@@ -292,8 +331,7 @@ if __name__ == '__main__':
     print('user=%s' % os.getenv('USER'))
 
     opts = argparse.ArgumentParser()
-    opts.add_argument(
-        '--ancestry-specific', action='store_true', default=False)
+    opts.add_argument('--ancestry-specific', action='store_true', default=False)
     opts.add_argument('--trans-ethnic', action='store_true', default=False)
     opts.add_argument('phenotype')
 
