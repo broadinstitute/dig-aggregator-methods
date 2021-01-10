@@ -37,7 +37,7 @@ def clump(snps, chrom, ancestry):
     snps = [[snp, True] for snp in snps if snp.chromosome == chrom and snp.ancestry == ancestry]
 
     # final output list and current index
-    output_snps = []
+    output = []
     i = 0
 
     # loop until all the snps are written to output or dropped
@@ -46,7 +46,7 @@ def clump(snps, chrom, ancestry):
 
         # add to the output
         pos = snps[i][0].position
-        output_snps.append(Row(SNP=f'{chrom}:{pos}', ancestry=ancestry))
+        output.append(Row(SNP=f'{chrom}:{pos}', ancestry=ancestry))
 
         # clear available flag for nearby snps
         next_i = None
@@ -60,7 +60,7 @@ def clump(snps, chrom, ancestry):
         # advance to the next variant
         i = next_i or len(snps)
 
-    return output_snps
+    return output
 
 
 def main():
@@ -125,7 +125,7 @@ def main():
         # append the clumped variants for each chromosome/ancestry pair
         for chrom in CHROMOSOMES:
             for ancestry in ANCESTRIES:
-                output_snps += clump(snps, chrom, ancestry)
+                output_SNPs += clump(snps, chrom, ancestry)
 
     # output the variants as CSV part files for GREGOR
     spark.createDataFrame(output_SNPs, output_schema) \
