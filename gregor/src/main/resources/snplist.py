@@ -12,6 +12,7 @@ S3DIR = 's3://dig-analysis-data'
 
 # GREGOR doesn't work on XY, M, or MT chromosomes.
 CHROMOSOMES = list(map(lambda c: str(c + 1), range(22))) + ['X', 'Y']
+ANCESTRIES = ['AA', 'AF', 'EA', 'EU', 'HS', 'SA', 'Mixed']
 
 
 def test_glob(glob):
@@ -26,6 +27,40 @@ def test_glob(glob):
     print('Return code: ' + str(status))
 
     return status == 0
+
+
+def clump(snps, chrom, ancestry):
+    """
+    Returns the most significant variants for an ancestry on the given
+    chromosome for 1 mb regions.
+    """
+    snps = [[snp, True] for snp in snps if snp.chromosome == chrom and snp.ancestry == ancestry]
+
+    # final output list and current index
+    output_snps = []
+    i = 0
+
+    # loop until all the snps are written to output or dropped
+    while i < len(snps):
+        print(f'Writing {snps[i][0]}')
+
+        # add to the output
+        pos = snps[i][0].position
+        output_snps.append(Row(SNP=f'{chrom}:{pos}', ancestry=ancestry))
+
+        # clear available flag for nearby snps
+        next_i = None
+        for n in range(i, len(snps)):
+            if snps[n][1]:
+                if abs(snps[n][0].position - snps[i][0].position) <= 500000:
+                    snps[n][1] = False
+                elif not next_i:
+                    next_i = n
+
+        # advance to the next variant
+        i = next_i or len(snps)
+
+    return output_snps
 
 
 def main():
@@ -77,40 +112,20 @@ def main():
     if test_glob(srcdir):
         df = spark.read.json(srcdir) \
             .withColumn('filename', input_file_name()) \
-            .withColumn('ancestry', regexp_extract('filename', r'/ancestry=([^/]+)/', 1)) \
-            .filter(col('chromosome').isin(CHROMOSOMES)) \
-            .filter(col('pValue') < 5.0e-8)
+            .withColumn('ancestry', regexp_extract('filename', r'/ancestry=([^/]+)/', 1))
 
-        # get a distinct list of each ancestries
-        ancestries = df.select(df.ancestry) \
-            .distinct() \
-            .collect()
+        # keep only the columns needed, and the globally-significant variants
+        df = df.select(df.chromosome, df.position, df.pValue, df.ancestry)
+        df = df.filter(df.pValue <= 5e-8)
+        df = df.sort(df.pValue)
 
-        # loop over each chromosome and ancestry to get the SNPs for it
-        for chromosome in CHROMOSOMES:
-            for a_row in ancestries:
-                ancestry = a_row.ancestry
+        # get all the sorted variants on the master node
+        snps = df.collect()
 
-                # Collect all the SNPs on this chromosome for this ancestry.
-                #
-                # Sort all the SNPs by p-value so the lowest p-value is last. This improves
-                # performance considerably over using `min()` each iteration as we can just
-                # grab the last SNP in the list, then `filter()`, which is stable.
-                source_SNPs = df.filter((df.chromosome == chromosome) & (df.ancestry == ancestry)) \
-                    .select(df.chromosome, df.position, df.pValue) \
-                    .sort(df.pValue.desc()) \
-                    .collect()
-
-                # find the lowest p-value SNP
-                while source_SNPs:
-                    best = source_SNPs.pop()
-                    snp = f'{best.chromosome}:{best.position}'
-
-                    # add the best SNP to the list of output SNPs
-                    output_SNPs.append(Row(SNP=snp, ancestry=ancestry))
-
-                    # remove all SNPs from the source list within a given range
-                    source_SNPs = [snp for snp in source_SNPs if abs(snp.position - best.position) > 500000]
+        # append the clumped variants for each chromosome/ancestry pair
+        for chrom in CHROMOSOMES:
+            for ancestry in ANCESTRIES:
+                output_snps += clump(snps, chrom, ancestry)
 
     # output the variants as CSV part files for GREGOR
     spark.createDataFrame(output_SNPs, output_schema) \
