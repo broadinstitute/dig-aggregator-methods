@@ -22,11 +22,10 @@ object Magma extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
-//    addStage(new MagmaStage)
-    addStage(new MagmaStep1CreateVariantsStage)
-    addStage(new MagmaStep2AssignVariantsStage)
-    addStage(new MagmaStep3VariantPValuesStage)
-    addStage(new MagmaStep4GenePValuesStage)
-    addStage(new MagmaCombineNcbiGenePValuesStage)
+    addStage(new GatherVariantsStage)
+    addStage(new AssignGenesStage)
+    addStage(new VariantAssociationsStage)
+    addStage(new GeneAssociationsStage)
+    //addStage(new CombineAssociationsStage)
   }
 }

@@ -18,27 +18,22 @@ import org.broadinstitute.dig.aws.emr._
   *   - its name, which defaults to its class name
   *   - the cluster definition used to provision EC2 instances
   */
-class MagmaStep1CreateVariantsStage(implicit context: Context) extends Stage {
+class GatherVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants: Input.Source = Input.Source.Dataset("out/varianteffect/snp/")
+  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
+  val dbSNPs: Input.Source   = Input.Source.Success("out/varianteffect/snp/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(variants)
 
   /* Define settings for the cluster to run the job.
    */
-  override val cluster: ClusterDef = super.cluster.copy(
-//    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
-//    slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
-//    masterVolumeSizeInGB = 400,
-//    slaveVolumeSizeInGB = 400,
-    instances = 1
-  )
+  override val cluster: ClusterDef = super.cluster.copy()
 
   /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants() => Outputs.Named("Magma01")
+    case _ => Outputs.Named("GatherVariants")
   }
 
   /** All that matters is that there are new datasets. The input datasets are
@@ -46,6 +41,6 @@ class MagmaStep1CreateVariantsStage(implicit context: Context) extends Stage {
     * there is only a single analysis node for all variants.
     */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("steps1CreateVariants.py")))
+    new Job(Job.PySpark(resourceUri("gatherVariants.py")))
   }
 }

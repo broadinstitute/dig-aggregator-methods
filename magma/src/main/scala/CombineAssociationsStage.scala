@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 /** After meta-analysis, this stage finds the most significant variant
   * every 50 kb across the entire genome.
   */
-class MagmaCombineNcbiGenePValuesStage(implicit context: Context) extends Stage {
+class CombineAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val magmaGenePValues: Input.Source = Input.Source.Success("out/magma/step4GenePValues/*/")
@@ -23,8 +23,6 @@ class MagmaCombineNcbiGenePValuesStage(implicit context: Context) extends Stage 
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-//    masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
-//    slaveInstanceType = Strategy.generalPurpose(mem = 32.gb),
     instances = 4
   )
 

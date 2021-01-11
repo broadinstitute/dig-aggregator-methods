@@ -8,17 +8,18 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 /** After meta-analysis, this stage finds the most significant variant
   * every 50 kb across the entire genome.
   */
-class MagmaStep3VariantPValuesStage(implicit context: Context) extends Stage {
+class VariantAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val magmaVariantPValues: Input.Source = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
+  val bottomLine: Input.Source = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
+  val snps: Input.Source       = Input.Source.Success("out/varianteffect/snp/")
 
-  /** The output of meta-analysis is the input for top associations. */
-  override val sources: Seq[Input.Source] = Seq(magmaVariantPValues)
+  /** Ouputs to watch. */
+  override val sources: Seq[Input.Source] = Seq(bottomLine)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case magmaVariantPValues(phenotype) => Outputs.Named(phenotype)
+    case bottomLine(phenotype) => Outputs.Named(phenotype)
   }
 
   /** Simple cluster with more memory. */
@@ -30,7 +31,7 @@ class MagmaStep3VariantPValuesStage(implicit context: Context) extends Stage {
 
   /** Build the job. */
   override def make(output: String): Job = {
-    val script    = resourceUri("step3VariantPValues.py")
+    val script    = resourceUri("variantAssociations.py")
     val phenotype = output
 
     new Job(Job.PySpark(script, phenotype))
