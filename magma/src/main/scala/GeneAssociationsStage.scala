@@ -23,7 +23,7 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.generalPurpose(mem = 32.gb),
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 32),
     instances = 1,
     masterVolumeSizeInGB = 80,
     applications = Seq.empty,
