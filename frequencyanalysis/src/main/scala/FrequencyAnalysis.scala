@@ -1,4 +1,4 @@
-package org.broadinstitute.dig.aggregator.methods.burdenbinning
+package org.broadinstitute.dig.aggregator.methods.frequency
 
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
@@ -16,12 +16,13 @@ import org.broadinstitute.dig.aws.emr._
   * See the README of the dig-aggregator-core project for a complete list of
   * CLI arguments available.
   */
-object BurdenBinning extends Method {
+object FrequencyAnalysis extends Method {
 
   /** Add all stages used in this method here. Stages must be added in the
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
-    addStage(new BurdenBinningStage)
+    addStage(new AncestrySpecificStage)
+    addStage(new CombinedFrequencyStage)
   }
 }

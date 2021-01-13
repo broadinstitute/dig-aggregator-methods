@@ -9,7 +9,7 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class GeneAssociationsStage(implicit context: Context) extends Stage {
-  val magma   = Input.Source.Success("out/magma/results/*/")
+  val magma   = Input.Source.Success("out/magma/gene-associations/*/")
   val t2d_52k = Input.Source.Dataset("gene_associations/52k_T2D/*/")
   val qt_52k  = Input.Source.Dataset("gene_associations/52k_QT/*/")
 

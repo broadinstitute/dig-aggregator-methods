@@ -29,7 +29,7 @@ def process_magma(spark):
     Load the MAGMA results and write them out both sorted by gene and by
     phenotype, so they may be queried either way.
     """
-    df = spark.read.json('s3://dig-analysis-data/out/magma/results/*/')
+    df = spark.read.json('s3://dig-analysis-data/out/magma/gene-associations/*/')
     genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
 
     # fix for join

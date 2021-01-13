@@ -19,8 +19,8 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
   *   - its name, which defaults to its class name
   *   - the cluster definition used to provision EC2 instances
   */
-class BurdenbinningStage(implicit context: Context) extends Stage {
- import MemorySize.Implicits._
+class BurdenBinningStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
 
   val variantEffects: Input.Source = Input.Source.Success("out/varianteffect/effects/")
 
@@ -29,20 +29,18 @@ class BurdenbinningStage(implicit context: Context) extends Stage {
 
   /** Process burden binning associations. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variantEffects() => Outputs.Named("BurdenBinning")
+    case variantEffects() => Outputs.Named("binning")
   }
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
-//    slaveInstanceType = Strategy.generalPurpose(mem = 32.gb),
-//    instances = 4
+    slaveInstanceType = Strategy.generalPurpose(mem = 32.gb),
+    instances = 4
   )
 
   /** Build the job. */
   override def make(output: String): Job = {
-    val script    = resourceUri("burdenBinning.py")
-
-    new Job(Job.PySpark(script))
+    new Job(Job.PySpark(resourceUri("binning.py")))
   }
 }
