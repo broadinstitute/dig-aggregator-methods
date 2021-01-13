@@ -1,4 +1,3 @@
-# imports
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import explode, lit
 
@@ -15,10 +14,34 @@ def load_vep(spark):
     cqs = explode(vep.transcript_consequences)
 
     # mapping of varId -> consequence; filter the picked consequences
-    df = vep.select(vep.id.alias('varId'), cqs.alias('cqs'))
+    df = vep.select(vep.id, cqs.alias('cqs'))
     df = df.filter(df.cqs.pick == 1)
 
-    return df
+    return df.select(
+        df.id.alias('varId'),
+
+        # pivot the cqs map into columns
+        df.cqs['gene_id'].alias('ensemblId'),
+        df.cqs['gene_symbol'].alias('gene'),
+        df.cqs['transcript_id'].alias('transcriptId'),
+        df.cqs['lof'].alias('lof'),
+        df.cqs['impact'].alias('impact'),
+        df.cqs['pick'].alias('pick'),
+        df.cqs['polyphen2_hdiv_pred'].alias('polyphen2_hdiv_pred'),
+        df.cqs['polyphen2_hvar_pred'].alias('polyphen2_hvar_pred'),
+        df.cqs['sift_pred'].alias('sift_pred'),
+        df.cqs['mutationtaster_pred'].alias('mutationtaster_pred'),
+        df.cqs['lrt_pred'].alias('lrt_pred'),
+        df.cqs['metalr_pred'].alias('metalr_pred'),
+        df.cqs['provean_pred'].alias('provean_pred'),
+        df.cqs['fathmm_pred'].alias('fathmm_pred'),
+        df.cqs['fathmm-mkl_coding_pred'].alias('fathmm_mkl_coding_pred'),
+        df.cqs['eigen-pc-raw_rankscore'].alias('eigen_pc_raw_rankscore'),
+        df.cqs['dann_rankscore'].alias('dann_rankscore'),
+        df.cqs['vest3_rankscore'].alias('vest3_rankscore'),
+        df.cqs['cadd_raw_rankscore'].alias('cadd_raw_rankscore'),
+        df.cqs['metasvm_pred'].alias('metasvm_pred'),
+    )
 
 
 def load_freq(spark):
@@ -49,31 +72,6 @@ def main():
     # load input data
     vep = load_vep(spark)
     freq = load_freq(spark)
-
-    # extract consequence data into their own columns
-    vep = vep.select(
-        vep.varId,
-        vep.cqs['gene_id'].alias('ensemblId'),
-        vep.cqs['gene_symbol'].alias('gene'),
-        vep.cqs['transcript_id'].alias('transcriptId'),
-        vep.cqs['lof'].alias('lof'),
-        vep.cqs['impact'].alias('impact'),
-        vep.cqs['pick'].alias('pick'),
-        vep.cqs['polyphen2_hdiv_pred'].alias('polyphen2_hdiv_pred'),
-        vep.cqs['polyphen2_hvar_pred'].alias('polyphen2_hvar_pred'),
-        vep.cqs['sift_pred'].alias('sift_pred'),
-        vep.cqs['mutationtaster_pred'].alias('mutationtaster_pred'),
-        vep.cqs['lrt_pred'].alias('lrt_pred'),
-        vep.cqs['metalr_pred'].alias('metalr_pred'),
-        vep.cqs['provean_pred'].alias('provean_pred'),
-        vep.cqs['fathmm_pred'].alias('fathmm_pred'),
-        vep.cqs['fathmm-mkl_coding_pred'].alias('fathmm_mkl_coding_pred'),
-        vep.cqs['eigen-pc-raw_rankscore'].alias('eigen_pc_raw_rankscore'),
-        vep.cqs['dann_rankscore'].alias('dann_rankscore'),
-        vep.cqs['vest3_rankscore'].alias('vest3_rankscore'),
-        vep.cqs['cadd_raw_rankscore'].alias('cadd_raw_rankscore'),
-        vep.cqs['metasvm_pred'].alias('metasvm_pred'),
-    )
 
     # join MAF with the transcript consequence
     df = vep.join(freq, on='varId')
