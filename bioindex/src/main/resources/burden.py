@@ -8,7 +8,7 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = f's3://dig-analysis-data/out/burdenbinning/results'
+    srcdir = f's3://dig-analysis-data/out/burdenbinning'
     outdir = f's3://dig-bio-index/burden'
 
     # load all trans-ethnic, meta-analysis results for all variants

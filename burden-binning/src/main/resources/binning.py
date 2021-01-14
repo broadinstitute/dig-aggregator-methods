@@ -127,13 +127,13 @@ def main():
     df_lof_hc = df.filter(pred_loftee_hc)
 
     # union all the frames together, each with their own mask id
-    df = df_0of5.withColumn('binId', lit('0of5_1pct')) \
-        .union(df_1of5.withColumn('binId', lit('1of5_1pct'))) \
-        .union(df_5of5_lc.withColumn('binId', lit('5of5_LoF_LC'))) \
-        .union(df_5of5.withColumn('binId', lit('5of5'))) \
-        .union(df_11of11.withColumn('binId', lit('11of11'))) \
-        .union(df_16of16.withColumn('binId', lit('16of16'))) \
-        .union(df_lof_hc.withColumn('binId', lit('LoF_HC')))
+    df = df_0of5.withColumn('burdenBinId', lit('0of5_1pct')) \
+        .union(df_1of5.withColumn('burdenBinId', lit('1of5_1pct'))) \
+        .union(df_5of5_lc.withColumn('burdenBinId', lit('5of5_LoF_LC'))) \
+        .union(df_5of5.withColumn('burdenBinId', lit('5of5'))) \
+        .union(df_11of11.withColumn('burdenBinId', lit('11of11'))) \
+        .union(df_16of16.withColumn('burdenBinId', lit('16of16'))) \
+        .union(df_lof_hc.withColumn('burdenBinId', lit('LoF_HC')))
 
     # write the frames out, each to their own folder
     df.write.mode('overwrite').json(outdir)
