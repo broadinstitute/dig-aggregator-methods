@@ -12,21 +12,15 @@ def main():
     srcdir = f's3://dig-analysis-data/out/varianteffect/effects/*.json'
     outdir = f's3://dig-bio-index/transcript_consequences'
 
-    # common vep data
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common'
-
     # load the common effect data
     df = spark.read.json(srcdir)
-    common = spark.read.json(common_dir).select('varId', 'dbSNP')
 
     # join before exploding (faster) to get dbSNP
     df = df \
         .select(df.id.alias('varId'), df.transcript_consequences) \
-        .join(common, 'varId', how='left_outer') \
         .withColumn('cqs', explode(df.transcript_consequences)) \
         .select(
             col('varId'),
-            col('dbSNP'),
             col('cqs.*'),
         )
 

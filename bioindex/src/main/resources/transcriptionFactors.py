@@ -11,12 +11,8 @@ def main():
     srcdir = 's3://dig-analysis-data/transcription_factors/*/part-*'
     outdir = 's3://dig-bio-index/transcription_factors'
 
-    # common vep data
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common'
-
     # load all the unique variants
     df = spark.read.json(srcdir)
-    common = spark.read.json(common_dir).select('varId', 'dbSNP')
 
     # keep only certain columns
     df = df.select(
@@ -29,8 +25,7 @@ def main():
     )
 
     # join to get dbSNP, sort, and write
-    df.join(common, 'varId', how='inner') \
-        .orderBy(['varId']) \
+    df.orderBy(['varId']) \
         .write \
         .mode('overwrite') \
         .json(outdir)
