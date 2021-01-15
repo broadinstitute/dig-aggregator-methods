@@ -28,17 +28,17 @@ def main():
     common = spark.read.json(f'{common_dir}/part-*')
 
     # get only the globally significant associations
-    df = df.filter(df.pValue < 5e-8)
+    df = df.filter(df.pValue <= 5e-8)
 
     # join with common
-    df = df.join(common, 'varId', how='left_outer')
+    df = df.join(common, on='varId', how='left_outer')
 
     # coalesce, sort by p-value and write
     df.coalesce(1) \
         .orderBy(['pValue']) \
         .write \
         .mode('overwrite') \
-        .json('%s/%s' % (outdir, args.phenotype))
+        .json(f'{outdir}/{args.phenotype}')
 
     # done
     spark.stop()
