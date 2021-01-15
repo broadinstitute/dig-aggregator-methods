@@ -34,8 +34,7 @@ def main():
     df = df.join(common, on='varId', how='left_outer')
 
     # coalesce, sort by p-value and write
-    df.coalesce(1) \
-        .orderBy(['pValue']) \
+    df.orderBy(['pValue']) \
         .write \
         .mode('overwrite') \
         .json(f'{outdir}/{args.phenotype}')

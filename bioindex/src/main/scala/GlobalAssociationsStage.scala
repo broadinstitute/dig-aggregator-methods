@@ -24,6 +24,7 @@ class GlobalAssociationsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Ec2.Strategy.memoryOptimized(),
     slaveInstanceType = Ec2.Strategy.memoryOptimized(),
+    masterVolumeSizeInGB = 80,
     instances = 4
   )
 
