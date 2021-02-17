@@ -11,21 +11,20 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class TopAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val bottomLine: Input.Source = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
+  val clumps: Input.Source = Input.Source.Success("out/metaanalysis/clumped/*/")
 
   /** The output of meta-analysis is the input for top associations. */
-  override val sources: Seq[Input.Source] = Seq(bottomLine)
+  override val sources: Seq[Input.Source] = Seq(clumps)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case bottomLine(phenotype) => Outputs.Named(phenotype)
+    case clumps(phenotype) => Outputs.Named(phenotype)
   }
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
-    slaveInstanceType = Strategy.generalPurpose(mem = 32.gb),
-    instances = 4
+    instances = 1
   )
 
   /** Build the job. */

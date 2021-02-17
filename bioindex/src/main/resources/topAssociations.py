@@ -15,7 +15,7 @@ def main():
     df = spark.read.json(srcdir)
 
     # sort all top associations together by position
-    df.orderBy(['chromosome', 'position']) \
+    df.orderBy(['chromosome', 'clumpStart']) \
         .write \
         .mode('overwrite') \
         .json('%s/top' % outdir)
