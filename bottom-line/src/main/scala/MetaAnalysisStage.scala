@@ -87,4 +87,11 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
 
     new Job(steps)
   }
+
+  /** Nuke the staging directories before the job runs.
+    */
+  override def prepareJob(output: String): Unit = {
+    context.s3.rm(s"out/metaanalysis/staging/ancestry-specific/$output/")
+    context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
+  }
 }

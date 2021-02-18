@@ -26,8 +26,6 @@ def main():
     # use the most severe consequence to get genes and impact
     df = df.select(
         df.id.alias('varId'),
-        df.seq_region_name.alias('chromosome'),
-        df.start.alias('position'),
         df.most_severe_consequence.alias('consequence'),
         df.nearest,
     )

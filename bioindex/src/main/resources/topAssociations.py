@@ -8,23 +8,21 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output locations
-    srcdir = f's3://dig-analysis-data/out/metaanalysis/top/*/part-*'
+    srcdir = f's3://dig-analysis-data/out/metaanalysis'
     outdir = f's3://dig-bio-index/associations'
 
     # common vep data
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common'
+    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
 
-    # load the top associations for each phenotype
-    df = spark.read.json(srcdir)
+    # load the top-association, lead SNPs for every phenotype
+    df = spark.read.json(f'{srcdir}/top/*/part-*')
+    df = df.filter(df.leadSNP)
 
-    # drop the duplicate columns from common
-    common = spark.read.json(f'{common_dir}/part-*') \
-        .drop('dbSNP', 'chromosome', 'position')
+    # load common data for variants and join
+    common = spark.read.json(common_dir)
+    df = df.join(common, on='varId', how='left')
 
-    # join with common VEP data
-    df = df.join(common, on='varId', how='left_outer')
-
-    # sort all top associations together by position
+    # sort all by clump range
     df.orderBy(['chromosome', 'clumpStart']) \
         .write \
         .mode('overwrite') \

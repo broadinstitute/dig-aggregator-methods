@@ -33,6 +33,8 @@ def main():
         (common.position >= genes.start) & \
         (common.position < genes.end)
 
+    assert False, "THIS DOESN'T WORK!! FIX ME!"
+
     # inner join genes with overlapped variants
     df = genes.join(common, on=overlap, how='inner') \
         .drop(genes.chromosome)  # duplicate column in common frame

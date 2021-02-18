@@ -211,10 +211,7 @@ def build_graph(df):
     n, clumps = connected_components(m)
 
     # build a dataframe
-    clumped = pd.DataFrame({'SNP': labels, 'clump': clumps})
-
-    # join with the original to remove the SP2 snps
-    return clumped.merge(df, on='SNP')
+    return pd.DataFrame({'dbSNP': labels, 'clump': clumps})
 
 
 def merge_results():
@@ -229,10 +226,7 @@ def merge_results():
     df = pd.concat(load_plink(o) for o in plink_files)
 
     # build and process the connected graph for the clumps
-    clumped = build_graph(df)
-
-    # select and rename columns
-    return clumped.drop('SP2', axis=1).rename(columns={'SNP': 'dbSNP'})
+    return build_graph(df)
 
 
 def concat_rare(clumped, rare):
@@ -280,9 +274,8 @@ def main():
 
     # inputs and outputs
     srcdir = f'{S3DIR}/out/metaanalysis/staging/trans-ethnic/{args.phenotype}'
-    staging = f'{S3DIR}/out/metaanalysis/staging/clumping/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/clumped/{args.phenotype}'
-    topdir = f'{S3DIR}/out/metaanalysis/top/{args.phenotype}'
+    plinkdir = f'{S3DIR}/out/metaanalysis/staging/plink/{args.phenotype}'
+    outdir = f'{S3DIR}/out/metaanalysis/staging/clumped/{args.phenotype}'
 
     # download and read the meta-anlysis results
     df = load_bottom_line('METAANALYSIS1.tbl', f'{srcdir}/scheme=SAMPLESIZE')
@@ -306,17 +299,18 @@ def main():
 
     # join and write out the assoc file for plink
     build_assoc_file('snps.assoc', common)
-    run_plink('snps.assoc', staging)
+    run_plink('snps.assoc', plinkdir)
 
     # get the final output of top and clumped SNPs (clump ID, SNP)
     clumped = merge_results()
     if clumped.empty:
         return
 
-    # merge with the original data for variant data
-    clumped = clumped.merge(common, on='dbSNP', how='inner')
+    # get the variant ID and bottom-line columns back
+    clumped = clumped.merge(snps, on='dbSNP')
+    clumped = clumped.merge(df, on='varId')
 
-    # add clump range columns
+    # define clump range columns
     clumped['clumpStart'] = clumped['position'] - ((PLINK_KB // 2) * 1000)
     clumped['clumpEnd'] = clumped['position'] + ((PLINK_KB // 2) * 1000)
 
@@ -326,25 +320,18 @@ def main():
     # make sure the clump ID is an integer
     clumped = clumped.astype({'clump': np.int32})
 
-    # fix p=0 due to conversions
-    clumped['pValue'] = clumped['pValue'].map(lambda p: max(p, sys.float_info.min))
-
     # finally, append the phenotype to the data
     clumped['phenotype'] = args.phenotype
 
-    # generate a unique part file
-    part = f'part-00000-{uuid.uuid4()}.json'
+    # filter out only the data needed for later joins
+    clumped = clumped[['varId', 'phenotype', 'clump', 'clumpStart', 'clumpEnd']]
 
-    # NOTE: There appears to be a bug in Pandas where the JSON will output
-    #       p-values of 0.0 instead of sys.float_info.min. So, to fix this, we
-    #       use the built-in to_dict() and dumps for Python.
-    with open(part, mode='w') as fp:
-        for r in clumped.to_dict(orient='records'):
-            json.dump(r, fp, separators=(',', ':'))
-            fp.write('\n')
+    # sort by clump for easy debugging in S3
+    clumped = clumped.sort_values('clump')
 
-    # copy the written part file to s3
-    upload(part, outdir)
+    # write the output file and upload it
+    clumped.to_json('variants.json', orient='records', lines=True)
+    upload('variants.json', outdir)
 
     # cleanup
     for fn in glob.glob('plink.*'):
@@ -353,7 +340,7 @@ def main():
     # source and associations files
     os.remove('METAANALYSIS1.tbl')
     os.remove('snps.assoc')
-    os.remove(part)
+    os.remove('variants.json')
 
 
 if __name__ == '__main__':
