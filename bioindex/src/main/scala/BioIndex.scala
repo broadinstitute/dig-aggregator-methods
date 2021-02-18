@@ -31,7 +31,6 @@ object BioIndex extends Method {
     addStage(new CredibleSetsStage)
     addStage(new AssociationsStage)
     addStage(new TopAssociationsStage)
-    addStage(new GlobalAssociationsStage)
     addStage(new PhewasAssociationsStage)
     addStage(new DatasetAssociationsStage)
     addStage(new VariantAssociationsStage)

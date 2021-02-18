@@ -11,14 +11,30 @@ def main():
     srcdir = f's3://dig-analysis-data/out/metaanalysis/top/*/part-*'
     outdir = f's3://dig-bio-index/associations'
 
+    # common vep data
+    common_dir = 's3://dig-analysis-data/out/varianteffect/common'
+
     # load the top associations for each phenotype
     df = spark.read.json(srcdir)
+
+    # drop the dbSNP from common, because clumped data already has it
+    common = spark.read.json(f'{common_dir}/part-*') \
+        .drop('dbSNP')
+
+    # join with common VEP data
+    df = df.join(common, on='varId', how='left_outer')
 
     # sort all top associations together by position
     df.orderBy(['chromosome', 'clumpStart']) \
         .write \
         .mode('overwrite') \
         .json('%s/top' % outdir)
+
+    # sort by phenotype then p-value for global associations
+    df.orderBy(['phenotype', 'pValue']) \
+        .write \
+        .move('overwrite') \
+        .json('%s/global' % outdir)
 
     # done
     spark.stop()
