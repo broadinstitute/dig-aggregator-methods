@@ -33,7 +33,7 @@ def main():
     # sort by phenotype then p-value for global associations
     df.orderBy(['phenotype', 'pValue']) \
         .write \
-        .move('overwrite') \
+        .mode('overwrite') \
         .json('%s/global' % outdir)
 
     # done
