@@ -17,9 +17,9 @@ def main():
     # load the top associations for each phenotype
     df = spark.read.json(srcdir)
 
-    # drop the dbSNP from common, because clumped data already has it
+    # drop the duplicate columns from common
     common = spark.read.json(f'{common_dir}/part-*') \
-        .drop('dbSNP')
+        .drop('dbSNP', 'chromosome', 'position')
 
     # join with common VEP data
     df = df.join(common, on='varId', how='left_outer')
