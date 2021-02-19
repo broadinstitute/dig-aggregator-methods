@@ -210,6 +210,9 @@ def build_graph(df):
     # find all the connected snps
     n, clumps = connected_components(m)
 
+    # connected_components begins labels at 0, we want to start at 1
+    clumps = [n + 1 for n in clumps]
+
     # build a dataframe
     return pd.DataFrame({'dbSNP': labels, 'clump': clumps})
 
@@ -227,6 +230,25 @@ def merge_results():
 
     # build and process the connected graph for the clumps
     return build_graph(df)
+
+
+def clump_ranges(df):
+    """
+    Returns a dictionary of every clump ID mapped to a tuple of (min, max)
+    position.
+    """
+    clumps = {}
+
+    for i, row in df.iterrows():
+        clump, pos = row['clump'], row['position']
+        r = clumps.get(clump)
+
+        if r is None:
+            clumps[clump] = (pos, pos + 1)
+        else:
+            clumps[clump] = (min(r[0], pos), max(r[1], pos + 1))
+
+    return clumps
 
 
 def concat_rare(clumped, rare):
@@ -310,9 +332,12 @@ def main():
     clumped = clumped.merge(snps, on='dbSNP')
     clumped = clumped.merge(df, on='varId')
 
+    # get the min, max positions of every clump
+    ranges = clump_ranges(clumped)
+
     # define clump range columns
-    clumped['clumpStart'] = clumped['position'] - ((PLINK_KB // 2) * 1000)
-    clumped['clumpEnd'] = clumped['position'] + ((PLINK_KB // 2) * 1000)
+    clumped['clumpStart'] = clumped['clump'].apply(lambda i: ranges[i][0])
+    clumped['clumpEnd'] = clumped['clump'].apply(lambda i: ranges[i][1])
 
     # add rare variants that do not overlap a clumped range
     clumped = concat_rare(clumped, rare)

@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 /** After meta-analysis, this stage finds the most significant variant
   * every 50 kb across the entire genome.
   */
-class TopAssociationsStage(implicit context: Context) extends Stage {
+class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val bottomLine: Input.Source = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
@@ -27,7 +27,7 @@ class TopAssociationsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
     instances = 1,
-    masterVolumeSizeInGB = 400,
+    masterVolumeSizeInGB = 100,
     bootstrapSteps = Seq(Job.Script(resourceUri("install-plink.sh")))
   )
 
@@ -38,7 +38,7 @@ class TopAssociationsStage(implicit context: Context) extends Stage {
     // run clumping and then join with bottom line
     val steps = Seq(
       Job.Script(resourceUri("runPlink.py"), phenotype),
-      Job.PySpark(resourceUri("topAssociations.py"), phenotype)
+      Job.PySpark(resourceUri("clumpedAssociations.py"), phenotype)
     )
 
     new Job(steps)

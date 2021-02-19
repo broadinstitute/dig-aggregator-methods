@@ -23,6 +23,6 @@ object BottomLine extends Method {
     */
   override def initStages(implicit context: Context) = {
     addStage(new MetaAnalysisStage)
-    addStage(new TopAssociationsStage)
+    addStage(new ClumpedAssociationsStage)
   }
 }

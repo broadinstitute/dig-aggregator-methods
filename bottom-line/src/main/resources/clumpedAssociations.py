@@ -2,7 +2,7 @@ import argparse
 import os
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import col, lit, signum
 
 
 # what bucket will be output to?
@@ -22,7 +22,7 @@ def main():
     # source data and output location
     srcdir = f'{S3_BUCKET}/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
     clumpdir = f'{S3_BUCKET}/out/metaanalysis/staging/clumped/{args.phenotype}/*.json'
-    outdir = f'{S3_BUCKET}/out/metaanalysis/top/{args.phenotype}'
+    outdir = f'{S3_BUCKET}/out/metaanalysis/clumped/{args.phenotype}'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
@@ -42,6 +42,14 @@ def main():
     # join the lead SNPs back with the clumps, set missing as not lead SNPs
     clumps = clumps.join(lead_snps, on='varId', how='left')
     clumps = clumps.na.fill({'leadSNP': False})
+
+    # get the lead SNPs again, this time with the beta
+    lead_snps = clumps.filter(clumps.leadSNP == True) \
+        .select(clumps.clump, clumps.beta.alias('alignment'))
+
+    # calculate the alignment direction for each of the SNPs in the clumps
+    clumps = clumps.join(lead_snps, on='clump')
+    clumps = clumps.withColumn('alignment', signum(clumps.beta * clumps.alignment))
 
     # output lead SNPs
     clumps.write \

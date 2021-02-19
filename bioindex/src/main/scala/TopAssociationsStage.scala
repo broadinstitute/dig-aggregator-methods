@@ -8,14 +8,14 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class TopAssociationsStage(implicit context: Context) extends Stage {
-  val top = Input.Source.Success("out/metaanalysis/top/")
+  val clumped = Input.Source.Success("out/metaanalysis/clumped/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(top)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => Outputs.Named("top")
+    case _ => Outputs.Named("clumped")
   }
 
   /** Output to Job steps. */

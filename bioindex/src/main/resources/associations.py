@@ -30,8 +30,8 @@ def main():
     # join the common data
     df = df.join(common, 'varId', how='left_outer')
 
-    # write associations sorted by locus
-    df.orderBy(['chromosome', 'position']) \
+    # write associations sorted by locus and then variant id
+    df.orderBy(['chromosome', 'position', 'varId']) \
         .write \
         .mode('overwrite') \
         .json('%s/phenotype/%s' % (outdir, args.phenotype))
