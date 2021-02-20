@@ -13,7 +13,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   val clumped = Input.Source.Success("out/metaanalysis/clumped/*/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(top)
+  override val sources: Seq[Input.Source] = Seq(clumped)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
