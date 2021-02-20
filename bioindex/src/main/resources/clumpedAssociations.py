@@ -12,20 +12,11 @@ def main():
     # load and output directory
     srcdir = 's3://dig-analysis-data/out/metaanalysis'
     common_dir = 's3://dig-analysis-data/out/varianteffect/common'
-    outdir = 's3://dig-bio-index/associations'
+    outdir = 's3://dig-bio-index/associations/matrix'
 
     # load the top association clumps
     clumps = spark.read.json(f'{srcdir}/top/*/part-*')
     common = spark.read.json(f'{common_dir}/part-*')
-
-    # join to get and common fields
-    clumps = clumps.join(common, on='varId', how='left_outer')
-
-    # write out all the clumped associations
-    clumps.orderBy(['phenotype', 'clump', 'pValue']) \
-        .write \
-        .mode('overwrite') \
-        .json(f'{outdir}/clump')
 
     # load associations across all phenotypes
     assocs = spark.read.json(f'{srcdir}/trans-ethnic/*/part-*')
@@ -50,10 +41,10 @@ def main():
     df = df.join(common, on='varId', how='left_outer')
 
     # write it out, sorted by the lead phenotype
-    df.orderBy(['leadPhenotype']) \
+    df.orderBy(['leadPhenotype', 'clump']) \
         .write \
         .mode('overwrite') \
-        .json(f'{outdir}/matrix')
+        .json(outdir)
 
     # done
     spark.stop()

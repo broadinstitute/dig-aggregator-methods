@@ -31,6 +31,11 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("clumpedAssociations.py")))
+    val steps = Seq(
+      Job.PySpark(resourceUri("clumpedVariants.py")),
+      Job.PySpark(resourceUri("clumpedAssociations.py"))
+    )
+
+    new Job(steps)
   }
 }
