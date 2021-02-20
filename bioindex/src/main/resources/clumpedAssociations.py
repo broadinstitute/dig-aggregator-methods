@@ -43,8 +43,8 @@ def main():
     df = df.join(assocs, on='varId', how='inner')
 
     # per clump, keep only the best association per phenotype
-    df = df.orderBy(['leadPhenotype', 'clump', 'pValue'])
-    df = df.dropDuplicates(['leadPhenotype', 'clump'])
+    df = df.orderBy(['leadPhenotype', 'clump', 'phenotype', 'pValue'])
+    df = df.dropDuplicates(['leadPhenotype', 'clump', 'phenotype'])
 
     # rejoin with the common data
     df = df.join(common, on='varId', how='left_outer')
