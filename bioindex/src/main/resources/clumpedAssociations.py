@@ -49,8 +49,9 @@ def main():
     # rejoin with the common data
     df = df.join(common, on='varId', how='left_outer')
 
-    # write it out
-    df.write \
+    # write it out, sorted by the lead phenotype
+    df.orderBy(['leadPhenotype']) \
+        .write \
         .mode('overwrite') \
         .json(f'{outdir}/matrix')
 
