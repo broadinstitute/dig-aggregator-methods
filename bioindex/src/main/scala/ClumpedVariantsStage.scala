@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.emr._
 /** The final result of all aggregator methods is building the BioIndex. All
   * outputs are to the dig-bio-index bucket in S3.
   */
-class ClumpedAssociationsStage(implicit context: Context) extends Stage {
+class ClumpedVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val clumped = Input.Source.Success("out/metaanalysis/clumped/*/")
@@ -33,7 +33,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   override def make(output: String): Job = {
     val steps = Seq(
       Job.PySpark(resourceUri("clumpedVariants.py")),
-      Job.PySpark(resourceUri("clumpedAssociations.py"))
+      Job.PySpark(resourceUri("clumpedAssociationsMatrix.py"))
     )
 
     new Job(steps)

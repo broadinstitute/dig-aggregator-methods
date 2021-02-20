@@ -32,6 +32,7 @@ def main():
 
     # join to build the associations matrix
     df = df.join(assocs, on='varId', how='inner')
+    df = df.filter(df.phenotype != df.leadPhenotype)
 
     # per clump, keep only the best association per phenotype
     df = df.orderBy(['leadPhenotype', 'clump', 'phenotype', 'pValue'])
@@ -40,8 +41,8 @@ def main():
     # rejoin with the common data
     df = df.join(common, on='varId', how='left_outer')
 
-    # write it out, sorted by the lead phenotype
-    df.orderBy(['leadPhenotype', 'clump']) \
+    # write it out, sorted by the lead phenotype and secondary phenotype
+    df.orderBy(['leadPhenotype', 'phenotype']) \
         .write \
         .mode('overwrite') \
         .json(outdir)
