@@ -13,11 +13,5 @@ chmod 775 $VEP_ROOT
 cd $VEP_ROOT
 
 # download the VEP program + data and extract it
-aws s3 cp s3://dig-analysis-data/bin/vep/vep-94.tar.gz .
-tar zxf vep-94.tar.gz
-
-# build and install ensembl-xs locally
-cd "$VEP_ROOT/ensembl-xs"
-perl Makefile.PL
-make
-sudo make install
+aws s3 cp s3://dig-analysis-data/bin/vep/vep-97.tar.gz .
+tar zxf vep-97.tar.gz

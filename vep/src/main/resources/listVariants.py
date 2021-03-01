@@ -62,7 +62,9 @@ def main():
     )
 
     # output the variants as CSV part files
-    df.write.mode('overwrite').csv(outdir, sep='\t')
+    df.write \
+        .mode('overwrite') \
+        .csv(outdir, sep='\t')
 
     # done
     spark.stop()

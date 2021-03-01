@@ -34,3 +34,5 @@ cpanm --sudo --force PerlIO::gzip
 cpanm --sudo --force Try::Tiny
 cpanm --sudo --force autodie
 cpanm --sudo --force Set::IntervalTree
+cpanm --sudo --force ExtUtils::Command::MM
+cpanm --sudo --force Bio::RNA::SpliceSites::Scoring::MaxEntScan
