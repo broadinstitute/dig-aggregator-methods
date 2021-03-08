@@ -1,7 +1,7 @@
 package org.broadinstitute.dig.aggregator.methods.ldsr
 
 import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws.emr.Job
+import org.broadinstitute.dig.aws.emr._
 
 class SumStatsStage(implicit context: Context) extends Stage {
   val bottomLine: Input.Source = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
