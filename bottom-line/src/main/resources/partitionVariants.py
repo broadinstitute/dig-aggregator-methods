@@ -22,7 +22,7 @@ if __name__ == '__main__':
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = '%s/variants/*/%s' % (s3dir, args.phenotype)
+    srcdir = '%s/variants/*/*/%s' % (s3dir, args.phenotype)
     outdir = '%s/out/metaanalysis/variants/%s' % (s3dir, args.phenotype)
 
     # create a spark session

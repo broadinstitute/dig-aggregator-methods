@@ -14,7 +14,7 @@ def main():
     print('Python version: %s' % platform.python_version())
 
     # get the source and output directories
-    srcdir = '%s/variants/*/*' % S3DIR
+    srcdir = '%s/variants/*/*/*' % S3DIR
     outdir = '%s/out/varianteffect/variants' % S3DIR
 
     # create a spark session

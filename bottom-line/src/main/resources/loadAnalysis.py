@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import argparse
-import functools
 import os.path
 import platform
 import re
@@ -9,7 +8,7 @@ import subprocess
 
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
-from pyspark.sql.functions import col, isnan, lit, when  # pylint: disable=E0611
+from pyspark.sql.functions import col, isnan, lit  # pylint: disable=E0611
 
 # where in S3 meta-analysis data is
 s3_bucket = 's3://dig-analysis-data'
