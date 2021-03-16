@@ -17,7 +17,7 @@ respectively).
 ### Step 2 - assign the common variants to genes
 
 Shell script that calls the magma command to assign variants to genes; the generated assignment file will be used later 
-generate gene pValues based on each gene's assigned varnats and their corresponding pValues.
+generate gene pValues based on each gene's assigned variants and their corresponding pValues.
 
 The shell runs the command:
 magma --annotate --snp-loc <file from step1> --gene-loc <reference file from magma site> --out <output>
@@ -30,7 +30,7 @@ detects a header in the file it will look for SNP IDs and p-values in the SNP an
 
 ### Step 4 - calculate the gene pValues
 
-Shell script that generates the gene pValues based on the stes2 and step3 files.
+Shell script that generates the gene pValues based on the steps2 and step3 files.
 
 The shell runs the command:
 magma --bfile <1000 genome file> --pval <step3 file> --gene-annot <step2 file> --out <output file>
@@ -38,5 +38,5 @@ magma --bfile <1000 genome file> --pval <step3 file> --gene-annot <step2 file> -
 ### Step 5 - convert the magma gene pValue files to aggregator json files
 
 PySpark script to pull the data from the step4 magma process file and join with the reference phenotype ontology 
-id file. Saves anh individual json file for each phenotype with a gene/pValue combination per row.
+id file. Saves an individual json file for each phenotype with a gene/pValue combination per row.
 
