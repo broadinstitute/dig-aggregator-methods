@@ -1,4 +1,4 @@
-package org.broadinstitute.dig.aggregator.methods.ldsr
+package org.broadinstitute.dig.aggregator.methods.ldsc
 
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
@@ -24,6 +24,6 @@ object LDScoreRegression extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new PartitionRegionsStage)
     addStage(new MergeRegionsStage)
-    addStage(new SumStatsStage)
+    addStage(new MungeStatsStage)
   }
 }

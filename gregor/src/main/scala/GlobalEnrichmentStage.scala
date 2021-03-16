@@ -6,7 +6,7 @@ import org.broadinstitute.dig.aws.MemorySize
 import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job}
 
 class GlobalEnrichmentStage(implicit context: Context) extends Stage {
-  val regions: Input.Source = Input.Source.Success("out/gregor/regions/merged/")
+  val regions: Input.Source = Input.Source.Success("out/ldsc/regions/merged/")
   val snp: Input.Source     = Input.Source.Success("out/gregor/snp/*/")
 
   /** All the processors this processor depends on.
@@ -17,7 +17,7 @@ class GlobalEnrichmentStage(implicit context: Context) extends Stage {
   private lazy val bootstrap = resourceUri("cluster-bootstrap.sh")
   private lazy val install   = resourceUri("installGREGOR.sh")
 
-  /* r^2 parameter to scripts */
+  /* r^2 parameter to scripts - this should match bottom-line's plink param */
   private val r2 = "0.7"
 
   // cluster configuration used to process each phenotype
@@ -25,6 +25,7 @@ class GlobalEnrichmentStage(implicit context: Context) extends Stage {
     masterInstanceType = Strategy.computeOptimized(),
     instances = 1,
     masterVolumeSizeInGB = 800,
+    stepConcurrency = 5,
     bootstrapScripts = Seq(
       new BootstrapScript(bootstrap),
       new BootstrapScript(install, r2)
@@ -52,16 +53,28 @@ class GlobalEnrichmentStage(implicit context: Context) extends Stage {
     */
   override def make(output: String): Job = {
     val run       = resourceUri("runGREGOR.sh")
-    val load      = resourceUri("loadSummary.py")
     val phenotype = output
 
-    // a phenotype needs processed per ancestry
+    // a phenotype needs processed per ancestry (can be run in parallel)
     val steps = ancestries.map {
       case (t2dkp_ancestry, gregor_ancestry) =>
         Job.Script(run, gregor_ancestry, r2, phenotype, t2dkp_ancestry)
     }
 
     // append the final step
-    new Job(steps :+ Job.PySpark(load, phenotype))
+    new Job(steps)
+  }
+
+  /** Before the jobs actually run, perform this operation.
+    */
+  override def prepareJob(output: String): Unit = {
+    context.s3.rm(s"out/gregor/summary/${output}/")
+  }
+
+  /** Update the success flag of the merged regions.
+    */
+  override def success(output: String): Unit = {
+    context.s3.touch(s"out/gregor/summary/${output}/_SUCCESS")
+    ()
   }
 }

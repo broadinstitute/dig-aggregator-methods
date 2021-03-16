@@ -1,4 +1,4 @@
-# ldsr
+# LDSC-Regression
 
 This is the documentation about the method.
 

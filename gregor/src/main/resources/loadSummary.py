@@ -58,13 +58,12 @@ def main():
     if s3_test(srcdir):
 
         # input filename -> phenotype and ancestry
-        src_re = r'/out/gregor/summary/([^/]+)/([^/]+)/'
+        src_re = r'/out/gregor/summary/([^/]+)/ancestry=([^/]+)/'
 
         # udf functions
         ancestry_of_source = udf(lambda s: s and re.search(src_re, s).group(2))
-        tissue_of_bed = udf(lambda s: s and s.split('___')[0].replace('_', ':'))
-        method_of_bed = udf(lambda s: s and s.split('___')[1])
-        annotation_of_bed = udf(lambda s: s and s.split('___')[2].rstrip('.csv'))
+        annotation_of_bed = udf(lambda s: s and s.split('___')[0])
+        tissue_of_bed = udf(lambda s: s and s.split('___')[1])
 
         # load all the summaries; note that ancestry is part of the path
         df = spark.read.csv(f'{srcdir}/*/statistics.txt', sep='\t', header=True, schema=schema) \
@@ -72,20 +71,15 @@ def main():
             .select(
                 lit(args.phenotype).alias('phenotype'),
                 ancestry_of_source('source').alias('ancestry'),
-                tissue_of_bed('bed').alias('tissueId'),
-                method_of_bed('bed').alias('method'),
                 annotation_of_bed('bed').alias('annotation'),
+                tissue_of_bed('bed').alias('tissue'),
                 col('SNPs'),
                 col('expectedSNPs'),
                 col('pValue'),
             )
 
-        # convert NA method to null
-        method = when(df.method == 'NA', lit(None)).otherwise(df.method)
-
         # remove NA results, fix method, and write
         df.dropna() \
-            .withColumn('method', method) \
             .write \
             .mode('overwrite') \
             .json(outdir)

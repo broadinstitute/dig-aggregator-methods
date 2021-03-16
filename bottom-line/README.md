@@ -20,7 +20,7 @@ The meta-analysis is broken up into 2 steps: ancestry-specific and trans-ethnic.
 
 ### Ancestry-Specific Analysis
 
-If more than one ancestry is present for the phenotype (e.g. EU, HS, and Mixed), then - if present - the "Mixed" ancestry is removed from further analysis. 
+If more than one ancestry is present for the phenotype (e.g. EU, HS, and Mixed), then - if present - the "Mixed" ancestry is removed from further analysis.
 
 Then, for each ancestry, the following analysis is performed:
 
@@ -30,7 +30,12 @@ Then, for each ancestry, the following analysis is performed:
 
 ### Trans-Ethnic Analysis
 
-After each ancestry has been processed, METAL is run across all the ancestries with `OVERLAP OFF`. If the only ancestry present was "Mixed" then this should result in an identity operation.
+After each ancestry has been processed, METAL is run across all the ancestries with `OVERLAP OFF`.
+
+If "Mixed" ancestry datasets were excluded from the ancestry-specific analysis (due to the presence of at least one non-mixed dataset), then mixed ancestry datasets are loaded and the following operataions are performed on the trans-ethnic results:
+
+1. Any mixed-ancestry variants with a larger, single-dataset N than the combined, trans-ethnic N will replace the trans-ethnic result.
+2. All UNIQUE, mixed-ancestry variants are added to the trans-ethnic results.
 
 ## Loading Results
 

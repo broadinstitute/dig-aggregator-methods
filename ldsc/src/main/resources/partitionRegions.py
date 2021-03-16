@@ -24,24 +24,28 @@ def main():
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = f'{S3DIR}/annotated_regions/{args.dataset}/part-*'
-    outdir = f'{S3DIR}/out/gregor/regions/partitioned/{args.dataset}'
+    srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
+    outdir = f'{S3DIR}/out/ldsc/regions/partitioned/{args.dataset}'
 
     # create a spark session
-    spark = SparkSession.builder.appName('gregor').getOrCreate()
+    spark = SparkSession.builder.appName('ldsc').getOrCreate()
 
     # read all the fields needed across the regions for the dataset
-    df = spark.read.json(srcdir) \
-        .withColumnRenamed('name', 'annotation')
+    df = spark.read.json(srcdir)
 
-    # define the bed filename, use NA for a missing method
-    tissue = regexp_replace('biosample', ':', '_')
-    na_method = when(df.method.isNotNull(), df.method).otherwise(lit('NA'))
-    bed = concat_ws('___', tissue, na_method, df.annotation)
+    # keep only regulatory elements
+    df = df.filter(df.category == 'cis-regulatory elements')
+
+    # fix any whitespace issues
+    annotation = regexp_replace(df.annotation, ' ', '_')
+    tissue = regexp_replace(df.tissue, ' ', '_')
+
+    # build the partition name
+    partition = concat_ws('___', annotation, tissue)
 
     # remove invalid chromosomes rows add a sort value and bed filename
     df = df.filter(df.chromosome.isin(CHROMOSOMES)) \
-        .withColumn('partition', bed)
+        .withColumn('partition', partition)
 
     # final output
     df = df.select(

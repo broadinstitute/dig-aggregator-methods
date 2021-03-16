@@ -1,18 +1,23 @@
-package org.broadinstitute.dig.aggregator.methods.ldsr
+package org.broadinstitute.dig.aggregator.methods.ldsc
 
 import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws.emr.Job
+import org.broadinstitute.dig.aws.emr._
 
 class PartitionRegionsStage(implicit context: Context) extends Stage {
-  val annotatedRegions: Input.Source = Input.Source.Dataset("annotated_regions/*/")
+  val cisReg: Input.Source = Input.Source.Dataset("annotated_regions/cis-regulatory_elements/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(annotatedRegions)
+  override val sources: Seq[Input.Source] = Seq(cisReg)
 
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case annotatedRegions(dataset) => Outputs.Named(dataset)
+    case cisReg(dataset) => Outputs.Named(dataset)
   }
+
+  /** Partitioning is quick and easy, so do many of them in parallel. */
+  override def cluster: ClusterDef = super.cluster.copy(
+    stepConcurrency = 5
+  )
 
   /** Take any new datasets and convert them from JSON-list to BED file
     * format with all the appropriate headers and fields. All the datasets

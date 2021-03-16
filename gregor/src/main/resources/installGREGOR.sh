@@ -9,7 +9,9 @@ GREGOR_ROOT=/mnt/var/gregor
 
 # s3 location to download from
 S3_BUCKET="s3://dig-analysis-data"
-S3_DIR="${S3_BUCKET}/out/gregor"
+
+GREGOR_DIR="${S3_BUCKET}/out/gregor"
+LDSC_DIR="${S3_BUCKET}/out/ldsc"
 
 # locations for the region files
 BED_INDEX_FILE="${GREGOR_ROOT}/bed.file.index"
@@ -59,20 +61,18 @@ tar zxf GREGOR.v1.4.0.tar.gz
 mkdir -p "${REGIONS_DIR}"
 
 # copy all the partitions to the regions directory
-aws s3 cp "${S3_DIR}/regions/merged/" "${REGIONS_DIR}" --recursive --exclude=_SUCCESS
+aws s3 cp "${LDSC_DIR}/regions/merged/" "${REGIONS_DIR}" --recursive
+find "${REGIONS_DIR}" -empty -type f -delete
 
 # need to export or bash -c won't inherit
 export REGIONS_DIR
 
-# flatten the partitions and strip the off csv file extension
-find "${REGIONS_DIR}" -type f -exec bash -c '
-  for csv do
-    base=${csv##*/} && mv "$csv" "${REGIONS_DIR}/${base%.*}"
-  done
-' bash {} +
-
-# delete the empty partition directories
+# flatten the partitions relocating the files to the regions directory
+find "${REGIONS_DIR}" -type f -exec mv -i '{}' "${REGIONS_DIR}" ';'
 find "${REGIONS_DIR}" -empty -type d -delete
+
+# remove the csv file extension
+find "${REGIONS_DIR}" -type f -name '*.csv' | while read f; do mv "$f" "${f%.*}"; done
 
 # write all the partition files to the index file
 find "${REGIONS_DIR}" -type f > "${BED_INDEX_FILE}"
