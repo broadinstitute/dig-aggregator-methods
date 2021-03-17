@@ -35,7 +35,7 @@ def main():
     outdir = f'{S3_BUCKET}/out/gregor/enrichment/'
 
     # initialize spark session
-    spark = SparkSession.builder.appName('bioindex').getOrCreate()
+    spark = SparkSession.builder.appName('gregor').getOrCreate()
 
     # input summary stats schema
     schema = StructType(
