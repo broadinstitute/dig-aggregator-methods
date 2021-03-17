@@ -24,5 +24,6 @@ object Gregor extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new SnpListStage)
     addStage(new GlobalEnrichmentStage)
+    addStage(new LoadSummariesStage)
   }
 }
