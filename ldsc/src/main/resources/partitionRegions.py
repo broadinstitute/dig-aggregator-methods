@@ -36,6 +36,9 @@ def main():
     # keep only regulatory elements
     df = df.filter(df.category == 'cis-regulatory elements')
 
+    # when the state is non-null, append it to the annotation
+    df = df.withColumn('annotation', concat_ws('-', df.annotation, df.state))
+
     # fix any whitespace issues
     annotation = regexp_replace(df.annotation, ' ', '_')
     tissue = regexp_replace(df.tissue, ' ', '_')

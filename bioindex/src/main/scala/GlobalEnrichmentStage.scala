@@ -8,11 +8,10 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class GlobalEnrichmentStage(implicit context: Context) extends Stage {
-  val enrichment = Input.Source.Success("out/gregor/enrichment/*/")
-  val tissues    = Input.Source.Dataset("tissues/ontology/")
+  val enrichment = Input.Source.Success("out/gregor/enrichment/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(enrichment, tissues)
+  override val sources: Seq[Input.Source] = Seq(enrichment)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {

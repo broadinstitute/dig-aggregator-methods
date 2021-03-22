@@ -12,7 +12,7 @@ my $tmpFile="partitions.csv";
 my $sortedFile="sorted.csv";
 my $bedFile="$partition.csv";
 
-# merge all the part files together into the temp file and sort it
+# mergepart files together and sort it by position
 `hadoop fs -getmerge -nl -skip-empty-file "$s3dir/regions/partitioned/*/partition=$partition/part-*" "$tmpFile"`;
 `sort -u -k1,1 -k2,2n "$tmpFile" > "$sortedFile"`;
 

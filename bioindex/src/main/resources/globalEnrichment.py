@@ -8,22 +8,17 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = f's3://dig-analysis-data/out/gregor/enrichment/*/part-*'
+    srcdir = f's3://dig-analysis-data/out/gregor/enrichment/part-*'
     outdir = f's3://dig-bio-index/global_enrichment'
 
-    # tissue ontology
-    tissue_dir = 's3://dig-analysis-data/tissues/ontology/part-*'
-
-    # load the global enrichment and join with tissue ontology
+    # load the global enrichment summaries
     df = spark.read.json(srcdir)
-    tissues = spark.read.json(tissue_dir)
 
-    # join with tissues, sort, and write
-    df.join(tissues, 'tissueId', how='left_outer') \
-        .orderBy(['phenotype', 'pValue']) \
+    # sort by phenotype and then p-value
+    df.orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{outdir}/phenotype')
+        .json(outdir)
 
     # done
     spark.stop()
