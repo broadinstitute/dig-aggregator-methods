@@ -44,6 +44,7 @@ def load_vep(spark):
         df.cqs['vest4_rankscore'].alias('vest4_rankscore'),
         df.cqs['cadd_raw_rankscore'].alias('cadd_raw_rankscore'),
         df.cqs['metasvm_pred'].alias('metasvm_pred'),
+        df.cqs['m-cap_score'].alias('m_cap_score'),
         df.cqs['gnomad_genomes_popmax_af'].alias('gnomad_genomes_popmax_af'),
     )
 
@@ -110,9 +111,8 @@ def main():
         (df.metasvm_pred.contains('D')) &  \
         (df.provean_pred.contains('D')) & \
         (df.fathmm_mkl_coding_pred.contains('D')) & \
-        (df.fathmm_pred.contains('D'))
-
-    # NOTE: 11/11 needs `& (M-CAP_score >= 0.025)`, but needs a newer dbNSFP
+        (df.fathmm_pred.contains('D')) & \
+        (df.m_cap_score >= 0.025)
 
     # 11/11 + 4 more masks
     pred_16of16 = pred_11of11 & \
