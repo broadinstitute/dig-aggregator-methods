@@ -1,9 +1,12 @@
+import functools
+
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import explode, lit
 
 
 VEP_SRCDIR = 's3://dig-analysis-data/out/varianteffect/effects'
-FREQ_SRCDIR = 's3://dig-analysis-data/out/frequencyanalysis'
+VARIANTS_SRCDIR = 's3://dig-analysis-data/variants'
+TECH_SOURCES = ['ExSeq', 'WGS']
 
 
 def load_vep(spark):
@@ -36,28 +39,33 @@ def load_vep(spark):
         df.cqs['provean_pred'].alias('provean_pred'),
         df.cqs['fathmm_pred'].alias('fathmm_pred'),
         df.cqs['fathmm-mkl_coding_pred'].alias('fathmm_mkl_coding_pred'),
-        df.cqs['eigen-pc-raw_rankscore'].alias('eigen_pc_raw_rankscore'),
+        df.cqs['eigen-pc-raw_coding_rankscore'].alias('eigen_pc_raw_coding_rankscore'),
         df.cqs['dann_rankscore'].alias('dann_rankscore'),
-        df.cqs['vest3_rankscore'].alias('vest3_rankscore'),
+        df.cqs['vest4_rankscore'].alias('vest4_rankscore'),
         df.cqs['cadd_raw_rankscore'].alias('cadd_raw_rankscore'),
         df.cqs['metasvm_pred'].alias('metasvm_pred'),
+        df.cqs['gnomad_genomes_popmax_af'].alias('gnomad_genomes_popmax_af'),
     )
 
 
-def load_freq(spark):
+def load_variants(spark):
     """
-    Loads the frequency analysis data.
+    Only load variants from specific tech datasets.
     """
-    df = spark.read.json(f'{FREQ_SRCDIR}/*/part-*')
+    df = None
 
-    # remove null entries and map just variant -> maf
-    df = df.filter(df.maf.isNotNull())
-    df = df.select(df.varId, df.maf)
+    for tech in TECH_SOURCES:
+        srcdir = f'{VARIANTS_SRCDIR}/{tech}/*/*/part-*'
 
-    # select the maximum freq across all ancestries
-    return df.rdd.reduceByKey(max) \
-        .map(lambda r: Row(varId=r[0], maf=r[1])) \
-        .toDF()
+        # get just the list of unique variants
+        variants = spark.read.json(srcdir) \
+            .select('varId')
+
+        # union all the variants together
+        df = df.unionAll(variants) if df is not None else variants
+
+    # only unique variants
+    return df.dropDuplicates(['varId'])
 
 
 def main():
@@ -70,14 +78,14 @@ def main():
     outdir = 's3://dig-analysis-data/out/burdenbinning'
 
     # load input data
+    variants = load_variants(spark)
     vep = load_vep(spark)
-    freq = load_freq(spark)
 
-    # join MAF with the transcript consequence
-    df = vep.join(freq, on='varId')
+    # keep only the vep output for the variants we care about
+    df = variants.join(vep, on='varId', how='inner')
 
     # 0/5 predictor masks
-    pred_0of5 = (df.impact == 'MODERATE') & (df.maf < 0.01)
+    pred_0of5 = (df.impact == 'MODERATE') & (df.gnomad_genomes_popmax_af < 0.01)
 
     # 1/5 predictor masks
     pred_1of5 = pred_0of5 & (
@@ -108,13 +116,13 @@ def main():
 
     # 11/11 + 4 more masks
     pred_16of16 = pred_11of11 & \
-        (df.eigen_pc_raw_rankscore >= 0.9) & \
+        (df.eigen_pc_raw_coding_rankscore >= 0.9) & \
         (df.dann_rankscore >= 0.9) & \
         (df.cadd_raw_rankscore >= 0.9) & \
-        (df.vest3_rankscore >= 0.9)
+        (df.vest4_rankscore >= 0.9)
 
     # low and high confidence loftee predictor masks
-    pred_loftee_lc = (df.impact == 'HIGH') & (df.lof == 'LC') & (df.maf < 0.01)
+    pred_loftee_lc = (df.impact == 'HIGH') & (df.lof == 'LC') & (df.gnomad_genomes_popmax_af < 0.01)
     pred_loftee_hc = (df.lof == 'HC')
 
     # create a frame for each predictor masks

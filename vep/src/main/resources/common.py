@@ -32,7 +32,7 @@ def main():
             col('cqs.gnomad_genomes_popmax_af').alias('maf'),
         )
 
-    # keep the max frequency per variant
+    # keep the max frequency per variant across consequences
     maf = maf.groupBy('varId').max('maf') \
         .withColumnRenamed('max(maf)', 'maf')
 

@@ -45,8 +45,8 @@ perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
     --pick_order tsl,biotype,appris,rank,ccds,canonical,length \
     --domains flags \
     --plugin LoF,loftee_path:$VEPDIR/loftee-0.3-beta,human_ancestor_fa:$VEPDIR/fasta/GRCh37.primary_assembly.genome.fa,LoF,LoF_filter,LoF_flags \
-    --plugin dbNSFP,$VEPDIR/dbNSFP/dbNSFP4.1a_grch37.gz,M-CAP_score,CADD_raw_rankscore,DANN_rankscore,Eigen-PC-raw_coding_rankscore,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,SIFT_pred,LRT_pred,MutationTaster_pred,FATHMM_pred,fathmm-MKL_coding_pred,PROVEAN_pred,MetaSVM_pred,MetaLR_pred,gnomAD_genomes_POPMAX_AF \
-    --fields SYMBOL,NEAREST,IMPACT,PICK,CCDS,TSL,APPRIS,BIOTYPE,CANONICAL,HGNC,ENSP,DOMAINS,MOTIF_NAME,MOTIF_POS,HIGH_INF_POS,MOTIF_SCORE_CHANGE,SIFT,cDNA_position,CDS_position,Amino_acids,Codons,Protein_position,Protein_change,LoF,LoF_filter,LoF_flags,M-CAP_score,CADD_raw_rankscore,DANN_rankscore,Eigen-PC-raw_coding_rankscore,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,SIFT_pred,LRT_pred,MutationTaster_pred,FATHMM_pred,fathmm-MKL_coding_pred,PROVEAN_pred,MetaSVM_pred,MetaLR_pred,gnomAD_genomes_POPMAX_AF \
+    --plugin dbNSFP,$VEPDIR/dbNSFP/dbNSFP4.1a_grch37.gz,M-CAP_score,CADD_raw_rankscore,DANN_rankscore,Eigen-PC-raw_coding_rankscore,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,SIFT_pred,LRT_pred,MutationTaster_pred,FATHMM_pred,fathmm-MKL_coding_pred,PROVEAN_pred,MetaSVM_pred,MetaLR_pred,VEST4_score,VEST4_rankscore,gnomAD_genomes_POPMAX_AF \
+    --fields SYMBOL,NEAREST,IMPACT,PICK,CCDS,TSL,APPRIS,BIOTYPE,CANONICAL,HGNC,ENSP,DOMAINS,MOTIF_NAME,MOTIF_POS,HIGH_INF_POS,MOTIF_SCORE_CHANGE,SIFT,cDNA_position,CDS_position,Amino_acids,Codons,Protein_position,Protein_change,LoF,LoF_filter,LoF_flags,M-CAP_score,CADD_raw_rankscore,DANN_rankscore,Eigen-PC-raw_coding_rankscore,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,SIFT_pred,LRT_pred,MutationTaster_pred,FATHMM_pred,fathmm-MKL_coding_pred,PROVEAN_pred,MetaSVM_pred,MetaLR_pred,VEST4_score,VEST4_rankscore,gnomAD_genomes_POPMAX_AF \
     -i "$PART.sorted" \
     -o "$OUTFILE" \
     --force_overwrite
