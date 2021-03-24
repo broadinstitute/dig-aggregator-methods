@@ -3,7 +3,7 @@ import argparse
 import platform
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import concat_ws, lit, regexp_replace, when
+from pyspark.sql.functions import concat_ws, regexp_replace, when
 
 S3DIR = 's3://dig-analysis-data'
 
@@ -36,8 +36,8 @@ def main():
     # keep only regulatory elements
     df = df.filter(df.category == 'cis-regulatory elements')
 
-    # the annotation state overrides the annotation
-    annotation = when(df.state.isNotNull(), df.state) \
+    # use state for chromatin states
+    annotation = when(df.annotation == 'chromatin_state', df.state) \
         .otherwise(df.annotation)
 
     # when the state is non-null, append it to the annotation
