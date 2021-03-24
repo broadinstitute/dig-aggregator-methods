@@ -20,12 +20,12 @@ class MungeStatsStage(implicit context: Context) extends Stage {
 
   /** Just need a single machine with no applications, but a good drive. */
   override def cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.memoryOptimized(mem = 70.gb),
+    masterInstanceType = Strategy.memoryOptimized(mem = 64.gb),
     instances = 1,
     masterVolumeSizeInGB = 200,
     applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ldsc.sh"))),
-    stepConcurrency = 5
+    stepConcurrency = 3
   )
 
   /** For each phenotype, load the METAL output and pass it to LDSC's
