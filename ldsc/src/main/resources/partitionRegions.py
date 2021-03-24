@@ -36,8 +36,12 @@ def main():
     # keep only regulatory elements
     df = df.filter(df.category == 'cis-regulatory elements')
 
+    # the annotation state overrides the annotation
+    annotation = when(df.state.isNotNull(), df.state) \
+        .otherwise(df.annotation)
+
     # when the state is non-null, append it to the annotation
-    df = df.withColumn('annotation', concat_ws('-', df.annotation, df.state))
+    df = df.withColumn('annotation', annotation)
 
     # fix any whitespace issues
     annotation = regexp_replace(df.annotation, ' ', '_')
