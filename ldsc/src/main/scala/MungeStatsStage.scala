@@ -2,8 +2,12 @@ package org.broadinstitute.dig.aggregator.methods.ldsc
 
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aws.Ec2.Strategy
+import org.broadinstitute.dig.aws.MemorySize
 
 class MungeStatsStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
+
   val bottomLine: Input.Source = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
 
   /** Source inputs. */
@@ -16,11 +20,12 @@ class MungeStatsStage(implicit context: Context) extends Stage {
 
   /** Just need a single machine with no applications, but a good drive. */
   override def cluster: ClusterDef = super.cluster.copy(
+    masterInstanceType = Strategy.memoryOptimized(mem = 64.gb),
     instances = 1,
     masterVolumeSizeInGB = 200,
     applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ldsc.sh"))),
-    stepConcurrency = 5
+    stepConcurrency = 3
   )
 
   /** For each phenotype, load the METAL output and pass it to LDSC's
