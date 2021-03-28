@@ -17,12 +17,8 @@ def main():
     df = df.filter(df.maf.isNotNull()) \
         .rdd \
         .keyBy(lambda r: r.varId) \
-        .combineByKey(
-            lambda r: r.maf,
-            lambda a, b: max(a, r.maf),
-            lambda a, b: max(a, b),
-        ) \
-        .map(lambda r: Row(varId=r[0], maf=r[1])) \
+        .reduceByKey(max) \
+        .map(lambda r: r[1]) \
         .toDF()
 
     # write it out
