@@ -23,7 +23,7 @@ VARIANTS_SCHEMA = StructType(
 
 def main():
     """
-    Arguments: phenotype
+    Arguments: none
     """
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 

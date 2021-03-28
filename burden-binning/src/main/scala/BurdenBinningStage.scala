@@ -23,13 +23,14 @@ class BurdenBinningStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val variantEffects: Input.Source = Input.Source.Success("out/varianteffect/effects/")
+  val freq: Input.Source           = Input.Source.Success("out/frequencyanalysis/")
 
   /** The output of variant effects is the input for burden binning results file. */
-  override val sources: Seq[Input.Source] = Seq(variantEffects)
+  override val sources: Seq[Input.Source] = Seq(variantEffects, freq)
 
   /** Process burden binning associations. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variantEffects() => Outputs.Named("binning")
+    case _ => Outputs.Named("binning")
   }
 
   /** Simple cluster with more memory. */
