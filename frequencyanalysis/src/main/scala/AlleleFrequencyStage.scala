@@ -8,12 +8,15 @@ import org.broadinstitute.dig.aws.emr._
   * minor allele frequency for each variant.
   */
 class AlleleFrequencyStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
 
   /** Cluster configuration used when running this stage. The super
     * class already has a default configuration defined, so it's easier
     * to just copy and override specific parts of it.
     */
   override val cluster: ClusterDef = super.cluster.copy(
+    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 90.gb),
+    slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 90.gb),
     instances = 5
   )
 
