@@ -13,7 +13,7 @@ def main():
     # load all datasets
     df = spark.read.json(f'{srcdir}/part-*')
     df = df.select(df.varId, df.maf) \
-        .filter(df.maf.isNotNul())
+        .filter(df.maf.isNotNull())
 
     # find the maximum maf per variant
     df = df.orderBy([df.varId, df.maf.desc()])
