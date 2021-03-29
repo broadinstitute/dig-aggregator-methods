@@ -17,7 +17,7 @@ def main():
 
     # find the maximum maf per variant
     df = df.orderBy([df.varId, df.maf.desc()])
-    df = df.dropDuplicates([df.varId])
+    df = df.dropDuplicates(['varId'])
 
     # write it out
     df.write \
