@@ -14,16 +14,15 @@ def main():
     # load all datasets
     df = spark.read.json(f'{srcdir}/part-*')
     df = df.select(df.varId, df.ancestry, df.eaf, df.maf) \
+        .filter(df.ancestry != 'Mixed') \
         .filter(df.maf.isNotNull())
 
     # use window functions to get distinct variants on the same partitions
-    window = Window.partitionBy(['varId', 'ancestry']) \
-        .orderBy([df.varId, df.maf.desc()])
-
-    # add the rank column and then only keep the max
-    df = df.withColumn('rank', rank().over(window))
-    df = df.filter(df.rank == 1)
-    df = df.drop('rank')
+    df = df.rdd \
+        .keyBy(lambda r: (r.varId, r.ancestry)) \
+        .reduceByKey(lambda a, b: a if a.maf > b.maf else b) \
+        .map(lambda r: r[1]) \
+        .toDF()
 
     # write it out
     df.write \
