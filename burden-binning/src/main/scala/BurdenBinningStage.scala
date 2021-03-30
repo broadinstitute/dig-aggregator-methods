@@ -22,11 +22,13 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class BurdenBinningStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variantEffects: Input.Source = Input.Source.Success("out/varianteffect/effects/")
-  val freq: Input.Source           = Input.Source.Success("out/frequencyanalysis/")
+  val exseq: Input.Source = Input.Source.Dataset("variants/ExSeq/*/*/")
+  val wgs: Input.Source   = Input.Source.Dataset("variants/WGS/*/*/")
+  val vep: Input.Source   = Input.Source.Success("out/varianteffect/effects/")
+  val freq: Input.Source  = Input.Source.Success("out/frequencyanalysis/")
 
   /** The output of variant effects is the input for burden binning results file. */
-  override val sources: Seq[Input.Source] = Seq(variantEffects, freq)
+  override val sources: Seq[Input.Source] = Seq(exseq, wgs, vep)
 
   /** Process burden binning associations. */
   override val rules: PartialFunction[Input, Outputs] = {

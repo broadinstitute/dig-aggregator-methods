@@ -3,9 +3,6 @@ import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, explode
 
-# what bucket will be output to?
-OUT_BUCKET = f'dig-bio-{"test" if os.getenv("JOB_DRYRUN") else "index"}'
-
 
 def main():
     """
@@ -14,30 +11,35 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # where to read input from
-    genes_dir = f's3://dig-analysis-data/genes/GRCh37/part-*'
-    common_dir = f's3://dig-analysis-data/out/varianteffect/common/part-*'
+    variants_dir = 's3://dig-analysis-data/variant_counts/*/*/*/part-*'
+    genes_dir = 's3://dig-analysis-data/genes/GRCh37/part-*'
+    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
 
     # where to write the output to
-    outdir = f's3://{OUT_BUCKET}/variants/gene'
+    outdir = f's3://dig-bio-index/variants/gene'
+
+    # load all the variant counts
+    variants = spark.read.json(variants_dir)
 
     # load all genes, keep only canonical symbol entries
     genes = spark.read.json(genes_dir)
     genes = genes.filter(genes.source == 'symbol') \
         .withColumnRenamed('name', 'gene')
 
-    # load common variant data
+    # load variant effects, keep only the pick=1 consequence
     common = spark.read.json(common_dir)
 
-    # is the variant overlapping the gene?
-    overlap = (common.chromosome == genes.chromosome) & \
-        (common.position >= genes.start) & \
-        (common.position < genes.end)
-
-    assert False, "THIS DOESN'T WORK!! FIX ME!"
+    # keep only variants overlapping genes
+    overlap = (variants.chromosome == genes.chromosome) & \
+        (variants.position >= genes.start) & \
+        (variants.position < genes.end)
 
     # inner join genes with overlapped variants
-    df = genes.join(common, on=overlap, how='inner') \
-        .drop(genes.chromosome)  # duplicate column in common frame
+    df = genes.join(variants, on=overlap, how='inner') \
+        .drop(genes.chromosome)
+
+    # join with common data per variant
+    df = df.join(common, on='varId', how='left_outer')
 
     # index by position
     df.orderBy(['gene']) \

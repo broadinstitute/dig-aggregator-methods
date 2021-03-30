@@ -1,7 +1,7 @@
 import functools
 
 from pyspark.sql import SparkSession, Row
-from pyspark.sql.functions import explode, lit
+from pyspark.sql.functions import explode, lit, when
 
 
 VEP_SRCDIR = 's3://dig-analysis-data/out/varianteffect/effects'
@@ -46,6 +46,7 @@ def load_vep(spark):
         df.cqs['cadd_raw_rankscore'].alias('cadd_raw_rankscore'),
         df.cqs['metasvm_pred'].alias('metasvm_pred'),
         df.cqs['m-cap_score'].alias('m_cap_score'),
+        df.cqs['gnomad_genomes_popmax_af'].alias('gnomad_genomes_popmax_af'),
     )
 
 
@@ -88,11 +89,16 @@ def main():
     # load input data
     variants = load_variants(spark)
     vep = load_vep(spark)
-    freq = load_freq(spark)
 
     # keep only the vep output for the variants we care about
     df = variants.join(vep, on='varId', how='inner')
-    df = df.join(freq, on='varId', how='left')
+
+    # calculate MAF from AF
+    maf = when(df.gnomad_genomes_popmax_af < 0.5, df.gnomad_genomes_popmax_af) \
+        .otherwise(1.0 - df.gnomad_genomes_popmax_af)
+
+    # add MAF column
+    df = df.withColumn('maf', maf)
 
     # 0/5 predictor masks
     pred_0of5 = (df.impact == 'MODERATE') & (df.maf < 0.01)

@@ -10,10 +10,11 @@ import org.broadinstitute.dig.aws.emr._
   */
 class GeneVariantsStage(implicit context: Context) extends Stage {
   val genes  = Input.Source.Dataset("genes/*/")
-  val common = Input.Source.Success("out/varianteffect/common/")
+  val counts = Input.Source.Dataset("variant_counts/*/*/*/")
+  val vep    = Input.Source.Success("out/varianteffect/effects/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(genes, common)
+  override val sources: Seq[Input.Source] = Seq(genes, counts, vep)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
