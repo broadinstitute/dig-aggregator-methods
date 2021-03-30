@@ -31,9 +31,9 @@ class CommonStage(implicit context: Context) extends Stage {
 
   // EMR cluster to run the job steps on
   override def cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.generalPurpose(),
-    slaveInstanceType = Strategy.generalPurpose(),
-    instances = 4
+    masterInstanceType = Strategy.memoryOptimized(mem = 90.gb),
+    slaveInstanceType = Strategy.memoryOptimized(mem = 64.gb),
+    instances = 5
   )
 
   /** Make inputs to the outputs. */
