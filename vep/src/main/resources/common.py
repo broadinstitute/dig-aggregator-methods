@@ -6,6 +6,8 @@ import re
 
 from pyspark.sql import SparkSession, Row
 
+S3DIR = 's3://dig-analysis-data/out/varianteffect'
+
 
 def common_fields(row):
     """
@@ -60,13 +62,14 @@ def main():
     outfile = re.match(r'^(part-\d+).*', filename).group(1)
 
     # where to write the output to
-    outdir = 's3://dig-analysis-data/out/varianteffect/common'
+    srcdir = '{S3DIR}/effects'
+    outdir = '{S3DIR}/common'
 
     # initialize spark
     spark = SparkSession.builder.appName('vep').getOrCreate()
 
     # load effect data
-    df = spark.read.json(args.part)
+    df = spark.read.json(f'{srcdir}/{args.part}')
 
     # extract just the common fields and write them out
     df.rdd \
