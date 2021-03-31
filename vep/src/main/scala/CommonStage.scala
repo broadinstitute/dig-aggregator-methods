@@ -31,7 +31,7 @@ class CommonStage(implicit context: Context) extends Stage {
 
   // EMR cluster to run the job steps on
   override def cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.memoryOptimized(mem=90.gb),
+    masterInstanceType = Strategy.memoryOptimized(mem = 90.gb),
     instances = 1,
     stepConcurrency = 5
   )
@@ -47,8 +47,9 @@ class CommonStage(implicit context: Context) extends Stage {
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/effects/")
-    val parts = objects.map(_.key)
-      .filterNot(_.contains("/warnings/")
+    val parts = objects
+      .map(_.key)
+      .filterNot(_.contains("/warnings/"))
       .map(_.split('/').last)
       .filter(_.startsWith("part-"))
 
