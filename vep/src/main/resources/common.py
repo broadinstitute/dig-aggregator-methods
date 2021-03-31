@@ -1,12 +1,10 @@
 #!/usr/bin/python3
 
+import argparse
 import os.path
-import platform
+import re
 
 from pyspark.sql import SparkSession, Row
-
-# where in S3 VEP data (input and output) is
-S3DIR = 's3://dig-analysis-data/out/varianteffect'
 
 
 def common_fields(row):
@@ -47,16 +45,28 @@ def common_fields(row):
 
 def main():
     """
-    Arguments: none
+    Arguments: part-file
     """
-    print('Python version: %s' % platform.python_version())
-    print('user=%s' % os.getenv('USER'))
+    opts = argparse.ArgumentParser()
+    opts.add_argument('part')
 
-    # create the spark context
+    # parse cli
+    args = opts.parse_args()
+
+    # separate the part filename from the source
+    _, filename = os.path.split(args.part)
+
+    # get just the base part
+    outfile = re.match(r'^(part-\d+).*', filename).group(1)
+
+    # where to write the output to
+    outdir = 's3://dig-analysis-data/out/varianteffect/common'
+
+    # initialize spark
     spark = SparkSession.builder.appName('vep').getOrCreate()
 
     # load effect data
-    df = spark.read.json('%s/effects/*.json' % S3DIR)
+    df = spark.read.json(args.part)
 
     # extract just the common fields and write them out
     df.rdd \
@@ -64,7 +74,7 @@ def main():
         .toDF() \
         .write \
         .mode('overwrite') \
-        .json('%s/common' % S3DIR)
+        .json(f'{outdir}/{outfile}')
 
     # done
     spark.stop()
