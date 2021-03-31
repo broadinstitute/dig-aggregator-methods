@@ -62,4 +62,11 @@ class CommonStage(implicit context: Context) extends Stage {
   override def prepareJob(output: String): Unit = {
     context.s3.rm("out/varianteffect/common/")
   }
+
+  /** Update the success flag of the merged regions.
+    */
+  override def success(output: String): Unit = {
+    context.s3.touch(s"out/varianteffect/common/_SUCCESS")
+    ()
+  }
 }
