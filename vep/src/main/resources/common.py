@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import concurrent.futures
 import json
 import os.path
 import re
@@ -92,29 +93,18 @@ def common_fields(row):
     }
 
 
-def main():
+def process_part(srcdir, outdir, part):
     """
-    Arguments: part-file
+    Download and process a part file.
     """
-    opts = argparse.ArgumentParser()
-    opts.add_argument('part')
+    _, tmp = tempfile.mkstemp()
 
-    # parse cli
-    args = opts.parse_args()
-
-    # separate the part filename from the source
-    _, part = os.path.split(args.part)
-
-    # where to write the output to
-    srcdir = f'{S3DIR}/effects'
-    outdir = f'{S3DIR}/common'
-
-    # copy the part file locally
-    subprocess.check_call(['aws', 's3', 'cp', f'{srcdir}/{part}', 'tmp.json'])
+    # copy the file into a temp file
+    subprocess.check_call(['aws', 's3', 'cp', f'{srcdir}/{part}', tmp])
 
     # loop over every line, parse, and create common row
     with open(part, mode='w', encoding='utf-8') as out:
-        with open('tmp.json') as fp:
+        with open(tmp) as fp:
             for line in fp:
                 row = json.loads(line)
                 common = common_fields(row)
@@ -135,8 +125,43 @@ def main():
     subprocess.check_call(['aws', 's3', 'cp', part, f'{outdir}/{part}'])
 
     # cleanup
-    os.remove('tmp.json')
+    os.remove(tmp)
     os.remove(part)
+
+    # debug output
+    print(f'Processed {part} successfully')
+
+
+def list_parts(srcdir):
+    """
+    Returns an array of all the part files that need to be processed.
+    """
+    lines = subprocess.check_output(['aws', 's3', 'ls', f'{srcdir}/', '--recursive']) \
+        .decode('utf-8') \
+        .split('\n')
+
+    # only keep actual part files
+    parts = [part for part in lines if "/part-" in part]
+
+    # get just the part filename from the output
+    return [re.search(r'/(part-[^/]+\.json)$', part).group(1) for part in parts]
+
+
+def main():
+    """
+    Arguments: none
+    """
+    srcdir = f'{S3DIR}/effects'
+    outdir = f'{S3DIR}/common'
+
+    # get all the part files that need processed
+    parts = list_parts(srcdir)
+
+    with concurrent.futures.ProcessPoolExecutor(max_workers=3) as pool:
+        jobs = [pool.submit(process_part, srcdir, outdir, part) for part in parts]
+
+        # wait for all jobs to finish
+        concurrent.futures.wait(jobs)
 
 
 # entry point

@@ -63,6 +63,6 @@ rm "$OUTFILE"
 
 # check for a warnings file, upload that, too and then delete it
 if [ -e "$WARNINGS" ]; then
-    aws s3 cp "$WARNINGS" "$S3DIR/effects/warnings/$WARNINGS"
+    aws s3 cp "$WARNINGS" "$S3DIR/warnings/$WARNINGS"
     rm "$WARNINGS"
 fi

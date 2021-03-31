@@ -71,6 +71,7 @@ class VepStage(implicit context: Context) extends Stage {
     */
   override def prepareJob(output: String): Unit = {
     context.s3.rm("out/varianteffect/effects/")
+    context.s3.rm("out/varianteffect/warnings/")
   }
 
   /** On success, write the _SUCCESS file in the output directory.

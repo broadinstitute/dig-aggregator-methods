@@ -32,8 +32,7 @@ class CommonStage(implicit context: Context) extends Stage {
   // EMR cluster to run the job steps on
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    applications = Seq.empty,
-    stepConcurrency = 5
+    applications = Seq.empty
   )
 
   /** Make inputs to the outputs. */
@@ -43,18 +42,7 @@ class CommonStage(implicit context: Context) extends Stage {
 
   /** All effect results are combined together, so the results list is ignored. */
   override def make(output: String): Job = {
-    val script = resourceUri("common.py")
-
-    // get all the variant part files to process, use only the part filename
-    val objects = context.s3.ls(s"out/varianteffect/effects/")
-    val parts = objects
-      .map(_.key)
-      .filterNot(_.contains("/warnings/"))
-      .map(_.split('/').last)
-      .filter(_.startsWith("part-"))
-
-    // add a step for each part file
-    new Job(parts.map(Job.Script(script, _)), parallelSteps = true)
+    new Job(Job.Script(script))
   }
 
   /** Before the jobs actually run, perform this operation.
