@@ -36,6 +36,16 @@ def allele_frequencies(v, minor_allele):
     """
     af = v.get('frequencies')
 
+    # no allele frequency data?
+    if af is None or minor_allele not in af:
+        return {
+            'EU': None,
+            'HS': None,
+            'AA': None,
+            'EA': None,
+            'SA': None,
+        }
+
     # if found, extract each ancestry
     return af and {
             'EU': af[minor_allele].get('eur'),
@@ -44,9 +54,6 @@ def allele_frequencies(v, minor_allele):
             'EA': af[minor_allele].get('eas'),
             'SA': af[minor_allele].get('sas'),
     }
-
-    # only return if an actual rsID
-    return rsid if rsid and rsid.startswith('rs') else None
 
 
 def common_fields(row):
@@ -63,7 +70,13 @@ def common_fields(row):
             'nearest': row['nearest'],
             'dbSNP': None,
             'maf': None,
-            'af': None,
+            'af': {
+                'EU': None,
+                'HS': None,
+                'AA': None,
+                'EA': None,
+                'SA': None,
+            },
         }
 
     # get the allele for frequency data
