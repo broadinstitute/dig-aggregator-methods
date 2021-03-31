@@ -123,7 +123,7 @@ def main():
 
     # cleanup
     os.remove('tmp.json')
-    os.remove(outfile)
+    os.remove(part)
 
 
 # entry point
