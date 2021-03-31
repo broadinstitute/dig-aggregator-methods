@@ -62,8 +62,8 @@ def main():
     outfile = re.match(r'^(part-\d+).*', filename).group(1)
 
     # where to write the output to
-    srcdir = '{S3DIR}/effects'
-    outdir = '{S3DIR}/common'
+    srcdir = f'{S3DIR}/effects'
+    outdir = f'{S3DIR}/common'
 
     # initialize spark
     spark = SparkSession.builder.appName('vep').getOrCreate()
