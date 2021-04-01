@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 /** After meta-analysis, this stage finds the most significant variant
   * every 50 kb across the entire genome.
   */
-class GatherVariantsStage(implicit context: Context) extends Stage {
+class VariantFrequencyStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val commonFrequency: Input.Source = Input.Source.Success("out/varianteffect/common/")
@@ -17,8 +17,9 @@ class GatherVariantsStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(commonFrequency)
 
   /** Process top associations for each phenotype. */
-//  override val rules: PartialFunction[Input, Outputs] = {
-//  }
+  override val rules: PartialFunction[Input, Outputs] = {
+    case commonFrequency() => Outputs.Named("VariantFrequencies")
+  }
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
