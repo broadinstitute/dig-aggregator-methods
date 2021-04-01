@@ -80,8 +80,8 @@ class FinemappingStage(implicit context: Context) extends Stage {
 
     // list of steps to execute for this job
     val steps = Seq(
-      Job.PySpark(sampleSparkJob, phenotype),
-      Job.Script(sampleScript, phenotype)
+      Job.PySpark(gatherVariantsByPhenotype, phenotype),
+//      Job.Script(sampleScript, phenotype)
     )
 
     // create the job
