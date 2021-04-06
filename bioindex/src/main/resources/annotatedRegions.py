@@ -48,6 +48,12 @@ def main():
         .mode('overwrite') \
         .json(f'{outdir}/tissue')
 
+    # sort by locus
+    df.orderBy(['chromosome', 'start']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{outdir}/position')
+
     # done
     spark.stop()
 
