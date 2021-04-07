@@ -6,20 +6,27 @@ COJO_DIR="/mnt/var/cojo"
 # make the work directory
 mkdir -p "${COJO_DIR}"
 cd "${COJO_DIR}"
+mkdir output 
+mkdir input 
 
-# make the ancestry directories
-mkdir EU 
-mkdir AA 
-mkdir EA 
-mkdir SA 
-mkdir HS 
+# copy and unpack the cojo executables
+aws s3 cp "${S3DIR}/bin/cojo/gcta_1.93.2beta.zip" .
+unzip -o gcta_1.93.2beta.zip
+aws s3 cp "${S3DIR}/resources/Finemapping/runCojo.py" .
 
-# copy the g1000 data files
-aws s3 cp "${S3DIR}/bin/g1000/g1000_eur.bed" .
-aws s3 cp "${S3DIR}/bin/magma/g1000_eur.bim" .
-aws s3 cp "${S3DIR}/bin/magma/g1000_eur.fam" .
-aws s3 cp "${S3DIR}/bin/magma/g1000_eur.synonyms" .
+# copy and unpack the G1000 ancestries
+aws s3 cp "${S3DIR}/bin/g1000/g1000_afr.zip" .
+unzip -o g1000_afr.zip
+aws s3 cp "${S3DIR}/bin/g1000/g1000_amr.zip" .
+unzip -o g1000_amr.zip
+aws s3 cp "${S3DIR}/bin/g1000/g1000_eas.zip" .
+unzip -o g1000_eas.zip
+aws s3 cp "${S3DIR}/bin/g1000/g1000_eur.zip" .
+unzip -o g1000_eur.zip
+aws s3 cp "${S3DIR}/bin/g1000/g1000_sas.zip" .
+unzip -o g1000_sas.zip
 
-# copy and extract the magma program
-aws s3 cp "${S3DIR}/bin/magma/magma_v1.07bb_static.zip" .
-unzip magma_v1.07bb_static.zip
+# install the python libraries
+sudo pip3 install boto3
+sudo pip3 install pandas
+

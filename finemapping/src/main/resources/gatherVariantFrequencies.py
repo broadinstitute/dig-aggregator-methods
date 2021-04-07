@@ -23,7 +23,8 @@ def main():
             df_frequency.maf,
         )
     # print("got null filtered frequency df of size {}".format(df_frequency.count()))
-
+    df_frequency = df_frequency \
+        .filter(df_frequency.maf > 0.005)
 
     # write out the file
     df_frequency \

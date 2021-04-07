@@ -24,5 +24,6 @@ object Finemapping extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new VariantFrequencyStage)
     addStage(new GatherVariantsStage)
+    addStage(new RunCojoStage)
   }
 }
