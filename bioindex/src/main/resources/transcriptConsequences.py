@@ -21,14 +21,14 @@ def main():
         .withColumn('cqs', explode(df.transcript_consequences)) \
         .select(
             col('varId'),
+            col('seq_region_name').alias('chromosome'),
+            col('start').alias('position'),
             col('cqs.*'),
         )
 
-    # NOTE: There's no need to order by varId because the explode took care
-    #       of that implictly since each variant was only there once.
-
-    # output the consequences, ordered by variant
+    # output the consequences, ordered by variant so they are together
     df.drop('domains') \
+        .orderBy(['chromosome', 'position']),
         .write \
         .mode('overwrite') \
         .json(outdir)

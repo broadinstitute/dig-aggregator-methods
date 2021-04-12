@@ -43,6 +43,8 @@ def main():
     # keep only the data needed across datasets for a phenotype
     df = df.select(
         df.varId,
+        df.chromosome,
+        df.position,
         df.dataset,
         df.phenotype,
         df.pValue,
@@ -51,7 +53,7 @@ def main():
     )
 
     # write associations sorted by variant and then pValue
-    df.orderBy(['varId', 'pValue']) \
+    df.orderBy(['chromosome', 'position', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(outdir)

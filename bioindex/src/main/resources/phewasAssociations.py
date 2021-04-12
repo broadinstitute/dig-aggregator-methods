@@ -17,6 +17,8 @@ def main():
     # limit the data being written
     df = df.select(
         df.varId,
+        df.chromosome,
+        df.position,
         df.phenotype,
         df.pValue,
         df.beta,
@@ -25,7 +27,7 @@ def main():
     )
 
     # write associations sorted by variant and then p-value
-    df.orderBy(['varId', 'pValue']) \
+    df.orderBy(['chromosome', 'position', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(outdir)
