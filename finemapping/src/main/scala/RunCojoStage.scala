@@ -5,8 +5,7 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
-/** After meta-analysis, this stage finds the most significant variant
-  * every 50 kb across the entire genome.
+/** Run the cojo (clustering with conditional pValues) on all ancestry/phernotype combinations except Mixed
   */
 class RunCojoStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
@@ -30,7 +29,8 @@ class RunCojoStage(implicit context: Context) extends Stage {
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 32),
+//    masterInstanceType = Strategy.computeOptimized(vCPUs = 32),
+    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
     instances = 1,
     masterVolumeSizeInGB = 80,
     applications = Seq.empty,
@@ -56,6 +56,7 @@ class RunCojoStage(implicit context: Context) extends Stage {
   /** On success, write the _SUCCESS file in the output directory.
     */
   override def success(output: String): Unit = {
+    //TODO - should there be a success file in the ancestry directory
     context.s3.touch(s"out/finemapping/cojo-results/${output}/_SUCCESS")
     ()
   }

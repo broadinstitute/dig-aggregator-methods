@@ -53,7 +53,8 @@ def main():
                     df_meta.n, 
                     df_meta.chromosome, 
                     df_meta.ancestry, 
-                )
+                ) \
+                .filter(df_meta.pValue < 0.001)
     # print("got joined metaanalysis df of size {}".format(df_meta.count()))
     # df_meta.show()
 

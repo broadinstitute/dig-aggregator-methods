@@ -5,8 +5,8 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
-/** After meta-analysis, this stage finds the most significant variant
-  * every 50 kb across the entire genome.
+/** Join ancestry specific phenotyp variant data and join with frequency data
+  * Output into csv for cojo analysis
   */
 class GatherVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._

@@ -5,8 +5,7 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
-/** After meta-analysis, this stage finds the most significant variant
-  * every 50 kb across the entire genome.
+/** Gather all variants with non maf of a certain limit
   */
 class VariantFrequencyStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
