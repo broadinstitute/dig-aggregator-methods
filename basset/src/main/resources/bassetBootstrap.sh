@@ -37,9 +37,11 @@ sudo pip3 install sklearn
 WORK_DIR="/mnt/var/basset"
 mkdir -p "${WORK_DIR}"
 
-# copy the basset python files and the model weights file
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/fullBassetScript.py "${WORK_DIR}"
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/dcc_basset_lib.py "${WORK_DIR}"
-aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_labels.txt "${WORK_DIR}"
+# copy the method resources always uploaded each run
+aws s3 cp s3://dig-analysis-data/resources/Basset/fullBassetScript.py "${WORK_DIR}"
+aws s3 cp s3://dig-analysis-data/resources/Basset/dcc_basset_lib.py "${WORK_DIR}"
+
+# copy the binary resources
 aws s3 cp s3://dig-analysis-data/bin/regionpytorch/hg19.2bit "${WORK_DIR}"
 aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_pretrained_model_reloaded.pth "${WORK_DIR}"
+aws s3 cp s3://dig-analysis-data/bin/regionpytorch/basset_labels.txt "${WORK_DIR}"

@@ -27,11 +27,13 @@ class BassetStage(implicit context: Context) extends Stage {
     * to just copy and override specific parts of it.
     */
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 2,
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 16),
-    slaveInstanceType = Strategy.computeOptimized(vCPUs = 16),
+    masterInstanceType = Strategy.computeOptimized(),
+    instances = 1,
+    masterVolumeSizeInGB = 60,
+    stepConcurrency = 3,
+    applications = Seq.empty,
     bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("bassetBootstrap.sh"))    // pip3 install and downloading binary files
+      new BootstrapScript(resourceUri("bassetBootstrap.sh"))
     )
   )
 
@@ -40,7 +42,7 @@ class BassetStage(implicit context: Context) extends Stage {
     * Input sources are a glob-like S3 prefix to an object in S3. Wildcards
     * can be pattern matched in the rules of the stage.
     */
-  val variants: Input.Source = Input.Source.Success("out/varianteffect/common/")   // has to end with /
+  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
 
   /** When run, all the input sources here will be checked to see if they
     * are new or updated.
@@ -59,6 +61,13 @@ class BassetStage(implicit context: Context) extends Stage {
     case variants() => Outputs.Named("basset")
   }
 
+  /** Additional resources we need to write to S3 before the job runs.
+    */
+  override def additionalResources: Seq[String] = Seq(
+    "dcc_basset_lib.py",
+    "fullBassetScript.py"
+  )
+
   /** Once all the rules have been applied to the new and updated inputs,
     * each of the outputs that needs built is send here. A job is returned,
     * which is the series of steps that need to be executed on the cluster
@@ -69,56 +78,27 @@ class BassetStage(implicit context: Context) extends Stage {
     * clusters.
     */
   override def make(output: String): Job = {
+    val bassetScript = resourceUri("bassetScript.sh")
 
-    /* All job steps require a URI to a location in S3 where the script can
-     * be read from by the cluster.
-     *
-     * The resourceUri function will upload the resource in the jar to a
-     * unique location in S3 and return the URI to where it was uploaded.
-     */
-    val bassetScript   = resourceUri("bassetScript.sh")
-    val bassetLibrary  = resourceUri("dcc_basset_lib.py")
-    val bassetPyTorch  = resourceUri("fullBassetScript.py")
-
-    // we used the phenotype as the output in rules
-//    val phenotype = output
-
-    // list of steps to execute for this job
-    // val steps = Seq(
-    //   Job.Script(bassetScript)
-    // )
-
-    // add a step for each part file
-    // runscript can be python script
-    // can be parrallel since each file can be processed independently
-    // _ is the input to the script
     // get all the variant part files to process, use only the part filename
-    val objects = context.s3.ls(s"out/varianteffect/common/")
+    val objects = context.s3.ls(s"out/varianteffect/variants/")
     val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+    val steps   = parts.map(part => Job.Script(bassetScript, part))
 
-    // take(2) will help with only taking 2 part files to process; good for testing
-    // new Job(parts.take(1).map(Job.Script(bassetScript, _)), isParallel = true)      // for testing
-    new Job(parts.map(Job.Script(bassetScript, _)), isParallel = true)           // for production
-
-    // create the job
-    // new Job(steps)
+    // create the job; run steps in parallel
+    new Job(steps, parallelSteps = true)
   }
 
-  // add success amd prepareJob methods (see vep)
-  // spark does _success by default; create method for non spark jobs
-
-    /** Before the jobs actually run, perform this operation.
+  /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/regionpytorch/basset/")             // method to clear out directory where results go
+    context.s3.rm("out/basset/")
   }
 
   /** On success, write the _SUCCESS file in the output directory.
     */
   override def success(output: String): Unit = {
-    context.s3.touch("out/regionpytorch/basset/_SUCCESS")   // only Spark jobs create a _SUCCESS file by default; need to manually for sh/py jobs
+    context.s3.touch("out/basset/_SUCCESS")
     ()
   }
-
-
 }

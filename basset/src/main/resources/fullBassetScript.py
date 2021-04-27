@@ -11,6 +11,7 @@ from twobitreader import TwoBitFile
 import time
 import argparse
 import json
+import csv
 
 print("got pytorch version of {}".format(torch.__version__))
 
@@ -85,54 +86,42 @@ chunks = [variant_list[x : x+batch_size] for x in range(0, len(variant_list), ba
 print("got chunk list of size {} and type {}".format(len(chunks), type(chunks)))
 
 # loop through chunks
-main_start_time = time.perf_counter()
-final_results = []
-for chunk_index in range(0, len(chunks)):
-# for chunk_index in range(6, 9):
-    variant_list = chunks[chunk_index]
-
-    # get start time
-    start_time = time.perf_counter()
-
-    # get the sequence input for the first chunk
-    # variant_list = chunks[0]
-    variant_list, tensor_input = dcc_basset_lib.get_input_tensor_from_variant_list(variant_list, hg19, region_size, False)
-
-    # get end time
-    end_time = time.perf_counter()
-    print("({}) generated input tensor of shape {} in {:0.4}s".format(chunk_index, tensor_input.shape, end_time - start_time))
-
-    # get start time
-    start_time = time.perf_counter()
-
-    # run the model predictions
-    pretrained_model_reloaded_th.eval()
-    predictions = pretrained_model_reloaded_th(tensor_input)
-
-    # get end time
-    end_time = time.perf_counter()
-    print("generated predictions tensor of shape {} in {:0.4}s".format(predictions.shape, end_time - start_time))
-
-    # get start time
-    start_time = time.perf_counter()
-
-    # get the result map
-    result_list = dcc_basset_lib.get_result_map(variant_list, predictions, labels_list)
-    final_results.extend(result_list)
-    # print("got result list {}".format(result_list))
-
-    # get end time
-    end_time = time.perf_counter()
-    print("got result list of size {} in time {:0.4f}s".format(len(result_list), end_time - start_time))
-
-# end
-main_end_time = time.perf_counter()
-print("got final results of size {} in time {:0.4f}".format(len(final_results), main_end_time - main_start_time))
-
-# write out the output
 with open(file_output, 'w') as out_file:
-    out = json.dumps(final_results)
-    out_file.write(out)
-    print("got final results file {}".format(file_output))
+    for chunk_index in range(0, len(chunks)):
+    # for chunk_index in range(6, 9):
+        variant_list = chunks[chunk_index]
 
+        # get start time
+        start_time = time.perf_counter()
 
+        # get the sequence input for the first chunk
+        # variant_list = chunks[0]
+        variant_list, tensor_input = dcc_basset_lib.get_input_tensor_from_variant_list(variant_list, hg19, region_size, False)
+
+        # get end time
+        end_time = time.perf_counter()
+        print("({}) generated input tensor of shape {} in {:0.4}s".format(chunk_index, tensor_input.shape, end_time - start_time))
+
+        # get start time
+        start_time = time.perf_counter()
+
+        # run the model predictions
+        pretrained_model_reloaded_th.eval()
+        predictions = pretrained_model_reloaded_th(tensor_input)
+
+        # get end time
+        end_time = time.perf_counter()
+        print("generated predictions tensor of shape {} in {:0.4}s".format(predictions.shape, end_time - start_time))
+
+        # get start time
+        start_time = time.perf_counter()
+
+        # get the result map
+        result_list = dcc_basset_lib.get_result_map(variant_list, predictions, labels_list)
+        for result in result_list:
+            out = json.dumps(result, separators=(',', ':'))
+            print(out, file=out_file)
+
+        # get end time
+        end_time = time.perf_counter()
+        print("got result list of size {} in time {:0.4f}s".format(len(result_list), end_time - start_time))

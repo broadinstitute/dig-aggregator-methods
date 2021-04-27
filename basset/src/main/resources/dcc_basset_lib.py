@@ -1,13 +1,14 @@
 # imports
 import twobitreader
 from twobitreader import TwoBitFile
-import numpy as np 
+import numpy as np
 import torch
 from torch import nn
 from sklearn.preprocessing import OneHotEncoder
 import csv
 import re
 import json
+import functools
 
 print("have pytorch version {}".format(torch.__version__))
 print("have numpy version {}".format(np.__version__))
@@ -64,7 +65,10 @@ def get_input_np_array(sequence_list):
         else:
             sequence_np = np.vstack((sequence_np, np.array(list(seq))))
 
-    # return
+    # special case: sequence_list was empty
+    if sequence_np is None:
+        return np.array([], dtype=str, ndmin=2)
+
     return sequence_np
 
 def get_one_hot_sequence_array(sequence_list):
@@ -91,22 +95,8 @@ def get_one_hot_sequence_array(sequence_list):
     return sequence_np
 
 def get_variant_list(file):
-    variants = []
     with open(file, 'r') as variant_file:
-
-        # read all the next rows
-        for line in variant_file:
-            row = json.loads(line)
-            # print(row)
-            variants.append(row['varId'])
-
-
-    # print the first 10 variants
-    # for index in range(1, 10):
-    #     print("got variant: {}".format(variants[index]))
-
-    # return
-    return variants
+        return [s.strip() for s in variant_file.readlines()]
 
 def load_beluga_model(weights_file, should_log=True):
     # load the weights
@@ -231,7 +221,7 @@ def load_nasa_model_from_state_dict(state_dict, should_log=True):
         nn.ReLU(),      # NO WEIGHTS
         nn.MaxPool2d((4, 1),(4, 1),(0, 0),ceil_mode=True),      # NO WEIGHTS
         Lambda(lambda x: x.view(x.size(0),-1)), # Reshape,      # NO WEIGHTS
-        nn.Sequential(      
+        nn.Sequential(
             Lambda(lambda x: x.view(1,-1) if 1==len(x.size()) else x ),     # NO WEIGHTS
             nn.Linear(1500,1024)), # Linear,
         nn.BatchNorm1d(1024,1e-05,0.1,True), #BatchNorm1d,
@@ -352,7 +342,7 @@ def get_result_map(variant_list, result_tensor, label_list, debug = False):
 
     # loop through the variants and add the resulting aggregated value in for each tissue
     for index, variant in enumerate(variant_list):
-        result_map = {'var_id': variant}
+        result_map = {'varId': variant}
 
         # calculate the aggregated result value
         # get the absolute value of the difference
@@ -408,7 +398,7 @@ def get_input_tensor_from_variant_list(variant_list, genome_lookup, region_size,
         except:
             variants_to_remove_list.append(variant)
             continue
-            # else: 
+            # else:
             #     raise ValueError("for variant {} got incorrect letter in sequence \n{}".format(variant, test_sequence))
 
         # debug
@@ -426,7 +416,7 @@ def get_input_tensor_from_variant_list(variant_list, genome_lookup, region_size,
     if debug:
         for index, seq in enumerate(sequence_list):
             print("({}) has size {}".format(index, len(seq)))
-    
+
     # get the np array of right shape once all the variants have been added in
     sequence_one_hot = get_one_hot_sequence_array(sequence_list)
     if debug:
@@ -539,5 +529,5 @@ if __name__ == '__main__':
     print("got input tensor of type {} and shape {} and data \n{}".format(type(sequence_results), sequence_results.shape, sequence_results))
 
     # test for letter Ns
-    variant_list.append("20:26319418:A:G")    
+    variant_list.append("20:26319418:A:G")
     variant_list, test_results = get_input_tensor_from_variant_list(variant_list, hg19, 600, False)
