@@ -88,7 +88,7 @@ print("got chunk list of size {} and type {}".format(len(chunks), type(chunks)))
 # loop through chunks
 with open(file_output, 'w') as out_file:
     for chunk_index in range(0, len(chunks)):
-    # for chunk_index in range(6, 9):
+    # for chunk_index in range(1563, 1566):
         variant_list = chunks[chunk_index]
 
         # get start time
@@ -98,30 +98,32 @@ with open(file_output, 'w') as out_file:
         # variant_list = chunks[0]
         variant_list, tensor_input = dcc_basset_lib.get_input_tensor_from_variant_list(variant_list, hg19, region_size, False)
 
-        # get end time
-        end_time = time.perf_counter()
-        print("({}) generated input tensor of shape {} in {:0.4}s".format(chunk_index, tensor_input.shape, end_time - start_time))
+        # handle is no good sequences were returned
+        if len(variant_list) > 0 and tensor_input is not None:
+            # get end time
+            end_time = time.perf_counter()
+            print("({}) generated input tensor of shape {} in {:0.4}s".format(chunk_index, tensor_input.shape, end_time - start_time))
 
-        # get start time
-        start_time = time.perf_counter()
+            # get start time
+            start_time = time.perf_counter()
 
-        # run the model predictions
-        pretrained_model_reloaded_th.eval()
-        predictions = pretrained_model_reloaded_th(tensor_input)
+            # run the model predictions
+            pretrained_model_reloaded_th.eval()
+            predictions = pretrained_model_reloaded_th(tensor_input)
 
-        # get end time
-        end_time = time.perf_counter()
-        print("generated predictions tensor of shape {} in {:0.4}s".format(predictions.shape, end_time - start_time))
+            # get end time
+            end_time = time.perf_counter()
+            print("generated predictions tensor of shape {} in {:0.4}s".format(predictions.shape, end_time - start_time))
 
-        # get start time
-        start_time = time.perf_counter()
+            # get start time
+            start_time = time.perf_counter()
 
-        # get the result map
-        result_list = dcc_basset_lib.get_result_map(variant_list, predictions, labels_list)
-        for result in result_list:
-            out = json.dumps(result, separators=(',', ':'))
-            print(out, file=out_file)
+            # get the result map
+            result_list = dcc_basset_lib.get_result_map(variant_list, predictions, labels_list)
+            for result in result_list:
+                out = json.dumps(result, separators=(',', ':'))
+                print(out, file=out_file)
 
-        # get end time
-        end_time = time.perf_counter()
-        print("got result list of size {} in time {:0.4f}s".format(len(result_list), end_time - start_time))
+            # get end time
+            end_time = time.perf_counter()
+            print("got result list of size {} in time {:0.4f}s".format(len(result_list), end_time - start_time))

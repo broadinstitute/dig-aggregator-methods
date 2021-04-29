@@ -58,6 +58,7 @@ def get_ref_alt_sequences(position, offset, chromosome, alt_allele=None):
     return ref_sequence, alt_sequence
 
 def get_input_np_array(sequence_list):
+    ''' turns a list of ACTG sequences into a numpy matrix with one letter per cell '''
     sequence_np = None
     for seq in sequence_list:
         if sequence_np is None:
@@ -65,13 +66,11 @@ def get_input_np_array(sequence_list):
         else:
             sequence_np = np.vstack((sequence_np, np.array(list(seq))))
 
-    # special case: sequence_list was empty
-    if sequence_np is None:
-        return np.array([], dtype=str, ndmin=2)
-
+    # return
     return sequence_np
 
 def get_one_hot_sequence_array(sequence_list):
+    ''' one hot sequence the list of actg sequences '''
     # get the numpy sequence
     sequence_np = get_input_np_array(sequence_list)
 
@@ -368,6 +367,7 @@ def get_input_tensor_from_variant_list(variant_list, genome_lookup, region_size,
 
     # keep track of variants that return odd sequences
     variants_to_remove_list = []
+    tensor_input = None 
 
     # list used to build the tensor
     sequence_list = []
@@ -418,24 +418,27 @@ def get_input_tensor_from_variant_list(variant_list, genome_lookup, region_size,
             print("({}) has size {}".format(index, len(seq)))
 
     # get the np array of right shape once all the variants have been added in
-    sequence_one_hot = get_one_hot_sequence_array(sequence_list)
-    if debug:
-        print("got sequence one hot of type {} and shape {}".format(type(sequence_one_hot), sequence_one_hot.shape))
-        # print(sequence_one_hot)
+    # check that the sequence list has at least one good element that hasn't been filtered out
+    if len(sequence_list) > 0:
+        sequence_one_hot = get_one_hot_sequence_array(sequence_list)
 
-    # create a pytorch tensor
-    tensor = torch.from_numpy(sequence_one_hot)
+        if debug:
+            print("got sequence one hot of type {} and shape {}".format(type(sequence_one_hot), sequence_one_hot.shape))
+            # print(sequence_one_hot)
 
-    if debug:
-        print("got pytorch tensor with type {} and shape {} and data type \n{}".format(type(tensor), tensor.shape, tensor.dtype))
+        # create a pytorch tensor
+        tensor = torch.from_numpy(sequence_one_hot)
 
-    # build the input tensor
-    tensor_initial = torch.unsqueeze(tensor, 3)
-    tensor_input = tensor_initial.permute(0, 2, 1, 3)
-    tensor_input = tensor_input.to(torch.float)
+        if debug:
+            print("got pytorch tensor with type {} and shape {} and data type \n{}".format(type(tensor), tensor.shape, tensor.dtype))
 
-    if debug:
-        print("got transposed pytorch tensor with type {} and shape {} and data type \n{}".format(type(tensor_input), tensor_input.shape, tensor_input.dtype))
+        # build the input tensor
+        tensor_initial = torch.unsqueeze(tensor, 3)
+        tensor_input = tensor_initial.permute(0, 2, 1, 3)
+        tensor_input = tensor_input.to(torch.float)
+
+        if debug:
+            print("got transposed pytorch tensor with type {} and shape {} and data type \n{}".format(type(tensor_input), tensor_input.shape, tensor_input.dtype))
 
     # create updated list to return
     updated_variant_list = [variant for variant in variant_list if variant not in variants_to_remove_list]
@@ -446,7 +449,7 @@ def get_input_tensor_from_variant_list(variant_list, genome_lookup, region_size,
 if __name__ == '__main__':
     # set the data dir
     # dir_data = "/Users/mduby/Data/Broad/"
-    dir_data = "/home/javaprog/Data/Broad/"
+    dir_data = "/home/javaprog/Data/OldNUC/Broad/"
 
     # file locations
     file_input = dir_data + "Magma/Common/part-00011-6a21a67f-59b3-4792-b9b2-7f99deea6b5a-c000.csv"
@@ -530,4 +533,8 @@ if __name__ == '__main__':
 
     # test for letter Ns
     variant_list.append("20:26319418:A:G")
+    variant_list, test_results = get_input_tensor_from_variant_list(variant_list, hg19, 600, False)
+
+    # test for chrom XY
+    variant_list = ["XY:643341:C:T"]
     variant_list, test_results = get_input_tensor_from_variant_list(variant_list, hg19, 600, False)
