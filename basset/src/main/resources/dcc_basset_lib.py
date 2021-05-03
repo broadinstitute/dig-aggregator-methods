@@ -344,8 +344,9 @@ def get_result_map(variant_list, result_tensor, label_list, debug = False):
         result_map = {'varId': variant}
 
         # calculate the aggregated result value
-        # get the absolute value of the difference
-        tensor_abs = torch.abs(result_tensor[index * 2] - result_tensor[index * 2 + 1])
+        # get the absolute value of the difference (20210430 - change to reflect the Basset paper, which is to subtract ref from alt)
+        # tensor_abs = torch.abs(result_tensor[index * 2] - result_tensor[index * 2 + 1])
+        tensor_abs = result_tensor[index * 2 + 1] - result_tensor[index * 2]
 
         if debug:
             print("for variant {} got aggregated tensor \n{}".format(variant, tensor_abs))
