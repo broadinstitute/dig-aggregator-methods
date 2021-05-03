@@ -1,4 +1,6 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import split
+from pyspark.sql.types import IntegerType
 
 
 def main():
@@ -24,8 +26,13 @@ def main():
         df.altScore,
     )
 
+    # parse the variant id to extract chromosome and position
+    df = df \
+        .withColumn('chromosome', split(df.varId, ':').getItem(0)) \
+        .withColumn('position', split(df.varId, ':').getItem(1).cast(IntegerType()))
+
     # join to get dbSNP, sort, and write
-    df.orderBy(['varId']) \
+    df.orderBy(['chromosome', 'position']) \
         .write \
         .mode('overwrite') \
         .json(outdir)

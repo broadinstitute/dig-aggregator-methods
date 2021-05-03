@@ -1,5 +1,9 @@
+import re
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, explode
+
+from bioindex.lib.utils import camel_case_str
 
 
 def main():
@@ -25,6 +29,10 @@ def main():
             col('start').alias('position'),
             col('cqs.*'),
         )
+
+    # rename all the columns to guarantee camel-case of consequence fields
+    for column in df.columns:
+        df = df.withColumnRenamed(column, camel_case_str(column))
 
     # output the consequences, ordered by variant so they are together
     df.drop('domains') \

@@ -3,7 +3,7 @@ import argparse
 import platform
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import concat_ws, regexp_replace, when
+from pyspark.sql.functions import concat_ws, lower, regexp_replace, when
 
 S3DIR = 's3://dig-analysis-data'
 
@@ -33,15 +33,27 @@ def main():
     # read all the fields needed across the regions for the dataset
     df = spark.read.json(srcdir)
 
-    # keep only regulatory elements
-    df = df.filter(df.category == 'cis-regulatory elements')
+    # find enahancer-like and promoter-like states
+    enhancer_like = lower(df.state).contains('enhancer')
+    promoter_like = lower(df.state).contains('promoter')
 
-    # use state for chromatin states
+    # rename enhancer and promoter states, if not, make null
+    df = df.withColumn(
+        'state',
+        when(enhancer_like, 'enhancer').otherwise(
+            when(promoter_like, 'promoter').otherwise(None)
+        )
+    )
+
+    # use state instead of annotation for chromatin state annotations
     annotation = when(df.annotation == 'chromatin_state', df.state) \
         .otherwise(df.annotation)
 
     # when the state is non-null, append it to the annotation
     df = df.withColumn('annotation', annotation)
+
+    # remove null annotations (non-enhancer/promoter chromatin states)
+    df = df.filter(df.annotation.isNotNull())
 
     # fix any whitespace issues
     annotation = regexp_replace(df.annotation, ' ', '_')

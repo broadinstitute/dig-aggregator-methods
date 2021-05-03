@@ -11,7 +11,7 @@ import org.broadinstitute.dig.aws.emr.configurations.{MapReduce, Spark}
   *
   * The input location:
   *
-  *  s3://dig-analysis-data/out/varianteffect/cqs/part-*.json
+  *  s3://dig-analysis-data/out/varianteffect/effects/part-*.json
   *  s3://dig-analysis-data/out/varianteffect/snp/part-*.json
   *
   * The output location:
@@ -42,7 +42,7 @@ class CommonStage(implicit context: Context) extends Stage {
 
   /** All effect results are combined together, so the results list is ignored. */
   override def make(output: String): Job = {
-    new Job(Job.Script(script))
+    new Job(Job.Script(resourceUri("common.py")))
   }
 
   /** Before the jobs actually run, perform this operation.

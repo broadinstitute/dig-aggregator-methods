@@ -70,7 +70,7 @@ def common_fields(row):
             'consequence': row['most_severe_consequence'],
             'nearest': row['nearest'],
             'dbSNP': None,
-            'maf': None,
+            'maxAF': None,
             'af': {
                 'EU': None,
                 'HS': None,
@@ -88,7 +88,7 @@ def common_fields(row):
         'consequence': row['most_severe_consequence'],
         'nearest': row['nearest'],
         'dbSNP': dbSNP(variant),
-        'maf': variant.get('minor_allele_freq'),
+        'maxAF': variant.get('minor_allele_freq'),
         'af': allele_frequencies(variant, allele),
     }
 
