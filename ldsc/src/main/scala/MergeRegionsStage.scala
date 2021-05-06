@@ -38,7 +38,11 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
         )
         .distinct
 
-      Outputs.Named(partitionNames: _*)
+      // if there are no partitions, then we can ignore it
+      partitionNames match {
+        case Nil => Outputs.Null
+        case _   => Outputs.Named(partitionNames: _*)
+      }
     }
   }
 
@@ -52,7 +56,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/ldsc/regions/merged/${output}")
+    context.s3.rm(s"out/ldsc/regions/merged/${output}/")
   }
 
   /** Update the success flag of the merged regions.

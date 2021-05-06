@@ -3,12 +3,87 @@ import argparse
 import platform
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import concat_ws, lower, regexp_replace, when
+from pyspark.sql.types import StringType
+from pyspark.sql.functions import concat_ws, lower, regexp_replace, udf, when
 
 S3DIR = 's3://dig-analysis-data'
 
 # BED files need to be sorted by chrom/start, this orders the chromosomes
 CHROMOSOMES = list(map(lambda c: str(c + 1), range(22))) + ['X', 'Y', 'MT']
+
+# *-like chromatin states
+ENHANCER = 'enhancer'
+PROMOTER = 'promoter'
+
+# mapping of harmonized chromatin states
+CHROMATIN_STATES = {
+    'enhancer': ENHANCER,
+    'genic_enhancer': ENHANCER,
+    'enhancer_genic': ENHANCER,
+    'enhancer_genic_1': ENHANCER,
+    'enhancer_genic_2': ENHANCER,
+    'active_enhancer_1': ENHANCER,
+    'enhancer_active_1': ENHANCER,
+    'active_enhancer_2': ENHANCER,
+    'enhancer_active_2': ENHANCER,
+    'weak_enhancer': ENHANCER,
+    'enhancer_weak': ENHANCER,
+    'enhancer_bivalent': ENHANCER,
+    'enh': ENHANCER,
+    'enhg': ENHANCER,
+    'enhg1': ENHANCER,
+    'enhg2': ENHANCER,
+    'enha1': ENHANCER,
+    'enha2': ENHANCER,
+    'enhwk': ENHANCER,
+    'enhbiv': ENHANCER,
+
+    # promoter-like states
+    'promoter': PROMOTER,
+    'promoter_weak': PROMOTER,
+    'promoter_flanking': PROMOTER,
+    'promoter_active': PROMOTER,
+    'promoter_bivalent': PROMOTER,
+    'promoter_bivalent_flanking': PROMOTER,
+    'promoter_flanking_upstream': PROMOTER,
+    'promoter_flanking_downstream': PROMOTER,
+    'weak_tss': PROMOTER,
+    'flanking_tss': PROMOTER,
+    'active_tss': PROMOTER,
+    'bivalent_tss': PROMOTER,
+    'poised_tss': PROMOTER,
+    'bivalent/poised_tss': PROMOTER,
+    'tssaflnk': PROMOTER,
+    'tssflnk': PROMOTER,
+    'tssa': PROMOTER,
+    'tssbiv': PROMOTER,
+    'bivflnk': PROMOTER,
+    'tssflnku': PROMOTER,
+    'tssflnkd': PROMOTER,
+}
+
+
+@udf(returnType=StringType())
+def harmonized_state(annotation, state):
+    """
+    Attempts to discover the annotation used for LDSC and GREGOR
+    given the current annotation and state columns. If the annotation
+    is a chromatin state, then the state field is harmonized and
+    used, otherwise the annotation is returned as-is.
+    """
+    annotation = annotation.lower()
+    state = state.lower()
+
+    if annotation != 'chromatin_state':
+        return annotation
+
+    # discover enhancer and promoter-like states
+    if 'enh' in state:
+        return ENHANCER
+    if 'tss' in state or 'promoter' in state:
+        return PROMOTER
+
+    return None
 
 
 def main():
@@ -33,26 +108,10 @@ def main():
     # read all the fields needed across the regions for the dataset
     df = spark.read.json(srcdir)
 
-    # find enahancer-like and promoter-like states
-    enhancer_like = lower(df.state).contains('enhancer')
-    promoter_like = lower(df.state).contains('promoter')
-
     # rename enhancer and promoter states, if not, make null
-    df = df.withColumn(
-        'state',
-        when(enhancer_like, 'enhancer').otherwise(
-            when(promoter_like, 'promoter').otherwise(None)
-        )
-    )
+    df = df.withColumn('annotation', harmonized_state(df.annotation, df.state))
 
-    # use state instead of annotation for chromatin state annotations
-    annotation = when(df.annotation == 'chromatin_state', df.state) \
-        .otherwise(df.annotation)
-
-    # when the state is non-null, append it to the annotation
-    df = df.withColumn('annotation', annotation)
-
-    # remove null annotations (non-enhancer/promoter chromatin states)
+    # remove null annotations
     df = df.filter(df.annotation.isNotNull())
 
     # fix any whitespace issues
