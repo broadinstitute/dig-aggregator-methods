@@ -53,6 +53,7 @@ if __name__ == '__main__':
         .filter(df.multiAllelic == False) \
         .filter(df.pValue.isNotNull() & ~isnan(df.pValue)) \
         .filter(df.beta.isNotNull() & ~isnan(df.beta)) \
+        .filter(df.n.isNotNull()) \
         .select(
             df.dataset,
             df.varId,
