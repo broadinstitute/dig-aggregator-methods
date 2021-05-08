@@ -237,7 +237,7 @@ def load_ancestry_specific_analysis(phenotype):
             df = df.union(rare_variants) \
                 .rdd \
                 .keyBy(lambda v: v.varId) \
-                .reduceByKey(lambda a, b: b if b.n > a.n else a) \
+                .reduceByKey(lambda a, b: b if (b.n or 0) > (a.n or 0) else a) \
                 .map(lambda v: v[1]) \
                 .toDF()
 
