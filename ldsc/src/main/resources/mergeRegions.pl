@@ -13,7 +13,7 @@ my $sortedFile="sorted.csv";
 my $bedFile="$partition.csv";
 
 # mergepart files together and sort it by position
-`hadoop fs -getmerge -nl -skip-empty-file "$s3dir/regions/partitioned/*/partition=$partition/part-*" "$tmpFile"` or die 'Failed to merge partitions';
+`hadoop fs -getmerge -nl -skip-empty-file "$s3dir/regions/partitioned/*/partition=$partition/part-*" "$tmpFile"`;
 `sort -u -k1,1 -k2,2n "$tmpFile" > "$sortedFile"`;
 
 # open the sorted file and write to the bed file
