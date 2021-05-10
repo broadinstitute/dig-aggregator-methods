@@ -15,8 +15,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterVolumeSizeInGB = 200,
-    applications = Seq.empty,
-    stepConcurrency = 5
+    applications = Seq.empty
   )
 
   /** The _SUCCESS file maps to a key prefix with partitioned bed files.
