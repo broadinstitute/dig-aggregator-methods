@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import argparse
-import concurrent.futures
 import json
 import os.path
 import re
@@ -11,14 +10,25 @@ import tempfile
 S3DIR = 's3://dig-analysis-data/out/varianteffect'
 
 
-def colocated_variant(row):
+def colocated_variant(row, ref, alt):
     """
     Find the first colocated variant with a matching allele string or None.
     """
-    variants = row.get('colocated_variants', [])
+    co = row.get('colocated_variants', [])
 
-    # find the first with a matching allele string
-    return next((v for v in variants if v['allele_string'] == row['allele_string']), None)
+    # if there is only a single co-located variant, return it
+    if len(co) == 1:
+        return co[0]
+
+    # only keep colocated variants where the minor allele is ref or alt
+    variants = [v for v in co if v.get('minor_allele') in [ref, alt]]
+
+    # fail if no colocated variants
+    if not variants:
+        return None
+
+    # find the first with an rsID or default to the first variant
+    return next((v for v in variants if v.get('id', '').startswith('rs')), variants[0])
 
 
 def dbSNP(v):
@@ -31,14 +41,17 @@ def dbSNP(v):
     return rsid if rsid and rsid.startswith('rs') else None
 
 
-def allele_frequencies(v, minor_allele):
+def allele_frequencies(v, ref, alt):
     """
     Extract allele frequencies for a colocated variant.
     """
-    af = v.get('frequencies')
+    af = v.get('frequencies', {})
+
+    # find the matching allele in the frequency map (prefer alt)
+    allele = next((a for a in [alt, ref] if a in af), None)
 
     # no allele frequency data?
-    if af is None or minor_allele not in af:
+    if not allele:
         return {
             'EU': None,
             'HS': None,
@@ -47,13 +60,23 @@ def allele_frequencies(v, minor_allele):
             'SA': None,
         }
 
-    # if found, extract each ancestry
-    return af and {
-            'EU': af[minor_allele].get('eur'),
-            'HS': af[minor_allele].get('amr'),
-            'AA': af[minor_allele].get('afr'),
-            'EA': af[minor_allele].get('eas'),
-            'SA': af[minor_allele].get('sas'),
+    # lookup the frequency data
+    def get_freq(*cols):
+        freqs = [af[allele].get(c) for c in cols]
+
+        # find the first non-null/zero frequency from the columns
+        freq = next((f for f in freqs if f), None)
+
+        # flip the frequency if this is the reference allele
+        return 1.0 - freq if allele == ref else freq
+
+    # try gnomad, if not there use 1kg
+    return {
+        'EU': get_freq('gnomad_nfe', 'eur'),
+        'HS': get_freq('gnomad_amr', 'amr'),
+        'AA': get_freq('gnomad_afr', 'afr'),
+        'EA': get_freq('gnomad_eas', 'eas'),
+        'SA': get_freq('gnomad_sas', 'sas'),
     }
 
 
@@ -61,7 +84,10 @@ def common_fields(row):
     """
     Extracts data from the colocated variant fields.
     """
-    variant = colocated_variant(row)
+    ref, alt = row['id'].split(':')[-2:]
+
+    # find the correct colocated variant for this allele
+    variant = colocated_variant(row, ref, alt)
 
     # no colocated variant found, just return the common data
     if not variant:
@@ -70,6 +96,7 @@ def common_fields(row):
             'consequence': row['most_severe_consequence'],
             'nearest': row['nearest'],
             'dbSNP': None,
+            'minorAllele': None,
             'maf': None,
             'af': {
                 'EU': None,
@@ -80,16 +107,14 @@ def common_fields(row):
             },
         }
 
-    # get the allele for frequency data
-    allele = row['id'].split(':')[-1]
-
     return {
         'varId': row['id'],
         'consequence': row['most_severe_consequence'],
         'nearest': row['nearest'],
         'dbSNP': dbSNP(variant),
+        'minorAllele': variant.get('minor_allele'),
         'maf': variant.get('minor_allele_freq'),
-        'af': allele_frequencies(variant, allele),
+        'af': allele_frequencies(variant, ref, alt),
     }
 
 
@@ -103,8 +128,8 @@ def process_part(srcdir, outdir, part):
     subprocess.check_call(['aws', 's3', 'cp', f'{srcdir}/{part}', tmp])
 
     # loop over every line, parse, and create common row
-    with open(part, mode='w', encoding='utf-8') as out:
-        with open(tmp) as fp:
+    with open(tmp) as fp:
+        with open(part, mode='w', encoding='utf-8') as out:
             for line in fp:
                 row = json.loads(line)
                 common = common_fields(row)
@@ -132,36 +157,22 @@ def process_part(srcdir, outdir, part):
     print(f'Processed {part} successfully')
 
 
-def list_parts(srcdir):
-    """
-    Returns an array of all the part files that need to be processed.
-    """
-    lines = subprocess.check_output(['aws', 's3', 'ls', f'{srcdir}/', '--recursive']) \
-        .decode('utf-8') \
-        .split('\n')
-
-    # only keep actual part files
-    parts = [part for part in lines if "/part-" in part]
-
-    # get just the part filename from the output
-    return [re.search(r'/(part-[^/]+\.json)$', part).group(1) for part in parts]
-
-
 def main():
     """
-    Arguments: none
+    Arguments: part-file
     """
+    opts = argparse.ArgumentParser()
+    opts.add_argument('part')
+
+    # parse cli
+    args = opts.parse_args()
+
+    # s3 locations
     srcdir = f'{S3DIR}/effects'
     outdir = f'{S3DIR}/common'
 
-    # get all the part files that need processed
-    parts = list_parts(srcdir)
-
-    with concurrent.futures.ProcessPoolExecutor(max_workers=3) as pool:
-        jobs = [pool.submit(process_part, srcdir, outdir, part) for part in parts]
-
-        # wait for all jobs to finish
-        concurrent.futures.wait(jobs)
+    # run
+    process_part(srcdir, outdir, args.part)
 
 
 # entry point

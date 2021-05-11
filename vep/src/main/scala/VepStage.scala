@@ -45,7 +45,7 @@ class VepStage(implicit context: Context) extends Stage {
       new BootstrapScript(clusterBootstrap),
       new BootstrapScript(installScript)
     ),
-    stepConcurrency = 5
+    stepConcurrency = 3
   )
 
   /** Map inputs to outputs. */
