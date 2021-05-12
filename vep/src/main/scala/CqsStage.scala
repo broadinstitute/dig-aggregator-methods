@@ -15,11 +15,11 @@ import org.broadinstitute.dig.aws.emr.configurations.{MapReduce, Spark}
   *
   * The output location:
   *
-  *  s3://dig-analysis-data/out/varianteffect/common/part-*.json
+  *  s3://dig-analysis-data/out/varianteffect/cqs/part-*.json
   *
   * The inputs and outputs for this processor are expected to be phenotypes.
   */
-class CommonStage(implicit context: Context) extends Stage {
+class CqsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val effects: Input.Source = Input.Source.Success("out/varianteffect/effects/")
@@ -37,12 +37,12 @@ class CommonStage(implicit context: Context) extends Stage {
 
   /** Make inputs to the outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => Outputs.Named("common")
+    case _ => Outputs.Named("cqs")
   }
 
   /** All effect results are combined together, so the results list is ignored. */
   override def make(output: String): Job = {
-    val runScript = resourceUri("common.py")
+    val runScript = resourceUri("cqs.py")
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/effects/")
@@ -55,13 +55,13 @@ class CommonStage(implicit context: Context) extends Stage {
   /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/varianteffect/common/")
+    context.s3.rm("out/varianteffect/cqs/")
   }
 
   /** Update the success flag of the merged regions.
     */
   override def success(output: String): Unit = {
-    context.s3.touch(s"out/varianteffect/common/_SUCCESS")
+    context.s3.touch(s"out/varianteffect/cqs/_SUCCESS")
     ()
   }
 }

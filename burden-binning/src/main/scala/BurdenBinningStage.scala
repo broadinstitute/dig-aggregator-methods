@@ -39,7 +39,7 @@ class BurdenBinningStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
     slaveInstanceType = Strategy.generalPurpose(mem = 32.gb),
-    instances = 4
+    instances = 6
   )
 
   /** Build the job. */

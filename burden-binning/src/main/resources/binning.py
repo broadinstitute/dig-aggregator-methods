@@ -4,60 +4,46 @@ from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import explode, lit, when
 
 
-VEP_SRCDIR = 's3://dig-analysis-data/out/varianteffect/effects'
-FREQ_SRCDIR = 's3://dig-analysis-data/out/frequencyanalysis'
+CQS_SRCDIR = 's3://dig-analysis-data/out/varianteffect/cqs'
 VARIANTS_SRCDIR = 's3://dig-analysis-data/variants'
 TECH_SOURCES = ['ExSeq', 'WGS']
 
 
-def load_vep(spark):
+def load_vep_consequences(spark):
     """
     Loads the VEP data, explodes consequences, and picks the best one.
     """
-    vep = spark.read.json(f'{VEP_SRCDIR}/part-*')
-    cqs = explode(vep.transcript_consequences)
+    df = spark.read.json(f'{CQS_SRCDIR}/part-*')
+    df = df.filter(df.pick == 1)
 
-    # mapping of varId -> consequence; filter the picked consequences
-    df = vep.select(vep.id, cqs.alias('cqs'))
-    df = df.filter(df.cqs.pick == 1)
-
+    # only keep specific fields
     return df.select(
-        df.id.alias('varId'),
-
-        # pivot the cqs map into columns
-        df.cqs['gene_id'].alias('ensemblId'),
-        df.cqs['gene_symbol'].alias('gene'),
-        df.cqs['transcript_id'].alias('transcriptId'),
-        df.cqs['lof'].alias('lof'),
-        df.cqs['impact'].alias('impact'),
-        df.cqs['pick'].alias('pick'),
-        df.cqs['polyphen2_hdiv_pred'].alias('polyphen2_hdiv_pred'),
-        df.cqs['polyphen2_hvar_pred'].alias('polyphen2_hvar_pred'),
-        df.cqs['sift_pred'].alias('sift_pred'),
-        df.cqs['mutationtaster_pred'].alias('mutationtaster_pred'),
-        df.cqs['lrt_pred'].alias('lrt_pred'),
-        df.cqs['metalr_pred'].alias('metalr_pred'),
-        df.cqs['provean_pred'].alias('provean_pred'),
-        df.cqs['fathmm_pred'].alias('fathmm_pred'),
-        df.cqs['fathmm-mkl_coding_pred'].alias('fathmm_mkl_coding_pred'),
-        df.cqs['eigen-pc-raw_coding_rankscore'].alias('eigen_pc_raw_coding_rankscore'),
-        df.cqs['dann_rankscore'].alias('dann_rankscore'),
-        df.cqs['vest4_rankscore'].alias('vest4_rankscore'),
-        df.cqs['cadd_raw_rankscore'].alias('cadd_raw_rankscore'),
-        df.cqs['metasvm_pred'].alias('metasvm_pred'),
-        df.cqs['m-cap_score'].alias('m_cap_score'),
-        df.cqs['gnomad_genomes_popmax_af'].alias('gnomad_genomes_popmax_af'),
+        df.varId,
+        df.geneId,
+        df.geneSymbol,
+        df.transcriptId,
+        df.lof,
+        df.impact,
+        df.polyphen2HdivPred,
+        df.polyphen2HvarPred,
+        df.proveanPred,
+        df.siftPred,
+        df.mutationtasterPred,
+        df.lrtPred,
+        df.metalrPred,
+        df.fathmmPred,
+        df.fathmmMklCodingPred,
+        df.eigenPcRawCodingRankscore,
+        df.dannRankscore,
+        df.vest4Rankscore,
+        df.caddRawRankscore,
+        df.metasvmPred,
+        df.mCapScore,
+        df.gnomadGenomesPopmaxAf,
     )
 
 
-def load_freq(spark):
-    """
-    Load variant allele frequencies.
-    """
-    return spark.read.json(f'{FREQ_SRCDIR}/part-*')
-
-
-def load_variants(spark):
+def load_unique_variants(spark):
     """
     Only load variants from specific tech datasets.
     """
@@ -87,15 +73,15 @@ def main():
     outdir = 's3://dig-analysis-data/out/burdenbinning'
 
     # load input data
-    variants = load_variants(spark)
-    vep = load_vep(spark)
+    variants = load_unique_variants(spark)
+    cqs = load_vep_consequences(spark)
 
-    # keep only the vep output for the variants we care about
-    df = variants.join(vep, on='varId', how='inner')
+    # keep only the consequence output for the variants we care about
+    df = variants.join(cqs, on='varId', how='inner')
 
     # calculate MAF from AF
-    maf = when(df.gnomad_genomes_popmax_af < 0.5, df.gnomad_genomes_popmax_af) \
-        .otherwise(1.0 - df.gnomad_genomes_popmax_af)
+    maf = when(df.gnomadGenomesPopmaxAf < 0.5, df.gnomadGenomesPopmaxAf) \
+        .otherwise(1.0 - df.gnomadGenomesPopmaxAf)
 
     # add MAF column
     df = df.withColumn('maf', maf)
@@ -105,36 +91,36 @@ def main():
 
     # 1/5 predictor masks
     pred_1of5 = pred_0of5 & (
-        (df.polyphen2_hdiv_pred.contains('D')) | \
-        (df.polyphen2_hvar_pred.contains('D')) | \
-        (df.sift_pred.contains('D')) | \
-        (df.lrt_pred.contains('D')) | \
-        (df.mutationtaster_pred.contains('A') | df.mutationtaster_pred.contains('D')) \
+        (df.polyphen2HdivPred.contains('D')) | \
+        (df.polyphen2HvarPred.contains('D')) | \
+        (df.siftPred.contains('D')) | \
+        (df.lrtPred.contains('D')) | \
+        (df.mutationtasterPred.contains('A') | df.mutationtasterPred.contains('D')) \
     )
 
     # 5/5 predictor masks
     pred_5of5 = \
-        (df.polyphen2_hdiv_pred.contains('D')) & \
-        (df.polyphen2_hvar_pred.contains('D')) & \
-        (df.sift_pred.contains('D')) & \
-        (df.lrt_pred.contains('D')) & \
-        (df.mutationtaster_pred.contains('A') | df.mutationtaster_pred.contains('D'))
+        (df.polyphen2HdivPred.contains('D')) & \
+        (df.polyphen2HvarPred.contains('D')) & \
+        (df.siftPred.contains('D')) & \
+        (df.lrtPred.contains('D')) & \
+        (df.mutationtasterPred.contains('A') | df.mutationtasterPred.contains('D'))
 
     # 5/5 + 6 more masks
     pred_11of11 = pred_5of5 & \
-        (df.metalr_pred.contains('D')) & \
-        (df.metasvm_pred.contains('D')) &  \
-        (df.provean_pred.contains('D')) & \
-        (df.fathmm_mkl_coding_pred.contains('D')) & \
-        (df.fathmm_pred.contains('D')) & \
-        (df.m_cap_score >= 0.025)
+        (df.metalrPred.contains('D')) & \
+        (df.metasvmPred.contains('D')) &  \
+        (df.proveanPred.contains('D')) & \
+        (df.fathmmMklCodingPred.contains('D')) & \
+        (df.fathmmPred.contains('D')) & \
+        (df.mCapScore >= 0.025)
 
     # 11/11 + 4 more masks
     pred_16of16 = pred_11of11 & \
-        (df.eigen_pc_raw_coding_rankscore >= 0.9) & \
-        (df.dann_rankscore >= 0.9) & \
-        (df.cadd_raw_rankscore >= 0.9) & \
-        (df.vest4_rankscore >= 0.9)
+        (df.eigenPcRawCodingRankscore >= 0.9) & \
+        (df.dannRankscore >= 0.9) & \
+        (df.caddRawRankscore >= 0.9) & \
+        (df.vest4Rankscore >= 0.9)
 
     # low and high confidence loftee predictor masks
     pred_loftee_lc = (df.impact == 'HIGH') & (df.lof == 'LC') & (df.maf < 0.01)
