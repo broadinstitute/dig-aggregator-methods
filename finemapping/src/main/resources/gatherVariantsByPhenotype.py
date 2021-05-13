@@ -32,7 +32,7 @@ def main():
     # load the snps
     df_snp = spark.read.json(f'{dir_snp}/part-*')
     df_snp = df_snp.select(df_snp.varId, df_snp.dbSNP)
-    df_snp = sf_snp.filter(df_snp.dbSNP.isNotNull())
+    df_snp = df_snp.filter(df_snp.dbSNP.isNotNull())
     # print("got snps df of size {}".format(df_snp.count()))
     # df_snp.show()
 
