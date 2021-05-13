@@ -22,7 +22,7 @@ object Finemapping extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
-    //addStage(new VariantFrequencyStage)
+    addStage(new VariantFrequencyStage)
     addStage(new GatherVariantsStage)
     addStage(new RunCojoStage)
     addStage(new FinalResultsStage)
