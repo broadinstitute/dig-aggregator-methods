@@ -21,7 +21,7 @@ def main():
     # dir_s3 = f'/Users/mduby/Data/Broad/dig-analysis-data/out'
     # dir_s3 = f'/home/javaprog/Data/Broad/dig-analysis-data/out'
     dir_s3 = f's3://dig-analysis-data/out'
-    dir_snp = f'{dir_s3}/varianteffect/snp'
+    dir_snp = f'{dir_s3}/varianteffect/common'
     dir_meta = f'{dir_s3}/metaanalysis/ancestry-specific/{args.phenotype}/*'
     dir_frequency = f'{dir_s3}/finemapping/variant-frequencies'
     dir_out = f'{dir_s3}/finemapping/variant-associations/{args.phenotype}'
@@ -30,29 +30,31 @@ def main():
     spark = SparkSession.builder.appName('cojo').getOrCreate()
 
     # load the snps
-    df_snp = spark.read.csv(f'{dir_snp}/*.csv', sep='\t', header=True)
+    df_snp = spark.read.json(f'{dir_snp}/part-*')
+    df_snp = df_snp.select(df_snp.varId, df_snp.dbSNP)
+    df_snp = sf_snp.filter(df_snp.dbSNP.isNotNull())
     # print("got snps df of size {}".format(df_snp.count()))
     # df_snp.show()
 
     # load variants and phenotype associations
     df_meta = spark.read.json(f'{dir_meta}/part-*') \
         .withColumn('filename', input_file_name()) \
-        .withColumn('ancestry', regexp_extract('filename', r'/ancestry=([^/]+)/', 1))    
+        .withColumn('ancestry', regexp_extract('filename', r'/ancestry=([^/]+)/', 1))
     # print("got metaanalysis df of size {}".format(df_meta.count()))
     # df_meta.show()
 
     # join pValue and snps; filter columns
     df_meta = df_meta.join(df_snp, on=['varId'], how='inner')
-    df_meta = df_meta.select(df_meta.varId, 
-                    df_meta.dbSNP, 
-                    df_meta.alt, 
-                    df_meta.reference, 
-                    df_meta.stdErr, 
-                    df_meta.pValue, 
+    df_meta = df_meta.select(df_meta.varId,
+                    df_meta.dbSNP,
+                    df_meta.alt,
+                    df_meta.reference,
+                    df_meta.stdErr,
+                    df_meta.pValue,
                     df_meta.beta,
-                    df_meta.n, 
-                    df_meta.chromosome, 
-                    df_meta.ancestry, 
+                    df_meta.n,
+                    df_meta.chromosome,
+                    df_meta.ancestry,
                 ) \
                 .filter(df_meta.pValue < 0.001)
     # print("got joined metaanalysis df of size {}".format(df_meta.count()))
@@ -66,15 +68,15 @@ def main():
     # join pValue and snps; filter columns
     df_meta = df_meta.join(df_frequency, on=['varId'], how='inner')
     df_meta = df_meta.select(
-            df_meta.dbSNP, 
-            df_meta.alt, 
-            df_meta.reference, 
-            df_meta.maf, 
+            df_meta.dbSNP,
+            df_meta.alt,
+            df_meta.reference,
+            df_meta.maf,
             df_meta.beta,
-            df_meta.stdErr, 
-            df_meta.pValue, 
-            df_meta.n, 
-            df_meta.ancestry, 
+            df_meta.stdErr,
+            df_meta.pValue,
+            df_meta.n,
+            df_meta.ancestry,
         )
     # print("got joined frequency df of size {}".format(df_meta.count()))
     # df_meta.show()
@@ -89,13 +91,13 @@ def main():
 
 
     # columns for COJO are:
-    # - SNP 
+    # - SNP
     # - A1 - the effect allele (alt)
-    # - A2 - the other allele (ref) 
-    # freq - frequency of the effect allele 
+    # - A2 - the other allele (ref)
+    # freq - frequency of the effect allele
     # b - effect size
     # - se - standard error
-    # - p - p-value 
+    # - p - p-value
     # - N - sample size
 
     # done
