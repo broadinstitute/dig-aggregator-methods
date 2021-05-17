@@ -16,20 +16,17 @@ def main():
     # load all the unique variants
     df = spark.read.json(srcdir)
 
-    # keep only certain columns
+    # keep only certain columns; extract chromosome and position from varId
     df = df.select(
         df.varId,
+        split(df.varId, ':').getItem(0).alias('chromosome'),
+        split(df.varId, ':').getItem(1).cast(IntegerType()).alias('position'),
         df.positionWeightMatrix,
         df.delta,
         df.strand,
         df.refScore,
         df.altScore,
     )
-
-    # parse the variant id to extract chromosome and position
-    df = df \
-        .withColumn('chromosome', split(df.varId, ':').getItem(0)) \
-        .withColumn('position', split(df.varId, ':').getItem(1).cast(IntegerType()))
 
     # join to get dbSNP, sort, and write
     df.orderBy(['chromosome', 'position']) \
