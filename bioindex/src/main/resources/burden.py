@@ -14,11 +14,8 @@ def main():
     # load all trans-ethnic, meta-analysis results for all variants
     df = spark.read.json(f'{srcdir}/part-*')
 
-    # rename gene column, drop ensembl ID
-    df = df.withColumnRenamed('geneSymbol', 'gene').drop('geneId')
-
     # sort by gene and then bin
-    df.orderBy(['gene', 'burdenBinId']) \
+    df.orderBy(['geneSymbol', 'burdenBinId']) \
         .write \
         .mode('overwrite') \
         .json('%s/gene' % outdir)
