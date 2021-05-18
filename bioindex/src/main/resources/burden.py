@@ -15,7 +15,7 @@ def main():
     df = spark.read.json(f'{srcdir}/part-*')
 
     # rename gene column, drop ensembl ID
-    df = df.withColumnRenamed('gene_symbol', 'gene').drop('ensemblId')
+    df = df.withColumnRenamed('geneSymbol', 'gene').drop('geneId')
 
     # sort by gene and then bin
     df.orderBy(['gene', 'burdenBinId']) \
