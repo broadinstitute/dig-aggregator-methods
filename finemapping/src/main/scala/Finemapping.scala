@@ -25,6 +25,6 @@ object Finemapping extends Method {
     addStage(new VariantFrequencyStage)
     addStage(new GatherVariantsStage)
     addStage(new RunCojoStage)
-    addStage(new FinalResultsStage)
+    addStage(new RichardsCredibleSetsStage)
   }
 }
