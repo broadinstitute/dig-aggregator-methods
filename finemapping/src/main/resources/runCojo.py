@@ -90,8 +90,9 @@ def main():
                 # run cojo command with appropriate ancestry g1000 files
                 file_g1000 = f'{dir_cojo}/g1000_{map_ancestry.get(ancestry)}'
                 file_output = f'{dir_cojo}/output/out_{phenotype}_{ancestry}_{chromosome}'
+                file_cojo_input = f'{dir_cojo}/input/cojo_{phenotype}_{ancestry}.csv'
                 # cojo_command = f'{dir_cojo}/gcta_1.93.2beta/gcta64 --bfile {file_g1000} --maf 0.01 --cojo-file {file_input} --cojo-wind 500 --threads 8 --cojo-slct --out {file_output}'
-                cojo_command = f'{dir_cojo}/gcta_1.93.2beta/gcta64 --bfile {file_g1000} --maf 0.005 --chr {chromosome} --cojo-file {file_input} --cojo-wind 10000 --threads 4 --cojo-slct --out {file_output}'
+                cojo_command = f'{dir_cojo}/gcta_1.93.2beta/gcta64 --bfile {file_g1000} --maf 0.005 --chr {chromosome} --cojo-file {file_cojo_input} --cojo-wind 10000 --threads 4 --cojo-slct --out {file_output}'
                 # run_system_command(cojo_command, if_test = arg_if_test)
 
                 # add job to job pool
