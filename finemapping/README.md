@@ -13,12 +13,15 @@ This method will take variant associations by ancestry, run the COJO method on t
 These are the stages of finemapping.
 
 ### VariantFrequencyStage
+PySpark script. 
 For all variants, gathers their frequncies from the varianteffect/common directory; this is done as a separate stage to cache the frequency results in a simpler file data structure
 
 ### GatherVariantsStage
+PySpark script.
 Joins the above frequencies with the phenotype/ancestry specific pValues for the variants; store the results by phenotype/ancestry subdirectory
 
-### new RunCojoStage
+### RunCojoStage
+Python script using shell commands.
 Use the above frequency and pValues for phenotype/ancestry variant data and run the [COJO](https://cnsgenomics.com/software/gcta/#COJO) fine mapping calculation.
 This will produce a single 'signal' SNP  10MB locus and will condition all other SNPs based on that signal pValue.
 The command for each ancestry/phenotype combination is:
@@ -32,10 +35,8 @@ gcta_1.93.2beta/gcta64 --bfile <1000 genomes file for ancestry> --maf 0.005 --ch
   * MAF filter of at least 0.005 for the varians to be used
   * Locus window size used is 10MB
 
-### FinalResultsStage
-This stage aggregates all the results into a standard json format per phenotype for use by the bioindex process
 
-
-### GatherCredibleSetsStage
-This stage aggregates all the results into a credible sets using the 'signal' SNP as the center of each 10MB locus and joining it with the neighboring conditioned pbalues.
+### RichardsCredibleSetsStage
+PySpark script.
+This stage aggregates all the results into a credible sets using the 'signal' SNP as the center of each 10MB locus and joining it with the neighboring conditioned pbalues. If more than one signal is present in a 10MB window, the top signal is kept and used as the region center (so 5MB on each side of the variant is the region).
 
