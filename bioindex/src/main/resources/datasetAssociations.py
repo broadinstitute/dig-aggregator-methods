@@ -28,7 +28,7 @@ def main():
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
     df = spark.read.json(srcdir)
     common = spark.read.json(common_dir)
-    common.drop('maf', 'af')
+    common = common.drop('maf', 'af')
 
     # rank the variants by p-value, keep only the top 1500
     w = Window().orderBy('pValue')
