@@ -12,6 +12,12 @@ $ ./run.sh bottom-line
 
 # run a stage of the bioindex method in test mode
 $ ./run.sh bioindex --stage GenesStage --test --yes
+
+# run a stage of the bioindex method in test mode from the SBT prompt
+# this will include only t2d related phenotypes but will exclude the ones ending in adj (adjusted)
+# --reprocess will force execution if already processed
+# --clusters will override the default 5 clusters (good for tuning shell script jobs) to make better use of VM resources
+sbt> run -c ../config..json --reprocess --clusters 10 --stage BassetStage --only T2D* --exclude *adj
 ```
 
 You can also simply go into the sub-directory of the method project and run it yourself.
