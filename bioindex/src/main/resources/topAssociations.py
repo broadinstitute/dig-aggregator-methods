@@ -8,14 +8,14 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output locations
-    srcdir = f's3://dig-analysis-data/out/metaanalysis'
+    srcdir = f's3://dig-analysis-data/out/metaanalysis/clumped'
     outdir = f's3://dig-bio-index/associations'
 
     # common vep data
     common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
 
     # load the top-association, lead SNPs for every phenotype
-    df = spark.read.json(f'{srcdir}/top/*/part-*')
+    df = spark.read.json(f'{srcdir}/*/part-*')
     df = df.filter(df.leadSNP)
 
     # load common data for variants and join
