@@ -15,7 +15,7 @@ def main():
     outdir = 's3://dig-bio-index/associations/matrix'
 
     # load the top association clumps
-    clumps = spark.read.json(f'{srcdir}/top/*/part-*')
+    clumps = spark.read.json(f'{srcdir}/clumped/*/part-*')
     common = spark.read.json(f'{common_dir}/part-*')
 
     # load associations across all phenotypes

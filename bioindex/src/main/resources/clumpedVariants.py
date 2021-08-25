@@ -10,12 +10,12 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = 's3://dig-analysis-data/out/metaanalysis'
+    srcdir = 's3://dig-analysis-data/out/metaanalysis/clumped'
     common_dir = 's3://dig-analysis-data/out/varianteffect/common'
     outdir = 's3://dig-bio-index/associations/clump'
 
     # load the top association clumps
-    clumps = spark.read.json(f'{srcdir}/top/*/part-*')
+    clumps = spark.read.json(f'{srcdir}/*/part-*')
     common = spark.read.json(f'{common_dir}/part-*')
 
     # join to get and common fields
