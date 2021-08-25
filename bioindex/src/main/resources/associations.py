@@ -26,7 +26,6 @@ def main():
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
     df = spark.read.json(srcdir)
     common = spark.read.json(common_dir)
-    common = common.drop('maf', 'af')
 
     # join the common data
     df = df.join(common, 'varId', how='left_outer')
