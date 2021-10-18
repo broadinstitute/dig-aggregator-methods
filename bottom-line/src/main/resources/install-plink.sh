@@ -27,5 +27,8 @@ chmod +x getmerge-strip-headers.sh
 ./getmerge-strip-headers.sh s3://dig-analysis-data/out/varianteffect/snp/part-*.csv ./snps.csv
 
 # install packages
-sudo pip3 install pandas
-sudo pip3 install scipy
+sudo yum -y install python3-devel
+
+sudo pip3 install cython==0.29.24
+sudo pip3 install pandas==1.3.3
+sudo pip3 install scipy==1.7.1
