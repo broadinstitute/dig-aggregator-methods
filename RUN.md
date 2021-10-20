@@ -33,11 +33,5 @@ Bottom Line -> GREGOR, MAGMA, Fine Mapping
 
 As can be seen, `vep` and `bottom-line` are essentially the two core methods on which all other methods depend (and they do not depend on each other). So, as long as `vep` and `bottom-line` are run first, then the others can be run in any order (*).
 
-## Deprecated Methods
-
-These methods are deprecated and shouldn't be run. They are still in the repo for posterity or in case they ever need to be resurrected.
-
-* frequencyanalysis - replaced by 1000g and gnomad AF data in dbNSFP output by vep
-
 
 [readme]: README.md
