@@ -10,7 +10,6 @@ If just with no command-line arguments, this is the general order the methods sh
 
 1. vep
 2. bottom-line
-3. ldsc
 4. gregor
 5. magma
 6. finemapping
@@ -28,12 +27,11 @@ This is a brief outline of which methods require input from other methods:
 
 ```
 VEP         -> Fine Mapping, Basset, MAGMA, Burden Binning
-Bottom Line -> LDSC, GREGOR, MAGMA, Fine Mapping
-LDSC        -> GREGOR
+Bottom Line -> GREGOR, MAGMA, Fine Mapping
 *           -> BioIndex
 ```
 
-As can be seen, `vep` and `bottom-line` are essentially the two core methods on which all other methods depend (and they do not depend on each other). The `gregor` method also uses a few outputs of a couple `ldsc` stages. So, as long as `vep`, `bottom-line`, and `ldsc` are run first, then the others can be run in any order (*).
+As can be seen, `vep` and `bottom-line` are essentially the two core methods on which all other methods depend (and they do not depend on each other). So, as long as `vep` and `bottom-line` are run first, then the others can be run in any order (*).
 
 ## Deprecated Methods
 
