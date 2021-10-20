@@ -12,10 +12,7 @@ If just with no command-line arguments, this is the general order the methods sh
 2. bottom-line
 4. gregor
 5. magma
-6. finemapping
-7. basset
-8. burden-binning
-9. bioindex (*)
+6. bioindex (*)
 
 _(*) The `bioindex` method should __always__ be run last as it takes the output of all the other methods and prepares it for indexing!_
 
@@ -26,8 +23,8 @@ To learn what the actual dependencies are for any given method, refer to the `so
 This is a brief outline of which methods require input from other methods:
 
 ```
-VEP         -> Fine Mapping, Basset, MAGMA, Burden Binning
-Bottom Line -> GREGOR, MAGMA, Fine Mapping
+VEP         -> MAGMA
+Bottom Line -> GREGOR, MAGMA
 *           -> BioIndex
 ```
 
