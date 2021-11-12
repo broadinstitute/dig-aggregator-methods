@@ -20,7 +20,7 @@ _(*) The `bioindex` method should __always__ be run last as it takes the output 
 
 To learn what the actual dependencies are for any given method, refer to the `sources` variable of the `Stage` classes in the method sub-folders.
 
-This is a brief outline of which methods require input from other methods:
+This is a brief outline of which methods require input from other methods.  Here, `A -> B` means "A is a prerequisite of B":
 
 ```
 VEP         -> MAGMA
@@ -28,7 +28,17 @@ Bottom Line -> GREGOR, MAGMA
 *           -> BioIndex
 ```
 
-As can be seen, `vep` and `bottom-line` are essentially the two core methods on which all other methods depend (and they do not depend on each other). So, as long as `vep` and `bottom-line` are run first, then the others can be run in any order (*).
+As can be seen, `vep` and `bottom-line` are essentially the two core methods on which all other methods depend (and they do not depend on each other). So, as long as `vep` and `bottom-line` are run first, then GREGOR and MAGMA can be run in any order.
+
+A suggested order of processor execution, that was used for the last couple of runs:
+
+```
+VEP, Bottom Line, GREGOR, MAGMA, BioIndex
+```
+
+Note that it's convenient to run the BioIndex Processor Stages individually, interleaved with rebuilding affected indexes, to minimize downtime of the dev Bioindex instance.  A script to do this is here:
+
+https://github.com/broadinstitute/dig-bioindex/tree/master/automation
 
 
 [readme]: README.md
