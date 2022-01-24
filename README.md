@@ -32,3 +32,13 @@ _NOTE: On the Broad file system, [SBT][sbt] can be installed with `use SBT`._
 [sbt]: https://www.scala-sbt.org/
 [core]: https://github.com/broadinstitute/dig-aggregator-core
 [g8]: http://www.foundweekends.org/giter8/
+
+## Data Locations
+
+- phenotype stats
+  - dataset specific
+    - variants/{sequence tech}/{dataset}/{phenotype}/
+  - ancestry specific
+    - out/metaanalysis/ancestry-specific/{phenotype}/{ancestry}/
+  - bottom line across all ancestries
+    - out//metaanalysis/trans-ethnic/{phenotype}/
