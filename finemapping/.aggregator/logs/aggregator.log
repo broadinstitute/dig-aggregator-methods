@@ -1,0 +1,6 @@
+2022-02-22 14:53:42,884 INFO [o.b.d.a.m.f.Finemapping$] Initializing stages... 
+2022-02-22 14:53:42,994 INFO [o.b.d.a.m.f.Finemapping$] Connecting to dig-analysis-state... 
+2022-02-22 14:53:44,642 WARN [o.b.d.a.m.f.Finemapping$] The reprocess flag was passed. All inputs to VariantFrequencyStage 
+2022-02-22 14:53:44,642 WARN [o.b.d.a.m.f.Finemapping$] will be treated as new and updated; are you sure? 
+2022-02-22 14:53:49,366 INFO [o.b.d.a.m.f.Finemapping$] Done 
+2022-02-22 14:53:49,402 INFO [o.b.d.a.m.f.Finemapping$] Running Method 'Finemapping' took 7167 ms 
