@@ -10,14 +10,14 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class GatherLargestDatasetVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val cojo: Input.Source = Input.Source.Success("out/finemapping/largest-datasets/")
+  val datasets: Input.Source = Input.Source.Success("out/finemapping/largest-datasets/*/")
 
   /** The output of gene pvalue analysis is the input for top results file. */
-  override val sources: Seq[Input.Source] = Seq(cojo)
+  override val sources: Seq[Input.Source] = Seq(datasets)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case cojo() => Outputs.Named("LargestDatasets")
+    case datasets(phenotype) => Outputs.Named(phenotype)
   }
 
   /** Simple cluster with more memory. */
@@ -31,7 +31,8 @@ class GatherLargestDatasetVariantsStage(implicit context: Context) extends Stage
   /** Build the job. */
   override def make(output: String): Job = {
     val script    = resourceUri("gatherLargestDatasetVariants.py")
+    val phenotype = output
 
-    new Job(Job.PySpark(script))
+    new Job(Job.PySpark(script, phenotype))
   }
 }

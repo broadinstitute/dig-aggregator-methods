@@ -1,4 +1,6 @@
 # imports
+import argparse
+
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType
 from pyspark.sql.functions import col, input_file_name, regexp_extract, lit
@@ -7,6 +9,14 @@ def main():
     """
     Arguments: phenotype
     """
+    opts = argparse.ArgumentParser()
+    opts.add_argument('phenotype_arg')
+
+    # parse command line
+    args = opts.parse_args()
+    phenotype_arg = args.phenotype_arg
+    print("got phenotype argument: {}".format(phenotype_arg))
+
     # input and output directories
     # dir_s3 = f'/Users/mduby/Data/Broad/dig-analysis-data/out'
     # dir_s3 = f'/home/javaprog/Data/Broad/dig-analysis-data/out'
@@ -30,18 +40,20 @@ def main():
     # df_frequency.show(5)
 
     # load the phenotype/ancestry dataset list data
-    df_largest_dataset = spark.read.json(f'{dir_largest_datasets}/part-*')
+    path_load = f'{dir_largest_datasets}/{phenotype_arg}/part-*'
+    print("loading dataset listings from path: {}".format(path_load))
+    df_largest_dataset = spark.read.json(path_load)
     # df_largest_dataset = spark.read.json(f'{dir_largest_datasets}/../largest-datasets-test/test.json')
-    
-    print("got largest dataset df of size {}".format(df_largest_dataset.count()))
+    print("got largest dataset dataframe of size {}".format(df_largest_dataset.count()))
     df_largest_dataset.show(5)
 
-    # TODO - for each row where the count of datasets is greater than 1, use the largest dataset to get phenotype association stats
+    # DEPRECATED - for each row where the count of datasets is greater than 1, use the largest dataset to get phenotype association stats
     # df_largest_dataset_more_than_one_dataset = df_largest_dataset.filter(col("count") > 1).collect()
     # print("got dataset more than 1 df of size {}".format(len(df_largest_dataset_more_than_one_dataset)))
 
     # collect for loop; will not filter for datasets more than one since collecting fifferent MAF values than for bottom line
     df_largest_dataset_more_than_one_dataset = df_largest_dataset.collect()
+    is_dff_exist = False
     for row in df_largest_dataset_more_than_one_dataset:
         phenotype = row['phenotype']
         ancestry = row['ancestry']
@@ -51,24 +63,35 @@ def main():
         # load variants and phenotype associations
         df_meta = spark.read.json(f'{directory}/part-*') \
             .withColumn('ancestry', lit(ancestry))   
-        print("got metaanalysis df of size {}".format(df_meta.count()))
+        print("got {}/{} metaanalysis df of size {}".format(phenotype, ancestry, df_meta.count()))
         # df_meta.show()
 
-        # join pValue and snps; filter columns
-        df_meta = df_meta.join(df_snp, on=['varId'], how='inner')
-        df_meta = df_meta.select(
-                        df_meta.dbSNP, 
-                        df_meta.alt, 
-                        df_meta.reference, 
-                        df_meta.maf, 
-                        df_meta.beta,
-                        df_meta.stdErr, 
-                        df_meta.pValue, 
-                        df_meta.n, 
-                        df_meta.ancestry, 
-                    )
-        print("got joined metaanalysis df of size {}".format(df_meta.count()))
-        df_meta.show(5)
+        # need to concatenate all ancestry dataframes before joining with df_snp
+        if not is_dff_exist:
+            dff = df_meta
+            is_dff_exist = True
+        else:
+            dff = dff.unionAll(df_meta)
+        print("got combined metaanalysis df of size {}".format(dff.count()))
+
+
+    # join pValue and snps; filter columns
+    df_meta = dff.join(df_snp, on=['varId'], how='inner')
+    df_meta = df_meta.select(
+                    df_meta.dbSNP, 
+                    df_meta.alt, 
+                    df_meta.reference, 
+                    df_meta.maf, 
+                    df_meta.beta,
+                    df_meta.stdErr, 
+                    df_meta.pValue, 
+                    df_meta.n, 
+                    df_meta.ancestry, 
+                )
+    print("got joined metaanalysis df of size {}".format(df_meta.count()))
+    df_meta.show(5)
+
+    
 
 
         # join pValue and snps; filter columns
@@ -86,20 +109,20 @@ def main():
         #     )
         # print("got joined frequency df of size {}".format(df_meta.count()))
 
-        # filter for pvalue threshold
-        p_value_limit = 0.01
-        df_meta = df_meta.filter(df_meta.pValue < p_value_limit)
-        print("got {} pValue joined frequency df of size {}".format(p_value_limit, df_meta.count()))
-        df_meta.show(5)
+    # filter for pvalue threshold
+    p_value_limit = 0.01
+    df_meta = df_meta.filter(df_meta.pValue < p_value_limit)
+    print("got {} pValue joined frequency df of size {}".format(p_value_limit, df_meta.count()))
+    df_meta.show(5)
 
-        # write out the file
-        dir_pheno_out = dir_out.format(dir_s3, phenotype)
-        df_meta \
-            .write \
-            .mode('overwrite') \
-            .partitionBy('ancestry') \
-            .csv(dir_pheno_out, sep='\t', header='true')
-        print("wrote out data to directory {}".format(dir_pheno_out))
+    # write out the file
+    dir_pheno_out = dir_out.format(dir_s3, phenotype)
+    df_meta \
+        .write \
+        .mode('overwrite') \
+        .partitionBy('ancestry') \
+        .csv(dir_pheno_out, sep='\t', header='true')
+    print("wrote out data to directory {}".format(dir_pheno_out))
 
 
     # columns for COJO are:

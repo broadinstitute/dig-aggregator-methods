@@ -59,21 +59,41 @@ def main():
     df_max_subjects = df_max_subjects.join(df_combo_count, on=["phenotype", "ancestry"], how="inner")
     df_max_subjects.show()
     print("got {} rows of pheno/ancestry combinations".format(df_max_subjects.count()))
-    df_toss = df_max_subjects.filter(col("count") > 1)
-    print("got {} rows of pheno/ancestry combinations over 1".format(df_toss.count()))
 
     # test for one phenotype/ancestry combination
     # df_fg = df_meta.filter(col("phenotype") == 'HBA1C').filter(col("ancestry") == 'SA')
     # df_fg.show()
 
+    # get distinct phenotypes
+    df_phenotypes = df_max_subjects.select('phenotype').distinct().collect()
+    # print("got phenotypes of type {} and values {}".format(type(df_phenotypes), df_phenotypes))
+
+    # loop and save per phenotype
+    # NOTE: this is to solve issue with _SUCCESS files not being written to the partitioned directories
+    for row in df_phenotypes:
+        phenotype_value = row['phenotype']
+
+        # get the dataframe with only the phenotype
+        df_specific_phenotype = df_max_subjects.filter(df_max_subjects.phenotype == phenotype_value)
+
+        # write out
+        dir_phenotype_out = "{}/{}".format(dir_out, phenotype_value)
+        df_specific_phenotype \
+            .coalesce(1) \
+            .write \
+            .mode('overwrite') \
+            .json(dir_phenotype_out)
+        print("wrote out data to directory {}".format(dir_phenotype_out))
+
+
+    # NOTE - old way to save
     # write out the file for tracking purposes
-    df_max_subjects \
-        .coalesce(1) \
-        .write \
-        .mode('overwrite') \
-        .partitionBy('phenotype') \
-        .json(dir_out)
-    print("wrote out data to directory {}".format(dir_out))
+    # df_max_subjects \
+    #     .write \
+    #     .mode('overwrite') \
+    #     .partitionBy('phenotype') \
+    #     .json(dir_out)
+    # print("wrote out data to directory {}".format(dir_out))
         # .partitionBy('phenotype', 'ancestry') \
         # .csv(dir_out, sep='\t', header='true')
 
