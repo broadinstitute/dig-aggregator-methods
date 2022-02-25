@@ -30,4 +30,3 @@ unzip -o g1000_sas.zip
 sudo pip3 install boto3
 sudo pip3 install numpy==1.19.4
 sudo pip3 install pandas==1.1.4
-

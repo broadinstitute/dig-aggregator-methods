@@ -9,6 +9,7 @@ import os
 import glob 
 import time 
 import concurrent.futures 
+import csv
 
 # map for the cojo ancestry swithes
 map_ancestry = {'EU': 'eur', 'EA': 'eas', 'AA': 'afr', 'HS': 'amr', 'SA': 'sas', 'AF': 'afr'}
@@ -83,9 +84,36 @@ def main():
 
             # combine files and write out
             all_files = glob.glob(os.path.join(f'{dir_cojo}/input/{phenotype}_{ancestry}', "part*.csv"))
-            df_input = pd.concat((pd.read_csv(file_temp) for file_temp in all_files))
+            li = []
+            test = False
+
+            for filename in all_files:
+                df_temp = pd.read_csv(filename, index_col=None, sep="\t")
+                if not test:
+                    print(df_temp.head(n=5))
+                    test = True
+                li.append(df_temp)
+                print("read {} rows for input file: {}".format(len(df_temp), filename))
+
+            df_input = pd.concat(li, axis=0, ignore_index=True)
+
+            # save the file back to disk
             file_input = f'{dir_cojo}/input/cojo_{phenotype}_{ancestry}.csv'
-            df_input.to_csv(file_input, index=False)
+            df_input.to_csv(file_input, index=False, sep="\t")
+            print("\nwrote out {} rows to file: {}".format(len(df_input), file_input))
+
+
+            # df_input = pd.concat((pd.read_csv(file_temp, index_col=None, sep="\t") for file_temp in all_files))
+            # file_input = f'{dir_cojo}/input/cojo_{phenotype}_{ancestry}.csv'
+            # df_input.to_csv(file_input, index=False, sep="\t")
+
+# li = []
+
+# for filename in all_files:
+#     df = pd.read_csv(filename, index_col=None, header=0)
+#     li.append(df)
+
+# frame = pd.concat(li, axis=0, ignore_index=True)
 
             # delete the part files
             fs_input_command = f'rm -rf {dir_cojo}/input/{phenotype}_{ancestry}'
