@@ -25,5 +25,6 @@ object Finemapping extends Method {
     addStage(new VariantFrequencyStage)
     addStage(new IdentifyLargestDatasetsStage)
     addStage(new GatherLargestDatasetVariantsStage)
+    addStage(new RunCojoLargestDatasetsStage)
   }
 }
