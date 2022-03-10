@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $s3dir="s3://dig-analysis-data/out/ldsc";
+my $s3dir="s3://cmdga-analysis-data/out/ldsc";
 
 # which partition is being made
 my $partition=$ARGV[0];

@@ -6,7 +6,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
 from pyspark.sql.functions import concat_ws, lower, regexp_replace, udf, when
 
-S3DIR = 's3://dig-analysis-data'
+# S3DIR = 's3://dig-analysis-data'
+S3DIR = 's3://cmdga-analysis-data'
 
 # BED files need to be sorted by chrom/start, this orders the chromosomes
 CHROMOSOMES = list(map(lambda c: str(c + 1), range(22))) + ['X', 'Y', 'MT']
@@ -99,7 +100,8 @@ def main():
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
+    #srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
+    srcdir = f'{S3DIR}/cis-regulatory_elements/{args.dataset}/part-*'
     outdir = f'{S3DIR}/out/ldsc/regions/partitioned/{args.dataset}'
 
     # create a spark session
@@ -117,9 +119,12 @@ def main():
     # fix any whitespace issues
     annotation = regexp_replace(df.annotation, ' ', '_')
     tissue = regexp_replace(df.tissue, ' ', '_')
+    dataset = regexp_replace(df.dataset, ' ', '_')
+    biosample = regexp_replace(df.biosample, ' ', '_')
+    method = regexp_replace(df.method, ' ', '_')
 
     # build the partition name
-    partition = concat_ws('___', annotation, tissue)
+    partition = concat_ws('___', dataset, annotation, tissue, biosample, source, method)
 
     # remove invalid chromosomes rows add a sort value and bed filename
     df = df.filter(df.chromosome.isin(CHROMOSOMES)) \
