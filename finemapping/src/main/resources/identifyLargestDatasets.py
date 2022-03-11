@@ -35,6 +35,10 @@ def main():
     df_meta = df_meta.where(col("ancestry").isin("EA", "AF", "EU", "SA", "HS"))
     df_meta.groupBy("ancestry").count().show()
 
+    # cast subjects to integer 
+    df_meta = df_meta.withColumn('subjects', df_meta.subjects.cast(IntegerType()))
+    df_meta = df_meta.filter(col("phenotype") == 'BMI')
+
     # TODO - create new dataset with phenotype/ethinicity combination and the dataset count
     # find the ancestry/phenotype combinations that only have one dataset -> mark those so trans ehtnic cojo doesn't duplicate calculation
     df_combo_count = df_meta.groupBy("phenotype", "ancestry").count()
