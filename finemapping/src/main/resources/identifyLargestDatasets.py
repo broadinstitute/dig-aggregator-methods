@@ -37,7 +37,9 @@ def main():
 
     # cast subjects to integer 
     df_meta = df_meta.withColumn('subjects', df_meta.subjects.cast(IntegerType()))
-    df_meta = df_meta.filter(col("phenotype") == 'BMI')
+
+    # test on only BMI
+    # df_meta = df_meta.filter(col("phenotype") == 'BMI')
 
     # TODO - create new dataset with phenotype/ethinicity combination and the dataset count
     # find the ancestry/phenotype combinations that only have one dataset -> mark those so trans ehtnic cojo doesn't duplicate calculation
