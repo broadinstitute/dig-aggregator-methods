@@ -76,7 +76,6 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
 
     // steps run serially
     val steps = Seq(
-      Job.PySpark(partition, phenotype),
       // ancestry-specific analysis first and load it back
       Job.Script(ancestrySpecific, phenotype),
       Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
