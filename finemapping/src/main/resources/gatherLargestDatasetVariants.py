@@ -51,87 +51,91 @@ def main():
     # df_largest_dataset_more_than_one_dataset = df_largest_dataset.filter(col("count") > 1).collect()
     # print("got dataset more than 1 df of size {}".format(len(df_largest_dataset_more_than_one_dataset)))
 
-    # collect for loop; will not filter for datasets more than one since collecting fifferent MAF values than for bottom line
-    df_largest_dataset_more_than_one_dataset = df_largest_dataset.collect()
-    is_dff_exist = False
-    for row in df_largest_dataset_more_than_one_dataset:
-        phenotype = row['phenotype']
-        ancestry = row['ancestry']
-        directory = row['directory']
-        print("for {}/{} got directory {}".format(phenotype, ancestry, directory))
+    # only run if have at least one dataset (safety check)
+    if df_largest_dataset.count() > 1:
+        # collect for loop; will not filter for datasets more than one since collecting fifferent MAF values than for bottom line
+        df_largest_dataset_more_than_one_dataset = df_largest_dataset.collect()
+        is_dff_exist = False
+        for row in df_largest_dataset_more_than_one_dataset:
+            phenotype = row['phenotype']
+            ancestry = row['ancestry']
+            directory = row['directory']
+            print("for {}/{} got directory {}".format(phenotype, ancestry, directory))
 
-        # load variants and phenotype associations
-        df_meta = spark.read.json(f'{directory}/part-*') \
-            .withColumn('ancestry', lit(ancestry))
+            # load variants and phenotype associations
+            df_meta = spark.read.json(f'{directory}/part-*') \
+                .withColumn('ancestry', lit(ancestry))
+            df_meta = df_meta.select(
+                            df_meta.varId, 
+                            df_meta.alt, 
+                            df_meta.reference, 
+                            df_meta.beta,
+                            df_meta.stdErr, 
+                            df_meta.pValue, 
+                            df_meta.n, 
+                            df_meta.ancestry, 
+                        )
+            print("got {}/{} metaanalysis df of size {}".format(phenotype, ancestry, df_meta.count()))
+            # df_meta.show()
+
+            # need to concatenate all ancestry dataframes before joining with df_snp
+            if not is_dff_exist:
+                dff = df_meta
+                is_dff_exist = True
+            else:
+                dff = dff.unionAll(df_meta)
+            print("got combined ancestry metaanalysis df of size {}".format(dff.count()))
+
+        # join pValue and snps; filter columns
+        df_meta = dff.join(df_snp, on=['varId'], how='inner')
         df_meta = df_meta.select(
-                        df_meta.varId, 
-                        df_meta.alt, 
-                        df_meta.reference, 
-                        df_meta.beta,
-                        df_meta.stdErr, 
-                        df_meta.pValue, 
-                        df_meta.n, 
-                        df_meta.ancestry, 
-                    )
-        print("got {}/{} metaanalysis df of size {}".format(phenotype, ancestry, df_meta.count()))
-        # df_meta.show()
+                df_meta.varId,
+                df_meta.dbSNP, 
+                df_meta.alt, 
+                df_meta.reference, 
+                df_meta.beta,
+                df_meta.stdErr, 
+                df_meta.pValue, 
+                df_meta.n, 
+                df_meta.ancestry, 
+            )
+        print("got joined metaanalysis/snp df of size {}".format(df_meta.count()))
+        df_meta.show(5)
 
-        # need to concatenate all ancestry dataframes before joining with df_snp
-        if not is_dff_exist:
-            dff = df_meta
-            is_dff_exist = True
-        else:
-            dff = dff.unionAll(df_meta)
-        print("got combined ancestry metaanalysis df of size {}".format(dff.count()))
+        # join pValue and snps; filter columns
+        df_meta = df_meta.join(df_frequency, on=['varId'], how='inner')
+        df_meta = df_meta.select(
+                df_meta.dbSNP, 
+                df_meta.alt, 
+                df_meta.reference, 
+                df_meta.maf, 
+                df_meta.beta,
+                df_meta.stdErr, 
+                df_meta.pValue, 
+                df_meta.n, 
+                df_meta.ancestry, 
+            )
+        print("got joined frequency df of size {}".format(df_meta.count()))
+        df_meta.show(5)
 
-    # join pValue and snps; filter columns
-    df_meta = dff.join(df_snp, on=['varId'], how='inner')
-    df_meta = df_meta.select(
-            df_meta.varId,
-            df_meta.dbSNP, 
-            df_meta.alt, 
-            df_meta.reference, 
-            df_meta.beta,
-            df_meta.stdErr, 
-            df_meta.pValue, 
-            df_meta.n, 
-            df_meta.ancestry, 
-        )
-    print("got joined metaanalysis/snp df of size {}".format(df_meta.count()))
-    df_meta.show(5)
+        # filter for pvalue threshold
+        p_value_limit = 0.01
+        df_meta = df_meta.filter(df_meta.pValue < p_value_limit)
+        print("got {} pValue joined frequency df of size {}".format(p_value_limit, df_meta.count()))
+        df_meta.show(5)
 
-    # join pValue and snps; filter columns
-    df_meta = df_meta.join(df_frequency, on=['varId'], how='inner')
-    df_meta = df_meta.select(
-            df_meta.dbSNP, 
-            df_meta.alt, 
-            df_meta.reference, 
-            df_meta.maf, 
-            df_meta.beta,
-            df_meta.stdErr, 
-            df_meta.pValue, 
-            df_meta.n, 
-            df_meta.ancestry, 
-        )
-    print("got joined frequency df of size {}".format(df_meta.count()))
-    df_meta.show(5)
-
-    # filter for pvalue threshold
-    p_value_limit = 0.01
-    df_meta = df_meta.filter(df_meta.pValue < p_value_limit)
-    print("got {} pValue joined frequency df of size {}".format(p_value_limit, df_meta.count()))
-    df_meta.show(5)
-
-    # write out the file
-    dir_pheno_out = dir_out.format(dir_s3, phenotype)
-    df_meta \
-        .write \
-        .mode('overwrite') \
-        .partitionBy('ancestry') \
-        .csv(dir_pheno_out, sep='\t', header='true')
-    print("wrote out data to directory {}".format(dir_pheno_out))
+        # write out the file
+        dir_pheno_out = dir_out.format(dir_s3, phenotype)
+        df_meta \
+            .write \
+            .mode('overwrite') \
+            .partitionBy('ancestry') \
+            .csv(dir_pheno_out, sep='\t', header='true')
+        print("wrote out data to directory {}".format(dir_pheno_out))
 
 
+    else:
+        print("no datasets to process, so skip")
     # columns for COJO are:
     # - SNP 
     # - A1 - the effect allele (alt)
