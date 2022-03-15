@@ -52,7 +52,8 @@ def main():
     # print("got dataset more than 1 df of size {}".format(len(df_largest_dataset_more_than_one_dataset)))
 
     # only run if have at least one dataset (safety check)
-    if df_largest_dataset.count() > 0:
+    # NOTE - reverse - if df_largest_dataset.count() > 0:
+    if df_largest_dataset.count() == 1:
         # collect for loop; will not filter for datasets more than one since collecting fifferent MAF values than for bottom line
         df_largest_dataset_more_than_one_dataset = df_largest_dataset.collect()
         is_dff_exist = False
