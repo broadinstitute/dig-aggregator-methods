@@ -256,6 +256,8 @@ def load_trans_ethnic_analysis(phenotype):
     srcdir = '%s/trans-ethnic/%s' % (s3_staging, phenotype)
     outdir = '%s/trans-ethnic/%s' % (s3_path, phenotype)
 
+    print("Loading from {} to {}".format(srcdir, outdir))
+
     if not hadoop_test(srcdir):
         return
 
@@ -277,14 +279,16 @@ def load_trans_ethnic_analysis(phenotype):
             'n',
         )
 
+    print("Number of variants: {}".format(variants.count()))
+
     # find all the unique ancestries that went into this analysis
     datasets = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/metadata')
     ancestries = datasets.select(datasets.ancestry).distinct().collect()
 
     # NOTE: If non-mixed ancestries were used in the analysis, then Mixed
-    #       ancestries were NOT used. We need to now load the unique variants
-    #       from those datasets not present in the bottom-line and add them
-    #       verbatim to the bottom-line.
+    #       ancestries were NOT used. We need to now load the mixed ancestry variants
+    #       from those datasets not present in the bottom-line, add them to the
+    #       variants dataframe, group by varId, and choose the result with max(n)
 
     if (len(ancestries) > 1) or ('Mixed' not in ancestries):
         print(f'Adding unique Mixed variants to bottom-line results for {phenotype}')
@@ -292,27 +296,30 @@ def load_trans_ethnic_analysis(phenotype):
         # load all the mixed ancestry-variants across the datasets
         mixed = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/part-*')
         mixed = mixed.filter(mixed.ancestry == 'Mixed') \
-
-        # find unique variants not present in bottom line
-        mixed = mixed.alias('m') \
-            .join(variants.alias('v'), on='varId', how='left_outer') \
-            .filter(col('v.pValue').isNull()) \
             .select(
                 'varId',
-                'm.chromosome',
-                'm.position',
-                'm.reference',
-                'm.alt',
-                'm.phenotype',
-                'm.pValue',
-                'm.beta',
-                'm.zScore',
-                'm.stdErr',
-                'm.n',
+                'chromosome',
+                'position',
+                'reference',
+                'alt',
+                'phenotype',
+                'pValue',
+                'beta',
+                'zScore',
+                'stdErr',
+                'n',
             )
+        print("Number of mixed variants: {}".format(mixed.count()))
 
-        # append the unique variants to the bottom-line
-        variants = variants.unionAll(mixed)
+        # add mixed to variants and keep variants with the largest n
+        variants = variants.union(mixed) \
+            .rdd \
+            .keyBy(lambda v: v.varId) \
+            .reduceByKey(lambda a, b: b if (b.n or 0) > (a.n or 0) else a) \
+            .map(lambda v: v[1]) \
+            .toDF()
+
+        print("Number of combined variants: {}".format(variants.count()))
 
     # write the variants
     variants.write.mode('overwrite').json(outdir)
