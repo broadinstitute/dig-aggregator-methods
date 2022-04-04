@@ -10,7 +10,7 @@ sudo ln -s /usr/local/bin/pip /bin/pip
 sudo ln -s /usr/local/bin/pip3 /bin/pip3
 
 # bioindex to get access to shared library functions
-sudo pip3 install git+git://github.com/broadinstitute/dig-bioindex.git@master#egg=bioindex
+sudo pip3 install git+https://github.com/broadinstitute/dig-bioindex.git@master#egg=bioindex
 
 # other python libs used by various stages
 #
