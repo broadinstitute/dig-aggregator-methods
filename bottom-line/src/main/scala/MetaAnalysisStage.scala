@@ -78,10 +78,10 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
     val steps = Seq(
       // ancestry-specific analysis first and load it back
       Job.Script(ancestrySpecific, phenotype),
-      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
-      // trans-ethnic next using ancestry-specific results
-      Job.Script(transEthnic, phenotype),
-      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
+      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype)
+//      // trans-ethnic next using ancestry-specific results
+//      Job.Script(transEthnic, phenotype),
+//      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
     )
 
     new Job(steps)
@@ -91,6 +91,6 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
     */
   override def prepareJob(output: String): Unit = {
     context.s3.rm(s"out/metaanalysis/staging/ancestry-specific/$output/")
-    context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
+    //context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
   }
 }
