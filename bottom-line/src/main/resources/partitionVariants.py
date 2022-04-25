@@ -6,7 +6,7 @@ import platform
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import isnan, lit, when  # pylint: disable=E0611
 
-s3dir = 's3://psmadbec-test'
+s3dir = 's3://psmadbec-test/bottom-line-without-largest'
 
 # entry point
 if __name__ == '__main__':

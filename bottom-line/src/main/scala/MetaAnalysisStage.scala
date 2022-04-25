@@ -34,7 +34,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class MetaAnalysisStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants: Input.Source = Input.Source.Success("out/metaanalysis/variants/*/")
+  val variants: Input.Source = Input.Source.Success("bottom-line-without-largest/out/metaanalysis/variants/*/")
 
   /** The master node - the one that actually runs METAL - needs a pretty
     * sizeable hard drive and more CPUs to download all the variants and run
@@ -90,7 +90,7 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
   /** Nuke the staging directories before the job runs.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/metaanalysis/staging/ancestry-specific/$output/")
+    context.s3.rm(s"bottom-line-without-largest/out/metaanalysis/staging/ancestry-specific/$output/")
     //context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
   }
 }
