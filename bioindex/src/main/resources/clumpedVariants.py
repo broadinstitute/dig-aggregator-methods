@@ -12,7 +12,8 @@ def main():
     # load and output directory
     srcdir = 's3://dig-analysis-data/out/metaanalysis/clumped'
     common_dir = 's3://dig-analysis-data/out/varianteffect/common'
-    outdir = 's3://dig-bio-index/associations/clump'
+    clump_outdir = 's3://dig-bio-index/associations/clump'
+    variant_outdir = 's3://dig-bio-index/associations/variantclumps'
 
     # load the top association clumps
     clumps = spark.read.json(f'{srcdir}/*/part-*')
@@ -25,7 +26,13 @@ def main():
     clumps.orderBy(['phenotype', 'clump', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(outdir)
+        .json(clump_outdir)
+
+    # write out all the clumped associations sorted by varId
+    clumps.orderBy(['varId', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(variant_outdir)
 
     # done
     spark.stop()
