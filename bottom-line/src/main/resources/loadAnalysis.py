@@ -11,7 +11,8 @@ from pyspark.sql.types import StructType, StructField, StringType, DoubleType, I
 from pyspark.sql.functions import col, isnan, lit  # pylint: disable=E0611
 
 # where in S3 meta-analysis data is
-s3_bucket = 's3://dig-analysis-data'
+s3_bucket = 's3://psmadbec-test'
+variant_bucket = 's3://dig-analysis-data'
 s3_path = '%s/out/metaanalysis' % s3_bucket
 s3_staging = '%s/staging' % s3_path
 
@@ -282,7 +283,7 @@ def load_trans_ethnic_analysis(phenotype):
     print("Number of variants: {}".format(variants.count()))
 
     # find all the unique ancestries that went into this analysis
-    datasets = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/metadata')
+    datasets = spark.read.json(f'{variant_bucket}/variants/*/*/{phenotype}/metadata')
     ancestries = datasets.select(datasets.ancestry).distinct().collect()
 
     # NOTE: If non-mixed ancestries were used in the analysis, then Mixed

@@ -6,7 +6,8 @@ import platform
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import isnan, lit, when  # pylint: disable=E0611
 
-s3dir = 's3://dig-analysis-data'
+var_dir = 's3://dig-analysis-data'
+s3dir = 's3://psmadbec-test'
 
 # entry point
 if __name__ == '__main__':
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = '%s/variants/*/*/%s' % (s3dir, args.phenotype)
+    srcdir = '%s/variants/*/*/%s' % (var_dir, args.phenotype)
     outdir = '%s/out/metaanalysis/variants/%s' % (s3dir, args.phenotype)
 
     # create a spark session
