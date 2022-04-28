@@ -295,7 +295,7 @@ def load_trans_ethnic_analysis(phenotype):
         print(f'Adding unique Mixed variants to bottom-line results for {phenotype}')
 
         # load all the mixed ancestry-variants across the datasets
-        mixed = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/part-*')
+        mixed = spark.read.json(f'{variant_bucket}/variants/*/*/{phenotype}/part-*')
         mixed = mixed.filter(mixed.ancestry == 'Mixed') \
             .select(
                 'varId',
