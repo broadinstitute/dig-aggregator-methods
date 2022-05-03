@@ -3,7 +3,7 @@
 PHENOTYPE="$1"
 
 # output HDFS location
-S3_PATH="s3://psmadbec-test/bottom-line-without-largest/out/metaanalysis"
+S3_PATH="s3://psmadbec-test/bottom-line-with-largest/out/metaanalysis"
 
 # working directory
 LOCAL_DIR="/mnt/var/metal"
