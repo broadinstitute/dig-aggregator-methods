@@ -225,8 +225,9 @@ def merge_results():
     if not plink_files:
         return pd.DataFrame()
 
-    # join all the ancestries together
-    df = pd.concat(load_plink(o) for o in plink_files)
+    # join all the ancestries together (drop duplicates)
+    df = pd.concat(load_plink(o) for o in plink_files)\
+        .drop_duplicates()
 
     # build and process the connected graph for the clumps
     return build_graph(df)
