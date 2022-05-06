@@ -225,9 +225,8 @@ def merge_results():
     if not plink_files:
         return pd.DataFrame()
 
-    # join all the ancestries together (drop duplicates)
-    df = pd.concat(load_plink(o) for o in plink_files)\
-        .drop_duplicates()
+    # join all the ancestries together
+    df = pd.concat(load_plink(o) for o in plink_files)
 
     # build and process the connected graph for the clumps
     return build_graph(df)
@@ -354,6 +353,9 @@ def main():
 
     # sort by clump for easy debugging in S3
     clumped = clumped.sort_values('clump')
+
+    # As a final step drop duplicates
+    clumped = clumped.drop_duplicates()
 
     # write the output file and upload it
     clumped.to_json('variants.json', orient='records', lines=True)
