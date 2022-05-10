@@ -354,6 +354,9 @@ def main():
     # sort by clump for easy debugging in S3
     clumped = clumped.sort_values('clump')
 
+    # As a final step drop duplicates
+    clumped = clumped.drop_duplicates()
+
     # write the output file and upload it
     clumped.to_json('variants.json', orient='records', lines=True)
     upload('variants.json', outdir)
