@@ -258,13 +258,16 @@ def load_trans_ethnic_analysis(phenotype):
 
     print("Loading from {} to {}".format(srcdir, outdir))
 
-    if not hadoop_test(srcdir):
-        return
+    # NOTE: Mixed ancestry studies aren't used in the ancestry-specific meta-analysis.
+    #       We need to now load the mixed ancestry variants
+    #       from those datasets (not present in the bottom-line), add them to the
+    #       variants dataframe, group by varId, and choose the result with max(n)
 
-    # load the analyses - note that zScore is present for trans-ethnic!
-    variants = load_analysis(spark, srcdir, overlap=False) \
-        .withColumn('phenotype', lit(phenotype)) \
-        .filter(col('pValue') > 0.0) \
+    print(f'Fetch Mixed variants for bottom-line results for {phenotype}')
+
+    # load all the mixed ancestry-variants across the datasets
+    mixed = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/part-*')
+    mixed = mixed.filter(mixed.ancestry == 'Mixed') \
         .select(
             'varId',
             'chromosome',
@@ -278,24 +281,14 @@ def load_trans_ethnic_analysis(phenotype):
             'stdErr',
             'n',
         )
+    print("Number of mixed variants: {}".format(mixed.count()))
 
-    print("Number of variants: {}".format(variants.count()))
-
-    # find all the unique ancestries that went into this analysis
-    datasets = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/metadata')
-    ancestries = datasets.select(datasets.ancestry).distinct().collect()
-
-    # NOTE: If non-mixed ancestries were used in the analysis, then Mixed
-    #       ancestries were NOT used. We need to now load the mixed ancestry variants
-    #       from those datasets not present in the bottom-line, add them to the
-    #       variants dataframe, group by varId, and choose the result with max(n)
-
-    if (len(ancestries) > 1) or ('Mixed' not in ancestries):
-        print(f'Adding unique Mixed variants to bottom-line results for {phenotype}')
-
-        # load all the mixed ancestry-variants across the datasets
-        mixed = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/part-*')
-        mixed = mixed.filter(mixed.ancestry == 'Mixed') \
+    # The trans-ethnic analysis won't exist if only mixed ancestries were used in the analysis
+    if hadoop_test(srcdir):
+        # load the analyses - note that zScore is present for trans-ethnic!
+        variants = load_analysis(spark, srcdir, overlap=False) \
+            .withColumn('phenotype', lit(phenotype)) \
+            .filter(col('pValue') > 0.0) \
             .select(
                 'varId',
                 'chromosome',
@@ -309,17 +302,25 @@ def load_trans_ethnic_analysis(phenotype):
                 'stdErr',
                 'n',
             )
-        print("Number of mixed variants: {}".format(mixed.count()))
 
-        # add mixed to variants and keep variants with the largest n
-        variants = variants.union(mixed) \
-            .rdd \
-            .keyBy(lambda v: v.varId) \
-            .reduceByKey(lambda a, b: b if (b.n or 0) > (a.n or 0) else a) \
-            .map(lambda v: v[1]) \
-            .toDF()
+        print("Number of variants: {}".format(variants.count()))
 
-        print("Number of combined variants: {}".format(variants.count()))
+        # Add variants to mixed
+        # NOTE: While this can't be relied on this order is chosen to prefer mixed over variants
+        # This is because there is a common case in which single-ancestry datasets will be partitions of a mixed dataset
+        # This method in particular should, vaguely, prefer the more accurate mixed dataset values where applicable
+        variants = mixed.union(variants)
+    else:
+        variants = mixed
+
+    # keep the largest N for repeat variants
+    variants = variants.rdd \
+        .keyBy(lambda v: v.varId) \
+        .reduceByKey(lambda a, b: b if (b.n or 0) > (a.n or 0) else a) \
+        .map(lambda v: v[1]) \
+        .toDF()
+
+    print("Final number of variants: {}".format(variants.count()))
 
     # write the variants
     variants.write.mode('overwrite').json(outdir)

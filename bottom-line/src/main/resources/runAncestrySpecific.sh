@@ -31,10 +31,8 @@ fi
 # get all the unique ancestries
 ANCESTRIES=($(printf '%s\n' "${PARTS[@]}" | xargs dirname | xargs dirname | awk -F "=" '{print $NF}' | sort | uniq))
 
-# if there is more than one ancestry, don't process Mixed
-if [[ "${#ANCESTRIES[@]}" -gt 1 ]]; then
-  ANCESTRIES=($(printf '%s\n' "${ANCESTRIES[@]}" | grep -v Mixed))
-fi
+# Remove Mixed ancestry because we never want to run that through METAL
+ANCESTRIES=($(printf '%s\n' "${ANCESTRIES[@]}" | grep -v Mixed)) || ANCESTRIES=()
 
 # for each ancestry get all the datasets
 for ANCESTRY in "${ANCESTRIES[@]}"; do
