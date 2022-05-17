@@ -4,13 +4,13 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws.emr._
 
 class PartitionRegionsStage(implicit context: Context) extends Stage {
-  val cisReg: Input.Source = Input.Source.Dataset("cis-regulatory_elements/*/")
+  val cisReg: Input.Source = Input.Source.Dataset("annotated_regions/cis-regulatory_elements/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(cisReg)
 
   /** Map inputs to their outputs. */
-   override val rules: PartialFunction[Input, Outputs] = {
+  override val rules: PartialFunction[Input, Outputs] = {
     case cisReg(dataset) => Outputs.Named(dataset)
    }
 

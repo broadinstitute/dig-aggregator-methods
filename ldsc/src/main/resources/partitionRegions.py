@@ -4,7 +4,7 @@ import platform
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
-from pyspark.sql.functions import concat_ws, lower, coalesce, regexp_replace, udf, when
+from pyspark.sql.functions import concat_ws, lower, regexp_replace, udf, when
 
 S3DIR = 's3://dig-analysis-data'
 
@@ -99,8 +99,7 @@ def main():
     args = opts.parse_args()
 
     # get the source and output directories
-    #srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
-    srcdir = f'{S3DIR}/cis-regulatory_elements/{args.dataset}/part-*'
+    srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
     outdir = f'{S3DIR}/out/ldsc/regions/partitioned/{args.dataset}'
 
     # create a spark session
@@ -115,7 +114,6 @@ def main():
     # remove null annotations
     df = df.filter(df.annotation.isNotNull())
     # fill empty biosample with no_biosample
-    #df.withColumn("biosample",coalesce(df.biosample,df.tissue))
     df = df.fillna({"biosample":"no_biosample"})
     # fill empty method with no_method
     df = df.fillna({"method":"no_method"})
