@@ -12,13 +12,13 @@ class PartitionRegionsStage(implicit context: Context) extends Stage {
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
     case cisReg(dataset) => Outputs.Named(dataset)
-  }
+   }
 
-  /** Partitioning is quick and easy, so do many of them in parallel. */
-  override def cluster: ClusterDef = super.cluster.copy(
-    stepConcurrency = 5
-  )
-
+  /** Partitioning is quick and easy, so do many of them in parallel. 
+  * override def cluster: ClusterDef = super.cluster.copy(
+  *  stepConcurrency = 5
+  * )
+*/
   /** Take any new datasets and convert them from JSON-list to BED file
     * format with all the appropriate headers and fields. All the datasets
     * are processed together by the Spark job, so what's in the results

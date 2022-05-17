@@ -113,13 +113,21 @@ def main():
 
     # remove null annotations
     df = df.filter(df.annotation.isNotNull())
-
+    # fill empty biosample with no_biosample
+    df = df.fillna({"biosample":"no_biosample"})
+    # fill empty method with no_method
+    df = df.fillna({"method":"no_method"})
+    # fill empty source with no_source
+    df = df.fillna({"source":"no_source"})
     # fix any whitespace issues
     annotation = regexp_replace(df.annotation, ' ', '_')
     tissue = regexp_replace(df.tissue, ' ', '_')
-
+    dataset = regexp_replace(df.dataset, ' ', '_')
+    biosample = regexp_replace(df.biosample, ' ', '_')
+    method = regexp_replace(df.method, ' ', '_')
+    source = regexp_replace(df.source, ' ', '_')
     # build the partition name
-    partition = concat_ws('___', annotation, tissue)
+    partition = concat_ws('___', dataset, annotation, tissue, biosample, method, source)
 
     # remove invalid chromosomes rows add a sort value and bed filename
     df = df.filter(df.chromosome.isin(CHROMOSOMES)) \
