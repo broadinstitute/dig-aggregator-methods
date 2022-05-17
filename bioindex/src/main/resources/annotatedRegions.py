@@ -11,8 +11,8 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = 's3://cmdga-analysis-data/out/ldsc/regions/merged/*/*.csv'
-    outdir = 's3://cmdga-bio-index/regions'
+    srcdir = 's3://dig-analysis-data/out/ldsc/regions/merged/*/*.csv'
+    outdir = 's3://dig-bio-index/regions'
 
     # input summary stats schema
     schema = StructType([
@@ -26,11 +26,13 @@ def main():
     src_re = r'/out/ldsc/regions/merged/([^/]+)/'
 
     # udf functions (NOTE: tissue needs to remove underscores used!)
-    annotation = udf(lambda s: re.search(src_re, s).group(1).split('___')[0])
-    tissue = udf(lambda s: re.search(src_re, s).group(1).split('___')[1].replace('_', ' '))
-     = udf(lambda s: re.search(src_re, s).group(1).split('___')[1].replace('_', ' '))
-
-    # load all regions, tissues, and join
+    dataset = udf(lambda s: re.search(src_re, s).group(1).split('___')[0])
+    annotation = udf(lambda s: re.search(src_re, s).group(1).split('___')[1].replace('_', ' '))
+    tissue = udf(lambda s: re.search(src_re, s).group(1).split('___')[2].replace('_', ' '))
+    biosample = udf(lambda s: re.search(src_re, s).group(1).split('___')[3].replace('_', ' '))
+    method = udf(lambda s: re.search(src_re, s).group(1).split('___')[4].replace('_', ' '))
+    assay_source = udf(lambda s: re.search(src_re, s).group(1).split('___')[5].replace('_', ' '))
+    # load all regions, tissues, dataset, biosample, method, assay source and join
     df = spark.read.csv(srcdir, sep='\t', header=False, schema=schema) \
         .withColumn('source', input_file_name()) \
         .withColumn('annotation', annotation('source')) \
@@ -38,6 +40,7 @@ def main():
         .withColumn('dataset', dataset('source')) \
         .withColumn('biosample', biosample('source')) \
         .withColumn('method', method('source')) \
+        .withColumn('assay_source', assay_source('source')) \
         .drop('source')
 
     # sort by annotation and then position

@@ -4,10 +4,9 @@ import platform
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
-from pyspark.sql.functions import concat_ws, lower, regexp_replace, udf, when
+from pyspark.sql.functions import concat_ws, lower, coalesce, regexp_replace, udf, when
 
-# S3DIR = 's3://dig-analysis-data'
-S3DIR = 's3://cmdga-analysis-data'
+S3DIR = 's3://dig-analysis-data'
 
 # BED files need to be sorted by chrom/start, this orders the chromosomes
 CHROMOSOMES = list(map(lambda c: str(c + 1), range(22))) + ['X', 'Y', 'MT']
@@ -115,16 +114,22 @@ def main():
 
     # remove null annotations
     df = df.filter(df.annotation.isNotNull())
-
+    # fill empty biosample with no_biosample
+    #df.withColumn("biosample",coalesce(df.biosample,df.tissue))
+    df = df.fillna({"biosample":"no_biosample"})
+    # fill empty method with no_method
+    df = df.fillna({"method":"no_method"})
+    # fill empty source with no_source
+    df = df.fillna({"source":"no_source"})
     # fix any whitespace issues
     annotation = regexp_replace(df.annotation, ' ', '_')
     tissue = regexp_replace(df.tissue, ' ', '_')
     dataset = regexp_replace(df.dataset, ' ', '_')
     biosample = regexp_replace(df.biosample, ' ', '_')
     method = regexp_replace(df.method, ' ', '_')
-
+    source = regexp_replace(df.source, ' ', '_')
     # build the partition name
-    partition = concat_ws('___', dataset, annotation, tissue, biosample, source, method)
+    partition = concat_ws('___', dataset, annotation, tissue, biosample, method, source)
 
     # remove invalid chromosomes rows add a sort value and bed filename
     df = df.filter(df.chromosome.isin(CHROMOSOMES)) \

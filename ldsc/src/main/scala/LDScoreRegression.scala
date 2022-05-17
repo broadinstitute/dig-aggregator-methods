@@ -24,6 +24,5 @@ object LDScoreRegression extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new PartitionRegionsStage)
     addStage(new MergeRegionsStage)
-    addStage(new MungeStatsStage)
   }
 }
