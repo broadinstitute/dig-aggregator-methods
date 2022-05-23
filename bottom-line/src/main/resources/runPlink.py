@@ -1,14 +1,11 @@
 #!/usr/bin/python3
 import argparse
 import glob
-import json
 import numpy as np
 import os
 import os.path
 import pandas as pd
 import subprocess
-import sys
-import uuid
 
 from scipy.sparse import lil_matrix
 from scipy.sparse.csgraph import connected_components
@@ -37,7 +34,7 @@ def download(s3_file):
     """
     Copy a file from S3 to here with the same name."
     """
-    subprocess.check_call(['aws', 's3', 'cp', s3_file, '.'])
+    subprocess.check_call(['aws', 's3', 'cp', '--recursive', s3_file, '.'])
 
 
 def upload(local_file, s3_dir):
@@ -47,21 +44,12 @@ def upload(local_file, s3_dir):
     subprocess.check_call(['aws', 's3', 'cp', local_file, f'{s3_dir}/{local_file}'])
 
 
-def load_bottom_line(local_file, s3_dir):
-    """
-    Download and slurp the METAANALYSIS file into a dataframe.
-    """
-    download(f'{s3_dir}/{local_file}')
+def load_bottom_line(s3_dir):
 
     # load the dataframe, ensure p-values are high-precision
-    df = pd.read_csv(local_file, sep='\t', header=0, dtype={'P-value': np.float64})
-    df = df[['MarkerName', 'P-value']]
-
-    # rename columns to match the portal
-    df = df.rename(columns={
-        'MarkerName': 'varId',
-        'P-value': 'pValue',
-    })
+    download(s3_dir)
+    df = pd.concat([pd.read_json(fn, dtype={'pValue': np.float64}, lines=True) for fn in glob.glob('part-*')])
+    df = df[['varId', 'pValue']]
 
     # explode varId to get chrom, pos, ref, and alt
     df[['chromosome', 'position', 'reference', 'alt']] = df['varId'].str.split(':', expand=True)
@@ -295,12 +283,12 @@ def main():
     args = opts.parse_args()
 
     # inputs and outputs
-    srcdir = f'{S3DIR}/out/metaanalysis/staging/trans-ethnic/{args.phenotype}'
+    srcdir = f'{S3DIR}/out/metaanalysis/trans-ethnic/{args.phenotype}'
     plinkdir = f'{S3DIR}/out/metaanalysis/staging/plink/{args.phenotype}'
     outdir = f'{S3DIR}/out/metaanalysis/staging/clumped/{args.phenotype}'
 
-    # download and read the meta-anlysis results
-    df = load_bottom_line('METAANALYSIS1.tbl', f'{srcdir}/scheme=SAMPLESIZE')
+    # download and read the meta-analysis results
+    df = load_bottom_line(f'{srcdir}/')
 
     # if there are no associations, just stop
     if df.empty:
@@ -366,7 +354,8 @@ def main():
         os.remove(fn)
 
     # source and associations files
-    os.remove('METAANALYSIS1.tbl')
+    for fn in glob.glob('part-*'):
+        os.remove(fn)
     os.remove('snps.assoc')
     os.remove('variants.json')
 
