@@ -51,8 +51,8 @@ def load_bottom_line(s3_dir):
     df = pd.concat([pd.read_json(fn, dtype={'pValue': np.float64}, lines=True) for fn in glob.glob('part-*')])
     df = df[['varId', 'pValue']]
 
-    # explode varId to get chrom, pos, ref, and alt
-    df[['chromosome', 'position', 'reference', 'alt']] = df['varId'].str.split(':', expand=True)
+    # explode varId to get chrom, pos, ref, and alt (alt will be catch all for everything else in the string)
+    df[['chromosome', 'position', 'reference', 'alt']] = df['varId'].str.split(':', n=3, expand=True)
 
     # drop unnecessary columns and cast types
     df = df.drop(['reference', 'alt'], axis=1)
