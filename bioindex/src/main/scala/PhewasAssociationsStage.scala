@@ -11,9 +11,10 @@ class PhewasAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val bottomLine = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
+  val clumped = Input.Source.Success("out/metaanalysis/clumped/*/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(bottomLine)
+  override val sources: Seq[Input.Source] = Seq(bottomLine, clumped)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
@@ -24,8 +25,8 @@ class PhewasAssociationsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
     slaveInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
-    masterVolumeSizeInGB = 200,
-    slaveVolumeSizeInGB = 200,
+    masterVolumeSizeInGB = 250,
+    slaveVolumeSizeInGB = 250,
     instances = 6
   )
 

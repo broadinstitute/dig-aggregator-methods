@@ -99,7 +99,7 @@ The output of this stage is queried with the `global-associations` index.
 
 ### PhewasAssociationsStage
 
-The results of the bottom-line analysis are loaded, filtered by pValue, and grouped by variant ID before being written to `associations/phewas/...`.
+The results of the bottom-line analysis are loaded, joined to the clump ids, sorted by pValue, and grouped by variant ID before being written to `associations/phewas/...`.
 
 The output of this stage is queried with the `phewas-associations` index.
 
