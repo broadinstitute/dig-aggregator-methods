@@ -8,12 +8,16 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class AnnotatedRegionsStage(implicit context: Context) extends Stage {
-  val regions = Input.Source.Success("out/ldsc/regions/merged/")
+  import MemorySize.Implicits._
+
+  val partitions: Seq[String] = Seq()
+  val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
+  val regions = Input.Source.Success(s"out/ldsc/regions/$subRegion/merged/")
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.memoryOptimized(),
-    slaveInstanceType = Ec2.Strategy.memoryOptimized(),
+    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
+    slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
     instances = 5
   )
 
@@ -27,6 +31,6 @@ class AnnotatedRegionsStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("annotatedRegions.py")))
+    new Job(Job.PySpark(resourceUri("annotatedRegions.py"), subRegion))
   }
 }

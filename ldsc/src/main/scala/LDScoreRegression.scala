@@ -24,5 +24,6 @@ object LDScoreRegression extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new PartitionRegionsStage)
     addStage(new MergeRegionsStage)
+    // TODO: LDSC deleted. Will replace with new method eventually.
   }
 }

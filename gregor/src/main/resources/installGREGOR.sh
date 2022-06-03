@@ -12,6 +12,7 @@ S3_BUCKET="s3://dig-analysis-data"
 
 GREGOR_DIR="${S3_BUCKET}/out/gregor"
 LDSC_DIR="${S3_BUCKET}/out/ldsc"
+SUB_REGION="default"
 
 # locations for the region files
 BED_INDEX_FILE="${GREGOR_ROOT}/bed.file.index"
@@ -61,7 +62,7 @@ tar zxf GREGOR.v1.4.0.tar.gz
 mkdir -p "${REGIONS_DIR}"
 
 # copy all the partitions to the regions directory
-aws s3 cp "${LDSC_DIR}/regions/merged/" "${REGIONS_DIR}" --recursive
+aws s3 cp "${LDSC_DIR}/regions/${SUB_REGION}/merged/" "${REGIONS_DIR}" --recursive
 find "${REGIONS_DIR}" -empty -type f -delete
 
 # need to export or bash -c won't inherit
