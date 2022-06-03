@@ -25,7 +25,7 @@ sudo pip2 install -U pandas
 sudo pip2 install -U numpy
 
 # download the 1000g LD data for ancestries
-#aws s3 cp s3://dig-analysis-data/bin/clumping/ . --recursive
+aws s3 cp s3://dig-analysis-data/bin/clumping/ . --recursive
 
 # unzip each ancestry file into its own directory
 for f in *.zip; do unzip -d "${f%*.zip}" "$f"; done

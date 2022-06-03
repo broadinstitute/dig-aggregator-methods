@@ -6,10 +6,12 @@ import org.broadinstitute.dig.aws.emr._
 class MergeRegionsStage(implicit context: Context) extends Stage {
   import Implicits.S3Key
 
-  val partitions: Input.Source = Input.Source.Success("out/ldsc/regions/partitioned/*/")
+  val partitions: Seq[String] = Seq()
+  val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
+  val partitionFiles: Input.Source = Input.Source.Success(s"out/ldsc/regions/${subRegion}/partitioned/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(partitions)
+  override val sources: Seq[Input.Source] = Seq(partitionFiles)
 
   /** Just need a single machine with no applications, but a good drive. */
   override def cluster: ClusterDef = super.cluster.copy(
@@ -22,14 +24,14 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
     *
     * Outputs will be the set of unique partition name prefixes. For example:
     *
-    *   <annotation>___<tissue>
+    *   `<annotation>___<tissue>___<additional_partitions>`
     *
     */
   override val rules: PartialFunction[Input, Outputs] = {
-    case partitions(dataset) => {
+    case partitionFiles(dataset) => {
       val part = "/partition=([^/]+)/".r
       val partitionNames = context.s3
-        .ls(s"${partitions.prefix.commonPrefix}${dataset}/")
+        .ls(s"${partitionFiles.prefix.commonPrefix}${dataset}/")
         .flatMap(obj =>
           part
             .findFirstMatchIn(obj.key)
@@ -49,19 +51,19 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
     * BED files that can then be read by GREGOR.
     */
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("mergeRegions.pl"), output))
+    new Job(Job.Script(resourceUri("mergeRegions.pl"), output, subRegion))
   }
 
   /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/ldsc/regions/merged/${output}/")
+    context.s3.rm(s"out/ldsc/regions/${subRegion}/merged/${output}/")
   }
 
   /** Update the success flag of the merged regions.
     */
   override def success(output: String): Unit = {
-    context.s3.touch(s"out/ldsc/regions/merged/${output}/_SUCCESS")
+    context.s3.touch(s"out/ldsc/regions/${subRegion}/merged/${output}/_SUCCESS")
     ()
   }
 }

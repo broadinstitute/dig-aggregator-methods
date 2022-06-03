@@ -6,6 +6,8 @@ my $s3dir="s3://dig-analysis-data/out/ldsc";
 
 # which partition is being made
 my $partition=$ARGV[0];
+my $sub_region=$ARGV[1];
+# Have to figure out the sub region here to fix things
 
 # create a temporary file to download all the partition data into
 my $tmpFile="partitions.csv";
@@ -13,7 +15,7 @@ my $sortedFile="sorted.csv";
 my $bedFile="$partition.csv";
 
 # mergepart files together and sort it by position
-`hadoop fs -getmerge -nl -skip-empty-file "$s3dir/regions/partitioned/*/partition=$partition/part-*" "$tmpFile"`;
+`hadoop fs -getmerge -nl -skip-empty-file "$s3dir/regions/$sub_region/partitioned/*/partition=$partition/part-*" "$tmpFile"`;
 `sort -u -k1,1 -k2,2n "$tmpFile" > "$sortedFile"`;
 
 # open the sorted file and write to the bed file
@@ -57,7 +59,7 @@ close IN;
 close OUT;
 
 # copy the final output file back to S3
-`aws s3 cp "$bedFile" "${s3dir}/regions/merged/$partition/$bedFile"`;
+`aws s3 cp "$bedFile" "${s3dir}/regions/$sub_region/merged/$partition/$bedFile"`;
 
 # delete the files to make room for other merges
 unlink "$tmpFile";

@@ -88,19 +88,22 @@ def harmonized_state(annotation, state):
 
 def main():
     """
-    Arguments: type/dataset
+    Arguments: type/dataset, partitions
     """
     print('Python version: %s' % platform.python_version())
 
     opts = argparse.ArgumentParser()
     opts.add_argument('dataset')
+    opts.add_argument('sub_region')
 
     # extract the dataset from the command line
     args = opts.parse_args()
 
+    partitions = args.sub_region.split('-') if args.sub_region != "default" else []
+
     # get the source and output directories
     srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
-    outdir = f'{S3DIR}/out/ldsc/regions/partitioned/{args.dataset}'
+    outdir = f'{S3DIR}/out/ldsc/regions/{args.sub_region}/partitioned/{args.dataset}'
 
     # create a spark session
     spark = SparkSession.builder.appName('ldsc').getOrCreate()
@@ -113,25 +116,22 @@ def main():
 
     # remove null annotations
     df = df.filter(df.annotation.isNotNull())
-    # fill empty biosample with no_biosample
-    df = df.fillna({"biosample":"no_biosample"})
-    # fill empty method with no_method
-    df = df.fillna({"method":"no_method"})
-    # fill empty source with no_source
-    df = df.fillna({"source":"no_source"})
+
+    # fill empty partitions
+    df = df.fillna({'tissue': 'no_tissue'})
+    for partition in partitions:
+        df = df.fillna({partition: f'no_{partition}'})
+
     # fix any whitespace issues
-    annotation = regexp_replace(df.annotation, ' ', '_')
-    tissue = regexp_replace(df.tissue, ' ', '_')
-    dataset = regexp_replace(df.dataset, ' ', '_')
-    biosample = regexp_replace(df.biosample, ' ', '_')
-    method = regexp_replace(df.method, ' ', '_')
-    source = regexp_replace(df.source, ' ', '_')
+    partition_strs = [regexp_replace(df.annotation, ' ', '_'), regexp_replace(df.tissue, ' ', '_')]
+    for partition in partitions:
+        partition_strs.append(regexp_replace(df[partition], ' ', '_'))
     # build the partition name
-    partition = concat_ws('___', dataset, annotation, tissue, biosample, method, source)
+    partition_name = concat_ws('___', *partition_strs)
 
     # remove invalid chromosomes rows add a sort value and bed filename
     df = df.filter(df.chromosome.isin(CHROMOSOMES)) \
-        .withColumn('partition', partition)
+        .withColumn('partition', partition_name)
 
     # final output
     df = df.select(

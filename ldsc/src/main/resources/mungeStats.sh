@@ -8,6 +8,7 @@ PHENOTYPE=$1
 SRCDIR="${S3DIR}/out/metaanalysis/staging/trans-ethnic/${PHENOTYPE}"
 OUTDIR="${S3DIR}/out/ldsc/sumstats/${PHENOTYPE}"
 
+# TODO: Remove references to staging data. Use trans-ethnic results instead
 # download the METAL results for this phenotype
 aws s3 cp "${SRCDIR}/scheme=SAMPLESIZE/METAANALYSIS1.tbl" .
 
