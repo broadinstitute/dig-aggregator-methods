@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job}
 
 class GlobalEnrichmentStage(implicit context: Context) extends Stage {
   val partitions: Seq[String] = Seq()
-  val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
+  val subRegion: String = if (partitions.isEmpty) "gregor_backup" else partitions.mkString("-")
   val regions: Input.Source = Input.Source.Success(s"out/ldsc/regions/$subRegion/merged/")
   val snp: Input.Source     = Input.Source.Success("out/gregor/snp/*/")
 

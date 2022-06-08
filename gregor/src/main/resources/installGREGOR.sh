@@ -12,7 +12,7 @@ S3_BUCKET="s3://dig-analysis-data"
 
 GREGOR_DIR="${S3_BUCKET}/out/gregor"
 LDSC_DIR="${S3_BUCKET}/out/ldsc"
-SUB_REGION="default"
+SUB_REGION="gregor_backup"
 
 # locations for the region files
 BED_INDEX_FILE="${GREGOR_ROOT}/bed.file.index"
