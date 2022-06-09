@@ -14,7 +14,7 @@ def main():
 
     # extract the dataset from the command line
     args = opts.parse_args()
-    partitions = args.sub_region.split('-') if args.sub_region != 'default' else []
+    partitions = args.sub_region.split('-') if args.sub_region != 'gregor_backup' else []
 
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
