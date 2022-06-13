@@ -10,7 +10,7 @@ import org.broadinstitute.dig.aws.emr._
 class AnnotatedRegionsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val partitions: Seq[String] = Seq()
+  val partitions: Seq[String] = Seq("dataset", "biosample", "method", "source")
   val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
   val regions = Input.Source.Success(s"out/ldsc/regions/$subRegion/merged/")
 
