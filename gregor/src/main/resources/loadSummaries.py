@@ -3,6 +3,8 @@ import os
 import re
 import subprocess
 
+import numpy as np
+
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
 from pyspark.sql.functions import col, input_file_name, lit, udf, when
@@ -68,6 +70,9 @@ def main():
             col('expectedSNPs'),
             col('pValue'),
         )
+
+    # Set min pValue to smalled numpy 64-bit value (in lieu of forking Gregor)
+    df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
 
     # remove NA results and write
     df.dropna() \
