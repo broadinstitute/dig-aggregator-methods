@@ -24,7 +24,7 @@ class AssociationsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
     masterVolumeSizeInGB = 200,
-    slaveVolumeSizeinGB = 64,
+    slaveVolumeSizeInGB = 64,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
