@@ -7,13 +7,8 @@ OUTDIR = 's3://dig-bio-index/gene_associations'
 
 def process_datasets(spark):
     """
-    The datasets code, which fails to run, because Spark < 3.0 has a bug and
-    erroneously complains that there are multiple 'pvalue' columns in the
-    output.
-
-    The data should instead (it isn't big) be downloaded locally and the
-    spark job run locally using a Spark version >= 3.0 installed and then
-    the results just copied back to S3 manually.
+    Load all 52k results and write them out both sorted by gene and by
+    phenotype, so they may be queried either way.
     """
     df = spark.read.json('s3://dig-analysis-data/gene_associations/*/*/part-*')
 
@@ -22,6 +17,12 @@ def process_datasets(spark):
         .write \
         .mode('overwrite') \
         .json('%s/52k' % OUTDIR)
+
+    # sort by phenotype, then by p-value for the gene finder
+    df.orderBy(['phenotype', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json('s3://dig-bio-index/finder/52k')
 
 
 def process_magma(spark):
