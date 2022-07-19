@@ -10,17 +10,26 @@ testdir = 's3://psmadbec-test'  # Remove once we are happy with things
 
 
 class VariantColumnFilter:
-    def __init__(self, column_name, regex_pattern, nullable=True):
+    def __init__(self, column_name, regex_pattern, nullable=True, value_range=None):
         self.column_name = column_name
         self.regex_pattern = regex_pattern
         self.nullable = nullable
+        self.value_range = value_range
+
+    def apply_value_range(self, spark_df):
+        if self.value_range is None:
+            return spark_df[self.column_name].rlike(self.regex_pattern)
+        else:
+            return spark_df[self.column_name].rlike(self.regex_pattern) & \
+                   (spark_df[self.column_name].cast('float') >= self.value_range[0]) & \
+                   (spark_df[self.column_name].cast('float') <= self.value_range[1])
 
     def apply_nullable(self, spark_df):
         if self.nullable:
-            return spark_df[self.column_name].rlike(self.regex_pattern) | \
+            return (self.apply_value_range(spark_df)) | \
                    spark_df[self.column_name].isNull()
         else:
-            return spark_df[self.column_name].rlike(self.regex_pattern) & \
+            return (self.apply_value_range(spark_df)) & \
                    ~spark_df[self.column_name].isNull()
 
     def split(self, spark_df):
@@ -34,22 +43,23 @@ class VariantColumnFilter:
             .json(f'{outdir}/bad_{self.column_name}')
 
 
-good_chromosome = "^([1-9]{1}|1[0-9]{1}|2[0-2]{1}|X|Y)$"  # 1-22 + X + Y are valid
-good_integer = "^[0-9]+$"
+good_chromosome = "^([1-9]{1}|1[0-9]{1}|2[0-4]{1}|X|Y)$"  # 1-24 + X + Y are valid
+good_positive_integer = "^([1-9]{1}[0-9]*|0)$"  # positive or zero only
 good_float = "^-?[0-9]+.?[0-9]*[eE]?-?[0-9]*$"  # includes scientific notation and signed
-good_base = "^[atcgATCG]+$"  # case insensitive, only ATCG, no multialleles
+good_positive_float = "^[0-9]+.?[0-9]*[eE]?-?[0-9]*$"  # includes scientific notation
+good_base = "^[atcgATCG]+$"  # case insensitive, only ATCG, no multialleles (commas)
 
 filters_to_run = [
     VariantColumnFilter("chromosome", good_chromosome, nullable=False),
-    VariantColumnFilter("position", good_integer, nullable=False),
+    VariantColumnFilter("position", good_positive_integer, nullable=False),
     VariantColumnFilter("reference", good_base, nullable=False),
     VariantColumnFilter("alt", good_base, nullable=False),
-    VariantColumnFilter("pValue", good_float, nullable=False),
-    VariantColumnFilter("oddsRatio", good_float),
+    VariantColumnFilter("pValue", good_positive_float, nullable=False, value_range=[0, 1]),
+    VariantColumnFilter("oddsRatio", good_positive_float, value_range=[0, 1]),
     VariantColumnFilter("beta", good_float),
-    VariantColumnFilter("stdErr", good_float),
-    VariantColumnFilter("eaf", good_float),
-    VariantColumnFilter("n", good_float, nullable=False)
+    VariantColumnFilter("stdErr", good_positive_float),
+    VariantColumnFilter("eaf", good_positive_float, value_range=[0, 1]),
+    VariantColumnFilter("n", good_positive_float)
 ]
 
 # entry point
