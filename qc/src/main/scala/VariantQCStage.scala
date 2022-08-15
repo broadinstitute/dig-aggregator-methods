@@ -17,7 +17,8 @@ class VariantQCStage(implicit context: Context) extends Stage {
     *   - Core nodes (instances - 1): m5.2xlarge; 8 vCore, 32 GiB memory, EBS only storage; EBS Storage:32 GiB
     */
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 2
+    instances = 2,
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to write json files properly
   )
 
   /** Input sources need to be declared so they can be used in rules.
