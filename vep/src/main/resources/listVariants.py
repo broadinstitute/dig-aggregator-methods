@@ -7,6 +7,17 @@ from pyspark.sql.functions import concat_ws, length, lit, when  # pylint: disabl
 S3DIR = 's3://dig-analysis-data'
 
 
+def get_df(spark, srcdir):
+    return spark.read.json(f'{srcdir}/part-*') \
+        .select(
+        'varId',
+        'chromosome',
+        'position',
+        'reference',
+        'alt',
+    )
+
+
 def main():
     """
     Arguments: none
@@ -14,21 +25,19 @@ def main():
     print('Python version: %s' % platform.python_version())
 
     # get the source and output directories
-    srcdir = '%s/variants/*/*/*' % S3DIR
-    outdir = '%s/out/varianteffect/variants' % S3DIR
+    dataset_srcdir = f'{S3DIR}/variants/*/*/*'
+    ld_server_srcdir = f'{S3DIR}/ld_server/variants/*'
+    outdir = f'{S3DIR}/out/varianteffect/variants'
 
     # create a spark session
     spark = SparkSession.builder.appName('vep').getOrCreate()
 
     # slurp all the variants across ALL datasets, but only locus information
-    df = spark.read.json('%s/part-*' % srcdir) \
-        .select(
-            'varId',
-            'chromosome',
-            'position',
-            'reference',
-            'alt',
-        ) \
+    # combine with variants in LD Server to make sure all LD Server variants go through VEP for burden binning
+    dataset_df = get_df(spark, dataset_srcdir)
+    ld_server_df = get_df(spark, ld_server_srcdir)
+
+    df = dataset_df.union(ld_server_df)\
         .dropDuplicates(['varId'])
 
     # get the length of the reference and alternate alleles

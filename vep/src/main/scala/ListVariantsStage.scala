@@ -14,10 +14,11 @@ import org.broadinstitute.dig.aws.emr._
 class ListVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants: Input.Source = Input.Source.Dataset("variants/")
+  val datasetVariants: Input.Source = Input.Source.Dataset("variants/")
+  val ldServerVariants: Input.Source = Input.Source.Success("ld_server/variants/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(variants)
+  override val sources: Seq[Input.Source] = Seq(datasetVariants, ldServerVariants)
 
   /* Define settings for the cluster to run the job.
    */
@@ -31,7 +32,8 @@ class ListVariantsStage(implicit context: Context) extends Stage {
 
   /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants() => Outputs.Named("variants")
+    case datasetVariants() => Outputs.Named("variants")
+    case ldServerVariants(_) => Outputs.Named("variants")
   }
 
   /** All that matters is that there are new datasets. The input datasets are
