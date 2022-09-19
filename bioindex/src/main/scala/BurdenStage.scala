@@ -8,14 +8,14 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class BurdenStage(implicit context: Context) extends Stage {
-  val burdenResults = Input.Source.Success("out/burdenbinning/")
+  val burdenResults = Input.Source.Success("out/burdenbinning/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(burdenResults)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case burdenResults() => Outputs.Named("bins")
+    case burdenResults(_) => Outputs.Named("bins")
   }
 
   /** Output to Job steps. */
