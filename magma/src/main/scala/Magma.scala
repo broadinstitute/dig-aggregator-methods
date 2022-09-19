@@ -28,5 +28,6 @@ object Magma extends Method {
     addStage(new GeneAssociationsStage)
     addStage(new FinalResultsStage)
     addStage(new PathwayAssociationsStage)
+    addStage(new PathwayResultsTransformStage)
   }
 }
