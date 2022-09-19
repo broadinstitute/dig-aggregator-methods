@@ -8,10 +8,9 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = f's3://dig-analysis-data/out/burdenbinning'
+    srcdir = f's3://dig-analysis-data/out/burdenbinning/*'
     outdir = f's3://dig-bio-index/burden'
 
-    # load all trans-ethnic, meta-analysis results for all variants
     df = spark.read.json(f'{srcdir}/part-*')
 
     # sort by gene and then bin
@@ -19,6 +18,12 @@ def main():
         .write \
         .mode('overwrite') \
         .json('%s/gene' % outdir)
+
+    # sort by datatype, gene and then bin
+    df.orderBy(['datatype', 'geneSymbol', 'burdenBinId']) \
+        .write \
+        .mode('overwrite') \
+        .json('%s/datatype' % outdir)
 
     # done
     spark.stop()
