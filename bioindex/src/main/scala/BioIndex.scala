@@ -38,5 +38,6 @@ object BioIndex extends Method {
     addStage(new VariantAssociationsStage)
     addStage(new GeneAssociationsStage)
     addStage(new BurdenStage)
+    addStage(new GeneticCorrelationStage)
   }
 }
