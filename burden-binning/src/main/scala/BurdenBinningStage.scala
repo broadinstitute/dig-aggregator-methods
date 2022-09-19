@@ -22,16 +22,16 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class BurdenBinningStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val exseq: Input.Source = Input.Source.Dataset("variants/ExSeq/*/*/")
-  val wgs: Input.Source   = Input.Source.Dataset("variants/WGS/*/*/")
+  val ldServer: Input.Source = Input.Source.Success("ld_server/variants/*/")
   val vep: Input.Source   = Input.Source.Success("out/varianteffect/effects/")
 
   /** The output of variant effects is the input for burden binning results file. */
-  override val sources: Seq[Input.Source] = Seq(exseq, wgs, vep)
+  override val sources: Seq[Input.Source] = Seq(ldServer, vep)
 
   /** Process burden binning associations. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => Outputs.Named("binning")
+    case ldServer(datatype) => Outputs.Named(datatype)
+    case vep => Outputs.All
   }
 
   /** Simple cluster with more memory. */
@@ -43,6 +43,6 @@ class BurdenBinningStage(implicit context: Context) extends Stage {
 
   /** Build the job. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("binning.py")))
+    new Job(Job.PySpark(resourceUri("binning.py"), s"--datatype=$output"))
   }
 }

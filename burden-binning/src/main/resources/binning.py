@@ -1,12 +1,10 @@
-import functools
-
+import argparse
 from pyspark.sql import SparkSession, Row
-from pyspark.sql.functions import explode, lit, when
+from pyspark.sql.functions import explode, lit, when, input_file_name, udf
 
 
 CQS_SRCDIR = 's3://dig-analysis-data/out/varianteffect/cqs'
-VARIANTS_SRCDIR = 's3://dig-analysis-data/variants'
-TECH_SOURCES = ['ExSeq', 'WGS']
+VARIANTS_SRCDIR = 's3://dig-analysis-data/ld_server/variants'
 
 
 def load_vep_consequences(spark):
@@ -43,21 +41,18 @@ def load_vep_consequences(spark):
     )
 
 
-def load_unique_variants(spark):
+def load_unique_variants(spark, datatype):
     """
     Only load variants from specific tech datasets.
     """
-    df = None
 
-    for tech in TECH_SOURCES:
-        srcdir = f'{VARIANTS_SRCDIR}/{tech}/*/*/part-*'
+    # Need to get the datatype into the data for use in bioindex
+    # Look at how we do this with the regex thing in ldsc
+    srcdir = f'{VARIANTS_SRCDIR}/{datatype}/part-*'
 
-        # get just the list of unique variants
-        variants = spark.read.json(srcdir) \
-            .select('varId')
-
-        # union all the variants together
-        df = df.unionAll(variants) if df is not None else variants
+    # get just the list of unique variants
+    df = spark.read.json(srcdir) \
+        .select('varId')
 
     # only unique variants
     return df.dropDuplicates(['varId'])
@@ -65,15 +60,19 @@ def load_unique_variants(spark):
 
 def main():
     """
-    Arguments: none
+    Arguments: datatype
     """
+    opts = argparse.ArgumentParser()
+    opts.add_argument('--datatype', type=str, required=True)
+    args = opts.parse_args()
+
     spark = SparkSession.builder.appName('burdenbinning').getOrCreate()
 
     # where to output the results to
-    outdir = 's3://dig-analysis-data/out/burdenbinning'
+    outdir = f's3://dig-analysis-data/out/burdenbinning/{args.datatype}'
 
     # load input data
-    variants = load_unique_variants(spark)
+    variants = load_unique_variants(spark, args.datatype)
     cqs = load_vep_consequences(spark)
 
     # keep only the consequence output for the variants we care about
@@ -143,6 +142,8 @@ def main():
         .union(df_11of11.withColumn('burdenBinId', lit('11of11'))) \
         .union(df_16of16.withColumn('burdenBinId', lit('16of16'))) \
         .union(df_lof_hc.withColumn('burdenBinId', lit('LoF_HC')))
+
+    df = df.withColumn('datatype', lit(args.datatype))
 
     # write the frames out, each to their own folder
     df.write.mode('overwrite').json(outdir)
