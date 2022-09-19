@@ -13,7 +13,8 @@ If just with no command-line arguments, this is the general order the methods sh
 3. ldsc
 4. gregor
 5. magma
-6. bioindex (*)
+6. burden-binning
+7. bioindex (*)
 
 _(*) The `bioindex` method should __always__ be run last as it takes the output of all the other methods and prepares it for indexing!_
 
@@ -24,7 +25,7 @@ To learn what the actual dependencies are for any given method, refer to the `so
 This is a brief outline of which methods require input from other methods.  Here, `A -> B` means "A is a prerequisite of B":
 
 ```
-VEP         -> MAGMA
+VEP         -> MAGMA, Burden Binning
 Bottom Line -> LDSC, GREGOR, MAGMA
 LDSC        -> GREGOR
 *           -> BioIndex
