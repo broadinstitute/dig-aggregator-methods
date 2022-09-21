@@ -11,7 +11,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class GeneAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val associations: Input.Source = Input.Source.Success("out/magma/variant-associations/*/")
+  val associations: Input.Source = Input.Source.Success("out/magma/variant-associations/*/*/")
   val variants: Input.Source     = Input.Source.Success("out/magma/staging/variants/")
 
   /** Input sources. */
@@ -19,7 +19,8 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case associations(phenotype) => Outputs.Named(phenotype)
+    case associations(phenotype, "ancestry=None") => Outputs.Named(phenotype)
+    case associations(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("=").last}")
     case variants()              => Outputs.All
   }
 
@@ -35,19 +36,46 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
 
   /** Build the job. */
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("geneAssociations.sh"), output))
+    val jobInput = GeneAssociationsInput.fromOutput(output)
+    new Job(Job.Script(resourceUri("geneAssociations.sh"), jobInput.phenotype, jobInput.ancestry, jobInput.g1000Ancestry))
   }
 
   /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/magma/staging/genes/${output}/")
+    val jobInput = GeneAssociationsInput.fromOutput(output)
+    context.s3.rm(s"out/magma/staging/genes/${jobInput.phenotype}/ancestry=${jobInput.ancestry}/")
   }
 
   /** On success, write the _SUCCESS file in the output directory.
     */
   override def success(output: String): Unit = {
-    context.s3.touch(s"out/magma/staging/genes/${output}/_SUCCESS")
+    val jobInput = GeneAssociationsInput.fromOutput(output)
+    context.s3.touch(s"out/magma/staging/genes/${jobInput.phenotype}/ancestry=${jobInput.ancestry}/_SUCCESS")
     ()
+  }
+}
+
+case class GeneAssociationsInput(
+  phenotype: String,
+  ancestry: String,
+  g1000Ancestry: String
+)
+
+case object GeneAssociationsInput {
+  val ancestry_to_g1000: Map[String, String] = Map(
+    "AA" -> "afr",
+    "AF" -> "afr",
+    "HS" -> "amr",
+    "EA" -> "eas",
+    "EU" -> "eur",
+    "SA" -> "sas"
+  )
+
+  def fromOutput(output: String): GeneAssociationsInput = {
+    output.split("/").toSeq match {
+      case Seq(phenotype) => GeneAssociationsInput(phenotype, "None", "eur") // TODO: Will need job to figure out TE ancestry? For now default to eur
+      case Seq(phenotype, ancestry) => GeneAssociationsInput(phenotype, ancestry, ancestry_to_g1000(ancestry))
+    }
   }
 }
