@@ -40,3 +40,7 @@ magma --bfile <1000 genome file> --pval <step3 file> --gene-annot <step2 file> -
 PySpark script to pull the data from the step4 magma process file and join with the reference phenotype ontology 
 id file. Saves an individual json file for each phenotype with a gene/pValue combination per row.
 
+### Step 7 - use the strep 4 raw gene data to calculate the pathway pValues
+
+The shell runs the command:
+magma --gene-results <phenotype>.genes.raw --set-annot <pathway set file> --out <output prefix>
