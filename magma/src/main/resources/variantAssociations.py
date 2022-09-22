@@ -69,16 +69,15 @@ def main():
     # parse command line
     args = opts.parse_args()
 
+    # start spark
+    spark = SparkSession.builder.appName('magma').getOrCreate()
+
+    # input and output directories
+    snpdir = f'{s3dir}/out/varianteffect/snp'
+    outdir = f'{s3dir}/out/magma/variant-associations/{args.phenotype}/ancestry={args.ancestry}'
     srcdir = get_s3_dir(args.phenotype, args.ancestry)
     if srcdir is not None:
         print(f'Using directory: {srcdir}')
-
-        # other input and output directories
-        snpdir = f'{s3dir}/out/varianteffect/snp'
-        outdir = f'{s3dir}/out/magma/variant-associations/{args.phenotype}/ancestry={args.ancestry}'
-
-        # start spark
-        spark = SparkSession.builder.appName('magma').getOrCreate()
 
         # load variants and phenotype associations
         df = spark.read.json(f'{srcdir}/part-*')
@@ -102,8 +101,8 @@ def main():
             .mode('overwrite') \
             .csv(outdir, sep='\t', header='true')
 
-        # done
-        spark.stop()
+    # done
+    spark.stop()
 
 
 if __name__ == '__main__':
