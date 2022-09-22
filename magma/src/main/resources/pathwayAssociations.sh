@@ -14,13 +14,21 @@ ANCESTRY=$2
 # create symbolic links to the magma data
 ln -s "${MAGMA_DIR}/pathway-genes/pathwayGenes.txt" .
 
+# check to see that the necessary file exists and bugger out if the needed file is not present
+FILEINFO=$(aws s3 ls "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=$ANCESTRY/associations.genes.raw")
+if [[ ${#FILEINFO} -eq 0 ]]; then
+  exit 0
+fi
+
 # copy the genes phenotype associations file computed by magma from S3
 aws s3 cp "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=$ANCESTRY/associations.genes.raw" .
 
 # run magma
 # NOTE: create separate output directory since need to do recursive copy of output since some files don't always get created, so can't specify files to copy
 mkdir -p "output_${PHENOTYPE}_${ANCESTRY}"
-"${MAGMA_DIR}/magma" --gene-results associations.genes.raw --set-annot pathwayGenes.txt --out "output_${PHENOTYPE}_${ANCESTRY}/associations.pathways"
+"${MAGMA_DIR}/magma" --gene-results associations.genes.raw \
+  --set-annot pathwayGenes.txt \
+  --out "output_${PHENOTYPE}_${ANCESTRY}/associations.pathways"
 
 # copy the output of magma back to S3
 cd "output_${PHENOTYPE}_${ANCESTRY}"

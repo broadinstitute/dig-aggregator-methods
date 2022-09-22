@@ -18,7 +18,6 @@ class PathwayAssociationsStage(implicit context: Context) extends Stage {
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case genes(phenotype, "ancestry=None") => Outputs.Named(phenotype)
     case genes(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("=").last}")
   }
 
@@ -62,7 +61,6 @@ case class PathwaysAssociationsInput(
 case object PathwaysAssociationsInput {
   def fromOutput(output: String): PathwaysAssociationsInput = {
     output.split("/").toSeq match {
-      case Seq(phenotype) => PathwaysAssociationsInput(phenotype, "None")
       case Seq(phenotype, ancestry) => PathwaysAssociationsInput(phenotype, ancestry)
     }
   }
