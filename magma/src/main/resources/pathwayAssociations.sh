@@ -15,8 +15,8 @@ ANCESTRY=$2
 ln -s "${MAGMA_DIR}/pathway-genes/pathwayGenes.txt" .
 
 # check to see that the necessary file exists and bugger out if the needed file is not present
-export FILEINFO=$(aws s3 ls "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=${ANCESTRY}/associations.genes.raw")
-if [[ ${#FILEINFO} -eq 0 ]]; then
+declare FILEINFO=$(aws s3 ls "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=${ANCESTRY}/associations.genes.raw")
+if [[ -z $FILEINFO ]]; then
   exit 0
 fi
 
