@@ -38,13 +38,16 @@ ln -s "${MAGMA_DIR}/g1000_$G1000_ANCESTRY.synonyms" .
 # copy the variant gene annotations file from S3
 aws s3 cp "${OUT_DIR}/staging/variants/variants.genes.annot" .
 
-# run magma
-"${MAGMA_DIR}/magma" --bfile ./g1000_$G1000_ANCESTRY --pval ./associations.csv ncol=subjects --gene-annot ./variants.genes.annot --out ./associations
+# run magma (catch error from bad input data)
+"${MAGMA_DIR}/magma" --bfile ./g1000_$G1000_ANCESTRY \
+  --pval ./associations.csv ncol=subjects \
+  --gene-annot ./variants.genes.annot \
+  --out ./associations || echo "ERROR running MAGMA"
 
-# copy the output of Magma back to S3
-aws s3 cp ./associations.genes.out "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=${ANCESTRY}/associations.genes.out"
-aws s3 cp ./associations.genes.raw "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=${ANCESTRY}/associations.genes.raw"
-aws s3 cp ./associations.log "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=${ANCESTRY}/associations.log"
+# For some ancestries the sample size can be prohibitively small to run magma, copy if files exist
+aws s3 cp ./associations.genes.out "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=${ANCESTRY}/associations.genes.out" || echo "No .out file present"
+aws s3 cp ./associations.genes.raw "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=${ANCESTRY}/associations.genes.raw" || echo "No .raw file present"
+aws s3 cp ./associations.log "${OUT_DIR}/staging/genes/${PHENOTYPE}/ancestry=${ANCESTRY}/associations.log" || echo "No .log file present"
 
 # delete the input and output files to save disk space for other steps
 rm associations.*
