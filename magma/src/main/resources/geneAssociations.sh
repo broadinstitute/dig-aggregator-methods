@@ -8,7 +8,7 @@ echo "JOB_PREFIX     = ${JOB_PREFIX}"
 # set where the source and destination is in S3 and the phenotype
 OUT_DIR="${JOB_BUCKET}/out/magma"
 MAGMA_DIR="/mnt/var/magma"
-PHENOTYPE=$(basename -- "$1")
+PHENOTYPE=$1
 ANCESTRY=$2
 G1000_ANCESTRY=$3
 
@@ -16,8 +16,18 @@ G1000_ANCESTRY=$3
 aws s3 cp "${JOB_BUCKET}/resources/scripts/getmerge-strip-headers.sh" .
 chmod +x getmerge-strip-headers.sh
 
+PARTSDIR="${OUT_DIR}/variant-associations/${PHENOTYPE}/ancestry=$ANCESTRY/part-*"
+
+# get all the part files for this phenotype
+PARTS=($(hadoop fs -ls -C $PARTSDIR)) || PARTS=()
+
+# bugger out if there are no parts files
+if [[ "${#PARTS[@]}" -eq 0 ]]; then
+  exit 0
+fi
+
 # download associations for this phenotype locally
-./getmerge-strip-headers.sh "${OUT_DIR}/variant-associations/${PHENOTYPE}/ancestry=$ANCESTRY/part-*" ./associations.csv
+./getmerge-strip-headers.sh $PARTSDIR ./associations.csv
 
 # create symbolic links to the magma data
 ln -s "${MAGMA_DIR}/g1000_$G1000_ANCESTRY.bed" .

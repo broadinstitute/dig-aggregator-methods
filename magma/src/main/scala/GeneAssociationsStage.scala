@@ -19,7 +19,6 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case associations(phenotype, "ancestry=None") => Outputs.Named(phenotype)
     case associations(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("=").last}")
     case variants()              => Outputs.All
   }
@@ -69,12 +68,12 @@ case object GeneAssociationsInput {
     "HS" -> "amr",
     "EA" -> "eas",
     "EU" -> "eur",
-    "SA" -> "sas"
+    "SA" -> "sas",
+    "Mixed" -> "eur"
   )
 
   def fromOutput(output: String): GeneAssociationsInput = {
     output.split("/").toSeq match {
-      case Seq(phenotype) => GeneAssociationsInput(phenotype, "None", "eur") // TODO: Will need job to figure out TE ancestry? For now default to eur
       case Seq(phenotype, ancestry) => GeneAssociationsInput(phenotype, ancestry, ancestry_to_g1000(ancestry))
     }
   }
