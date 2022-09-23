@@ -63,7 +63,7 @@ def fold_data(data, other_data):
     w_other = 1.0 / other_data['stdErr'] / other_data['stdErr']
     se = math.sqrt(1.0 / (w_data + w_other))
     rg = (data['rg'] * w_data + other_data['rg'] * w_other) / (w_data + w_other)
-    return {'rg': rg, 'stdErr': se, 'pValue': 2 * norm.cdf(-rg / se)}
+    return {'rg': rg, 'stdErr': se, 'pValue': 2 * norm.cdf(-abs(rg / se))}
 
 
 def meta_analyze(data):
