@@ -11,19 +11,14 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class PathwayAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-//  val associations: Input.Source = Input.Source.Success("out/magma/variant-associations/*/")
-  val genes: Input.Source     = Input.Source.Success("out/magma/staging/genes/*/")
+  val genes: Input.Source = Input.Source.Success("out/magma/staging/genes/*/*/")
 
   /** Input sources. */
-//  override val sources: Seq[Input.Source] = Seq(associations)
   override val sources: Seq[Input.Source] = Seq(genes)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-//    case associations(phenotype) => Outputs.Named(phenotype)
-//    case genes()                 => Outputs.All
-
-    case genes(phenotype)          => Outputs.Named(phenotype)
+    case genes(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("=").last}")
   }
 
   /** Simple cluster with more memory. */
@@ -38,19 +33,35 @@ class PathwayAssociationsStage(implicit context: Context) extends Stage {
 
   /** Build the job. */
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("pathwayAssociations.sh"), output))
+    val jobInput = PathwaysAssociationsInput.fromOutput(output)
+    new Job(Job.Script(resourceUri("pathwayAssociations.sh"), jobInput.phenotype, jobInput.ancestry))
   }
 
   /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/magma/staging/pathways/${output}/")
+    val jobInput = PathwaysAssociationsInput.fromOutput(output)
+    context.s3.rm(s"out/magma/staging/pathways/${jobInput.phenotype}/ancestry=${jobInput.ancestry}/")
   }
 
   /** On success, write the _SUCCESS file in the output directory.
     */
   override def success(output: String): Unit = {
-    context.s3.touch(s"out/magma/staging/pathways/${output}/_SUCCESS")
+    val jobInput = PathwaysAssociationsInput.fromOutput(output)
+    context.s3.touch(s"out/magma/staging/pathways/${jobInput.phenotype}/ancestry=${jobInput.ancestry}/_SUCCESS")
     ()
+  }
+}
+
+case class PathwaysAssociationsInput(
+  phenotype: String,
+  ancestry: String
+)
+
+case object PathwaysAssociationsInput {
+  def fromOutput(output: String): PathwaysAssociationsInput = {
+    output.split("/").toSeq match {
+      case Seq(phenotype, ancestry) => PathwaysAssociationsInput(phenotype, ancestry)
+    }
   }
 }
