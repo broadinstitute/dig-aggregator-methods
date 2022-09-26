@@ -22,13 +22,30 @@ class PathwayResultsTransformStage(implicit context: Context) extends Stage {
   }
 
   /** Simple cluster with more memory. */
-  override val cluster: ClusterDef = super.cluster.copy()
+  override val cluster: ClusterDef = super.cluster.copy(
+    applications = Seq.empty,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("installTransformPackages.sh"))),
+    instances = 1
+  )
 
   /** Build the job. */
   override def make(output: String): Job = {
     val script    = resourceUri("pathwayResultsTransform.py")
     val phenotype = output
 
-    new Job(Job.PySpark(script, phenotype))
+    new Job(Job.Script(script, s"--phenotype=$phenotype"))
+  }
+
+  /** Before the jobs actually run, perform this operation.
+   */
+  override def prepareJob(output: String): Unit = {
+    context.s3.rm(s"out/magma/pathway-associations/$output/")
+  }
+
+  /** On success, write the _SUCCESS file in the output directory.
+   */
+  override def success(output: String): Unit = {
+    context.s3.touch(s"out/magma/pathway-associations/$output/_SUCCESS")
+    ()
   }
 }
