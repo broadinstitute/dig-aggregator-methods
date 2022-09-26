@@ -30,7 +30,7 @@ def process_magma(spark):
     Load the MAGMA results and write them out both sorted by gene and by
     phenotype, so they may be queried either way.
     """
-    df = spark.read.json('s3://dig-analysis-data/out/magma/gene-associations/*/')
+    df = spark.read.json('s3://dig-analysis-data/out/magma/gene-associations/*/*/')
     genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
 
     # fix for join
@@ -42,20 +42,37 @@ def process_magma(spark):
         genes.type,
     )
 
+    # partition dataframe
+    mixed_df = df[df['ancestry'] == 'Mixed']
+    non_mixed_df = df[df['ancestry'] != 'Mixed']
+
     # join with genes for region data
-    df = df.join(genes, on='gene', how='inner')
+    mixed_df = mixed_df.join(genes, on='gene', how='inner')
+    non_mixed_df = non_mixed_df.join(genes, on='gene', how='inner')
 
     # sort by gene, then by p-value
-    df.orderBy(['gene', 'pValue']) \
+    mixed_df.orderBy(['gene', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json('%s/gene' % OUTDIR)
+        .json(f'{OUTDIR}/gene/trans-ethnic')
 
     # sort by phenotype, then by p-value for the gene finder
-    df.orderBy(['phenotype', 'pValue']) \
+    mixed_df.orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json('s3://dig-bio-index/finder/gene')
+        .json(f's3://dig-bio-index/finder/gene/trans-ethnic')
+
+    # sort by gene, ancestry, then by p-value
+    non_mixed_df.orderBy(['gene', 'ancestry', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{OUTDIR}/gene/ancestry-specific')
+
+    # sort by phenotype, ancestry, then by p-value for the gene finder
+    non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f's3://dig-bio-index/finder/gene/ancestry-specific')
 
 
 def main():

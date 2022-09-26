@@ -37,6 +37,6 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
       case "magma" => Job.PySpark(script, "--magma")
     }
 
-    new Job(Seq(step))
+    new Job(step)
   }
 }
