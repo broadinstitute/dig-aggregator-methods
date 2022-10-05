@@ -7,8 +7,8 @@ def main():
     """
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = 's3://pkudtarkar-test/genetic_variant_effects/*'
-    outdir = 's3://pkudtarkar-test/regions/variant_links'
+    srcdir = 's3://dig-analysis-data/annotated_regions/genetic_variant_effects/*'
+    outdir = 's3://dig-bio-index/regions/variant_links'
 
     # load all variant prediciton regions
     df = spark.read.json(f'{srcdir}/part-*')

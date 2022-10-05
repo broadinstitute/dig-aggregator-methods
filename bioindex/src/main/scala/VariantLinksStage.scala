@@ -9,7 +9,7 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class VariantLinksStage(implicit context: Context) extends Stage {
-  val variantLinks = Input.Source.Dataset("genetic_variant_effects/*/")
+  val variantLinks = Input.Source.Dataset("annotated_regions/genetic_variant_effects/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(variantLinks)
