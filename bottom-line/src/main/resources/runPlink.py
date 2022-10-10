@@ -23,10 +23,13 @@ PLINK_KB = 250
 # ancestry mapping portal -> g1000
 ANCESTRIES = {
     'AA': 'afr',
+    'AF': 'afr',
+    'SSAF': 'afr',
     'EU': 'eur',
     'HS': 'amr',
     'EA': 'eas',
     'SA': 'sas',
+    'GME': 'sas'
 }
 
 
@@ -101,11 +104,11 @@ def build_assoc_file(assoc_file, df):
     df[['CHR', 'SNP', 'BP', 'P']].to_csv(assoc_file, sep='\t', index=False)
 
 
-def run_plink(assoc_file, outdir):
+def run_plink(assoc_file, outdir, ancestries):
     """
     Run plink for each ancestry. Uploads results to S3.
     """
-    for ancestry, g1000_ancestry in ANCESTRIES.items():
+    for ancestry, g1000_ancestry in ancestries.items():
         g1000=f'g1000_{g1000_ancestry}'
 
         # process this ancestry; ignore errors
@@ -269,23 +272,42 @@ def concat_rare(clumped, rare):
     return clumped
 
 
+def get_trans_ethnic_paths(args):
+    srcdir = f'{S3DIR}/out/metaanalysis/trans-ethnic/{args.phenotype}'
+    plinkdir = f'{S3DIR}/out/metaanalysis/staging/plink/{args.phenotype}'
+    outdir = f'{S3DIR}/out/metaanalysis/staging/clumped/{args.phenotype}'
+    return srcdir, plinkdir, outdir
+
+
+def get_ancestry_specific_paths(args):
+    srcdir = f'{S3DIR}/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry_specific}'
+    plinkdir = f'{S3DIR}/out/metaanalysis/staging/ancestry-plink/{args.phenotype}'
+    outdir = f'{S3DIR}/out/metaanalysis/staging/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry_specific}'
+    return srcdir, plinkdir, outdir
+
+
 def main():
-    """
-    Arguments: phenotype
-    """
     pd.show_versions()
 
-    # cli options
+    """
+    Arguments:  phenotype
+                trans-ethnic - flag to indicate analysis for trans-ethnic results
+                ancestry-specific - str indicating which ancestry to run the analysis against
+    """
     opts = argparse.ArgumentParser()
-    opts.add_argument('phenotype')
+    opts.add_argument('--phenotype', type=str, required=True)
+    opts.add_argument('--ancestry', type=str, required=True)
 
     # parse command line
     args = opts.parse_args()
 
-    # inputs and outputs
-    srcdir = f'{S3DIR}/out/metaanalysis/trans-ethnic/{args.phenotype}'
-    plinkdir = f'{S3DIR}/out/metaanalysis/staging/plink/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/staging/clumped/{args.phenotype}'
+    # source data and output location
+    if args.ancestry == 'Mixed':
+        srcdir, plinkdir, outdir = get_trans_ethnic_paths(args)
+        ancestries = ANCESTRIES
+    else:
+        srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
+        ancestries = {args.ancestry_specific: ANCESTRIES[args.ancestry_specific]}
 
     # download and read the meta-analysis results
     df = load_bottom_line(f'{srcdir}/')
@@ -309,7 +331,7 @@ def main():
 
     # join and write out the assoc file for plink
     build_assoc_file('snps.assoc', common)
-    run_plink('snps.assoc', plinkdir)
+    run_plink('snps.assoc', plinkdir, ancestries)
 
     # get the final output of top and clumped SNPs (clump ID, SNP)
     clumped = merge_results()

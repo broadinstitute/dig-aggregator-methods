@@ -4,25 +4,33 @@ import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, signum
 
-
 # what bucket will be output to?
 S3_BUCKET = os.getenv('JOB_BUCKET')
 
 
 def main():
     """
-    Arguments: phenotype
+    Arguments:  phenotype
+                trans-ethnic - flag to indicate analysis for trans-ethnic results
+                ancestry - str indicating which ancestry to run the analysis against
     """
     opts = argparse.ArgumentParser()
-    opts.add_argument('phenotype')
+    opts.add_argument('--phenotype', type=str, required=True)
+    opts.add_argument('--ancestry', type=str, required=True)
 
     # parse command line
     args = opts.parse_args()
 
     # source data and output location
-    srcdir = f'{S3_BUCKET}/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
-    clumpdir = f'{S3_BUCKET}/out/metaanalysis/staging/clumped/{args.phenotype}/*.json'
-    outdir = f'{S3_BUCKET}/out/metaanalysis/clumped/{args.phenotype}'
+    if args.ancestry == 'Mixed':
+        srcdir = f'{S3_BUCKET}/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
+        clumpdir = f'{S3_BUCKET}/out/metaanalysis/staging/clumped/{args.phenotype}/*.json'
+        outdir = f'{S3_BUCKET}/out/metaanalysis/clumped/{args.phenotype}'
+    else:
+        ancestry_path = f'{args.phenotype}/ancestry={args.ancestry_specific}'
+        srcdir = f'{S3_BUCKET}/out/metaanalysis/ancestry-specific/{ancestry_path}/part-*'
+        clumpdir = f'{S3_BUCKET}/out/metaanalysis/staging/ancestry-clumped/{ancestry_path}/*.json'
+        outdir = f'{S3_BUCKET}/out/metaanalysis/ancestry-clumped/{ancestry_path}'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
