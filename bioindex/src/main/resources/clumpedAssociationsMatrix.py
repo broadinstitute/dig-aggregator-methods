@@ -39,12 +39,12 @@ def main():
         assocsdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/*/part-*'
         outdir = f's3://{s3_bucket}/associations/matrix'
     else:
-        clumpdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry_specific}/part-*'
-        assocsdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/*/ancestry={args.ancestry_specific}/part-*'
-        outdir = f's3://{s3_bucket}/ancestry-associations/matrix/{args.ancestry_specific}'
+        clumpdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
+        assocsdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/*/ancestry={args.ancestry}/part-*'
+        outdir = f's3://{s3_bucket}/ancestry-associations/matrix/{args.ancestry}'
 
     clumps = get_clump_df(spark, clumpdir) \
-        .withColumn('ancestry', lit(args.ancestry_specific))
+        .withColumn('ancestry', lit(args.ancestry))
     assocs = get_assocs_df(spark, assocsdir)
 
     common_dir = 's3://dig-analysis-data/out/varianteffect/common'
