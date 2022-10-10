@@ -20,11 +20,11 @@ def main():
         srcdir = f's3://dig-analysis-data/out/metaanalysis/clumped/*/part-*'
         outdir = f's3://{s3_bucket}/associations/clump'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry_specific}/part-*'
-        outdir = f's3://{s3_bucket}/ancestry-associations/clump/{args.ancestry_specific}'
+        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
+        outdir = f's3://{s3_bucket}/ancestry-associations/clump/{args.ancestry}'
 
     clumps = spark.read.json(srcdir)\
-        .withColumn('ancestry', lit(args.ancestry_specific))
+        .withColumn('ancestry', lit(args.ancestry))
 
     common_dir = 's3://dig-analysis-data/out/varianteffect/common'
     common = spark.read.json(f'{common_dir}/part-*')
