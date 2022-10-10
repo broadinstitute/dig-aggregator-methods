@@ -10,14 +10,17 @@ import org.broadinstitute.dig.aws.emr._
 class AssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val bottomLine = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
+  val transEthnic = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
+  val ancestrySpecific = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(bottomLine)
+  override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case bottomLine(phenotype) => Outputs.Named(phenotype)
+    case transEthnic(phenotype) => Outputs.Named(phenotype)
+    case ancestrySpecific(phenotype, ancestry) =>
+      Outputs.Named(s"$phenotype/${ancestry.split("ancestry=").last}")
   }
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
@@ -25,19 +28,21 @@ class AssociationsStage(implicit context: Context) extends Stage {
     masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
     masterVolumeSizeInGB = 200,
     slaveVolumeSizeInGB = 64,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
+    bootstrapScripts = Seq(
+      new BootstrapScript(resourceUri("cluster-bootstrap.sh"))
+    )
   )
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    val phenotype = output
-    val srcdir    = s"out/metaanalysis/trans-ethnic/$phenotype/"
-    val outdir    = s"phenotype/$phenotype/"
+    val flags = output.split("/").toSeq match {
+      case Seq(phenotype) => Seq(s"--phenotype=$phenotype", s"--ancestry=Mixed")
+      case Seq(phenotype, ancestry) => Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
+    }
     val steps = Seq(
-      Job.PySpark(resourceUri("associations.py"), phenotype),
-      Job.Script(resourceUri("plotAssociations.py"), srcdir, outdir)
+      Job.PySpark(resourceUri("associations.py"), flags:_*),
+      Job.Script(resourceUri("plotAssociations.py"), flags:_*)
     )
-
     new Job(steps)
   }
 }

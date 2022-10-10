@@ -1,6 +1,9 @@
 import argparse
-
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import lit
+
+
+s3_bucket = 'dig-bio-index'
 
 
 def main():
@@ -8,7 +11,8 @@ def main():
     Arguments: phenotype
     """
     opts = argparse.ArgumentParser()
-    opts.add_argument('phenotype')
+    opts.add_argument('--phenotype', type=str, required=True)
+    opts.add_argument('--ancestry', type=str, required=True)
 
     # parse command line
     args = opts.parse_args()
@@ -16,15 +20,19 @@ def main():
     # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    # load and output directory
-    srcdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
-    outdir = f's3://dig-bio-index/associations'
-
-    # common vep data
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
-
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
-    df = spark.read.json(srcdir)
+    if args.ancestry == 'Mixed':
+        srcdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
+        outdir = f's3://{s3_bucket}/associations/phenotype/trans-ethnic/{args.phenotype}'
+    else:
+        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
+        outdir = f's3://{s3_bucket}/ancestry-associations/phenotype/{args.phenotype}/{args.ancestry}'
+
+    df = spark.read.json(srcdir) \
+        .withColumn('ancestry', lit(args.ancestry))
+
+    # common vep data (can we cache this?)
+    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
     common = spark.read.json(common_dir)
 
     # join the common data
@@ -34,7 +42,7 @@ def main():
     df.orderBy(['chromosome', 'position', 'varId']) \
         .write \
         .mode('overwrite') \
-        .json('%s/phenotype/%s' % (outdir, args.phenotype))
+        .json(outdir)
 
     # done
     spark.stop()
