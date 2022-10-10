@@ -20,8 +20,8 @@ def main():
         srcdir = f's3://dig-analysis-data/out/metaanalysis/clumped/*/part-*'
         outdir = f's3://{s3_bucket}/associations/{{}}'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry_specific}/part-*'
-        outdir = f's3://{s3_bucket}/ancestry-associations/{{}}/{args.ancestry_specific}'
+        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
+        outdir = f's3://{s3_bucket}/ancestry-associations/{{}}/{args.ancestry}'
 
     df = spark.read.json(srcdir) \
         .withColumn('ancestry', lit(args.ancestry))
