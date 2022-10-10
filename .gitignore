@@ -4,6 +4,7 @@ target/
 .vscode/
 .idea/
 *.iml
-project/
+project/project
+project/target
 */.aggregator/
 .DS_Store
