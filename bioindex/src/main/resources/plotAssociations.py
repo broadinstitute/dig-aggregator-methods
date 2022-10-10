@@ -9,6 +9,9 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
+
+s3_bucket = 'dig-bio-index'
+
 # color map
 COLORS = ['#08306b', '#41ab5d', '#000000', '#f16913', '#3f007d', '#cb181d']
 
@@ -64,21 +67,46 @@ def build_chromosome_map():
         pos += CHROMOSOME_LEN[chrom]
 
 
+def check_args(args):
+    if args.dataset is None and args.phenotype is None:
+        raise Exception("--dataset=<dataset> or --phenotype=<phenotype> must be specified")
+    if args.phenotype is not None and args.ancestry is None:
+        raise Exception("--ancestry=<ancestry> must be specified for --phenotype=<phenotype>")
+    if args.dataset is not None and (args.phenotype is not None or args.ancestry is not None):
+        raise Exception("can't specify other flags with --dataset=<dataset> flag")
+
+
+def get_input_output(args):
+    if args.dataset is not None:
+        return f's3://dig-analysis-data/variants/{args.dataset}',\
+               f's3://{s3_bucket}/plot/dataset/{args.dataset}'
+    elif args.ancestry == 'Mixed':
+        return f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/{args.phenotype}',\
+               f's3://{s3_bucket}/plot/phenotype/{args.phenotype}'
+    else:
+        return f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}', \
+               f's3://{s3_bucket}/plot/phenotype/{args.phenotype}/{args.ancestry}'
+
+
 def main():
     """
-    Arguments: srcdir outdir
-    Example: out/metaanalysis/trans-ethnic/T2D phenotype/T2D
+    Arguments: --dataset=<dataset> or --phenotype=<phenotype> (type of plot)
+               --ancestry=<ancestry> (if phenotype specified, Mixed == trans-ethnic)
+    Example: --ancestry=EU --phenotype=T2D
+    Example: --dataset=GWAS/GWAS_BioMe/HypertensioninT2D
     """
     opts = argparse.ArgumentParser()
-    opts.add_argument('srcdir')
-    opts.add_argument('outdir')
+    opts.add_argument('--dataset', type=str, required=False)
+    opts.add_argument('--phenotype', type=str, required=False)
+    opts.add_argument('--ancestry', type=str, required=False)
+    opts.add_argument('--debug', action='store_true', required=False)
 
     # parse command line arguments
     args = opts.parse_args()
+    check_args(args)
 
     # source glob to read from and outdir to write to
-    srcdir = f's3://dig-analysis-data/{args.srcdir.strip("/")}/'
-    outdir = f's3://dig-bio-index/plot/{args.outdir.strip("/")}'
+    srcdir, outdir = get_input_output(args)
 
     # NOTE: There is currently a bug in pandas where read_json doesn't properly
     #       reduce memory usage needed with chunksize. Once this is fixed, this

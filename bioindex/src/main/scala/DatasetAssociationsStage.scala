@@ -35,7 +35,7 @@ class DatasetAssociationsStage(implicit context: Context) extends Stage {
     // get best associations and build plots
     val steps = Seq(
       Job.PySpark(associations, output),
-      Job.Script(plot, s"variants/$output", s"dataset/$output")
+      Job.Script(plot, s"--dataset=$output")
     )
 
     new Job(steps)
