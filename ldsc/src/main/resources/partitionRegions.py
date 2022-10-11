@@ -1,19 +1,21 @@
 #!/usr/bin/python3
 import argparse
 import platform
-
+import re
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
 from pyspark.sql.functions import concat_ws, lower, regexp_replace, udf, when
+from pyspark.sql.functions import lit
 
 S3DIR = 's3://dig-analysis-data'
-
 # BED files need to be sorted by chrom/start, this orders the chromosomes
 CHROMOSOMES = list(map(lambda c: str(c + 1), range(22))) + ['X', 'Y', 'MT']
 
 # *-like chromatin states
 ENHANCER = 'enhancer'
 PROMOTER = 'promoter'
+OTHER = 'other'
+ACCESSIBLE_CHROMATIN = 'accessible_chromatin'
 
 # mapping of harmonized chromatin states
 CHROMATIN_STATES = {
@@ -37,7 +39,10 @@ CHROMATIN_STATES = {
     'enha2': ENHANCER,
     'enhwk': ENHANCER,
     'enhbiv': ENHANCER,
-
+    'Distal_enhancer-like': ENHANCER,
+    'High-H3K27ac': ENHANCER,
+    'Proximal_enhancer-like': ENHANCER,
+    
     # promoter-like states
     'promoter': PROMOTER,
     'promoter_weak': PROMOTER,
@@ -60,6 +65,33 @@ CHROMATIN_STATES = {
     'bivflnk': PROMOTER,
     'tssflnku': PROMOTER,
     'tssflnkd': PROMOTER,
+    'DNase-H3K4me3': PROMOTER,
+    'High-H3K4me3': PROMOTER,
+    'Promoter-like': PROMOTER,
+
+    # other states
+    'CTCF-bound': OTHER,
+    'CTCF-only': OTHER,
+    'High-CTCF': OTHER,
+    'Unclassified': OTHER,
+    'Strong_transcription': OTHER,
+    'Repressed_polycomb': OTHER,
+    'Weak_repressed_polycomb': OTHER,
+    'Quiescent/low_signal': OTHER,
+    'Weak_transcription': OTHER,
+    'Tx': OTHER,
+    'Txn': OTHER,
+    'ReprPC': OTHER,
+    'ReprPCWk': OTHER,
+    'Quies': OTHER,
+    'TxWk': OTHER,
+    'Het': OTHER,
+    'ZNF/Rpts': OTHER,
+    'TxFlnk': OTHER,
+    'Ctcf': OTHER,
+
+    #accessible chromatin
+    'DNase-only': ACCESSIBLE_CHROMATIN,
 }
 
 
@@ -72,17 +104,19 @@ def harmonized_state(annotation, state):
     used, otherwise the annotation is returned as-is.
     """
     annotation = annotation.lower()
-    state = state.lower()
 
-    if annotation != 'chromatin_state':
+    if annotation != 'candidate_regulatory_elements' and annotation != 'chromatin_state':
         return annotation
-
     # discover enhancer and promoter-like states
-    if 'enh' in state:
+    state = state.lower()
+    if 'enh' in state or 'h3k27ac' in state:
         return ENHANCER
-    if 'tss' in state or 'promoter' in state:
+    if 'tss' in state or 'promoter' in state or 'h3k4me3' in state or 'h3k4me3' in state:
         return PROMOTER
-
+    if 'ctcf' in state or 'unclass' in state or 'transcription' in state or 'polycomb' in state or 'tx' in state or 'repr' in state or 'quies' in state or 'het' in state or 'znf' in state:
+        return OTHER
+    if re.match('dnase-only', state):
+        return ACCESSIBLE_CHROMATIN
     return None
 
 
@@ -110,10 +144,11 @@ def main():
 
     # read all the fields needed across the regions for the dataset
     df = spark.read.json(srcdir)
-
-    # rename enhancer and promoter states, if not, make null
+    if 'state' not in df.columns:
+        df = df.withColumn('state',lit('Not Available')) 
+    # rename enhancer, other and promoter states, if not, make null
     df = df.withColumn('annotation', harmonized_state(df.annotation, df.state))
-
+   
     # remove null annotations
     df = df.filter(df.annotation.isNotNull())
 
@@ -132,13 +167,13 @@ def main():
     # remove invalid chromosomes rows add a sort value and bed filename
     df = df.filter(df.chromosome.isin(CHROMOSOMES)) \
         .withColumn('partition', partition_name)
-
     # final output
     df = df.select(
         df.partition,
         df.chromosome,
         df.start,
         df.end,
+        df.state,
     )
 
     # output the regions partitioned for GREGOR in BED format
