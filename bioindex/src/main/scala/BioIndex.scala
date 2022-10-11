@@ -41,5 +41,6 @@ object BioIndex extends Method {
     addStage(new BurdenStage)
     addStage(new GeneticCorrelationStage)
     addStage(new PathwayAssociationsStage)
+    addStage(new GeneToTranscriptStage)
   }
 }
