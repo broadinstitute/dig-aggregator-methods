@@ -14,7 +14,7 @@ def main():
     df = spark.read.json(f'{srcdir}/part-*')
 
     # sort and write
-    df.orderBy(['tissue', 'chromosome', 'start']) \
+    df.orderBy(['chromosome', 'start']) \
         .write \
         .mode('overwrite') \
         .json(outdir)
