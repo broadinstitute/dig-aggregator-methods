@@ -17,82 +17,10 @@ PROMOTER = 'promoter'
 OTHER = 'other'
 ACCESSIBLE_CHROMATIN = 'accessible_chromatin'
 
-# mapping of harmonized chromatin states
-CHROMATIN_STATES = {
-    'enhancer': ENHANCER,
-    'genic_enhancer': ENHANCER,
-    'enhancer_genic': ENHANCER,
-    'enhancer_genic_1': ENHANCER,
-    'enhancer_genic_2': ENHANCER,
-    'active_enhancer_1': ENHANCER,
-    'enhancer_active_1': ENHANCER,
-    'active_enhancer_2': ENHANCER,
-    'enhancer_active_2': ENHANCER,
-    'weak_enhancer': ENHANCER,
-    'enhancer_weak': ENHANCER,
-    'enhancer_bivalent': ENHANCER,
-    'enh': ENHANCER,
-    'enhg': ENHANCER,
-    'enhg1': ENHANCER,
-    'enhg2': ENHANCER,
-    'enha1': ENHANCER,
-    'enha2': ENHANCER,
-    'enhwk': ENHANCER,
-    'enhbiv': ENHANCER,
-    'Distal_enhancer-like': ENHANCER,
-    'High-H3K27ac': ENHANCER,
-    'Proximal_enhancer-like': ENHANCER,
-    
-    # promoter-like states
-    'promoter': PROMOTER,
-    'promoter_weak': PROMOTER,
-    'promoter_flanking': PROMOTER,
-    'promoter_active': PROMOTER,
-    'promoter_bivalent': PROMOTER,
-    'promoter_bivalent_flanking': PROMOTER,
-    'promoter_flanking_upstream': PROMOTER,
-    'promoter_flanking_downstream': PROMOTER,
-    'weak_tss': PROMOTER,
-    'flanking_tss': PROMOTER,
-    'active_tss': PROMOTER,
-    'bivalent_tss': PROMOTER,
-    'poised_tss': PROMOTER,
-    'bivalent/poised_tss': PROMOTER,
-    'tssaflnk': PROMOTER,
-    'tssflnk': PROMOTER,
-    'tssa': PROMOTER,
-    'tssbiv': PROMOTER,
-    'bivflnk': PROMOTER,
-    'tssflnku': PROMOTER,
-    'tssflnkd': PROMOTER,
-    'DNase-H3K4me3': PROMOTER,
-    'High-H3K4me3': PROMOTER,
-    'Promoter-like': PROMOTER,
-
-    # other states
-    'CTCF-bound': OTHER,
-    'CTCF-only': OTHER,
-    'High-CTCF': OTHER,
-    'Unclassified': OTHER,
-    'Strong_transcription': OTHER,
-    'Repressed_polycomb': OTHER,
-    'Weak_repressed_polycomb': OTHER,
-    'Quiescent/low_signal': OTHER,
-    'Weak_transcription': OTHER,
-    'Tx': OTHER,
-    'Txn': OTHER,
-    'ReprPC': OTHER,
-    'ReprPCWk': OTHER,
-    'Quies': OTHER,
-    'TxWk': OTHER,
-    'Het': OTHER,
-    'ZNF/Rpts': OTHER,
-    'TxFlnk': OTHER,
-    'Ctcf': OTHER,
-
-    #accessible chromatin
-    'DNase-only': ACCESSIBLE_CHROMATIN,
-}
+enhancer_state_prefixes = ['enh', 'h3k27ac']
+promoter_state_prefixes = ['tss', 'promoter', 'h3k4me3']
+other_state_prefixes = ['ctcf', 'unclass', 'transcription', 'polycomb', 'tx', 'repr', 'quies', 'het', 'znf']  # To be done later
+accessible_chromatin_matches = ['dnase-only']  # To be done later
 
 
 @udf(returnType=StringType())
@@ -107,15 +35,17 @@ def harmonized_state(annotation, state):
 
     if annotation != 'candidate_regulatory_elements' and annotation != 'chromatin_state':
         return annotation
-    # discover enhancer and promoter-like states
+
+    # discover alternative states
     state = state.lower()
-    if 'enh' in state or 'h3k27ac' in state:
+    if any([prefix in state for prefix in enhancer_state_prefixes]):
         return ENHANCER
-    if 'tss' in state or 'promoter' in state or 'h3k4me3' in state or 'h3k4me3' in state:
+    if any([prefix in state for prefix in promoter_state_prefixes]):
         return PROMOTER
-    if 'ctcf' in state or 'unclass' in state or 'transcription' in state or 'polycomb' in state or 'tx' in state or 'repr' in state or 'quies' in state or 'het' in state or 'znf' in state:
-        return OTHER
-    if re.match('dnase-only', state):
+    # TODO: These will be implemented later
+    # if any([prefix in state for prefix in other_state_prefixes]):
+    #     return OTHER
+    if any([perfect_match == state for perfect_match in accessible_chromatin_matches]):
         return ACCESSIBLE_CHROMATIN
     return None
 
@@ -144,8 +74,11 @@ def main():
 
     # read all the fields needed across the regions for the dataset
     df = spark.read.json(srcdir)
+
+    # TODO: Remove once the import issue is fixed
     if 'state' not in df.columns:
-        df = df.withColumn('state',lit('Not Available')) 
+        df = df.withColumn('state', lit('Not Available'))
+
     # rename enhancer, other and promoter states, if not, make null
     df = df.withColumn('annotation', harmonized_state(df.annotation, df.state))
    
