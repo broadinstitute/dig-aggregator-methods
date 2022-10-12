@@ -11,7 +11,6 @@ class CredibleSetsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val variants = Input.Source.Dataset("credible_sets/*/*/")
-  val regions  = Input.Source.Success("out/gregor/regions/joined/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(variants)
@@ -19,7 +18,6 @@ class CredibleSetsStage(implicit context: Context) extends Stage {
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
     case variants(_, phenotype) => Outputs.Named(phenotype)
-    case regions()              => Outputs.All
   }
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
