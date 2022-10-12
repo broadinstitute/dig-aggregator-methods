@@ -50,11 +50,13 @@ def main():
     # See: https://useast.ensembl.org/info/docs/tools/vep/vep_formats.html
     #
     end = when(ref_len == 0, df.position + alt_len - 1) \
-        .otherwise(df.position + ref_len - 1)
+        .otherwise(df.position + ref_len - 1) \
+        .cast('int')
 
     # check for insertion
     start = when(ref_len == 0, end + 1) \
-        .otherwise(df.position)
+        .otherwise(df.position) \
+        .cast('int')
 
     # join the reference and alternate alleles together
     allele = concat_ws('/', df.reference, df.alt)
