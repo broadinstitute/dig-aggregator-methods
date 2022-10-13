@@ -24,5 +24,6 @@ object Intake extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new VariantProcessingStage)
     addStage(new VariantQCStage)
+    addStage(new VariantScalingStage)
   }
 }

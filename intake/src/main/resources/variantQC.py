@@ -105,14 +105,16 @@ if __name__ == '__main__':
     opts.add_argument('method_dataset_phenotype')
     args = opts.parse_args()
 
+    tech, dataset, phenotype = args.method_dataset_phenotype.split('/')
+
     # get the source and output directories (method_dataset is formatted as method/dataset here)
     srcdir = f'{s3dir}/variants_processed/{args.method_dataset_phenotype}'
-    outdir = f'{s3dir}/variants/{args.method_dataset_phenotype}'
-    qcdir = f'{s3dir}/variants_qc/{args.method_dataset_phenotype}'
+    outdir = f'{s3dir}/variants_qc/{args.method_dataset_phenotype}/pass'
+    qcdir = f'{s3dir}/variants_qc/{args.method_dataset_phenotype}/fail'
 
     # create a spark session and dataframe from part files
     spark = SparkSession.builder.appName('qc').getOrCreate()
-    df = read_variants_json(spark, f'{srcdir}/*.json')
+    df = read_variants_json(spark, f'{srcdir}/{dataset}.{phenotype}.json')
     bad_df = None
     for filter_to_run in filters_to_run:
         new_bad_df, df = filter_to_run.split(df)
