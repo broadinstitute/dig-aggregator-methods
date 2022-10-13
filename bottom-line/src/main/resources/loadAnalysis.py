@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import numpy as np
 import os.path
 import platform
 import re
@@ -8,7 +9,7 @@ import subprocess
 
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
-from pyspark.sql.functions import col, isnan, lit  # pylint: disable=E0611
+from pyspark.sql.functions import col, isnan, lit, when  # pylint: disable=E0611
 
 # where in S3 meta-analysis data is
 s3_bucket = 's3://dig-analysis-data'
@@ -240,6 +241,7 @@ def load_ancestry_specific_analysis(phenotype):
                 .reduceByKey(lambda a, b: b if (b.n or 0) > (a.n or 0) else a) \
                 .map(lambda v: v[1]) \
                 .toDF()
+        df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
 
         # write the analysis out, manually partitioned
         df.write \
@@ -267,7 +269,10 @@ def load_trans_ethnic_analysis(phenotype):
 
     # load all the mixed ancestry-variants across the datasets
     mixed = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/part-*')
-    mixed = mixed.filter(mixed.ancestry == 'Mixed') \
+    mixed = mixed.filter((mixed.ancestry == 'Mixed')) \
+        .filter(mixed.multiAllelic == False) \
+        .filter(mixed.pValue.isNotNull() & ~isnan(mixed.pValue)) \
+        .filter(mixed.beta.isNotNull() & ~isnan(mixed.beta)) \
         .select(
             'varId',
             'chromosome',
@@ -288,7 +293,6 @@ def load_trans_ethnic_analysis(phenotype):
         # load the analyses - note that zScore is present for trans-ethnic!
         variants = load_analysis(spark, srcdir, overlap=False) \
             .withColumn('phenotype', lit(phenotype)) \
-            .filter(col('pValue') > 0.0) \
             .select(
                 'varId',
                 'chromosome',
@@ -321,6 +325,10 @@ def load_trans_ethnic_analysis(phenotype):
         .toDF()
 
     print("Final number of variants: {}".format(variants.count()))
+
+    # Set pValue to smallest float when equal to 0.0
+    variants = variants \
+        .withColumn('pValue', when(variants.pValue == 0.0, np.nextafter(0, 1)).otherwise(variants.pValue))
 
     # write the variants
     variants.write.mode('overwrite').json(outdir)
