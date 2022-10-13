@@ -9,7 +9,7 @@ class MakeSumstatsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
-  val mixedDatasets: Input.Source = Input.Source.Dataset("variants/*/*/*/")
+  val mixedDatasets: Input.Source = Input.Source.Success("variants/*/*/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific, mixedDatasets)

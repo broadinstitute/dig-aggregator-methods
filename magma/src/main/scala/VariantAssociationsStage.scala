@@ -12,7 +12,7 @@ class VariantAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
-  val mixedDatasets: Input.Source = Input.Source.Dataset("variants/*/*/*/")
+  val mixedDatasets: Input.Source = Input.Source.Success("variants/*/*/*/")
   val snps: Input.Source = Input.Source.Success("out/varianteffect/snp/")
 
   /** Ouputs to watch. */

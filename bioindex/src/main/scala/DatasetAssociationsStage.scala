@@ -10,7 +10,7 @@ import org.broadinstitute.dig.aws.emr._
 class DatasetAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants = Input.Source.Dataset("variants/*/*/*/")
+  val variants = Input.Source.Success("variants/*/*/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(variants)

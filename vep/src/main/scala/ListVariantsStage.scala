@@ -14,7 +14,7 @@ import org.broadinstitute.dig.aws.emr._
 class ListVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val datasetVariants: Input.Source = Input.Source.Dataset("variants/")
+  val datasetVariants: Input.Source = Input.Source.Success("variants/")
   val ldServerVariants: Input.Source = Input.Source.Success("ld_server/variants/*/")
 
   /** Source inputs. */
