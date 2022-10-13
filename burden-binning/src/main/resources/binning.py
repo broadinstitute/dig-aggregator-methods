@@ -9,10 +9,9 @@ VARIANTS_SRCDIR = 's3://dig-analysis-data/ld_server/variants'
 
 def load_vep_consequences(spark):
     """
-    Loads the VEP data, explodes consequences, and picks the best one.
+    Loads the VEP data, explodes consequences
     """
     df = spark.read.json(f'{CQS_SRCDIR}/part-*')
-    df = df.filter(df.pick == 1)
 
     # only keep specific fields
     return df.select(
@@ -20,6 +19,7 @@ def load_vep_consequences(spark):
         df.geneId,
         df.geneSymbol,
         df.transcriptId,
+        df.pick,
         df.lof,
         df.impact,
         df.polyphen2HdivPred,
@@ -69,7 +69,8 @@ def main():
     spark = SparkSession.builder.appName('burdenbinning').getOrCreate()
 
     # where to output the results to
-    outdir = f's3://dig-analysis-data/out/burdenbinning/{args.datatype}'
+    gene_outdir = f's3://dig-analysis-data/out/burdenbinning/gene/{args.datatype}'
+    transcript_outdir = f's3://dig-analysis-data/out/burdenbinning/transcript/{args.datatype}'
 
     # load input data
     variants = load_unique_variants(spark, args.datatype)
@@ -144,9 +145,15 @@ def main():
         .union(df_lof_hc.withColumn('burdenBinId', lit('LoF_HC')))
 
     df = df.withColumn('datatype', lit(args.datatype))
+    gene_df = df \
+        .filter(df.pick == 1) \
+        .drop('pick')
+    transcript_df = df \
+        .drop('pick')
 
     # write the frames out, each to their own folder
-    df.write.mode('overwrite').json(outdir)
+    gene_df.write.mode('overwrite').json(gene_outdir)
+    transcript_df.write.mode('overwrite').json(transcript_outdir)
 
     # done
     spark.stop()

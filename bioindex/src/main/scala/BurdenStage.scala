@@ -15,11 +15,11 @@ class BurdenStage(implicit context: Context) extends Stage {
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case burdenResults(_) => Outputs.Named("bins")
+    case burdenResults(run_type) => Outputs.Named(run_type)
   }
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("burden.py")))
+    new Job(Job.PySpark(resourceUri("burden.py"), output))
   }
 }
