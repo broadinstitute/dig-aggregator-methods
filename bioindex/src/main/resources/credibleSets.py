@@ -23,6 +23,12 @@ def main():
     # load all the credible sets for the phenotype
     df = spark.read.json(srcdir)
 
+    # TODO: Some old datasets have chromosome as integers. Better solution is to reupload with str chr, but cast for now
+    # TODO: Eventually, also filter otu null posterior probabilities as well
+    df = df\
+        .withColumn("chromosome", df["chromosome"].cast("string"))\
+        .filter(df.posteriorProbability.isNotNull())
+
     # sort by credible set and then locus
     df.coalesce(1) \
         .orderBy(['credibleSetId', 'chromosome', 'position']) \
