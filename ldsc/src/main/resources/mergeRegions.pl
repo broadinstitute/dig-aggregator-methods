@@ -25,7 +25,7 @@ open(OUT, '>', $bedFile) or die "Cannot write $bedFile";
 my $chr='';
 my $start=0;
 my $end=0;
-
+my $state='';
 # read each line
 while (chomp(my $line=<IN>)) {
     if (not length $line) {
@@ -42,16 +42,17 @@ while (chomp(my $line=<IN>)) {
         }
     } else {
         if (length $chr) {
-            print OUT "$chr\t$start\t$end\n";
+            print OUT "$chr\t$start\t$end\t$state\n";
         }
         $chr=$pos[0];
         $start=int($pos[1]);
         $end=int($pos[2]);
+	$state=$pos[3];
     }
 }
 
 if (length $chr) {
-    print OUT "$chr\t$start\t$end\n";
+    print OUT "$chr\t$start\t$end\t$state\n";
 }
 
 # done
