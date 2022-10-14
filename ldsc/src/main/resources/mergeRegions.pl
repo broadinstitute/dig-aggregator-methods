@@ -26,6 +26,10 @@ my $chr='';
 my $start=0;
 my $end=0;
 my $state='';
+my $biosample='';
+my $method='';
+my $source='';
+my $dataset='';
 # read each line
 while (chomp(my $line=<IN>)) {
     if (not length $line) {
@@ -47,12 +51,16 @@ while (chomp(my $line=<IN>)) {
         $chr=$pos[0];
         $start=int($pos[1]);
         $end=int($pos[2]);
-	$state=$pos[3];
+	    $state=$pos[3];
+	    $biosample=$pos[4];
+	    $method=$pos[5];
+	    $source=$pos[6];
+	    $dataset=$pos[7];
     }
 }
 
 if (length $chr) {
-    print OUT "$chr\t$start\t$end\t$state\n";
+    print OUT "$chr\t$start\t$end\t$state\t$biosample\t$method\t$source\t$dataset\n";
 }
 
 # done

@@ -50,6 +50,13 @@ def harmonized_state(annotation, state):
     return None
 
 
+def get_optional_column(df, col_name):
+    if col_name not in df.columns:
+        return df.withColumn(col_name, lit('Not Available'))
+    else:
+        return df.withColumn(col_name, regexp_replace(df[col_name], ',', ';'))
+
+
 def main():
     """
     Arguments: type/dataset, partitions
@@ -75,9 +82,11 @@ def main():
     # read all the fields needed across the regions for the dataset
     df = spark.read.json(srcdir)
 
-    # TODO: Remove once the import issue is fixed
-    if 'state' not in df.columns:
-        df = df.withColumn('state', lit('Not Available'))
+    df = get_optional_column(df, 'state')
+    df = get_optional_column(df, 'biosample')
+    df = get_optional_column(df, 'method')
+    df = get_optional_column(df, 'source')
+    df = get_optional_column(df, 'dataset')
 
     # rename enhancer, other and promoter states, if not, make null
     df = df.withColumn('annotation', harmonized_state(df.annotation, df.state))
@@ -107,6 +116,10 @@ def main():
         df.start,
         df.end,
         df.state,
+        df.biosample,
+        df.method,
+        df.source,
+        df.dataset
     )
 
     # output the regions partitioned for GREGOR in BED format
