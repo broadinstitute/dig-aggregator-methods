@@ -46,7 +46,7 @@ while (chomp(my $line=<IN>)) {
         }
     } else {
         if (length $chr) {
-            print OUT "$chr\t$start\t$end\t$state\n";
+            print OUT "$chr\t$start\t$end\t$state\t$biosample\t$method\t$source\t$dataset\n";
         }
         $chr=$pos[0];
         $start=int($pos[1]);
