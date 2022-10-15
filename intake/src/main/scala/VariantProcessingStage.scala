@@ -26,10 +26,12 @@ class VariantProcessingStage(implicit context: Context) extends Stage {
 
   override def make(output: String): Job = {
     // Extract gzip filname from s3
-    val pattern = ".*/([^/]*\\.(gz|bgz))$".r
+    val gz = ".*/([^/]*\\.gz)$".r
+    val bgz = ".*/([^/]*\\.bgz)$".r
     val jobs = context.s3.ls(s"variants_raw/$output/").flatMap { keyObject =>
       keyObject.key match {
-        case pattern(filepath) => Some(Job.Script(resourceUri("variantProcessor.py"), s"--filepath=$output/$filepath"))
+        case gz(filepath) => Some(Job.Script(resourceUri("variantProcessor.py"), s"--filepath=$output/$filepath"))
+        case bgz(filepath) => Some(Job.Script(resourceUri("variantProcessor.py"), s"--filepath=$output/$filepath"))
         case _ => None
       }
     }
