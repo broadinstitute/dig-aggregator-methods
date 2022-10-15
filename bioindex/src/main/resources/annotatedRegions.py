@@ -28,6 +28,10 @@ def main():
         StructField('start', IntegerType(), nullable=False),
         StructField('end', IntegerType(), nullable=False),
         StructField('state', StringType(), nullable=True),
+        StructField('biosample', StringType(), nullable=True),
+        StructField('method', StringType(), nullable=True),
+        StructField('source', StringType(), nullable=True),
+        StructField('dataset', StringType(), nullable=True)
     ])
 
     # input pathname -> partition
