@@ -20,8 +20,8 @@ PLINK_P2 = 1e-2
 PLINK_R2 = 0.2
 PLINK_KB = 250
 
-# ancestry mapping portal -> g1000
-ANCESTRIES = {
+# ancestry mapping portal -> g1000 for all possible ancestries
+ANCESTRY_SPECIFIC_ANCESTRIES = {
     'AA': 'afr',
     'AF': 'afr',
     'SSAF': 'afr',
@@ -30,6 +30,15 @@ ANCESTRIES = {
     'EA': 'eas',
     'SA': 'sas',
     'GME': 'sas'
+}
+
+# Each of the ancestries should only be run once. Runs against trans-ethnic results
+TRANS_ETHNIC_ANCESTRIES = {
+    'AA': 'afr',
+    'EU': 'eur',
+    'HS': 'amr',
+    'EA': 'eas',
+    'SA': 'sas'
 }
 
 
@@ -304,10 +313,10 @@ def main():
     # source data and output location
     if args.ancestry == 'Mixed':
         srcdir, plinkdir, outdir = get_trans_ethnic_paths(args)
-        ancestries = ANCESTRIES
+        ancestries = TRANS_ETHNIC_ANCESTRIES
     else:
         srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
-        ancestries = {args.ancestry: ANCESTRIES[args.ancestry]}
+        ancestries = {args.ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]}
 
     # download and read the meta-analysis results
     df = load_bottom_line(f'{srcdir}/')
