@@ -280,9 +280,9 @@ def get_trans_ethnic_paths(args):
 
 
 def get_ancestry_specific_paths(args):
-    srcdir = f'{S3DIR}/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry_specific}'
+    srcdir = f'{S3DIR}/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
     plinkdir = f'{S3DIR}/out/metaanalysis/staging/ancestry-plink/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/staging/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry_specific}'
+    outdir = f'{S3DIR}/out/metaanalysis/staging/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}'
     return srcdir, plinkdir, outdir
 
 
@@ -307,7 +307,7 @@ def main():
         ancestries = ANCESTRIES
     else:
         srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
-        ancestries = {args.ancestry_specific: ANCESTRIES[args.ancestry_specific]}
+        ancestries = {args.ancestry: ANCESTRIES[args.ancestry]}
 
     # download and read the meta-analysis results
     df = load_bottom_line(f'{srcdir}/')
