@@ -27,7 +27,7 @@ def main():
         clumpdir = f'{S3_BUCKET}/out/metaanalysis/staging/clumped/{args.phenotype}/*.json'
         outdir = f'{S3_BUCKET}/out/metaanalysis/clumped/{args.phenotype}'
     else:
-        ancestry_path = f'{args.phenotype}/ancestry={args.ancestry_specific}'
+        ancestry_path = f'{args.phenotype}/ancestry={args.ancestry}'
         srcdir = f'{S3_BUCKET}/out/metaanalysis/ancestry-specific/{ancestry_path}/part-*'
         clumpdir = f'{S3_BUCKET}/out/metaanalysis/staging/ancestry-clumped/{ancestry_path}/*.json'
         outdir = f'{S3_BUCKET}/out/metaanalysis/ancestry-clumped/{ancestry_path}'
