@@ -1,6 +1,6 @@
 import argparse
 from pyspark.sql import SparkSession, Row
-from pyspark.sql.functions import explode, lit, when, input_file_name, udf
+from pyspark.sql.functions import explode, lit, when, input_file_name, udf, split
 
 
 CQS_SRCDIR = 's3://dig-analysis-data/out/varianteffect/cqs'
@@ -12,6 +12,11 @@ def load_vep_consequences(spark):
     Loads the VEP data, explodes consequences
     """
     df = spark.read.json(f'{CQS_SRCDIR}/part-*')
+
+    df.na.fill(value="", subset=["hgvsp"])
+    df = df \
+        .withColumn('proteinChange', split(df['hgvsp'], ':').getItem(1)) \
+        .drop('hgvsp')
 
     # only keep specific fields
     return df.select(
@@ -38,6 +43,8 @@ def load_vep_consequences(spark):
         df.metasvmPred,
         df.mCapScore,
         df.gnomadGenomesPopmaxAf,
+        df.consequenceTerms,
+        df.proteinChange
     )
 
 
