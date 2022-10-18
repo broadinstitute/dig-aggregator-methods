@@ -12,14 +12,22 @@ def get_info(line):
 
 
 def get_info_dict(info):
-    return dict([a.strip().replace('"', '').split(' ') for a in info.split(';')][:-1])
+    d = {}
+    for dict_entry in info.split(';'):
+        if len(dict_entry) > 0:
+            key, value = dict_entry.strip().replace('"', '').split(' ')
+            if key == 'tag':
+                d[value] = True
+            else:
+                d[key] = value
+    return d
 
 
 def write_to_bioindex(out):
     with open('part-00000.json', 'w') as f:
         for gene_name, transcript_ids in out.items():
-            for transcript_id in transcript_ids:
-                line_str = json.dumps({'gene_name': gene_name, 'transcript_id': transcript_id})
+            for (transcript_id, ccds) in transcript_ids:
+                line_str = json.dumps({'gene_name': gene_name, 'transcript_id': transcript_id, 'CCDS': ccds})
                 f.write(f'{line_str}\n')
     subprocess.check_call(['aws', 's3', 'cp', 'part-00000.json', outdir])
 
@@ -37,11 +45,12 @@ def main():
             if 'gene_name' in info_dict and 'transcript_id' in info_dict:
                 gene_name = info_dict['gene_name']
                 transcript_id = info_dict['transcript_id'].split('.')[0]
+                ccds = info_dict.get('CCDS', False)
 
                 if gene_name not in out:
                     out[gene_name] = []
-                if transcript_id not in out[gene_name]:
-                    out[gene_name].append(transcript_id)
+                if (transcript_id, ccds) not in out[gene_name]:
+                    out[gene_name].append((transcript_id, ccds))
             line = f.readline().decode()
     write_to_bioindex(out)
 
