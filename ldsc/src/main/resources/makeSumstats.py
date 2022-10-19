@@ -113,7 +113,7 @@ def stream_to_txt(phenotype, ancestry, snp_map):
             while len(json_string) > 0:
                 for json_substring in json_string.replace('}{', '}\n{').splitlines():
                     line = json.loads(json_substring)
-                    if 'varId' in line and line['varId'] in snp_map:
+                    if 'varId' in line and line['varId'] in snp_map and line['beta'] is not None:
                         line_string = line_template.format(
                             snp_map[line['varId']],
                             line['reference'].lower(),
