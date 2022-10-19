@@ -7,10 +7,12 @@ import subprocess
 ancestry_map = {
     'AA': 'AFR',
     'AF': 'AFR',
+    'SSAF': 'AFR',
     'HS': 'AMR',
     'EA': 'EAS',
     'EU': 'EUR',
     'SA': 'SAS',
+    'GME': 'SAS',
     'Mixed': 'EUR'
 }
 
