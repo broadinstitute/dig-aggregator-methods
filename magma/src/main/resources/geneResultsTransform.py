@@ -4,6 +4,7 @@ import boto3
 import glob
 import json
 import math
+import numpy as np
 import os
 import re
 from scipy.stats import norm
@@ -60,7 +61,7 @@ def get_ancestry_specific_data(ncbi, srcfile):
                     'nParam': int(split_line[5]),
                     'subjects': int(split_line[6]),
                     'zStat': float(split_line[7]),
-                    'pValue': float(split_line[8])
+                    'pValue': float(split_line[8]) if float(split_line[8]) > 0 else np.nextafter(0, 1)
                 }
             line = f.readline().strip()
     return out
@@ -92,7 +93,7 @@ def fold_data(data, other_data):
             'nParam': None,
             'subjects': subjects,
             'zStat': z,
-            'pValue': p
+            'pValue': p if p > 0 else np.nextafter(0, 1)
         }
     return meta
 

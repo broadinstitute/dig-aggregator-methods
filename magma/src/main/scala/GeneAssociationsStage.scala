@@ -65,10 +65,12 @@ case object GeneAssociationsInput {
   val ancestry_to_g1000: Map[String, String] = Map(
     "AA" -> "afr",
     "AF" -> "afr",
+    "SSAF" -> "afr",
     "HS" -> "amr",
     "EA" -> "eas",
     "EU" -> "eur",
     "SA" -> "sas",
+    "GME" -> "sas",
     "Mixed" -> "eur"
   )
 

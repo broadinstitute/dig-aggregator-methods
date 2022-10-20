@@ -1,6 +1,8 @@
 import argparse
+import numpy as np
 
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import when
 
 OUTDIR = 's3://dig-bio-index'
 
@@ -11,6 +13,8 @@ def process_gene_datasets(spark):
     phenotype, so they may be queried either way.
     """
     df = spark.read.json('s3://dig-analysis-data/gene_associations/*/*/part-*')
+
+    df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
 
     # sort by gene, then by p-value
     df.orderBy(['gene', 'pValue']) \
