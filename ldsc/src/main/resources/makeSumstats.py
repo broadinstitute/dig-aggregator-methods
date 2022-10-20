@@ -13,10 +13,12 @@ import subprocess
 ancestry_map = {
     'AA': 'AFR',
     'AF': 'AFR',
+    'SSAF': 'AFR',
     'HS': 'AMR',
     'EA': 'EAS',
     'EU': 'EUR',
     'SA': 'SAS',
+    'GME': 'SAS',
     'Mixed': 'EUR'
 }
 
@@ -103,6 +105,7 @@ def get_snp_map():
 
 
 def stream_to_txt(phenotype, ancestry, snp_map):
+    line_count = 0
     with open(f'{phenotype_files}/{phenotype}_{ancestry}.json', 'r') as f_in:
         with open(f'{phenotype_files}/{phenotype}_{ancestry}.txt', 'w') as f_out:
             line_template = '{}\t{}\t{}\t{}\t{}\t{}\n'
@@ -111,7 +114,7 @@ def stream_to_txt(phenotype, ancestry, snp_map):
             while len(json_string) > 0:
                 for json_substring in json_string.replace('}{', '}\n{').splitlines():
                     line = json.loads(json_substring)
-                    if 'varId' in line and line['varId'] in snp_map:
+                    if 'varId' in line and line['varId'] in snp_map and line['beta'] is not None:
                         line_string = line_template.format(
                             snp_map[line['varId']],
                             line['reference'].lower(),
@@ -121,7 +124,9 @@ def stream_to_txt(phenotype, ancestry, snp_map):
                             line['n']
                         )
                         f_out.write(line_string)
+                        line_count += 1
                 json_string = f_in.readline()
+    return line_count
 
 
 def create_sumstats(phenotype, ancestry):
@@ -151,9 +156,10 @@ def main():
         get_single_json_file(s3_dir, phenotype, ancestry)
         snp_map = get_snp_map()
         print(f'Created SNP map ({len(snp_map)} variants)')
-        stream_to_txt(phenotype, ancestry, snp_map)
-        create_sumstats(phenotype, ancestry)
-        upload_and_remove_files(phenotype, ancestry)
+        total_lines = stream_to_txt(phenotype, ancestry, snp_map)
+        if total_lines > 0:
+            create_sumstats(phenotype, ancestry)
+            upload_and_remove_files(phenotype, ancestry)
 
 
 if __name__ == '__main__':

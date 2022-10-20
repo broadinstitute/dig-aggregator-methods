@@ -74,6 +74,8 @@ find "${REGIONS_DIR}" -empty -type d -delete
 
 # remove the csv file extension
 find "${REGIONS_DIR}" -type f -name '*.csv' | while read f; do mv "$f" "${f%.*}"; done
+find "${REGIONS_DIR}" -type f | while read f; do cat "$f" | awk '{print $1"\t"$2"\t"$3}' > "$f"_temp; done
+find "${REGIONS_DIR}" -type f -name '*_temp' | while read f; do mv "$f" "${f%_temp}"; done
 
 # write all the partition files to the index file
 find "${REGIONS_DIR}" -type f > "${BED_INDEX_FILE}"

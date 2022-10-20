@@ -2,6 +2,7 @@
 import glob
 import json
 import math
+import numpy as np
 import os
 import re
 from scipy.stats import norm
@@ -40,7 +41,7 @@ def translate(ancestry, file):
                 out[other_phenotype] = {
                     'rg': float(data_dict['rg']),
                     'stdErr': float(data_dict['se']),
-                    'pValue': float(data_dict['p'])
+                    'pValue': float(data_dict['p']) if float(data_dict['p']) > 0 else np.nextafter(0, 1)
                 }
             line = f.readline().strip()
     return out
@@ -63,7 +64,8 @@ def fold_data(data, other_data):
     w_other = 1.0 / other_data['stdErr'] / other_data['stdErr']
     se = math.sqrt(1.0 / (w_data + w_other))
     rg = (data['rg'] * w_data + other_data['rg'] * w_other) / (w_data + w_other)
-    return {'rg': rg, 'stdErr': se, 'pValue': 2 * norm.cdf(-abs(rg / se))}
+    p = 2 * norm.cdf(-abs(rg / se))
+    return {'rg': rg, 'stdErr': se, 'pValue': p if p > 0 else np.nextafter(0, 1)}
 
 
 def meta_analyze(data):

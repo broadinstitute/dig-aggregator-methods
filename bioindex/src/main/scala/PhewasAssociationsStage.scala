@@ -31,7 +31,7 @@ class PhewasAssociationsStage(implicit context: Context) extends Stage {
     masterInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
     slaveInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
     masterVolumeSizeInGB = 250,
-    slaveVolumeSizeInGB = 250,
+    slaveVolumeSizeInGB = 300,
     instances = 6
   )
 
