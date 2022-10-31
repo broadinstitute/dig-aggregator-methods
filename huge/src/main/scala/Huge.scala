@@ -23,9 +23,5 @@ object Magma extends Method {
     */
   override def initStages(implicit context: Context) = {
     addStage(new GatherVariantsStage)
-    addStage(new AssignGenesStage)
-    addStage(new VariantAssociationsStage)
-    addStage(new GeneAssociationsStage)
-    addStage(new FinalResultsStage)
   }
 }
