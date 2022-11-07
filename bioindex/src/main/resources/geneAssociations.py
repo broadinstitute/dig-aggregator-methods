@@ -15,6 +15,18 @@ def process_gene_datasets(spark):
     df = spark.read.json('s3://dig-analysis-data/gene_associations/*/*/part-*')
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
+    genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
+
+    # fix for join
+    genes = genes.select(
+        genes.name.alias('gene'),
+        genes.chromosome,
+        genes.start,
+        genes.end,
+        genes.type,
+    )
+
+    df = df.join(genes, on='gene', how='inner')
 
     # sort by gene, then by p-value
     df.orderBy(['gene', 'pValue']) \
