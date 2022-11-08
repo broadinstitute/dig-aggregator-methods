@@ -1,6 +1,6 @@
 val Versions = new {
   val Aggregator = "0.3.1-SNAPSHOT"
-  val Scala      = "2.13.5"
+  val Scala      = "2.13.10"
 }
 
 // set the version of scala to compile with
@@ -33,7 +33,7 @@ val buildInfoTask = taskKey[Seq[File]]("buildInfo")
 
 // define execution code for task
 buildInfoTask := {
-  val file = (resourceManaged in Compile).value / "version.properties"
+  val file = (Compile / resourceManaged).value / "version.properties"
 
   // log where the properties will be written to
   streams.value.log.info(s"Writing version info to $file...")
@@ -43,7 +43,7 @@ buildInfoTask := {
   val lastCommit            = git.gitHeadCommit.value
   val describedVersion      = git.gitDescribedVersion.value
   val anyUncommittedChanges = git.gitUncommittedChanges.value
-  val remoteUrl             = (scmInfo in ThisBuild).value.map(_.browseUrl.toString)
+  val remoteUrl             = (ThisBuild / scmInfo).value.map(_.browseUrl.toString)
   val buildDate             = java.time.Instant.now
 
   // map properties
@@ -57,7 +57,7 @@ buildInfoTask := {
 
   // build properties content
   val contents = properties.toList.map {
-    case (key, value) if value.length > 0 => s"$key=$value"
+    case (key, value) if value.nonEmpty => s"$key=$value"
     case _                                => ""
   }
 
@@ -67,4 +67,4 @@ buildInfoTask := {
 }
 
 // add the build info task output to resources
-(resourceGenerators in Compile) += buildInfoTask.taskValue
+(Compile / resourceGenerators) += buildInfoTask.taskValue

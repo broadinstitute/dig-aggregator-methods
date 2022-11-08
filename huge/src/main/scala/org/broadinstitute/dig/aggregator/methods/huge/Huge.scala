@@ -1,8 +1,6 @@
-package org.broadinstitute.dig.aggregator.methods.magma
+package org.broadinstitute.dig.aggregator.methods.huge
 
-import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws._
-import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aggregator.core.{Context, Method}
 
 /** This is your aggregator method.
   *
@@ -16,12 +14,12 @@ import org.broadinstitute.dig.aws.emr._
   * See the README of the dig-aggregator-core project for a complete list of
   * CLI arguments available.
   */
-object Magma extends Method {
+object Huge extends Method {
 
   /** Add all stages used in this method here. Stages must be added in the
     * order they should be serially executed.
     */
-  override def initStages(implicit context: Context) = {
+  override def initStages(implicit context: Context): Unit = {
     addStage(new GatherVariantsStage)
   }
 }

@@ -1,8 +1,7 @@
-package org.broadinstitute.dig.aggregator.methods.magma
+package org.broadinstitute.dig.aggregator.methods.huge
 
-import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws._
-import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aggregator.core.{Context, Input, Outputs, Stage}
+import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
 
 /** This is a stage in your method.
   *
@@ -19,7 +18,6 @@ import org.broadinstitute.dig.aws.emr._
   *   - the cluster definition used to provision EC2 instances
   */
 class GatherVariantsStage(implicit context: Context) extends Stage {
-  import MemorySize.Implicits._
 
   val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
   val dbSNPs: Input.Source   = Input.Source.Success("out/varianteffect/snp/")

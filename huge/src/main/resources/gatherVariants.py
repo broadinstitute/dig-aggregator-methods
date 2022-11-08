@@ -14,7 +14,7 @@ def main():
     """
     Arguments: none
     """
-    spark = SparkSession.builder.appName('magma').getOrCreate()
+    spark = SparkSession.builder.appName('huge').getOrCreate()
     # load all json files for given phenotype
     src_dir = SRCDIR + phenotype
     variants = spark.read.json(f'{src_dir}/part-*')
@@ -26,7 +26,7 @@ def main():
 
     # variants_file = spark.read.json(filepath)
     '''
-    # seprate variants by chromosome
+    # separate variants by chromosome
     chromosome_list = {i: [] for i in range(1, 24)}
     for variant in variants:
         print(variant)
