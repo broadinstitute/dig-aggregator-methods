@@ -20,6 +20,6 @@ object Huge extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context): Unit = {
-    addStage(new GatherVariantsStage)
+    addStage(new HugeStage)
   }
 }

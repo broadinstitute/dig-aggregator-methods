@@ -17,13 +17,17 @@ import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
   *   - its name, which defaults to its class name
   *   - the cluster definition used to provision EC2 instances
   */
-class GatherVariantsStage(implicit context: Context) extends Stage {
+class HugeStage(implicit context: Context) extends Stage {
 
-  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
-  val dbSNPs: Input.Source   = Input.Source.Success("out/varianteffect/snp/")
+  val genomeBuild = "GRCh37"
+  val phenotype = "T2D"
+
+  val genes: Input.Source = Input.Source.Success(s"genes/$genomeBuild/part-*")
+  val geneAssociations: Input.Source = Input.Source.Success(s"out/magma/gene-associations/$phenotype/ancestry=Mixed/part-*.json")
+  val variants: Input.Source = Input.Source.Success(s"/out/metaanalysis/trans-ethnic/$phenotype/part-*")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(variants)
+  override val sources: Seq[Input.Source] = Seq(genes, geneAssociations, variants)
 
   /* Define settings for the cluster to run the job.
    */
@@ -31,7 +35,7 @@ class GatherVariantsStage(implicit context: Context) extends Stage {
 
   /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => Outputs.Named("GatherVariants")
+    case _ => Outputs.Named("huge")
   }
 
   /** All that matters is that there are new datasets. The input datasets are
@@ -39,6 +43,6 @@ class GatherVariantsStage(implicit context: Context) extends Stage {
     * there is only a single analysis node for all variants.
     */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("gatherVariants.py")))
+    new Job(Job.PySpark(resourceUri("huge.py")))
   }
 }

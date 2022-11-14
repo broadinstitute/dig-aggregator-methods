@@ -3,12 +3,12 @@ import json
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 
-
 # EC2 development localhost directories
 # filepath = '/Users/kmoogala/Downloads/part-00000-cc551958-d129-4d9a-82f1-d7a039db68cb-c000.json'
 SRCDIR = 's3a://dig-analysis-data/out/metaanalysis/trans-ethnic/'
 phenotype = "2hrG"
 threshold_p = 0.000000005
+
 
 def main():
     """
@@ -44,7 +44,7 @@ def main():
     # load into json object
     gene_locations = spark.read.json(gene_file)
 
-    #add null columns/remove columns needed to merge
+    # add null columns/remove columns needed to merge
     '''
     gene_locations = gene_locations.withColumn("position", lit(None))
     variants = variants.drop('zScore')
@@ -79,6 +79,7 @@ def main():
         sig_variants = chromosome_list[chromosome][start_pos:end_pos]
         print(sig_variants)
     '''
+
 
 '''
 def findVariants(chromosome_data, start, end):
