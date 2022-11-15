@@ -30,8 +30,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
     instances = 1,
-    masterVolumeSizeInGB = 100,
-    bootstrapSteps = Seq(Job.Script(resourceUri("install-plink.sh")))
+    masterVolumeSizeInGB = 100
   )
 
   /** Build the job. */
@@ -43,23 +42,23 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
     }
 
     val steps = Seq(
-      Job.Script(resourceUri("runPlink.py"), flags:_*),
+//      Job.Script(resourceUri("runPlink.py"), flags:_*),
       Job.PySpark(resourceUri("clumpedAssociations.py"), flags:_*)
     )
     new Job(steps)
   }
 
-  /** Nuke the staging directories before the job runs.
-    */
-  override def prepareJob(output: String): Unit = {
-    output.split("/").toSeq match {
-      case Seq(phenotype) =>
-        context.s3.rm(s"out/metaanalysis/staging/clumped/$phenotype/")
-        context.s3.rm(s"out/metaanalysis/staging/plink/$phenotype/")
-      case Seq(phenotype, ancestry) =>
-        context.s3.rm(s"out/metaanalysis/staging/ancestry-clumped/$phenotype/ancestry=$ancestry")
-        context.s3.rm(s"out/metaanalysis/staging/ancestry-plink/$phenotype/ancestry=$ancestry")
-    }
-
-  }
+//  /** Nuke the staging directories before the job runs.
+//    */
+//  override def prepareJob(output: String): Unit = {
+//    output.split("/").toSeq match {
+//      case Seq(phenotype) =>
+//        context.s3.rm(s"out/metaanalysis/staging/clumped/$phenotype/")
+//        context.s3.rm(s"out/metaanalysis/staging/plink/$phenotype/")
+//      case Seq(phenotype, ancestry) =>
+//        context.s3.rm(s"out/metaanalysis/staging/ancestry-clumped/$phenotype/ancestry=$ancestry")
+//        context.s3.rm(s"out/metaanalysis/staging/ancestry-plink/$phenotype/ancestry=$ancestry")
+//    }
+//
+//  }
 }
