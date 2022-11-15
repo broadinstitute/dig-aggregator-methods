@@ -59,7 +59,7 @@ def main():
     # get the lead SNPs again, this time with the beta
     lead_snps = clumps.filter(clumps.leadSNP == True) \
         .select(clumps.clump, clumps.beta.alias('alignment'))
-    lead_snps[lead_snps.varId == '17:42449025:C:G'].show()
+    lead_snps[lead_snps.clump == 27].show()
 
     # calculate the alignment direction for each of the SNPs in the clumps
     clumps = clumps.join(lead_snps, on='clump')
