@@ -11,9 +11,7 @@
             ],
             "sshKeyName": "GenomeStore REST",
             "jobFlowRoleId": "dig-aggregator-role",
-            "securityGroupIds": [
-                "sg-0e22cdbae2638f631"
-            ]
+            "securityGroupIds": []
         },
         "rds": {
             "instance": "dig-analysis-state"
