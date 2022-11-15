@@ -37,27 +37,34 @@ def main():
 
     # load the clumped plink output and all association data
     clumps = spark.read.json(clumpdir)
+    clumps[clumps.varId == '17:42449025:C:G'].show()
     assocs = spark.read.json(srcdir)
+    assocs[assocs.varId == '17:42449025:C:G'].show()
 
     # merge with trans-ethnic, association data and sort
     clumps = clumps.join(assocs, ['varId', 'phenotype'])
     clumps = clumps.sort(['clump', 'pValue'])
+    clumps[clumps.varId == '17:42449025:C:G'].show()
 
     # drop duplicate clumps, which leaves only the lead SNPs
     lead_snps = clumps.dropDuplicates(['clump']) \
         .select(col('varId'), lit(True).alias('leadSNP'))
+    lead_snps[lead_snps.varId == '17:42449025:C:G'].show()
 
     # join the lead SNPs back with the clumps, set missing as not lead SNPs
     clumps = clumps.join(lead_snps, on='varId', how='left')
     clumps = clumps.na.fill({'leadSNP': False})
+    clumps[clumps.varId == '17:42449025:C:G'].show()
 
     # get the lead SNPs again, this time with the beta
     lead_snps = clumps.filter(clumps.leadSNP == True) \
         .select(clumps.clump, clumps.beta.alias('alignment'))
+    lead_snps[lead_snps.varId == '17:42449025:C:G'].show()
 
     # calculate the alignment direction for each of the SNPs in the clumps
     clumps = clumps.join(lead_snps, on='clump')
     clumps = clumps.withColumn('alignment', signum(clumps.beta * clumps.alignment))
+    clumps[clumps.varId == '17:42449025:C:G'].show()
 
     # output lead SNPs
     clumps.write \
