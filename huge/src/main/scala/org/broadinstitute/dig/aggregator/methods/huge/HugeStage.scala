@@ -21,29 +21,38 @@ class HugeStage(implicit context: Context) extends Stage {
 
   val genomeBuild = "GRCh37"
 
-  val genes: Input.Source = Input.Source.Success(s"genes/$genomeBuild/part-*")
-  val geneAssociations: Input.Source = Input.Source.Success(s"out/magma/gene-associations/*/ancestry=Mixed/part-*.json")
-  val variants: Input.Source = Input.Source.Success(s"/out/metaanalysis/trans-ethnic/*/part-*")
+  val genes: Input.Source            = Input.Source.Dataset(s"genes/$genomeBuild/")
+  val geneAssociations: Input.Source = Input.Source.Dataset(s"gene_associations/52k_*/*/")
+  val variants: Input.Source         = Input.Source.Success(s"out/metaanalysis/trans-ethnic/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(genes, geneAssociations, variants)
 
+  val makeClusterSmall: Boolean = true
+
   /* Define settings for the cluster to run the job.
    */
-  override val cluster: ClusterDef = super.cluster.copy()
+  override val cluster: ClusterDef = {
+    if (makeClusterSmall) {
+      super.cluster.copy(instances = 1)
+    } else {
+      super.cluster.copy()
+    }
+  }
 
   /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case genes(_) => Outputs.All
-    case geneAssociations(phenotype, _) => Outputs.Named(phenotype)
-    case variants(phenotype, _) => Outputs.Named(phenotype)
+    case genes()                        => Outputs.All
+    case geneAssociations(_, phenotype) => Outputs.Named(phenotype)
+    case variants(phenotype)            => Outputs.Named(phenotype)
   }
 
-  /** All that matters is that there are new datasets. The input datasets are
-    * actually ignored, and _everything_ is reprocessed. This is done because
-    * there is only a single analysis node for all variants.
+  /** One job per phenotype (e.g. T2D)
     */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("huge.py")))
+    val script    = resourceUri("huge.py")
+    val phenotype = output
+    println(s"Making job with script $script for phenotype $phenotype.")
+    new Job(Job.PySpark(script, s"--phenotype=$phenotype"))
   }
 }
