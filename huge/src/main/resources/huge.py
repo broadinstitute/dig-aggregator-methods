@@ -6,11 +6,11 @@ def main():
     """
     Arguments: none
     """
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("--phenotype", help="The phenotype")
-    arg_parser.add_argument("--genes", help="Gene data with regions")
-    arg_parser.add_argument("--gene-associations", help="Gene data with p-values")
-    arg_parser.add_argument("--variants", help="Variant data")
+    arg_parser = argparse.ArgumentParser(prog = 'huge.py')
+    arg_parser.add_argument("--phenotype", help="The phenotype", required=True)
+    arg_parser.add_argument("--genes", help="Gene data with regions", required=True)
+    arg_parser.add_argument("--gene-associations", help="Gene data with p-values", required=True)
+    arg_parser.add_argument("--variants", help="Variant data", required=True)
     cli_args = arg_parser.parse_args()
     phenotype = cli_args.phenotype
     genes_glob = cli_args.genes

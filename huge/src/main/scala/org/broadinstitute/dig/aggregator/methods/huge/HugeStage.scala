@@ -19,11 +19,18 @@ import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
   */
 class HugeStage(implicit context: Context) extends Stage {
 
-  val genomeBuild = "GRCh37"
+  class FilesForPhenotype(string: String, placeHolder: String = "<phenotype>") {
+    def forPhenotype(phenotype: String): String = string.replaceAll(placeHolder, phenotype)
+    def asGlob: String = string.replaceAll(placeHolder, "*")
+  }
 
-  val genes: Input.Source            = Input.Source.Dataset(s"genes/$genomeBuild/")
-  val geneAssociations: Input.Source = Input.Source.Dataset(s"gene_associations/52k_*/*/")
-  val variants: Input.Source         = Input.Source.Success(s"out/metaanalysis/trans-ethnic/*/")
+  val geneFile: String = "genes/GRCh37/"
+  val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/52k_*/<phenotype>/")
+  val variantFiles: FilesForPhenotype = new FilesForPhenotype("out/metaanalysis/trans-ethnic/<phenotype>/")
+
+  val genes: Input.Source            = Input.Source.Dataset(geneFile)
+  val geneAssociations: Input.Source = Input.Source.Dataset(geneAssocFiles.asGlob)
+  val variants: Input.Source         = Input.Source.Success(variantFiles.asGlob)
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(genes, geneAssociations, variants)
@@ -53,6 +60,10 @@ class HugeStage(implicit context: Context) extends Stage {
     val script    = resourceUri("huge.py")
     val phenotype = output
     println(s"Making job with script $script for phenotype $phenotype.")
-    new Job(Job.PySpark(script, s"--phenotype=$phenotype"))
+    new Job(Job.PySpark(script,
+      "--phenotype", phenotype,
+      "--genes", geneFile,
+      "--gene-associations", geneAssocFiles.forPhenotype(phenotype),
+      "--variants", variantFiles.forPhenotype(phenotype)))
   }
 }
