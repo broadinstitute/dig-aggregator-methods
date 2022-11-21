@@ -60,10 +60,11 @@ class HugeStage(implicit context: Context) extends Stage {
     val script    = resourceUri("huge.py")
     val phenotype = output
     println(s"Making job with script $script for phenotype $phenotype.")
+    val bucket = context.s3
     new Job(Job.PySpark(script,
       "--phenotype", phenotype,
-      "--genes", geneFile,
-      "--gene-associations", geneAssocFiles.forPhenotype(phenotype),
-      "--variants", variantFiles.forPhenotype(phenotype)))
+      "--genes", bucket.s3UriOf(geneFile).toString,
+      "--gene-associations", bucket.s3UriOf(geneAssocFiles.forPhenotype(phenotype)).toString,
+      "--variants", bucket.s3UriOf(variantFiles.forPhenotype(phenotype)).toString))
   }
 }
