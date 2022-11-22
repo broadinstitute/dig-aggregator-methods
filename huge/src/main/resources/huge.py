@@ -22,8 +22,15 @@ def main():
     print('Gene data with p-values: ' + genes_assoc_glob)
     print('Variant data: ' + variants_glob)
     spark = SparkSession.builder.appName('huge').getOrCreate()
-    print('Content of ' + genes_glob + ':')
-    for row in spark.read.json(genes_glob).take(42):
+    print('Genes from ' + genes_glob + ':')
+    genes_raw = spark.read.json(genes_glob)
+    for row in genes_raw.filter(genes_raw.source == 'symbol').take(42):
+        print(row)
+    print('Gene associations from ' + genes_assoc_glob + ':')
+    for row in spark.read.json(genes_assoc_glob).select('gene', 'pValue').take(42):
+        print(row)
+    print('Content of ' + variants_glob + ':')
+    for row in spark.read.json(variants_glob).take(42):
         print(row)
     print('Stopping Spark')
     spark.stop()
