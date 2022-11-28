@@ -1,7 +1,7 @@
 package org.broadinstitute.dig.aggregator.methods.huge
 
 import org.broadinstitute.dig.aggregator.core.{Context, Input, Outputs, Stage}
-import org.broadinstitute.dig.aws.emr.{ClusterDef, Job, ReleaseLabel}
+import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
 
 /** This is a stage in your method.
   *
@@ -40,11 +40,10 @@ class HugeStage(implicit context: Context) extends Stage {
   /* Define settings for the cluster to run the job.
    */
   override val cluster: ClusterDef = {
-    val emrVersion = "emr-6.7.0"
     if (makeClusterSmall) {
-      super.cluster.copy(instances = 1, releaseLabel = ReleaseLabel(emrVersion))
+      super.cluster.copy(instances = 1)
     } else {
-      super.cluster.copy(releaseLabel = ReleaseLabel(emrVersion))
+      super.cluster.copy()
     }
   }
 
