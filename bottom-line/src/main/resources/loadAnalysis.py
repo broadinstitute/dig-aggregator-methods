@@ -12,7 +12,7 @@ from pyspark.sql.types import StructType, StructField, StringType, DoubleType, I
 from pyspark.sql.functions import col, isnan, lit, when  # pylint: disable=E0611
 
 # where in S3 meta-analysis data is
-s3_bucket = 's3://dig-analysis-data'
+s3_bucket = 's3://psmadbec-test/furkan'
 s3_path = '%s/out/metaanalysis' % s3_bucket
 s3_staging = '%s/staging' % s3_path
 

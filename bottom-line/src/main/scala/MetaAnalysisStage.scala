@@ -34,7 +34,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class MetaAnalysisStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants: Input.Source = Input.Source.Success("variants/*/*/*/")
+  val variants: Input.Source = Input.Source.Success("furkan/variants/*/*/*/")
 
   /** The master node - the one that actually runs METAL - needs a pretty
     * sizeable hard drive and more CPUs to download all the variants and run
@@ -79,10 +79,10 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
       Job.PySpark(partition, phenotype),
       // ancestry-specific analysis first and load it back
       Job.Script(ancestrySpecific, phenotype),
-      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
-      // trans-ethnic next using ancestry-specific results
-      Job.Script(transEthnic, phenotype),
-      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
+      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype)
+//      // trans-ethnic next using ancestry-specific results
+//      Job.Script(transEthnic, phenotype),
+//      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
     )
 
     new Job(steps)
@@ -91,7 +91,7 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
   /** Nuke the staging directories before the job runs.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/metaanalysis/staging/ancestry-specific/$output/")
-    context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
+    context.s3.rm(s"furkan/out/metaanalysis/staging/ancestry-specific/$output/")
+    context.s3.rm(s"furkan/out/metaanalysis/staging/trans-ethnic/$output/")
   }
 }

@@ -6,7 +6,7 @@ import platform
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import isnan, lit, when  # pylint: disable=E0611
 
-s3dir = 's3://dig-analysis-data'
+s3dir = 's3://psmadbec-test/furkan'
 
 # entry point
 if __name__ == '__main__':
