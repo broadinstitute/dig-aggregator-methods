@@ -92,6 +92,7 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
     */
   override def prepareJob(output: String): Unit = {
     context.s3.rm(s"furkan/out/metaanalysis/staging/ancestry-specific/$output/")
+    context.s3.rm(s"furkan/out/metaanalysis/ancestry-specific/$output/")
 //    context.s3.rm(s"furkan/out/metaanalysis/staging/trans-ethnic/$output/")
   }
 }
