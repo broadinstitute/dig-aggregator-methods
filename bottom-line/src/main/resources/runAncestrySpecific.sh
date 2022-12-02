@@ -17,7 +17,7 @@ RUN_METAL="/home/hadoop/bin/runMETAL.sh"
 GET_MERGE="/home/hadoop/bin/getmerge-strip-headers.sh"
 
 # start with a clean working directory
-rm -rf "${OUTDIR}"
+sudo rm -rf "${OUTDIR}"
 sudo mkdir -p "${OUTDIR}"
 
 # get all the part files for this phenotype
@@ -66,5 +66,5 @@ for ANCESTRY in "${ANCESTRIES[@]}"; do
     sudo aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=STDERR/" --recursive
 
     # remove the analysis directory
-    rm -rf "${ANALYSIS_DIR}"
+    sudo rm -rf "${ANALYSIS_DIR}"
 done
