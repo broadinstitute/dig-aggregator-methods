@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 from pyspark.sql import SparkSession, Row
-from pyspark.sql.functions import col, concat_ws, split, explode
+from pyspark.sql.functions import col, concat_ws, explode, regexp_replace, row_number, split
+from pyspark.sql.window import Window
 
 # where in S3 VEP data (input and output) is
 S3DIR = 's3://dig-analysis-data/out/varianteffect'
@@ -42,6 +43,12 @@ def main():
 
     # keep just the two columns
     df = df.select(df.dbSNP, varId.alias('varId'))
+
+    # Remove duplicated varId by choosing lowest rsID
+    df = df.withColumn('rsInt', regexp_replace('dbSNP', 'rs', '').cast('int'))
+    w = Window.partitionBy('varId').orderBy(col('rsInt').asc())
+    df = df.withColumn('row', row_number().over(w))
+    df = df[df.row == 1].drop('row', 'rsInt')
 
     # output the common data in CSV format (for other systems to use)
     df.write.mode('overwrite').csv('%s/snp' % S3DIR, sep='\t', header=True)
