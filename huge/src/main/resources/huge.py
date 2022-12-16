@@ -61,12 +61,13 @@ def main():
     genes = gene_regions.join(gene_p_values, gene_regions.name == gene_p_values.gene).drop(gene_regions.name) \
         .withColumnRenamed('chromosome', 'chromosome_gene').withColumnRenamed('pValue', 'pValue_gene')
     inspect_df(genes, "joined genes data")
-    variants = spark.read.json(variants_glob).select('chromosome', 'position', 'reference', 'alt', 'pValue')
+    variants = spark.read.json(variants_glob).select('varId', 'chromosome', 'position', 'reference', 'alt', 'pValue')
     inspect_df(variants, "variants for phenotype")
     cond = (genes.chromosome_gene == variants.chromosome) & \
            (genes.start - padding <= variants.position) & \
            (genes.end + padding >= variants.position)
-    gene_variants = genes.join(variants.alias('variants'), cond, "inner").select('gene', 'pValue_gene', 'pValue')
+    gene_variants = \
+        genes.join(variants.alias('variants'), cond, "inner").select('varId', 'gene', 'pValue_gene', 'pValue')
     inspect_df(gene_variants, "joined genes and variants")
     grouped = gene_variants.groupBy(gene_variants.gene, gene_variants.pValue_gene).agg({"pValue": "min"})
     inspect_df(grouped, "variants grouped by gene and aggregated")

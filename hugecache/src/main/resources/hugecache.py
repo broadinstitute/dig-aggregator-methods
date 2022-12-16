@@ -43,9 +43,10 @@ def main():
     gene_regions = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \
         .filter(genes_regions_raw.source == 'symbol').drop(genes_regions_raw.source)
     inspect_df(gene_regions, "gene regions")
-    variant_cqs = spark.read.json(variant_cqs_glob).drop('colocated_variants')
+    variant_cqs = spark.read.json(variant_cqs_glob) \
+        .select('varId', 'consequenceTerms', 'distance', 'geneId', 'geneSymbol', 'impact', 'pick')
     inspect_df(variant_cqs, "CQS")
-    variant_effects = spark.read.json(variant_effects_glob).drop('colocated_variants')
+    variant_effects = spark.read.json(variant_effects_glob).select('id', 'nearest')
     inspect_df(variant_effects, "variant effects")
     print('Stopping Spark')
     spark.stop()
