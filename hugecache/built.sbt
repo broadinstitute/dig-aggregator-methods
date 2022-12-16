@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
 organization := "org.broadinstitute.dig"
 
 // entry point when running this method
-mainClass := Some("org.broadinstitute.dig.aggregator.methods.huge.Huge")
+mainClass := Some("org.broadinstitute.dig.aggregator.methods.hugecache.HugeCache")
 
 // enables buildInfo, which bakes git version info into the jar
 enablePlugins(GitVersioning)

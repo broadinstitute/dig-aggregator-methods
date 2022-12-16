@@ -72,7 +72,7 @@ def main():
     inspect_df(grouped, "variants grouped by gene and aggregated")
     variant_cqs = spark.read.json(variant_cqs_glob).select("consequenceTerms")
     inspect_df(variant_cqs, "CQS")
-    variant_effects = spark.read.json(variant_effects_glob).select("consequenceTerms")
+    variant_effects = spark.read.json(variant_effects_glob)
     inspect_df(variant_effects, "variant effects")
     print('Stopping Spark')
     spark.stop()
