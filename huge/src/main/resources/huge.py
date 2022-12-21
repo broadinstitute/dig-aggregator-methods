@@ -1,6 +1,8 @@
 import argparse
 from pyspark.sql import SparkSession, DataFrame
 from datetime import datetime
+from pyspark.sql.window import Window
+from pyspark.sql.functions import col, row_number
 
 
 def now_str():
@@ -66,26 +68,53 @@ def main():
     inspect_df(variants, "variants for phenotype")
     variants_gwas = variants.filter(variants.pValue < p_significant)
     inspect_df(variants_gwas, "GWAS variants for phenotype")
-    cond = (genes.chromosome_gene == variants_gwas.chromosome) & \
-           (genes.start - padding <= variants_gwas.position) & \
-           (genes.end + padding >= variants_gwas.position)
+    variant_in_locus = (genes.chromosome_gene == variants_gwas.chromosome) & \
+                       (genes.start - padding <= variants_gwas.position) & \
+                       (genes.end + padding >= variants_gwas.position)
     gene_variants_gwas = \
-        genes.join(variants_gwas.alias('variants'), cond, "inner").select('varId', 'gene', 'pValue_gene', 'pValue')
+        genes.join(variants_gwas.alias('variants'), variant_in_locus, "inner") \
+            .select('varId', 'gene', 'pValue_gene', 'pValue')
     inspect_df(gene_variants_gwas, "joined genes and variants")
-    genes_gwas_counts = \
-        gene_variants_gwas.groupBy(gene_variants_gwas.gene, gene_variants_gwas.pValue_gene).count()
-    inspect_df(genes_gwas_counts, "genes with number of GWAS variants")
-    genes_gwas = genes_gwas_counts.filter(genes_gwas_counts.colRegex('count') > 0).select('gene', 'pValue_gene')
-    inspect_df(genes_gwas, "GWAS genes")
+    # gene_variants_gwas.groupBy(gene_variants_gwas.gene, gene_variants_gwas.pValue_gene)
+    significant_by_gene = Window.partitionBy("gene").orderBy(col("pValue"))
+    gene_top_variant = gene_variants_gwas.withColumn("row", row_number().over(significant_by_gene))\
+        .filter(col("row") == 1).drop("row")\
+        .withColumnRenamed('varId', 'varId_top').withColumnRenamed('pValue', 'pValue_top_var')
+    inspect_df(gene_top_variant, "genes with most significant GWAS variant")
     variants_cqs = spark.read.json(variant_cqs_glob).select('varId', 'impact')
-    variants_causal_raw = variants_cqs.filter((variants_cqs.impact == 'HIGH') | (variants_cqs.impact == 'MODERATE'))
-    inspect_df(variants_causal_raw, "causal variants raw")
-    variants_causal = variants_causal_raw.select('varId')
-    inspect_df(variants_causal, "causal variants")
-    variant_effects = spark.read.json(variant_effects_glob).select('id', 'nearest')
+    variants_impact_raw = variants_cqs.filter((variants_cqs.impact == 'HIGH') | (variants_cqs.impact == 'MODERATE'))
+    inspect_df(variants_impact_raw, "non-synonymous variants raw")
+    variants_impact = variants_impact_raw.select('varId')
+    inspect_df(variants_impact, "non-synonymous variants")
+    variants_gwas_impact = variants_gwas.join(variants_impact, ['varId'])
+    inspect_df(variants_gwas_impact, 'non-synonymous GWAS variants')
+    gene_variants_gwas_impact = \
+        genes.join(variants_gwas_impact.alias('variants'), variant_in_locus, "inner") \
+            .select('varId', 'gene', 'pValue_gene', 'pValue')
+    gene_top_impact_variant = gene_variants_gwas_impact.withColumn("row", row_number().over(significant_by_gene)) \
+        .filter(col("row") == 1).drop("row") \
+        .withColumnRenamed('varId', 'varId_top_impact').withColumnRenamed('pValue', 'pValue_top_impact_var')
+    inspect_df(gene_top_impact_variant, 'genes with most significant GWAS non-synonymous variant')
+    variant_effects = \
+        spark.read.json(variant_effects_glob).select('id', 'nearest')\
+            .withColumnRenamed('id', 'varId')
     inspect_df(variant_effects, "variant effects")
-    variants_gwas_causal = variants_gwas.join(variants_causal, ['varId'])
-    inspect_df(variants_gwas_causal, "causal GWAS variants")
+    gene_top_variant_nearest = \
+        gene_top_variant.join(variant_effects, gene_top_variant.varId_top == variant_effects.varId)
+    inspect_df(gene_top_variant_nearest, 'genes with most significant variant and its nearest gene')
+    genes_joined = \
+        gene_p_values.join(gene_top_variant_nearest, ['gene'], 'left').join(gene_top_impact_variant, ['gene'], 'left')
+    inspect_df(genes_joined, 'genes with all relevant data')
+    genes_final = \
+        genes_joined\
+            .withColumn('has_gwas', genes_joined.varId_top is not None)\
+            .withColumn('has_coding', genes_joined.varId_top_impact is not None)\
+            .withColumn('is_nearest',
+                        (genes_joined.nearest is not None) & (genes_joined.gene in genes_joined.nearest))\
+            .withColumn('has_causal_coding',
+                        (genes_joined.varId_top is not None) & (genes_joined.varId_top_impact is not None)
+                        & (genes_joined.varId_top == genes_joined.varId_top_impact))
+    inspect_df(genes_final, "final table of genes")
     print('Done with work implemented so far, stopping Spark')
     spark.stop()
     print('Spark stopped')
