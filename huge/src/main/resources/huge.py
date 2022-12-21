@@ -84,10 +84,11 @@ def main():
     inspect_df(variants_causal, "causal variants")
     variant_effects = spark.read.json(variant_effects_glob).select('id', 'nearest')
     inspect_df(variant_effects, "variant effects")
-    variants_gwas_causal = variants_gwas.join(variants_causal, variants_gwas.varId == variants_causal.varId, "inner")
+    variants_gwas_causal = variants_gwas.join(variants_causal, ['varId'])
     inspect_df(variants_gwas_causal, "causal GWAS variants")
-    print('Stopping Spark')
+    print('Done with work implemented so far, stopping Spark')
     spark.stop()
+    print('Spark stopped')
 
 
 if __name__ == '__main__':

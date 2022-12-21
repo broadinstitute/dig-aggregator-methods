@@ -19,12 +19,14 @@ import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
   */
 class HugeCacheStage(implicit context: Context) extends Stage {
 
-  val geneFile: String = "genes/GRCh37/"
-  val variantCqsFiles: String = "out/varianteffect/cqs/"
+  val geneFile: String           = "genes/GRCh37/"
+  val variantCqsFiles: String    = "out/varianteffect/cqs/"
   val variantEffectFiles: String = "out/varianteffect/effects/"
+  val cqsCacheDir                = "out/hugecache/cqs/"
+  val effectsCacheDir            = "out/hugecache/effects/"
 
-  val genes: Input.Source = Input.Source.Dataset(geneFile)
-  val variantCqs: Input.Source = Input.Source.Success(variantCqsFiles)
+  val genes: Input.Source          = Input.Source.Dataset(geneFile)
+  val variantCqs: Input.Source     = Input.Source.Success(variantCqsFiles)
   val variantEffects: Input.Source = Input.Source.Success(variantEffectFiles)
 
   /** Source inputs. */
@@ -44,18 +46,20 @@ class HugeCacheStage(implicit context: Context) extends Stage {
   /** One job per phenotype (e.g. T2D)
     */
   override def make(output: String): Job = {
-    val script    = resourceUri("hugecache.py")
+    val script = resourceUri("hugecache.py")
     println(s"Making job with script $script, ignoring parameter $output.")
     val bucket = context.s3
     new Job(
       Job.PySpark(
         script,
-        "--genes",
-        bucket.s3UriOf(geneFile).toString,
         "--cqs",
         bucket.s3UriOf(variantCqsFiles).toString,
         "--effects",
-        bucket.s3UriOf(variantEffectFiles).toString
+        bucket.s3UriOf(variantEffectFiles).toString,
+        "--cqs-cache-dir",
+        bucket.s3UriOf(cqsCacheDir).toString,
+        "--effects-cache-dir",
+        bucket.s3UriOf(effectsCacheDir).toString
       )
     )
   }

@@ -26,29 +26,39 @@ def main():
     print('Hello! The time is now ', now_str())
     print('Now building argument parser')
     arg_parser = argparse.ArgumentParser(prog='huge.py')
-    arg_parser.add_argument("--genes", help="Gene data with regions", required=True)
     arg_parser.add_argument("--cqs", help="Variant CQS data", required=True)
     arg_parser.add_argument("--effects", help="Variant effect data", required=True)
+    arg_parser.add_argument("--cqs-cache-dir", help="Variant CQS data cache directory", required=True)
+    arg_parser.add_argument("--effects-cache-dir", help="Variant effect data cache directory", required=True)
     print('Now parsing CLI arguments')
     cli_args = arg_parser.parse_args()
     files_glob = 'part-*'
-    genes_glob = cli_args.genes + files_glob
     variant_cqs_glob = cli_args.cqs + files_glob
     variant_effects_glob = cli_args.effects + files_glob
-    print('Genes data with regions: ', genes_glob)
+    cqs_cache_dir = cli_args.cqs_cache_dir
+    effects_cache_dir = cli_args.effects_cache_dir
     print('Variant CQS data: ', variant_cqs_glob)
     print('Variant effects data: ', variant_effects_glob)
-    spark = SparkSession.builder.appName('huge').getOrCreate()
+    spark = SparkSession.builder.appName('hugecache').getOrCreate()
     genes_regions_raw = spark.read.json(genes_glob)
     gene_regions = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \
         .filter(genes_regions_raw.source == 'symbol').drop(genes_regions_raw.source)
     inspect_df(gene_regions, "gene regions")
-    variant_cqs = spark.read.json(variant_cqs_glob).select('varId', 'impact')
-    inspect_df(variant_cqs, "CQS")
-    variant_effects = spark.read.json(variant_effects_glob).select('id', 'nearest')
-    inspect_df(variant_effects, "variant effects")
-    print('Stopping Spark')
+    cqs_selected = spark.read.json(variant_cqs_glob).select('varId', 'impact')
+    cqs_filtered = cqs_selected.filter((cqs_selected.impact == 'HIGH') | (cqs_selected.impact == 'MODERATE'))
+    inspect_df(cqs_filtered, "CQS cache")
+    print('Now writing variants CQS cache to', cqs_cache_dir)
+    cqs_filtered.write.mode('overwrite').json(cqs_cache_dir)
+    print('Done writing variants CQS cache.')
+    print('Now reading variant effects.')
+    effects_selected = spark.read.json(variant_effects_glob).select('id', 'nearest')
+    inspect_df(effects_selected, "variant effects selected")
+    print('Now writing variants effects cache to', effects_cache_dir)
+    effects_selected.write.mode('overwrite').json(effects_cache_dir)
+    print('Done writing variants effects cache')
+    print('Done with work, therefore stopping Spark')
     spark.stop()
+    print('Spark stopped')
 
 
 if __name__ == '__main__':
