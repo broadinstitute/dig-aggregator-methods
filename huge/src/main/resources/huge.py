@@ -54,14 +54,15 @@ def main():
     print('Variant CQS data: ', variant_cqs_glob)
     print('Variant effects data: ', variant_effects_glob)
     print('Padding: ', padding)
-    spark = SparkSession.builder.appName('huge').getOrCreate()
+    spark = SparkSession.builder.appName('huge').config('spark.driver.maxResultSize', '2g').getOrCreate()
     genes_regions_raw = spark.read.json(genes_glob)
     gene_regions = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \
         .filter(genes_regions_raw.source == 'symbol').drop(genes_regions_raw.source)
     inspect_df(gene_regions, "gene regions")
-    gene_p_values = spark.read.json(genes_assoc_glob).select('gene', 'pValue')
-    inspect_df(gene_p_values, "gene associations")
-    genes = gene_regions.join(gene_p_values, gene_regions.name == gene_p_values.gene).drop(gene_regions.name) \
+    gene_assoc_raw = spark.read.json(genes_assoc_glob).select('gene', 'pValue', 'beta', 'stdErr')
+    gene_assoc = gene_assoc_raw  # TODO: calculate Bayes factor
+    inspect_df(gene_assoc, "gene associations")
+    genes = gene_regions.join(gene_assoc, gene_regions.name == gene_assoc.gene).drop(gene_regions.name) \
         .withColumnRenamed('chromosome', 'chromosome_gene').withColumnRenamed('pValue', 'pValue_gene')
     inspect_df(genes, "joined genes data")
     variants = spark.read.json(variants_glob).select('varId', 'chromosome', 'position', 'pValue')
@@ -75,7 +76,6 @@ def main():
         genes.join(variants_gwas.alias('variants'), variant_in_locus, "inner") \
             .select('varId', 'gene', 'pValue_gene', 'pValue')
     inspect_df(gene_variants_gwas, "joined genes and variants")
-    # gene_variants_gwas.groupBy(gene_variants_gwas.gene, gene_variants_gwas.pValue_gene)
     significant_by_gene = Window.partitionBy("gene").orderBy(col("pValue"))
     gene_top_variant = gene_variants_gwas.withColumn("row", row_number().over(significant_by_gene))\
         .filter(col("row") == 1).drop("row")\
@@ -103,7 +103,7 @@ def main():
         gene_top_variant.join(variant_effects, gene_top_variant.varId_top == variant_effects.varId)
     inspect_df(gene_top_variant_nearest, 'genes with most significant variant and its nearest gene')
     genes_joined = \
-        gene_p_values.join(gene_top_variant_nearest, ['gene'], 'left').join(gene_top_impact_variant, ['gene'], 'left')
+        gene_assoc.join(gene_top_variant_nearest, ['gene'], 'left').join(gene_top_impact_variant, ['gene'], 'left')
     inspect_df(genes_joined, 'genes with all relevant data')
     genes_final = \
         genes_joined\

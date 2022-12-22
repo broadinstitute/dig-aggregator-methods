@@ -40,10 +40,6 @@ def main():
     print('Variant CQS data: ', variant_cqs_glob)
     print('Variant effects data: ', variant_effects_glob)
     spark = SparkSession.builder.appName('hugecache').getOrCreate()
-    genes_regions_raw = spark.read.json(genes_glob)
-    gene_regions = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \
-        .filter(genes_regions_raw.source == 'symbol').drop(genes_regions_raw.source)
-    inspect_df(gene_regions, "gene regions")
     cqs_selected = spark.read.json(variant_cqs_glob).select('varId', 'impact')
     cqs_filtered = cqs_selected.filter((cqs_selected.impact == 'HIGH') | (cqs_selected.impact == 'MODERATE'))
     inspect_df(cqs_filtered, "CQS cache")
