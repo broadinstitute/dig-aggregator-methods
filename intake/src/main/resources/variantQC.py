@@ -31,16 +31,17 @@ variants_schema = StructType([
 ])
 
 
+# Because the input is in one file repartition. 100 chosen arbitrarily, downstream tasks repartitions automatically
 def read_variants_json(spark, srcdir):
-    return spark.read.json(srcdir, schema=variants_schema)
+    return spark.read.json(srcdir, schema=variants_schema).repartition(100)
 
 
 def write_variant_json(df, outdir):
     df.write\
         .mode('overwrite') \
-        .option("ignoreNullFields", "false")\
+        .option("ignoreNullFields", "false") \
+        .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
         .json(outdir)
-
 
 def copy_metadata(srcdir, outdir):
     subprocess.check_call(['aws', 's3', 'cp', f'{srcdir}/metadata', f'{outdir}/metadata'])
@@ -114,7 +115,7 @@ if __name__ == '__main__':
 
     # create a spark session and dataframe from part files
     spark = SparkSession.builder.appName('qc').getOrCreate()
-    df = read_variants_json(spark, f'{srcdir}/{dataset}.{phenotype}.json')
+    df = read_variants_json(spark, f'{srcdir}/{dataset}.{phenotype}.json.zst')
     bad_df = None
     for filter_to_run in filters_to_run:
         new_bad_df, df = filter_to_run.split(df)
