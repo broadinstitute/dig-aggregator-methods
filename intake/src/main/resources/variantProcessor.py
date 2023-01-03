@@ -574,7 +574,8 @@ class DataIntake:
 
 
 def upload_and_delete_files(path_to_file, filename, output_name, log_name):
-    subprocess.check_call(['aws', 's3', 'cp', output_name, f'{s3_output}/{path_to_file}/'])
+    subprocess.check_call(['zstd', output_name])
+    subprocess.check_call(['aws', 's3', 'cp', f'{output_name}.zst', f'{s3_output}/{path_to_file}/'])
     subprocess.check_call(['aws', 's3', 'cp', 'metadata', f'{s3_output}/{path_to_file}/'])
     subprocess.check_call(['aws', 's3', 'cp', log_name, f'{s3_output}/{path_to_file}/'])
     os.remove(output_name)

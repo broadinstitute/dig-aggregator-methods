@@ -13,6 +13,7 @@ rm var_to_af.zip
 
 # install dependencies
 sudo yum install -y python3-devel
+sudo yum install -y zstd
 sudo pip3 install -U boto3
 sudo pip3 install -U sqlalchemy
 sudo pip3 install -U pymysql
