@@ -88,6 +88,14 @@ def get_input_output(args):
                f's3://{s3_bucket}/plot/phenotype/{args.phenotype}/{args.ancestry}'
 
 
+def get_and_uncompress_parts_if_needed(srcdir, parts_dir):
+    subprocess.check_call(['aws', 's3', 'cp', srcdir, f'{parts_dir}/', '--recursive'])
+    uncompressed_parts = [f for f in os.listdir(parts_dir) if f.endswith('.json.zst')]
+    for part in uncompressed_parts:
+        subprocess.check_call(['unzstd', f'{parts_dir}/{part}'])
+    return sorted([f for f in os.listdir(parts_dir) if f.endswith('.json')])
+
+
 def main():
     """
     Arguments: --dataset=<dataset> or --phenotype=<phenotype> (type of plot)
@@ -117,8 +125,7 @@ def main():
     #       of a single file.
 
     parts_dir = 'associations'
-    subprocess.check_call(['aws', 's3', 'cp', srcdir, f'{parts_dir}/', '--recursive'])
-    parts = sorted([f for f in os.listdir(parts_dir) if f.endswith('.json')])
+    parts = get_and_uncompress_parts_if_needed(srcdir, parts_dir)
 
     # create a frame for the chromosome start positions
     chrom_pos = pd.DataFrame.from_dict(CHROMOSOME_FRAME, orient='index') \
