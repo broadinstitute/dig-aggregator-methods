@@ -2,7 +2,8 @@ import argparse
 from pyspark.sql import SparkSession, DataFrame
 from datetime import datetime
 from pyspark.sql.window import Window
-from pyspark.sql.functions import col, row_number
+from pyspark.sql.functions import col, row_number, sqrt, exp
+from scipy.stats import norm
 
 
 def now_str():
@@ -19,6 +20,16 @@ def inspect_df(df: DataFrame, name: str):
     else:
         df.show()
     print('Done showing ', name, ' at ', now_str())
+
+
+def calculate_bf_gene(df: DataFrame):
+    df = df.withColumn('z', abs(norm.ppf(df.pValue / 2.0)))
+    df = df.withColumn('stdErr', df.beta / df.z)
+    df = df.withColumn('v', df.stdErr * df.stdErr)
+    omega = 0.3696
+    df = df.withColumn('bf_gene',
+                       sqrt(df.v / (df.v + omega)) * exp(omega * df.beta * df.beta / (2.0 * df.v * (df.v + omega))))
+    return df
 
 
 def main():
@@ -54,13 +65,14 @@ def main():
     print('Variant CQS data: ', variant_cqs_glob)
     print('Variant effects data: ', variant_effects_glob)
     print('Padding: ', padding)
-    spark = SparkSession.builder.appName('huge').config('spark.driver.maxResultSize', '2g').getOrCreate()
+    spark = SparkSession.builder.appName('huge')\
+        .config('spark.driver.memory', '2g').config('spark.driver.maxResultSize', '2g').getOrCreate()
     genes_regions_raw = spark.read.json(genes_glob)
     gene_regions = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \
         .filter(genes_regions_raw.source == 'symbol').drop(genes_regions_raw.source)
     inspect_df(gene_regions, "gene regions")
-    gene_assoc_raw = spark.read.json(genes_assoc_glob).select('gene', 'pValue', 'beta', 'stdErr')
-    gene_assoc = gene_assoc_raw  # TODO: calculate Bayes factor
+    gene_assoc_raw = spark.read.json(genes_assoc_glob).select('gene', 'pValue', 'beta')
+    gene_assoc = calculate_bf_gene(gene_assoc_raw)
     inspect_df(gene_assoc, "gene associations")
     genes = gene_regions.join(gene_assoc, gene_regions.name == gene_assoc.gene).drop(gene_regions.name) \
         .withColumnRenamed('chromosome', 'chromosome_gene').withColumnRenamed('pValue', 'pValue_gene')
@@ -74,11 +86,11 @@ def main():
                        (genes.end + padding >= variants_gwas.position)
     gene_variants_gwas = \
         genes.join(variants_gwas.alias('variants'), variant_in_locus, "inner") \
-            .select('varId', 'gene', 'pValue_gene', 'pValue')
+            .select('varId', 'gene', 'pValue_gene', 'pValue', 'bf_gene')
     inspect_df(gene_variants_gwas, "joined genes and variants")
     significant_by_gene = Window.partitionBy("gene").orderBy(col("pValue"))
-    gene_top_variant = gene_variants_gwas.withColumn("row", row_number().over(significant_by_gene))\
-        .filter(col("row") == 1).drop("row")\
+    gene_top_variant = gene_variants_gwas.withColumn("row", row_number().over(significant_by_gene)) \
+        .filter(col("row") == 1).drop("row") \
         .withColumnRenamed('varId', 'varId_top').withColumnRenamed('pValue', 'pValue_top_var')
     inspect_df(gene_top_variant, "genes with most significant GWAS variant")
     variants_cqs = spark.read.json(variant_cqs_glob).select('varId', 'impact')
@@ -90,13 +102,13 @@ def main():
     inspect_df(variants_gwas_impact, 'non-synonymous GWAS variants')
     gene_variants_gwas_impact = \
         genes.join(variants_gwas_impact.alias('variants'), variant_in_locus, "inner") \
-            .select('varId', 'gene', 'pValue_gene', 'pValue')
+            .select('varId', 'gene', 'pValue_gene', 'pValue', 'bf_gene')
     gene_top_impact_variant = gene_variants_gwas_impact.withColumn("row", row_number().over(significant_by_gene)) \
         .filter(col("row") == 1).drop("row") \
         .withColumnRenamed('varId', 'varId_top_impact').withColumnRenamed('pValue', 'pValue_top_impact_var')
     inspect_df(gene_top_impact_variant, 'genes with most significant GWAS non-synonymous variant')
     variant_effects = \
-        spark.read.json(variant_effects_glob).select('id', 'nearest')\
+        spark.read.json(variant_effects_glob).select('id', 'nearest') \
             .withColumnRenamed('id', 'varId')
     inspect_df(variant_effects, "variant effects")
     gene_top_variant_nearest = \
@@ -106,11 +118,11 @@ def main():
         gene_assoc.join(gene_top_variant_nearest, ['gene'], 'left').join(gene_top_impact_variant, ['gene'], 'left')
     inspect_df(genes_joined, 'genes with all relevant data')
     genes_final = \
-        genes_joined\
-            .withColumn('has_gwas', genes_joined.varId_top is not None)\
-            .withColumn('has_coding', genes_joined.varId_top_impact is not None)\
+        genes_joined \
+            .withColumn('has_gwas', genes_joined.varId_top is not None) \
+            .withColumn('has_coding', genes_joined.varId_top_impact is not None) \
             .withColumn('is_nearest',
-                        (genes_joined.nearest is not None) & (genes_joined.gene in genes_joined.nearest))\
+                        (genes_joined.nearest is not None) & (genes_joined.gene in genes_joined.nearest)) \
             .withColumn('has_causal_coding',
                         (genes_joined.varId_top is not None) & (genes_joined.varId_top_impact is not None)
                         & (genes_joined.varId_top == genes_joined.varId_top_impact))

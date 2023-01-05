@@ -1,7 +1,7 @@
 package org.broadinstitute.dig.aggregator.methods.huge
 
 import org.broadinstitute.dig.aggregator.core.{Context, Input, Outputs, Stage}
-import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
+import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job}
 
 /** This is a stage in your method.
   *
@@ -42,7 +42,10 @@ class HugeStage(implicit context: Context) extends Stage {
   /* Define settings for the cluster to run the job.
    */
   override val cluster: ClusterDef = {
-    super.cluster.copy(instances = 3)
+    super.cluster.copy(
+      instances = 3,
+      bootstrapScripts = Seq(new BootstrapScript(resourceUri("huge-bootstrap.sh")))
+    )
   }
 
   /** Map inputs to outputs. */
