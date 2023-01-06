@@ -21,10 +21,6 @@ def copy_file_to_s3(outdir, file):
     os.remove(f'./{file}')
 
 
-def delete_file_from_s3(srcdir, file):
-    subprocess.check_call(['aws', 's3', 'rm', f'{srcdir}/{file}'])
-
-
 def compress_local_file(file):
     subprocess.check_call(['zstd', f'./{file}'])
 
@@ -60,13 +56,17 @@ if __name__ == '__main__':
 
     # # variants_processed
     # srcdir = f'{input_s3dir}/variants_processed/{args.method_dataset_phenotype}'
-    # outdir = f'{input_s3dir}/variants_processed/{args.method_dataset_phenotype}'
+    # outdir = f'{tmp_s3dir}/variants_processed/{args.method_dataset_phenotype}'
     #
     # file = f'{dataset}.{phenotype}.json'
+    # log_file = f'{dataset}.{phenotype}.log'
     # copy_file_to_local(srcdir, file)
+    # copy_file_to_local(srcdir, log_file)
+    # copy_file_to_local(srcdir, metadata)
     # compress_local_file(file)
     # copy_file_to_s3(outdir, f'{file}.zst')
-    # delete_file_from_s3(srcdir, file)
+    # copy_file_to_s3(outdir, log_file)
+    # copy_file_to_s3(outdir, metadata)
 
     # variants
     srcdir = f'{input_s3dir}/variants/{args.method_dataset_phenotype}'
