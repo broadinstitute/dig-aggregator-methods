@@ -77,22 +77,22 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
 
     // steps run serially
     val steps = Seq(
-      Job.PySpark(partition, phenotype),
+      Job.PySpark(partition, phenotype)
       // ancestry-specific analysis first and load it back
-      Job.Script(ancestrySpecific, phenotype),
-      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
-      // trans-ethnic next using ancestry-specific results
-      Job.Script(transEthnic, phenotype),
-      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
+//      Job.Script(ancestrySpecific, phenotype),
+//      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
+//      // trans-ethnic next using ancestry-specific results
+//      Job.Script(transEthnic, phenotype),
+//      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
     )
 
     new Job(steps)
   }
 
-  /** Nuke the staging directories before the job runs.
-    */
-  override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/metaanalysis/staging/ancestry-specific/$output/")
-    context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
-  }
+//  /** Nuke the staging directories before the job runs.
+//    */
+//  override def prepareJob(output: String): Unit = {
+//    context.s3.rm(s"out/metaanalysis/staging/ancestry-specific/$output/")
+//    context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
+//  }
 }
