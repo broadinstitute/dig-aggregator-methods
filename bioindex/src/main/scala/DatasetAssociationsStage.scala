@@ -25,7 +25,7 @@ class DatasetAssociationsStage(implicit context: Context) extends Stage {
     masterInstanceType = Ec2.Strategy.memoryOptimized(),
     masterVolumeSizeInGB = 200,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to write json files properly
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Output to Job steps. */
