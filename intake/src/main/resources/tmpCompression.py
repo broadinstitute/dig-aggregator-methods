@@ -7,7 +7,8 @@ import subprocess
 
 from pyspark.sql import SparkSession
 
-s3dir = 's3://dig-analysis-data'
+input_s3dir = 's3://dig-analysis-data'
+tmp_s3dir = 's3://psmadbec-test'
 
 
 # If using spark to overwrite json files will need to download them locally and copy them after
@@ -29,7 +30,7 @@ def compress_local_file(file):
 
 
 def read_spark_json(srcdir):
-    return spark.read.json(f'{srcdir}/part-*.json')
+    return spark.read.json(f'{srcdir}/part-*')
 
 
 def write_variant_json(df, outdir):
@@ -57,15 +58,24 @@ if __name__ == '__main__':
     # create a spark session and dataframe from part files
     spark = SparkSession.builder.appName('compression').getOrCreate()
 
-    # get the source and output directories (method_dataset is formatted as method/dataset here)
-    srcdir = f'{s3dir}/variants_processed/{args.method_dataset_phenotype}'
-    outdir = f'{s3dir}/variants_processed/{args.method_dataset_phenotype}'
+    # # variants_processed
+    # srcdir = f'{input_s3dir}/variants_processed/{args.method_dataset_phenotype}'
+    # outdir = f'{input_s3dir}/variants_processed/{args.method_dataset_phenotype}'
+    #
+    # file = f'{dataset}.{phenotype}.json'
+    # copy_file_to_local(srcdir, file)
+    # compress_local_file(file)
+    # copy_file_to_s3(outdir, f'{file}.zst')
+    # delete_file_from_s3(srcdir, file)
 
-    file = f'{dataset}.{phenotype}.json'
-    copy_file_to_local(srcdir, file)
-    compress_local_file(file)
-    copy_file_to_s3(outdir, f'{file}.zst')
-    delete_file_from_s3(srcdir, file)
+    # variants
+    srcdir = f'{input_s3dir}/variants/{args.method_dataset_phenotype}'
+    outdir = f'{tmp_s3dir}/variants/{args.method_dataset_phenotype}'
+
+    df = read_spark_json(srcdir)
+    copy_file_to_local(srcdir, 'scaling.log')
+    write_variant_json(df, outdir)
+    copy_file_to_s3(outdir, 'scaling.log')
 
     # done
     spark.stop()
