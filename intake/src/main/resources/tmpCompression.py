@@ -6,9 +6,32 @@ import platform
 import subprocess
 
 from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, BooleanType, FloatType, DoubleType
+
 
 input_s3dir = 's3://dig-analysis-data'
 tmp_s3dir = 's3://psmadbec-test'
+
+variants_schema = StructType([
+    StructField('varId', StringType(), nullable=False),
+    StructField('chromosome', StringType(), nullable=False),
+    StructField('position', IntegerType(), nullable=False),
+    StructField('reference', StringType(), nullable=False),
+    StructField('alt', StringType(), nullable=False),
+    StructField('multiAllelic', BooleanType(), nullable=False),
+    StructField('dataset', StringType(), nullable=False),
+    StructField('phenotype', StringType(), nullable=False),
+    StructField('ancestry', StringType(), nullable=True),
+    StructField('pValue', DoubleType(), nullable=False),
+    StructField('beta', FloatType(), nullable=True),
+    StructField('oddsRatio', DoubleType(), nullable=True),
+    StructField('eaf', FloatType(), nullable=True),
+    StructField('maf', FloatType(), nullable=True),
+    StructField('stdErr', FloatType(), nullable=True),
+    StructField('zScore', FloatType(), nullable=True),
+    StructField('n', FloatType(), nullable=True),
+    StructField('filter_reason', StringType(), nullable=True)
+])
 
 
 # If using spark to overwrite json files will need to download them locally and copy them after
@@ -27,6 +50,10 @@ def compress_local_file(file):
 
 def read_spark_json(srcdir):
     return spark.read.json(f'{srcdir}/part-*')
+
+
+def read_spark_json_with_schema(srcdir):
+    return spark.read.json(f'{srcdir}/part-*', schema=variants_schema)
 
 
 def write_variant_json(df, outdir):
@@ -54,19 +81,35 @@ if __name__ == '__main__':
     # create a spark session and dataframe from part files
     spark = SparkSession.builder.appName('compression').getOrCreate()
 
-    # # variants_processed
-    # srcdir = f'{input_s3dir}/variants_processed/{args.method_dataset_phenotype}'
-    # outdir = f'{tmp_s3dir}/variants_processed/{args.method_dataset_phenotype}'
-    #
-    # file = f'{dataset}.{phenotype}.json'
-    # log_file = f'{dataset}.{phenotype}.log'
-    # copy_file_to_local(srcdir, file)
-    # copy_file_to_local(srcdir, log_file)
-    # copy_file_to_local(srcdir, metadata)
-    # compress_local_file(file)
-    # copy_file_to_s3(outdir, f'{file}.zst')
-    # copy_file_to_s3(outdir, log_file)
-    # copy_file_to_s3(outdir, metadata)
+    # variants_processed
+    srcdir = f'{input_s3dir}/variants_processed/{args.method_dataset_phenotype}'
+    outdir = f'{tmp_s3dir}/variants_processed/{args.method_dataset_phenotype}'
+
+    file = f'{dataset}.{phenotype}.json'
+    log_file = f'{dataset}.{phenotype}.log'
+    copy_file_to_local(srcdir, file)
+    copy_file_to_local(srcdir, log_file)
+    copy_file_to_local(srcdir, 'metadata')
+    compress_local_file(file)
+    copy_file_to_s3(outdir, f'{file}.zst')
+    copy_file_to_s3(outdir, log_file)
+    copy_file_to_s3(outdir, 'metadata')
+
+    # variants_qc pass
+    srcdir = f'{input_s3dir}/variants_qc/{args.method_dataset_phenotype}/pass'
+    outdir = f'{tmp_s3dir}/variants_qc/{args.method_dataset_phenotype}/pass'
+
+    df = read_spark_json(srcdir)
+    copy_file_to_local(srcdir, 'metadata')
+    write_variant_json(df, outdir)
+    copy_file_to_s3(outdir, 'metadata')
+
+    # variants_qc fail
+    srcdir = f'{input_s3dir}/variants_qc/{args.method_dataset_phenotype}/fail'
+    outdir = f'{tmp_s3dir}/variants_qc/{args.method_dataset_phenotype}/fail'
+
+    df = read_spark_json_with_schema(srcdir)
+    write_variant_json(df, outdir)
 
     # variants
     srcdir = f'{input_s3dir}/variants/{args.method_dataset_phenotype}'
