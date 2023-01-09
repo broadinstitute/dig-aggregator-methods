@@ -94,6 +94,7 @@ if __name__ == '__main__':
     copy_file_to_s3(outdir, f'{file}.zst')
     copy_file_to_s3(outdir, log_file)
     copy_file_to_s3(outdir, 'metadata')
+    os.remove(f'./{file}')
 
     # variants_qc pass
     srcdir = f'{input_s3dir}/variants_qc/{args.method_dataset_phenotype}/pass'

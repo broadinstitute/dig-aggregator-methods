@@ -9,6 +9,7 @@ class TmpCompressionStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
+    masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("compression_bootstrap.sh"))),
     releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to write json files properly
   )
