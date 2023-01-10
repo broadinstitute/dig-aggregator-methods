@@ -1,7 +1,7 @@
 package org.broadinstitute.dig.aggregator.methods.huge
 
 import org.broadinstitute.dig.aggregator.core.{Context, Input, Outputs, Stage}
-import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job}
+import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job, ReleaseLabel}
 
 /** This is a stage in your method.
   *

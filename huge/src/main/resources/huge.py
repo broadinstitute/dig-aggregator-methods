@@ -65,7 +65,7 @@ def main():
     print('Variant CQS data: ', variant_cqs_glob)
     print('Variant effects data: ', variant_effects_glob)
     print('Padding: ', padding)
-    spark = SparkSession.builder.appName('huge')\
+    spark = SparkSession.builder.appName('huge') \
         .config('spark.driver.memory', '2g').config('spark.driver.maxResultSize', '2g').getOrCreate()
     genes_regions_raw = spark.read.json(genes_glob)
     gene_regions = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \

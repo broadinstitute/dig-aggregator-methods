@@ -1,9 +1,10 @@
 #!/bin/bash -xe
 
-# install needed python
+echo "Yay, starting to bootstrap!"
+uname -a
 sudo yum install -y python3-devel
-sudo pip3 install -U Cython
-sudo pip3 install -U pybind11
-sudo pip3 install -U pythran
-sudo pip3 install -U numpy
-sudo pip3 install -U scipy --no-binary scipy
+python3 --version
+wget https://repo.anaconda.com/miniconda/Miniconda3-py37_22.11.1-1-Linux-x86_64.sh
+bash Miniconda3-py37_22.11.1-1-Linux-x86_64.sh -b
+/home/hadoop/miniconda3/bin/conda install scipy
+echo "Yoohoo, done bootstrapping."
