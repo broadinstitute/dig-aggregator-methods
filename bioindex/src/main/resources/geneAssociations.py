@@ -12,7 +12,7 @@ def process_gene_datasets(spark):
     Load all 52k results and write them out both sorted by gene and by
     phenotype, so they may be queried either way.
     """
-    df = spark.read.json('s3://dig-analysis-data/gene_associations/*/*/part-*')
+    df = spark.read.json('s3://dig-analysis-data/gene_associations/52k_*/*/part-*')
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
     genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
@@ -39,6 +39,41 @@ def process_gene_datasets(spark):
         .write \
         .mode('overwrite') \
         .json('s3://dig-bio-index/finder/52k')
+
+
+def process_600trait_datasets(spark):
+    """
+    Load all 600trait results and write them out both sorted by gene and by
+    phenotype, so they may be queried either way.
+    """
+    df = spark.read.json('s3://dig-analysis-data/gene_associations/600k_600traits/*/*/part-*')
+
+    df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
+    genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
+
+    # fix for join
+    genes = genes.select(
+        genes.name.alias('gene'),
+        genes.chromosome,
+        genes.start,
+        genes.end,
+        genes.type,
+    )
+
+    df = df.join(genes, on='gene', how='inner')
+
+    # sort by gene, then by p-value
+    df.orderBy(['ancestry', 'gene', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{OUTDIR}/gene_associations/600trait')
+
+    # sort by phenotype, then by p-value for the gene finder
+    df.drop('masks') \
+        .orderBy(['ancestry', 'phenotype', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json('s3://dig-bio-index/finder/600trait')
 
 
 def process_transcript_datasets(spark):
@@ -111,6 +146,7 @@ def main():
     """
     opts = argparse.ArgumentParser()
     opts.add_argument('--52k', action='store_true', dest='flag_52k')
+    opts.add_argument('--600trait', action='store_true', dest='flag_600trait')
     opts.add_argument('--magma', action='store_true')
     opts.add_argument('--transcript', action='store_true')
 
@@ -122,6 +158,8 @@ def main():
 
     if args.flag_52k:
         process_gene_datasets(spark)
+    if args.flag_600trait:
+        process_600trait_datasets(spark)
     if args.magma:
         process_magma(spark)
     if args.transcript:
