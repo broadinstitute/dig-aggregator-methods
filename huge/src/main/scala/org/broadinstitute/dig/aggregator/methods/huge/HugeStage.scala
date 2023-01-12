@@ -44,7 +44,8 @@ class HugeStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = {
     super.cluster.copy(
       instances = 3,
-      bootstrapScripts = Seq(new BootstrapScript(resourceUri("huge-bootstrap.sh")))
+      bootstrapScripts = Seq(new BootstrapScript(resourceUri("huge-bootstrap.sh"))),
+      releaseLabel = ReleaseLabel("emr-6.7.0")
     )
   }
 

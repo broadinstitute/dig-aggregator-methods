@@ -2,7 +2,8 @@ import argparse
 from pyspark.sql import SparkSession, DataFrame
 from datetime import datetime
 from pyspark.sql.window import Window
-from pyspark.sql.functions import col, row_number, sqrt, exp
+from pyspark.sql.functions import col, row_number, sqrt, exp, udf
+from pyspark.sql.types import DoubleType
 from scipy.stats import norm
 
 
@@ -22,8 +23,13 @@ def inspect_df(df: DataFrame, name: str):
     print('Done showing ', name, ' at ', now_str())
 
 
+@udf(returnType=DoubleType())
+def p_to_z(p_value: float) -> float:
+    return float(abs(norm.ppf(p_value / 2.0)))
+
+
 def calculate_bf_gene(df: DataFrame):
-    df = df.withColumn('z', abs(norm.ppf(df.pValue / 2.0)))
+    df = df.withColumn('z', p_to_z(df.pValue))
     df = df.withColumn('stdErr', df.beta / df.z)
     df = df.withColumn('v', df.stdErr * df.stdErr)
     omega = 0.3696
@@ -66,7 +72,7 @@ def main():
     print('Variant effects data: ', variant_effects_glob)
     print('Padding: ', padding)
     spark = SparkSession.builder.appName('huge') \
-        .config('spark.driver.memory', '2g').config('spark.driver.maxResultSize', '2g').getOrCreate()
+        .config('spark.driver.memory', '4g').config('spark.driver.maxResultSize', '2g').getOrCreate()
     genes_regions_raw = spark.read.json(genes_glob)
     gene_regions = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \
         .filter(genes_regions_raw.source == 'symbol').drop(genes_regions_raw.source)
