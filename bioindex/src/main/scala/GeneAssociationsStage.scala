@@ -12,15 +12,17 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
   val magma   = Input.Source.Success("out/magma/gene-associations/*/")
   val t2d_52k = Input.Source.Dataset("gene_associations/52k_T2D/*/")
   val qt_52k  = Input.Source.Dataset("gene_associations/52k_QT/*/")
+  val traits_600 = Input.Source.Dataset("gene_associations/600k_600traits/*/")
   val transcript = Input.Source.Raw("transcript_associations/55k/*/part-*")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(magma, t2d_52k, qt_52k, transcript)
+  override val sources: Seq[Input.Source] = Seq(magma, t2d_52k, qt_52k, traits_600, transcript)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
     case t2d_52k(phenotype) => Outputs.Named("52k")
     case qt_52k(phenotype)  => Outputs.Named("52k")
+    case traits_600(phenotype) => Outputs.Named("600trait")
     case magma(phenotype)   => Outputs.Named("magma")
     case transcript(phenotype, file) => Outputs.Named("transcript")
   }
@@ -36,6 +38,7 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
 
     val step = output match {
       case "52k"   => Job.PySpark(script, "--52k")
+      case "600trait" => Job.PySpark(script, "--600trait")
       case "magma" => Job.PySpark(script, "--magma")
       case "transcript" => Job.PySpark(script, "--transcript")
     }
