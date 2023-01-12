@@ -2,7 +2,7 @@ import argparse
 from pyspark.sql import SparkSession, DataFrame
 from datetime import datetime
 from pyspark.sql.window import Window
-from pyspark.sql.functions import col, row_number, sqrt, exp, udf
+from pyspark.sql.functions import col, row_number, sqrt, exp, udf, when
 from pyspark.sql.types import DoubleType
 from scipy.stats import norm
 
@@ -28,12 +28,12 @@ def p_to_z(p_value: float) -> float:
     return float(abs(norm.ppf(p_value / 2.0)))
 
 
-def calculate_bf_gene(df: DataFrame):
+def calculate_bf_rare(df: DataFrame):
     df = df.withColumn('z', p_to_z(df.pValue))
     df = df.withColumn('stdErr', df.beta / df.z)
     df = df.withColumn('v', df.stdErr * df.stdErr)
     omega = 0.3696
-    df = df.withColumn('bf_gene',
+    df = df.withColumn('bf_rare',
                        sqrt(df.v / (df.v + omega)) * exp(omega * df.beta * df.beta / (2.0 * df.v * (df.v + omega))))
     return df
 
@@ -72,13 +72,13 @@ def main():
     print('Variant effects data: ', variant_effects_glob)
     print('Padding: ', padding)
     spark = SparkSession.builder.appName('huge') \
-        .config('spark.driver.memory', '4g').config('spark.driver.maxResultSize', '2g').getOrCreate()
+        .config('spark.driver.memory', '5g').config('spark.driver.maxResultSize', '2g').getOrCreate()
     genes_regions_raw = spark.read.json(genes_glob)
     gene_regions = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \
         .filter(genes_regions_raw.source == 'symbol').drop(genes_regions_raw.source)
     inspect_df(gene_regions, "gene regions")
     gene_assoc_raw = spark.read.json(genes_assoc_glob).select('gene', 'pValue', 'beta')
-    gene_assoc = calculate_bf_gene(gene_assoc_raw)
+    gene_assoc = calculate_bf_rare(gene_assoc_raw)
     inspect_df(gene_assoc, "gene associations")
     genes = gene_regions.join(gene_assoc, gene_regions.name == gene_assoc.gene).drop(gene_regions.name) \
         .withColumnRenamed('chromosome', 'chromosome_gene').withColumnRenamed('pValue', 'pValue_gene')
@@ -92,7 +92,7 @@ def main():
                        (genes.end + padding >= variants_gwas.position)
     gene_variants_gwas = \
         genes.join(variants_gwas.alias('variants'), variant_in_locus, "inner") \
-            .select('varId', 'gene', 'pValue_gene', 'pValue', 'bf_gene')
+            .select('varId', 'gene', 'pValue_gene', 'pValue', 'bf_rare')
     inspect_df(gene_variants_gwas, "joined genes and variants")
     significant_by_gene = Window.partitionBy("gene").orderBy(col("pValue"))
     gene_top_variant = gene_variants_gwas.withColumn("row", row_number().over(significant_by_gene)) \
@@ -108,7 +108,7 @@ def main():
     inspect_df(variants_gwas_impact, 'non-synonymous GWAS variants')
     gene_variants_gwas_impact = \
         genes.join(variants_gwas_impact.alias('variants'), variant_in_locus, "inner") \
-            .select('varId', 'gene', 'pValue_gene', 'pValue', 'bf_gene')
+            .select('varId', 'gene', 'pValue_gene', 'pValue', 'bf_rare')
     gene_top_impact_variant = gene_variants_gwas_impact.withColumn("row", row_number().over(significant_by_gene)) \
         .filter(col("row") == 1).drop("row") \
         .withColumnRenamed('varId', 'varId_top_impact').withColumnRenamed('pValue', 'pValue_top_impact_var')
@@ -123,7 +123,7 @@ def main():
     genes_joined = \
         gene_assoc.join(gene_top_variant_nearest, ['gene'], 'left').join(gene_top_impact_variant, ['gene'], 'left')
     inspect_df(genes_joined, 'genes with all relevant data')
-    genes_final = \
+    genes_flags = \
         genes_joined \
             .withColumn('has_gwas', genes_joined.varId_top is not None) \
             .withColumn('has_coding', genes_joined.varId_top_impact is not None) \
@@ -132,7 +132,15 @@ def main():
             .withColumn('has_causal_coding',
                         (genes_joined.varId_top is not None) & (genes_joined.varId_top_impact is not None)
                         & (genes_joined.varId_top == genes_joined.varId_top_impact))
-    inspect_df(genes_final, "final table of genes")
+    inspect_df(genes_flags, "categories of genes")
+    genes_all = genes_flags\
+        .withColumn("bf_common",
+                    when(genes_flags.has_causal_coding, 350)
+                    .otherwise(when(genes_flags.is_nearest, 45)
+                               .otherwise(when(genes_flags.has_coding, 20)
+                                          .otherwise(when(genes_flags.has_gwas, 3)
+                                                     .otherwise(1)))))
+    inspect_df(genes_all, "final results for genes")
     print('Done with work implemented so far, stopping Spark')
     spark.stop()
     print('Spark stopped')
