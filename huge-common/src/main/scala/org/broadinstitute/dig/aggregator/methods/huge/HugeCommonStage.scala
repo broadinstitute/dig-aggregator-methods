@@ -72,8 +72,6 @@ class HugeCommonStage(implicit context: Context) extends Stage {
         phenotype,
         "--genes",
         bucket.s3UriOf(geneFile).toString,
-        "--gene-associations",
-        bucket.s3UriOf(geneAssocFiles.forPhenotype(phenotype)).toString,
         "--variants",
         bucket.s3UriOf(variantFiles.forPhenotype(phenotype)).toString,
         "--cqs",

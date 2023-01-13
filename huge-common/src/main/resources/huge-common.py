@@ -27,7 +27,7 @@ def main():
     """
     print('Hello! The time is now ', now_str())
     print('Now building argument parser')
-    arg_parser = argparse.ArgumentParser(prog='huge.py')
+    arg_parser = argparse.ArgumentParser(prog='huge-common.py')
     arg_parser.add_argument("--phenotype", help="The phenotype", required=True)
     arg_parser.add_argument("--genes", help="Gene data with regions", required=True)
     arg_parser.add_argument("--variants", help="Variant data", required=True)

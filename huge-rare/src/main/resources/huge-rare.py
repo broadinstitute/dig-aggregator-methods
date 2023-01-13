@@ -44,7 +44,7 @@ def main():
     """
     print('Hello! The time is now ', now_str())
     print('Now building argument parser')
-    arg_parser = argparse.ArgumentParser(prog='huge.py')
+    arg_parser = argparse.ArgumentParser(prog='huge-rare.py')
     arg_parser.add_argument("--phenotype", help="The phenotype", required=True)
     arg_parser.add_argument("--gene-associations", help="Gene data with p-values", required=True)
     arg_parser.add_argument("--out-dir", help="Output directory", required=True)
