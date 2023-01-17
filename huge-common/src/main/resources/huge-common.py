@@ -62,7 +62,8 @@ def main():
     genes = genes_regions_raw.select('chromosome', 'start', 'end', 'source', 'name') \
         .filter(genes_regions_raw.source == 'symbol')\
         .drop(genes_regions_raw.source)\
-        .withColumnRenamed('symbol', 'gene').withColumnRenamed('chromosome', 'chromosome_gene')
+        .withColumnRenamed('symbol', 'gene').withColumnRenamed('chromosome', 'chromosome_gene')\
+        .withColumnRenamed("name", "gene")
     inspect_df(genes, "genes")
     variants = spark.read.json(variants_glob).select('varId', 'chromosome', 'position', 'pValue')
     inspect_df(variants, "variants for phenotype")
