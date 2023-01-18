@@ -54,6 +54,7 @@ def get_converted_phenotype_cauchy(ancestry, cauchy_file):
                     'phenotypeMeaning': convert_phenotype(line_dict['Phecode_Meaning']),
                     'phenotype': line_dict['Phecode'],
                     'phenotypeCategory': line_dict['Phecode_Category'],
+                    'ensemblId': line_dict['Gene_stable_ID'],
                     'gene': line_dict['gene'],
                     'pValue': float(line_dict['P_cauchy']),
                     'beta': float(line_dict['most_sig_beta']),
