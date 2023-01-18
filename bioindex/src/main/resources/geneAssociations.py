@@ -53,14 +53,14 @@ def process_600trait_datasets(spark):
 
     # fix for join
     genes = genes.select(
-        genes.name.alias('gene'),
+        genes.name.alias('ensemblId'),
         genes.chromosome,
         genes.start,
         genes.end,
         genes.type,
     )
 
-    df = df.join(genes, on='gene', how='inner')
+    df = df.join(genes, on='ensemblId', how='inner')
 
     # sort by gene, then by p-value
     df.orderBy(['ancestry', 'gene', 'pValue']) \

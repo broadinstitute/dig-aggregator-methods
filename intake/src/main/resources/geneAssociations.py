@@ -47,17 +47,19 @@ def get_converted_phenotype_cauchy(ancestry, cauchy_file):
         line = f.readline().decode()
         while len(line) > 0:
             line_dict = dict(zip(header.split('\t'), line.split('\t')))
-            cauchy_output[line_dict['gene']] = {
-                'dataset': '600k_600traits',
-                'ancestry': ancestry,
-                'phenotypeMeaning': convert_phenotype(line_dict['Phecode_Meaning']),
-                'phenotype': line_dict['Phecode'],
-                'phenotypeCategory': line_dict['Phecode_Category'],
-                'gene': line_dict['gene'],
-                'pValue': float(line_dict['P_cauchy']),
-                'beta': float(line_dict['most_sig_beta']),
-                'masks': []
-            }
+            if line_dict['most_sig_beta'] != 'nan':
+                cauchy_output[line_dict['gene']] = {
+                    'dataset': '600k_600traits',
+                    'ancestry': ancestry,
+                    'phenotypeMeaning': convert_phenotype(line_dict['Phecode_Meaning']),
+                    'phenotype': line_dict['Phecode'],
+                    'phenotypeCategory': line_dict['Phecode_Category'],
+                    'ensemblId': line_dict['Gene_stable_ID'],
+                    'gene': line_dict['gene'],
+                    'pValue': float(line_dict['P_cauchy']),
+                    'beta': float(line_dict['most_sig_beta']),
+                    'masks': []
+                }
             line = f.readline().decode()
     return cauchy_output
 
