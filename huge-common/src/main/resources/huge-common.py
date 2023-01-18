@@ -2,7 +2,7 @@ import argparse
 from pyspark.sql import SparkSession, DataFrame
 from datetime import datetime
 from pyspark.sql.window import Window
-from pyspark.sql.functions import col, row_number, when
+from pyspark.sql.functions import col, row_number, when, array_contains
 
 
 def now_str():
@@ -90,7 +90,7 @@ def main():
     inspect_df(variants_gwas_impact, 'non-synonymous GWAS variants')
     gene_variants_gwas_impact = \
         genes.join(variants_gwas_impact.alias('variants'), variant_in_locus, "inner") \
-            .select('varId', 'gene', 'pValue_gene', 'pValue', 'bf_rare')
+            .select('varId', 'gene', 'pValue')
     gene_top_impact_variant = gene_variants_gwas_impact.withColumn("row", row_number().over(significant_by_gene)) \
         .filter(col("row") == 1).drop("row") \
         .withColumnRenamed('varId', 'varId_top_impact').withColumnRenamed('pValue', 'pValue_top_impact_var')
@@ -107,12 +107,13 @@ def main():
     inspect_df(genes_joined, 'genes with all relevant data')
     genes_flags = \
         genes_joined \
-            .withColumn('has_gwas', genes_joined.varId_top is not None) \
-            .withColumn('has_coding', genes_joined.varId_top_impact is not None) \
+            .withColumn('has_gwas', genes_joined.varId_top.isNotNull()) \
+            .withColumn('has_coding', genes_joined.varId_top_impact.isNotNull()) \
             .withColumn('is_nearest',
-                        (genes_joined.nearest is not None) & (genes_joined.gene in genes_joined.nearest)) \
+                        (genes_joined.nearest.isNotNull()) & 
+                        (array_contains(genes_joined.nearest, genes_joined.gene))) \
             .withColumn('has_causal_coding',
-                        (genes_joined.varId_top is not None) & (genes_joined.varId_top_impact is not None)
+                        (genes_joined.varId_top.isNotNull()) & (genes_joined.varId_top_impact.isNotNull())
                         & (genes_joined.varId_top == genes_joined.varId_top_impact))
     inspect_df(genes_flags, "categories of genes")
     genes_all = genes_flags\

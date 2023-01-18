@@ -1,26 +1,9 @@
 import argparse
 from pyspark.sql import SparkSession, DataFrame
 from datetime import datetime
-from pyspark.sql.window import Window
-from pyspark.sql.functions import col, row_number, sqrt, exp, udf, when
+from pyspark.sql.functions import sqrt, exp, udf
 from pyspark.sql.types import DoubleType
 from scipy.stats import norm
-
-
-def now_str():
-    return str(datetime.now())
-
-
-def inspect_df(df: DataFrame, name: str):
-    n_rows = df.count()
-    print("Dataframe ", name, " has ", n_rows, " rows.", "(", now_str(), ")")
-    df.printSchema()
-    n_rows_max = 23
-    if n_rows > n_rows_max:
-        df.sample(fraction=(n_rows_max / n_rows)).show()
-    else:
-        df.show()
-    print('Done showing ', name, ' at ', now_str())
 
 
 @udf(returnType=DoubleType())
@@ -42,7 +25,7 @@ def main():
     """
     Arguments: none
     """
-    print('Hello! The time is now ', now_str())
+    print('Hello! The time is now ', str(datetime.now()))
     print('Now building argument parser')
     arg_parser = argparse.ArgumentParser(prog='huge-rare.py')
     arg_parser.add_argument("--phenotype", help="The phenotype", required=True)
@@ -61,9 +44,7 @@ def main():
     # spark = SparkSession.builder.appName('huge-rare') \
     #     .config('spark.driver.memory', '6g').config('spark.driver.maxResultSize', '2g').getOrCreate()
     gene_assoc = spark.read.json(genes_assoc_glob).select('gene', 'pValue', 'beta')
-    inspect_df(gene_assoc, "gene associations")
     gene_bf = calculate_bf_rare(gene_assoc)
-    inspect_df(gene_bf, "gene with Bayes factor based on rare variants")
     print('Now writing to ', out_dir)
     gene_bf.write.mode('overwrite').json(out_dir)
     print('Done with work, stopping Spark')

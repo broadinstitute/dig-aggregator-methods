@@ -25,7 +25,7 @@ class HugeRareStage(implicit context: Context) extends Stage {
   }
 
   val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/52k_*/<phenotype>/")
-  val outDir: String                    = "out/huge/rare/"
+  val outDir: FilesForPhenotype         = new FilesForPhenotype("out/huge/rare/<phenotype>/")
 
   val geneAssociations: Input.Source = Input.Source.Dataset(geneAssocFiles.asGlob)
 
@@ -62,7 +62,7 @@ class HugeRareStage(implicit context: Context) extends Stage {
         "--gene-associations",
         bucket.s3UriOf(geneAssocFiles.forPhenotype(phenotype)).toString,
         "--out-dir",
-        bucket.s3UriOf(outDir).toString
+        bucket.s3UriOf(outDir.forPhenotype(phenotype)).toString
       )
     )
   }

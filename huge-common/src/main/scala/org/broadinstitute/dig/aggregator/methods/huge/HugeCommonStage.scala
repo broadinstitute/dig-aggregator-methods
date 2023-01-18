@@ -27,9 +27,10 @@ class HugeCommonStage(implicit context: Context) extends Stage {
   val geneFile: String                  = "genes/GRCh37/"
   val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/52k_*/<phenotype>/")
   val variantFiles: FilesForPhenotype   = new FilesForPhenotype("out/metaanalysis/trans-ethnic/<phenotype>/")
-  val variantCqsFiles: String           = "out/varianteffect/cqs/"
-  val variantEffectFiles: String        = "out/varianteffect/effects/"
-  val outDir: String                    = "out/huge/common/"
+  val useCache: Boolean = true;
+  val variantCqsFiles: String           = if (useCache) "out/huge/cache/cqs/" else "out/varianteffect/cqs/"
+  val variantEffectFiles: String        = if (useCache) "out/huge/cache/effects/" else "out/varianteffect/effects/"
+  val outDir: FilesForPhenotype         = new FilesForPhenotype("out/huge/common/<phenotype>/")
 
   val genes: Input.Source            = Input.Source.Dataset(geneFile)
   val geneAssociations: Input.Source = Input.Source.Dataset(geneAssocFiles.asGlob)
@@ -79,7 +80,7 @@ class HugeCommonStage(implicit context: Context) extends Stage {
         "--effects",
         bucket.s3UriOf(variantEffectFiles).toString,
         "--out-dir",
-        bucket.s3UriOf(outDir).toString
+        bucket.s3UriOf(outDir.forPhenotype(phenotype)).toString
       )
     )
   }
