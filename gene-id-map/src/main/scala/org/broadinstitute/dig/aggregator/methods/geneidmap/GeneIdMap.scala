@@ -1,4 +1,4 @@
-package org.broadinstitute.dig.aggregator.methods.huge
+package org.broadinstitute.dig.aggregator.methods.geneidmap
 
 import org.broadinstitute.dig.aggregator.core.{Context, Method}
 
@@ -14,12 +14,12 @@ import org.broadinstitute.dig.aggregator.core.{Context, Method}
   * See the README of the dig-aggregator-core project for a complete list of
   * CLI arguments available.
   */
-object Huge extends Method {
+object GeneIdMap extends Method {
 
   /** Add all stages used in this method here. Stages must be added in the
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context): Unit = {
-    addStage(new HugeStage)
+    addStage(new GeneIdMapStage)
   }
 }
