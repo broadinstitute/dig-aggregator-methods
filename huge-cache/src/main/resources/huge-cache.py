@@ -40,7 +40,7 @@ def main():
     print('Variant CQS data: ', variant_cqs_glob)
     print('Variant effects data: ', variant_effects_glob)
     spark = SparkSession.builder.appName('hugecache').getOrCreate()
-    cqs_selected = spark.read.json(variant_cqs_glob).select('varId', 'impact')
+    cqs_selected = spark.read.json(variant_cqs_glob).select('varId', 'impact', 'geneId')
     cqs_filtered = cqs_selected.filter((cqs_selected.impact == 'HIGH') | (cqs_selected.impact == 'MODERATE'))
     inspect_df(cqs_filtered, "CQS cache")
     print('Now writing variants CQS cache to', cqs_cache_dir)

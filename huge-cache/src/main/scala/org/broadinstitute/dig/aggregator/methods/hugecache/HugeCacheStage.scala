@@ -22,8 +22,8 @@ class HugeCacheStage(implicit context: Context) extends Stage {
   val geneFile: String           = "genes/GRCh37/"
   val variantCqsFiles: String    = "out/varianteffect/cqs/"
   val variantEffectFiles: String = "out/varianteffect/effects/"
-  val cqsCacheDir                = "out/hugecache/cqs/"
-  val effectsCacheDir            = "out/hugecache/effects/"
+  val cqsCacheDir                = "out/huge/cache/cqs/"
+  val effectsCacheDir            = "out/huge/cache/effects/"
 
   val genes: Input.Source          = Input.Source.Dataset(geneFile)
   val variantCqs: Input.Source     = Input.Source.Success(variantCqsFiles)
@@ -46,7 +46,7 @@ class HugeCacheStage(implicit context: Context) extends Stage {
   /** One job per phenotype (e.g. T2D)
     */
   override def make(output: String): Job = {
-    val script = resourceUri("hugecache.py")
+    val script = resourceUri("huge-cache.py")
     println(s"Making job with script $script, ignoring parameter $output.")
     val bucket = context.s3
     new Job(

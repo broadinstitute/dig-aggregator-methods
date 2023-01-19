@@ -110,7 +110,7 @@ def main():
             .withColumn('has_gwas', genes_joined.varId_top.isNotNull()) \
             .withColumn('has_coding', genes_joined.varId_top_impact.isNotNull()) \
             .withColumn('is_nearest',
-                        (genes_joined.nearest.isNotNull()) & 
+                        (genes_joined.nearest.isNotNull()) &
                         (array_contains(genes_joined.nearest, genes_joined.gene))) \
             .withColumn('has_causal_coding',
                         (genes_joined.varId_top.isNotNull()) & (genes_joined.varId_top_impact.isNotNull())
@@ -122,7 +122,11 @@ def main():
                     .otherwise(when(genes_flags.is_nearest, 45)
                                .otherwise(when(genes_flags.has_coding, 20)
                                           .otherwise(when(genes_flags.has_gwas, 3)
-                                                     .otherwise(1)))))
+                                                     .otherwise(1)))))\
+        .select("gene", "chromosome_gene", "start", "end", "varId_top", "pValue_top_var", "varId_top_impact",
+                "pValue_top_impact_var", "has_gwas", "has_coding", "is_nearest", "has_causal_coding", "bf_common")\
+        .withColumnRenamed("varId", "varId_nearest")\
+        .withColumnRenamed("chromosome_gene", "chromosome")
     inspect_df(genes_all, "final results for genes")
     print('Now writing to ', out_dir)
     genes_all.write.mode('overwrite').json(out_dir)
