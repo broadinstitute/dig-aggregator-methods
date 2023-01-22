@@ -24,15 +24,16 @@ class HugeCommonStage(implicit context: Context) extends Stage {
     def asGlob: String                          = string.replaceAll(placeHolder, "*")
   }
 
-  val geneFile: String                  = "genes/GRCh37/"
+//  val geneFile: String                  = "genes/GRCh37/"
+  val genesDir: String                  = "out/geneidmap/"
   val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/52k_*/<phenotype>/")
   val variantFiles: FilesForPhenotype   = new FilesForPhenotype("out/metaanalysis/trans-ethnic/<phenotype>/")
-  val useCache: Boolean = true;
+  val useCache: Boolean                 = true
   val variantCqsFiles: String           = if (useCache) "out/huge/cache/cqs/" else "out/varianteffect/cqs/"
   val variantEffectFiles: String        = if (useCache) "out/huge/cache/effects/" else "out/varianteffect/effects/"
   val outDir: FilesForPhenotype         = new FilesForPhenotype("out/huge/common/<phenotype>/")
 
-  val genes: Input.Source            = Input.Source.Dataset(geneFile)
+  val genes: Input.Source            = Input.Source.Dataset(genesDir)
   val geneAssociations: Input.Source = Input.Source.Dataset(geneAssocFiles.asGlob)
   val variants: Input.Source         = Input.Source.Success(variantFiles.asGlob)
   val variantCqs: Input.Source       = Input.Source.Success(variantCqsFiles)
@@ -72,7 +73,7 @@ class HugeCommonStage(implicit context: Context) extends Stage {
         "--phenotype",
         phenotype,
         "--genes",
-        bucket.s3UriOf(geneFile).toString,
+        bucket.s3UriOf(genesDir).toString,
         "--variants",
         bucket.s3UriOf(variantFiles.forPhenotype(phenotype)).toString,
         "--cqs",
