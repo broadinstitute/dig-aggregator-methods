@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import concat_ws, length, lit, when  # pylint: disable=E0611
 
 S3_LDSERVER = 's3://dig-analysis-data'
-S3DIR_IN = 's3://psmadbec-test'
+S3DIR_IN = 's3://dig-analysis-data'
 S3DIR_OUT = 's3://psmadbec-test'
 
 
