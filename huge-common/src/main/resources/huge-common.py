@@ -59,8 +59,9 @@ def main():
     # spark = SparkSession.builder.appName('huge') \
     #     .config('spark.driver.memory', '6g').config('spark.driver.maxResultSize', '2g').getOrCreate()
     genes = \
-        spark.read.json(genes_glob).select('chromosome', 'start', 'end', 'symbol', 'ensemble') \
-            .withColumnRenamed('symbol', 'gene')
+        spark.read.json(genes_glob).select('chromosome', 'start', 'end', 'symbol', 'ensembl') \
+            .withColumnRenamed('symbol', 'gene')\
+            .withColumnRenamed('chromosome', 'chromosome_gene')
     inspect_df(genes, "genes")
     variants = spark.read.json(variants_glob).select('varId', 'chromosome', 'position', 'pValue')
     inspect_df(variants, "variants for phenotype")
@@ -82,61 +83,30 @@ def main():
     inspect_df(variants_cqs, "variants cqs")
     variants_gwas_cqs = variants_gwas.join(variants_cqs, ['varId'])
     inspect_df(variants_gwas_cqs, "GWAS variants cqs")
-    gene_locus_gaws_variant = genes.join(variants_gwas_cqs, genes.ensembl == variants_cqs.geneId)
+    gene_locus_gaws_variant = \
+        genes.join(variants_gwas_cqs, genes.ensembl == variants_cqs.geneId)\
+            .withColumnRenamed('varId', 'varId_locus_top')
     inspect_df(gene_locus_gaws_variant, "gene locus variant")
-    gene_locus_variant_impact = \
-        gene_locus_gaws_variant.filter(gene_locus_gaws_variant.impact == 'HIGH' |
-                                       gene_locus_gaws_variant.impact == 'MODERATE')
-    inspect_df(gene_locus_variant_impact, "gene locus variant impact")
-    # TODO
-    variants_impact_raw = variants_cqs.filter((variants_cqs.impact == 'HIGH') | (variants_cqs.impact == 'MODERATE'))
-    inspect_df(variants_impact_raw, "non-synonymous variants raw")
-    variants_impact = variants_impact_raw.select('varId')
-    inspect_df(variants_impact, "non-synonymous variants")
-    variants_gwas_impact = variants_gwas.join(variants_impact, ['varId'])
-    inspect_df(variants_gwas_impact, 'non-synonymous GWAS variants')
-    gene_variants_gwas_impact = \
-        genes.join(variants_gwas_impact.alias('variants'), variant_in_region, "inner") \
-            .select('varId', 'gene', 'pValue')
-    gene_top_impact_variant = gene_variants_gwas_impact.withColumn("row", row_number().over(significant_by_gene)) \
+    gene_top_locus_variant = gene_locus_gaws_variant.withColumn("row", row_number().over(significant_by_gene)) \
         .filter(col("row") == 1).drop("row") \
-        .withColumnRenamed('varId', 'varId_top_impact').withColumnRenamed('pValue', 'pValue_top_impact_var')
-    inspect_df(gene_top_impact_variant, 'genes with most significant GWAS non-synonymous variant')
-    variant_effects = \
-        spark.read.json(variant_effects_glob).select('id', 'nearest') \
-            .withColumnRenamed('id', 'varId')
-    inspect_df(variant_effects, "variant effects")
-    gene_top_variant_nearest = \
-        gene_top_region_variant.join(variant_effects, gene_top_region_variant.varId_top == variant_effects.varId)
-    inspect_df(gene_top_variant_nearest, 'genes with most significant variant and its nearest gene')
-    genes_joined = \
-        genes.join(gene_top_variant_nearest, ['gene'], 'left').join(gene_top_impact_variant, ['gene'], 'left')
-    inspect_df(genes_joined, 'genes with all relevant data')
-    genes_flags = \
-        genes_joined \
-            .withColumn('has_gwas', genes_joined.varId_top.isNotNull()) \
-            .withColumn('has_coding', genes_joined.varId_top_impact.isNotNull()) \
-            .withColumn('is_nearest',
-                        (genes_joined.nearest.isNotNull()) &
-                        (array_contains(genes_joined.nearest, genes_joined.gene))) \
-            .withColumn('has_causal_coding',
-                        (genes_joined.varId_top.isNotNull()) & (genes_joined.varId_top_impact.isNotNull())
-                        & (genes_joined.varId_top == genes_joined.varId_top_impact))
-    inspect_df(genes_flags, "categories of genes")
-    genes_all = genes_flags \
-        .withColumn("bf_common",
-                    when(genes_flags.has_causal_coding, 350)
-                    .otherwise(when(genes_flags.is_nearest, 45)
-                               .otherwise(when(genes_flags.has_coding, 20)
-                                          .otherwise(when(genes_flags.has_gwas, 3)
-                                                     .otherwise(1))))) \
-        .select("gene", "chromosome_gene", "start", "end", "varId_top", "pValue_top_var", "varId_top_impact",
-                "pValue_top_impact_var", "has_gwas", "has_coding", "is_nearest", "has_causal_coding", "bf_common") \
-        .withColumnRenamed("varId", "varId_nearest") \
-        .withColumnRenamed("chromosome_gene", "chromosome")
-    inspect_df(genes_all, "final results for genes")
+        .withColumnRenamed('varId', 'varId_locus_top').withColumnRenamed('pValue', 'pValue_locus_top')\
+        .withColumn("top_locus_variant_coding", col('impact') == 'HIGH' | col('impact') == 'MODERATE')\
+        .withColumn("top_locus_variant_nearest", col('ensembl') == col('geneId'))
+    inspect_df(gene_top_locus_variant, "gene top locus variant")
+    genes_joined = genes.join(gene_top_region_variant, ['gene'], 'left').join(gene_top_locus_variant, ['gene'], 'left')
+    inspect_df(genes_joined, "genes joined")
+    genes_bf = \
+        genes_joined.withColumn('bf_common',
+                                when(genes_joined.top_locus_variant_coding.isNotNull() &
+                                     genes_joined.top_locus_variant_coding, 350)
+                                .otherwise(when(genes_joined.top_locus_variant_nearest.isNotNull() &
+                                           genes_joined.top_locus_variant_nearest, 45)
+                                           .otherwise(when(genes_joined.varId_locus_top.isNotNull(), 20)
+                                                      .otherwise(when(genes_joined.varId_region_top.isNotNull(), 3)
+                                                                 .otherwise(1)))))
+    inspect_df(genes_bf, "genes with BF")
     print('Now writing to ', out_dir)
-    genes_all.write.mode('overwrite').json(out_dir)
+    genes_bf.write.mode('overwrite').json(out_dir)
     print('Done with work, stopping Spark')
     spark.stop()
     print('Spark stopped')

@@ -32,7 +32,7 @@ def main():
     genes_ensembl = \
         genes.filter(genes.source == "ensembl") \
             .select("chromosome", "start", "end", "name") \
-            .withColumnRenamed("name", "ensemble")
+            .withColumnRenamed("name", "ensembl")
     genes_joined = genes_symbol.join(genes_ensembl, ["chromosome", "start", "end"])
     genes_joined.write.mode("overwrite").json(map_dir)
     print('Done with work, therefore stopping Spark')
