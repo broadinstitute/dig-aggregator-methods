@@ -141,6 +141,7 @@ def write_to_s3(outdir, logger, df):
     df.write \
         .mode('overwrite') \
         .option("ignoreNullFields", "false") \
+        .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
         .json(outdir)
 
     logger.save()
