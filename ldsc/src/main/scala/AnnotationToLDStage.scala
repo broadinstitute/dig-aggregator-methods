@@ -1,10 +1,13 @@
 package org.broadinstitute.dig.aggregator.methods.ldsc
 
+import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws.emr._
+
 class AnnotationToLDStage(implicit context: Context) extends Stage {
 
   val partitions: Seq[String] = Seq()
   val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
-  val annotationFiles: Input.Source = Input.Source.Success(s"out/ldsc/regions/${subRegion}/annot/*/*/")
+  val annotationFiles: Input.Source = Input.Source.Success(s"out/ldsc/regions/${subRegion}/annot/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(annotationFiles)
@@ -18,11 +21,11 @@ class AnnotationToLDStage(implicit context: Context) extends Stage {
   )
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case annotationFiles(annotation, ancestry) => Outputs.Named(s"$annotation/${ancestry.split("=").last}")
+    case annotationFiles(annotation) => Outputs.Named(annotation)
   }
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("regionsToLD.py"), s"--sub-region=$subRegion", s"--annotation-path=$output"))
+    new Job(Job.Script(resourceUri("annotationToLD.py"), s"--sub-region=$subRegion", s"--annotation-path=$output/EUR"))
   }
 
   /** Update the success flag of the merged regions.
