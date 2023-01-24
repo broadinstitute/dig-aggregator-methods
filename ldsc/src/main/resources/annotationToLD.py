@@ -22,8 +22,6 @@ def get_annot_file(sub_region, ancestry, annotation, CHR):
 
 def make_annot_ld(ancestry, annotation, CHR):
     print(f'Making ld annot for ancestry: {ancestry}, annotation: {annotation}, chromosome: {CHR}')
-    if not os.path.exists(f'./{ancestry}/{annotation}/ld_score'):
-        os.mkdir(f'./{ancestry}/{annotation}/ld_score')
     subprocess.check_call([
         'python3', f'{ldsc_files}/ldsc.py',
         '--bfile', f'{g1000_files}/{ancestry}/chr{CHR}',
