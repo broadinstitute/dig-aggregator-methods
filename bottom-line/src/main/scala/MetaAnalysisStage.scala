@@ -46,7 +46,8 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
     slaveInstanceType = Strategy.memoryOptimized(mem = 128.gb),
     masterVolumeSizeInGB = 800,
     instances = 4,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Additional resources to upload. */

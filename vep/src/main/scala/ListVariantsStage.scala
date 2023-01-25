@@ -27,7 +27,9 @@ class ListVariantsStage(implicit context: Context) extends Stage {
     slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
     masterVolumeSizeInGB = 400,
     slaveVolumeSizeInGB = 400,
-    instances = 8
+    instances = 8,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("list-variant-bootstrap.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Map inputs to outputs. */
