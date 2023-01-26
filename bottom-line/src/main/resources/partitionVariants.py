@@ -6,7 +6,7 @@ import platform
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import isnan, lit, when  # pylint: disable=E0611
 
-s3dir = 's3://dig-analysis-data'
+s3dir = 's3://psmadbec-test/furkan-ta1'
 
 # entry point
 if __name__ == '__main__':
@@ -34,6 +34,12 @@ if __name__ == '__main__':
     # if ancestry isn't set assume it's mixed
     ancestry = when(df.ancestry.isNull(), lit('Mixed')) \
         .otherwise(df.ancestry)
+
+    # Convert SSAF -> AF And GME -> SA
+    ancestry = when(ancestry == 'SSAF', lit('AF')) \
+        .otherwise(ancestry)
+    ancestry = when(ancestry == 'GME', lit('SA')) \
+        .otherwise(ancestry)
 
     # # keep a sum total across datasets for variants with EAF and/or MAF
     # eafCount = when(df.eaf.isNull() | isnan(df.eaf), 0).otherwise(1)

@@ -3,7 +3,7 @@
 PHENOTYPE="$1"
 
 # output HDFS location
-S3_PATH="s3://dig-analysis-data/out/metaanalysis"
+S3_PATH="s3://psmadbec-test/furkan-ta1/out/metaanalysis"
 
 # working directory
 LOCAL_DIR="/mnt/var/metal"
@@ -45,10 +45,10 @@ for ANCESTRY in "${ANCESTRIES[@]}"; do
 
     # create the destination directory and merge variants there
     sudo mkdir -p "${ANCESTRY_DIR}"
-    sudo chmod 777 $ANCESTRY_DIR
-    hadoop fs -getmerge -nl -skip-empty-file "${GLOB}" "${JSON_FILE}"
+    sudo hadoop fs -getmerge -nl -skip-empty-file "${GLOB}" "${JSON_FILE}"
 
     # use jq to convert the json file to csv
+    sudo chmod 777 $ANCESTRY_DIR
     head -n 1 "${JSON_FILE}" | sudo jq -r 'keys_unsorted | @tsv' > "${CSV_FILE}"
     cat "${JSON_FILE}" | sudo jq -r 'map(.) | @tsv' >> "${CSV_FILE}"
 done
