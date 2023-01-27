@@ -22,8 +22,7 @@ class HugeCacheStage(implicit context: Context) extends Stage {
   val geneFile: String           = "genes/GRCh37/"
   val variantCqsFiles: String    = "out/varianteffect/cqs/"
   val variantEffectFiles: String = "out/varianteffect/effects/"
-  val cqsCacheDir                = "out/huge/cache/cqs/"
-  val effectsCacheDir            = "out/huge/cache/effects/"
+  val cacheDir                   = "out/huge/cache/"
 
   val genes: Input.Source          = Input.Source.Dataset(geneFile)
   val variantCqs: Input.Source     = Input.Source.Success(variantCqsFiles)
@@ -56,10 +55,8 @@ class HugeCacheStage(implicit context: Context) extends Stage {
         bucket.s3UriOf(variantCqsFiles).toString,
         "--effects",
         bucket.s3UriOf(variantEffectFiles).toString,
-        "--cqs-cache-dir",
-        bucket.s3UriOf(cqsCacheDir).toString,
-        "--effects-cache-dir",
-        bucket.s3UriOf(effectsCacheDir).toString
+        "--cache-dir",
+        bucket.s3UriOf(cacheDir).toString
       )
     )
   }

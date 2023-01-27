@@ -60,7 +60,7 @@ def main():
     #     .config('spark.driver.memory', '6g').config('spark.driver.maxResultSize', '2g').getOrCreate()
     genes = \
         spark.read.json(genes_glob).select('chromosome', 'start', 'end', 'symbol', 'ensembl') \
-            .withColumnRenamed('symbol', 'gene')\
+            .withColumnRenamed('symbol', 'gene') \
             .withColumnRenamed('chromosome', 'chromosome_gene')
     inspect_df(genes, "genes")
     variants = spark.read.json(variants_glob).select('varId', 'chromosome', 'position', 'pValue')
@@ -83,24 +83,37 @@ def main():
     inspect_df(variants_cqs, "variants cqs")
     variants_gwas_cqs = variants_gwas.join(variants_cqs, ['varId'])
     inspect_df(variants_gwas_cqs, "GWAS variants cqs")
-    gene_locus_gaws_variant = \
-        genes.join(variants_gwas_cqs, genes.ensembl == variants_cqs.geneId)\
-            .withColumnRenamed('varId', 'varId_locus_top')
+    variants_nearest_gene_list = \
+        spark.read.json(variant_effects_glob).select('id', 'nearest') \
+            .withColumnRenamed('id', 'varId').withColumnRenamed('nearest', 'nearest_list')
+    variants_nearest_gene = \
+        variants_nearest_gene_list.withColumn('nearest', col('nearest_list').getItem(0)) \
+            .select('varId', 'nearest')
+    inspect_df(variants_nearest_gene, "variants nearest gene")
+    gene_locus_gaws_variant = genes.join(variants_gwas_cqs, genes.ensembl == variants_cqs.geneId)
     inspect_df(gene_locus_gaws_variant, "gene locus variant")
     gene_top_locus_variant = gene_locus_gaws_variant.withColumn("row", row_number().over(significant_by_gene)) \
-        .filter(col("row") == 1).drop("row") \
-        .withColumnRenamed('varId', 'varId_locus_top').withColumnRenamed('pValue', 'pValue_locus_top')\
-        .withColumn("top_locus_variant_coding", col('impact') == 'HIGH' | col('impact') == 'MODERATE')\
-        .withColumn("top_locus_variant_nearest", col('ensembl') == col('geneId'))
+        .filter(col("row") == 1).drop("row")
     inspect_df(gene_top_locus_variant, "gene top locus variant")
-    genes_joined = genes.join(gene_top_region_variant, ['gene'], 'left').join(gene_top_locus_variant, ['gene'], 'left')
+    top_locus_variant = gene_top_locus_variant \
+        .withColumn("top_locus_variant_coding", (col('impact') == 'HIGH') | (col('impact') == 'MODERATE'))\
+        .join(variants_nearest_gene, ['varId'], 'left') \
+        .withColumnRenamed('varId', 'varId_locus_top').withColumnRenamed('pValue', 'pValue_locus_top')\
+        .withColumn("top_locus_variant_nearest", col('gene') == col('nearest'))
+    inspect_df(top_locus_variant, "top locus variant")
+    genes_joined = \
+        genes.join(gene_top_region_variant.select('gene', 'varId_region_top', 'pValue_region_top'), ['gene'], 'left') \
+            .join(top_locus_variant.select('gene', 'varId_locus_top', 'pValue_locus_top',
+                                           'top_locus_variant_coding', 'top_locus_variant_nearest'),
+                  ['gene'], 'left') \
+            .withColumnRenamed('chromosome_gene', 'chromosome')
     inspect_df(genes_joined, "genes joined")
     genes_bf = \
         genes_joined.withColumn('bf_common',
                                 when(genes_joined.top_locus_variant_coding.isNotNull() &
                                      genes_joined.top_locus_variant_coding, 350)
                                 .otherwise(when(genes_joined.top_locus_variant_nearest.isNotNull() &
-                                           genes_joined.top_locus_variant_nearest, 45)
+                                                genes_joined.top_locus_variant_nearest, 45)
                                            .otherwise(when(genes_joined.varId_locus_top.isNotNull(), 20)
                                                       .otherwise(when(genes_joined.varId_region_top.isNotNull(), 3)
                                                                  .otherwise(1)))))
