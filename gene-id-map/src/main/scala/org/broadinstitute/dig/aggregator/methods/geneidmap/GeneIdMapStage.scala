@@ -1,7 +1,7 @@
 package org.broadinstitute.dig.aggregator.methods.geneidmap
 
 import org.broadinstitute.dig.aggregator.core.{Context, Input, Outputs, Stage}
-import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
+import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job, ReleaseLabel}
 
 /** This is a stage in your method.
   *
@@ -19,18 +19,24 @@ import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
   */
 class GeneIdMapStage(implicit context: Context) extends Stage {
 
-  val genesDir: String = "genes/GRCh37/"
-  val geneIdsMapDir    = "out/geneidmap/"
+  val genesDir: String          = "genes/GRCh37/"
+  val variantEffectsDir: String = "out/varianteffect/effects/"
+  val geneIdsMapDir             = "out/geneidmap/"
 
-  val genes: Input.Source = Input.Source.Dataset(genesDir)
+  val genes: Input.Source          = Input.Source.Dataset(genesDir)
+  val variantEffects: Input.Source = Input.Source.Dataset(variantEffectsDir)
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(genes)
+  override val sources: Seq[Input.Source] = Seq(genes, variantEffects)
 
   /* Define settings for the cluster to run the job.
    */
   override val cluster: ClusterDef = {
-    super.cluster.copy(instances = 3)
+    super.cluster.copy(
+      instances = 3,
+      bootstrapScripts = Seq(new BootstrapScript(resourceUri("gene-id-map-bootstrap.sh"))),
+      releaseLabel = ReleaseLabel("emr-6.7.0")
+    )
   }
 
   /** Map inputs to outputs. */
@@ -49,6 +55,8 @@ class GeneIdMapStage(implicit context: Context) extends Stage {
         script,
         "--genes-dir",
         bucket.s3UriOf(genesDir).toString,
+        "--variant-effects-dir",
+        bucket.s3UriOf(variantEffectsDir).toString,
         "--map-dir",
         bucket.s3UriOf(geneIdsMapDir).toString
       )
