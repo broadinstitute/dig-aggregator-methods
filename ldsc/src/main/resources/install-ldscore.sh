@@ -31,16 +31,16 @@ sudo rm hapmap3_snps.tgz
 # install dependencies
 sudo yum install -y python3-devel
 sudo yum install -y bzip2-devel
-sudo pip3 install -U bitarray
-sudo pip3 install -U boto3
-sudo pip3 install -U sqlalchemy
-sudo pip3 install -U pymysql
-sudo pip3 install -U Cython
-sudo pip3 install -U pybind11
-sudo pip3 install -U pythran
-sudo pip3 install -U scipy
-sudo pip3 install -U pandas
-sudo pip3 install -U pybedtools
+sudo pip3.8 install -U bitarray
+sudo pip3.8 install -U boto3
+sudo pip3.8 install -U sqlalchemy
+sudo pip3.8 install -U pymysql
+sudo pip3.8 install -U Cython
+sudo pip3.8 install -U pybind11
+sudo pip3.8 install -U pythran
+sudo pip3.8 install -U scipy
+sudo pip3.8 install -U pandas
+sudo pip3.8 install -U pybedtools
 
 # install BEDTools
 sudo wget https://github.com/arq5x/bedtools2/releases/download/v2.30.0/bedtools-2.30.0.tar.gz

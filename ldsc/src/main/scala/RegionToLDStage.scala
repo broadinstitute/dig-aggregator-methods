@@ -3,7 +3,7 @@ package org.broadinstitute.dig.aggregator.methods.ldsc
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws.emr._
 
-class RegionToAnnotStage(implicit context: Context) extends Stage {
+class RegionToLDStage(implicit context: Context) extends Stage {
 
   val partitions: Seq[String] = Seq()
   val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
@@ -29,7 +29,7 @@ class RegionToAnnotStage(implicit context: Context) extends Stage {
     * BED files that can then be read by GREGOR.
     */
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("regionsToAnnot.py"), s"--sub-region=$subRegion", s"--region-name=$output"))
+    new Job(Job.Script(resourceUri("regionsToLD.py"), s"--sub-region=$subRegion", s"--region-name=$output"))
   }
 
   /** Before the jobs actually run, perform this operation.
