@@ -21,7 +21,8 @@ class GeneIdMapStage(implicit context: Context) extends Stage {
 
   val genesDir: String          = "genes/GRCh37/"
   val variantEffectsDir: String = "out/varianteffect/effects/"
-  val geneIdsMapDir             = "out/geneidmap/"
+  val genesOutDir               = "out/geneidmap/genes/"
+  val geneIdsMapDir             = "out/geneidmap/map/"
 
   val genes: Input.Source          = Input.Source.Dataset(genesDir)
   val variantEffects: Input.Source = Input.Source.Dataset(variantEffectsDir)
@@ -57,6 +58,8 @@ class GeneIdMapStage(implicit context: Context) extends Stage {
         bucket.s3UriOf(genesDir).toString,
         "--variant-effects-dir",
         bucket.s3UriOf(variantEffectsDir).toString,
+        "--genes-out-dir",
+        bucket.s3UriOf(genesOutDir).toString,
         "--map-dir",
         bucket.s3UriOf(geneIdsMapDir).toString
       )
