@@ -82,7 +82,7 @@ def main():
     inspect_df(cache, "cache")
     gene_gwas_cache = gene_gwas.join(cache, ['varId'], 'left')
     significant_by_gene = Window.partitionBy("gene").orderBy(col("pValue"))
-    is_in_coding = (col('ensembl') == col('geneId')) & (col('impact') == 'HIGH') | (col('impact') == 'MODERATE')
+    is_in_coding = (col('ensembl') == col('geneId')) & ((col('impact') == 'HIGH') | (col('impact') == 'MODERATE'))
     gene_causal = gene_gwas_cache.withColumn("row", row_number().over(significant_by_gene)) \
         .filter(col("row") == 1).drop("row") \
         .withColumnRenamed('varId', 'varId_causal').withColumnRenamed('pValue', 'pValue_causal') \
