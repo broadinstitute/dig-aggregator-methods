@@ -48,7 +48,7 @@ def main():
     effects_cache_symbol = \
         spark.read.json(variant_effects_glob).select('id', 'nearest')\
             .withColumnRenamed('id', 'varId').withColumnRenamed('nearest', 'nearest_list')\
-            .withColumn('nearest_symbol', col('nearest_list').getItem(0))
+            .withColumn('nearest_symbol', col('nearest_list').getItem(0)).drop('nearest_list')
     inspect_df(effects_cache_symbol, "variant effects cache")
     gene_ids_map = spark.read.json(gene_ids_map_glob).select("symbol", "ensembl")\
         .withColumnRenamed("symbol", "nearest_symbol").withColumnRenamed("ensembl", "nearest_ensembl")

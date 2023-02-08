@@ -2,7 +2,7 @@ import argparse
 from datetime import datetime
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import col, row_number, when
+from pyspark.sql.functions import col, row_number, when, lit
 from pyspark.sql.window import Window
 
 
@@ -76,23 +76,23 @@ def main():
                         (genes.end + padding >= variants_gwas.position)
     gene_gwas = \
         genes.join(variants_gwas.alias('variants'), variant_in_region, "inner") \
-            .select('varId', 'gene', 'pValue')
+            .select('varId', 'gene', 'pValue', 'ensembl')
     inspect_df(gene_gwas, "joined genes and variants")
     cache = spark.read.json(cache_glob).select('varId', 'impact', 'geneId', 'nearest_ensembl')
     inspect_df(cache, "cache")
     gene_gwas_cache = gene_gwas.join(cache, ['varId'], 'left')
     significant_by_gene = Window.partitionBy("gene").orderBy(col("pValue"))
-    is_coding = (col('impact') == 'HIGH') | (col('impact') == 'MODERATE')
+    is_in_coding = (col('ensembl') == col('geneId')) & (col('impact') == 'HIGH') | (col('impact') == 'MODERATE')
     gene_causal = gene_gwas_cache.withColumn("row", row_number().over(significant_by_gene)) \
         .filter(col("row") == 1).drop("row") \
         .withColumnRenamed('varId', 'varId_causal').withColumnRenamed('pValue', 'pValue_causal') \
-        .withColumn('causal_coding', is_coding)\
-        .withColumn('causal_nearest', col('ensembl') == col('geneId'))\
-        .withColumn('causal_gwas', True)
+        .withColumn('causal_coding', is_in_coding)\
+        .withColumn('causal_nearest', col('ensembl') == col('geneId')).drop('ensembl')\
+        .withColumn('causal_gwas', lit(True))
     inspect_df(gene_causal, "genes with causal variant")
     gene_coding = \
-        gene_gwas_cache.filter((col('ensemble') == col('geneId')) & is_coding).select('gene').distinct() \
-            .withColumn('locus_gaws_coding', True)
+        gene_gwas_cache.filter(is_in_coding).select('gene').distinct() \
+            .withColumn('locus_gaws_coding', lit(True))
     genes_joined = genes.join(gene_causal, ['gene'], 'left').join(gene_coding, ['gene'], 'left')
     inspect_df(genes_joined, "genes joined")
     genes_bf = \

@@ -15,6 +15,7 @@ def symbol_to_ensembl(symbol: str) -> str:
     print("Mapped symbol", symbol, "to Ensembl id ", ensembl)
     return ensembl
 
+
 def now_str():
     return str(datetime.now())
 
@@ -65,10 +66,10 @@ def main():
     genes_joined = genes_symbol.join(genes_ensembl, ["chromosome", "start", "end"])
     genes_joined.write.mode("overwrite").json(genes_out_dir)
     symbols = \
-        spark.read.json(variant_effects_glob).select("nearest").withColumn("symbol", col("nearest").getItem(0)) \
-            .distinct()
+        spark.read.json(variant_effects_glob).select("nearest") \
+            .withColumn("symbol", col("nearest").getItem(0)).select("symbol").distinct()
     inspect_df(symbols, "Nearest from effects")
-    gene_id_map = symbols.withColumn("ensemble", symbol_to_ensembl(symbols.symbol))
+    gene_id_map = symbols.withColumn("ensembl", symbol_to_ensembl(symbols.symbol))
     inspect_df(gene_id_map, "gene id map")
     gene_id_map.write.mode("overwrite").json(map_dir)
     print('Done with work, therefore stopping Spark')
