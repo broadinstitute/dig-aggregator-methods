@@ -47,8 +47,7 @@ def convert_all_to_bed():
 
 
 def make_annot(params):
-    file, ancestry, CHR = params
-    region_name = re.findall('.*/([^/]*).csv', file)[0]
+    region_name, ancestry, CHR = params
     if not os.path.exists(f'./{ancestry}/{region_name}'):
         os.mkdir(f'./{ancestry}/{region_name}')
     print(f'Making annot for {region_name}, ancestry: {ancestry}, chromosome: {CHR}')
@@ -58,13 +57,11 @@ def make_annot(params):
         '--bimfile', f'{g1000_files}/{ancestry}/chr{CHR}.bim',
         '--annot-file', f'./{ancestry}/{region_name}/{region_name}.{CHR}.annot.gz'
     ])
-    return region_name
 
 
-def make_all_annot(ancestry, CHR):
+def make_all_annot(region_names, ancestry, CHR):
     with Pool(all_processes) as p:
-        region_names = p.map(make_annot, [(file, ancestry, CHR) for file in glob.glob('./data/*/*.csv')])
-    return region_names
+        p.map(make_annot, [(region_name, ancestry, CHR) for region_name in region_names])
 
 
 def combine_CHR_annot(params):
@@ -84,7 +81,7 @@ def combine_CHR_annot(params):
 
 def combine_all_annot(ancestry, region_names):
     with Pool(all_processes) as p:
-        p.map(combine_CHR_annot, [(region_names[CHR], ancestry, CHR) for CHR in range(1, 23)])
+        p.map(combine_CHR_annot, [(region_names, ancestry, CHR) for CHR in range(1, 23)])
 
 
 def make_ld(args):
@@ -151,9 +148,9 @@ def upload_and_remove_files(sub_region, ancestry):
 
 
 def make_ancestry_annot(ancestry):
-    region_names = {}
+    region_names = [re.findall('.*/([^/]*).csv', file)[0] for file in glob.glob('./data/*/*.csv')]
     for CHR in range(1, 23):
-        region_names[CHR] = make_all_annot(ancestry, CHR)
+        make_all_annot(region_names, ancestry, CHR)
     combine_all_annot(ancestry, region_names)
 
 
