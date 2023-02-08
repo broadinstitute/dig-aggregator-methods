@@ -22,7 +22,7 @@ s3_out = 's3://psmadbec-test'
 
 CPUs = 16
 all_processes = CPUs
-ld_processes = 1
+ld_processes = 2
 
 
 def get_all_region_file(sub_region):
