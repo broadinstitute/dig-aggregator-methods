@@ -19,7 +19,7 @@ class RegionToLDStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 16),
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ldscore.sh"))),
     releaseLabel = ReleaseLabel("emr-6.7.0")
   )
