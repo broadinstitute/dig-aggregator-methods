@@ -67,7 +67,8 @@ def make_all_annot(ancestry, CHR):
     return region_names
 
 
-def combine_CHR_annot(region_names, ancestry, CHR):
+def combine_CHR_annot(params):
+    region_names, ancestry, CHR = params
     with gzip.open(f'./{ancestry}.combined.{CHR}.annot.gz', 'w') as f_out:
         files = [gzip.open(f'./{ancestry}/{region_name}/{region_name}.{CHR}.annot.gz', 'r') for region_name in region_names]
         for file in files:
