@@ -53,7 +53,7 @@ def make_annot(params):
         os.mkdir(f'./{ancestry}/{region_name}')
     print(f'Making annot for {region_name}, ancestry: {ancestry}, chromosome: {CHR}')
     subprocess.check_call([
-        'python3.8', f'{ldsc_files}/make_annot.py',
+        'python3', f'{ldsc_files}/make_annot.py',
         '--bed-file', f'data/{region_name}/{region_name}.bed',
         '--bimfile', f'{g1000_files}/{ancestry}/chr{CHR}.bim',
         '--annot-file', f'./{ancestry}/{region_name}/{region_name}.{CHR}.annot.gz'
@@ -90,7 +90,7 @@ def make_ld(args):
     ancestry, CHR = args
     print(f'Making ld annot for ancestry: {ancestry}, chromosome: {CHR}')
     subprocess.check_call([
-        'python3.8', f'{ldsc_files}/ldsc.py',
+        'python3', f'{ldsc_files}/ldsc.py',
         '--bfile', f'{g1000_files}/{ancestry}/chr{CHR}',
         '--ld-wind-cm', '1',
         '--annot', f'./{ancestry}.combined.{CHR}.annot.gz',
