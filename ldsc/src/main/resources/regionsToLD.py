@@ -20,7 +20,9 @@ snp_files = f'{downloaded_files}/snps'
 s3_in = 's3://dig-analysis-data'
 s3_out = 's3://psmadbec-test'
 
-processes = 9
+CPUs = 16
+all_processes = CPUs
+ld_processes = 1
 
 
 def get_all_region_file(sub_region):
@@ -40,7 +42,7 @@ def convert_file_to_bed(file):
 
 
 def convert_all_to_bed():
-    with Pool(processes) as p:
+    with Pool(all_processes) as p:
         p.map(convert_file_to_bed, glob.glob('./data/*/*.csv'))
 
 
@@ -60,12 +62,12 @@ def make_annot(params):
 
 
 def make_all_annot(ancestry, CHR):
-    with Pool(processes) as p:
+    with Pool(all_processes) as p:
         region_names = p.map(make_annot, [(file, ancestry, CHR) for file in glob.glob('./data/*/*.csv')])
-    combine_all_annot(region_names, ancestry, CHR)
+    return region_names
 
 
-def combine_all_annot(region_names, ancestry, CHR):
+def combine_CHR_annot(region_names, ancestry, CHR):
     with gzip.open(f'./{ancestry}.combined.{CHR}.annot.gz', 'w') as f_out:
         files = [gzip.open(f'./{ancestry}/{region_name}/{region_name}.{CHR}.annot.gz', 'r') for region_name in region_names]
         for file in files:
@@ -77,6 +79,11 @@ def combine_all_annot(region_names, ancestry, CHR):
             lines = [file.readline().strip() for file in files]
         for file in files:
             file.close()
+
+
+def combine_all_annot(ancestry, region_names):
+    with Pool(all_processes) as p:
+        p.map(combine_CHR_annot, [(region_names[CHR], ancestry, CHR) for CHR in range(1, 23)])
 
 
 def make_ld(args):
@@ -93,7 +100,6 @@ def make_ld(args):
     ])
     os.remove(f'./{ancestry}.combined.{CHR}.annot.gz')
     os.remove(f'./{ancestry}.combined.{CHR}.log')
-    split_ld(ancestry, CHR)
 
 
 def split_ld_file(args):
@@ -116,7 +122,7 @@ def split_ld(ancestry, CHR):
         region_names = [header[:-2] for header in f_ld.readline().decode().strip().split('\t')[3:]]
 
     print(f'Splitting ld file for ancestry {ancestry} and chromosome {CHR}')
-    with Pool(processes) as p:
+    with Pool(all_processes) as p:
         p.map(split_ld_file, [(i, ancestry, CHR) for i in range(len(region_names))])
 
     os.remove(f'./{ancestry}.combined.{CHR}.l2.ldscore.gz')
@@ -143,13 +149,25 @@ def upload_and_remove_files(sub_region, ancestry):
     shutil.rmtree(f'./{ancestry}')
 
 
+def make_ancestry_annot(ancestry):
+    region_names = {}
+    for CHR in range(1, 23):
+        region_names[CHR] = make_all_annot(ancestry, CHR)
+    combine_all_annot(ancestry, region_names)
+
+
+def make_ancestry_ld(ancestry):
+    with Pool(ld_processes) as p:
+        p.map(make_ld, [(ancestry, CHR) for CHR in range(1, 23)])
+    for CHR in range(1, 23):
+        split_ld(ancestry, CHR)
+
+
 def run_ancestry(sub_region, ancestry):
     if not os.path.exists(f'./{ancestry}'):
         os.mkdir(f'./{ancestry}')
-    for CHR in range(1, 23):
-        make_all_annot(ancestry, CHR)
-    with Pool(4) as p:
-        p.map(make_ld, [(ancestry, CHR) for CHR in range(1, 23)])
+    make_ancestry_annot(ancestry)
+    make_ancestry_ld(ancestry)
     #upload_and_remove_files(sub_region, ancestry)
 
 

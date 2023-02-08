@@ -16,32 +16,32 @@ class RegionToLDStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
+    masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ldscore.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0"),
-    stepConcurrency = 5
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case mergedFiles(region) => Outputs.Named(region)
+    case mergedFiles(_) => Outputs.Named("regionToLD")
   }
 
   /** The partition names are combined together across datasets into single
     * BED files that can then be read by GREGOR.
     */
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("regionsToLD.py"), s"--sub-region=$subRegion", s"--region-name=$output"))
+    new Job(Job.Script(resourceUri("regionsToLD.py"), s"--sub-region=$subRegion"))
   }
 
-  /** Before the jobs actually run, perform this operation.
-    */
-  override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/ldsc/regions/${subRegion}/annot/${output}/")
-  }
-
-  /** Update the success flag of the merged regions.
-    */
-  override def success(output: String): Unit = {
-    context.s3.touch(s"out/ldsc/regions/${subRegion}/annot/${output}/_SUCCESS")
-    ()
-  }
+//  /** Before the jobs actually run, perform this operation.
+//    */
+//  override def prepareJob(output: String): Unit = {
+//    context.s3.rm(s"out/ldsc/regions/${subRegion}/annot/${output}/")
+//  }
+//
+//  /** Update the success flag of the merged regions.
+//    */
+//  override def success(output: String): Unit = {
+//    context.s3.touch(s"out/ldsc/regions/${subRegion}/annot/${output}/_SUCCESS")
+//    ()
+//  }
 }
