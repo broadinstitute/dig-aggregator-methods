@@ -29,10 +29,14 @@ sudo mkdir -p /mnt/var
 sudo mkdir -p /mnt/var/ldsc
 cd /mnt/var/ldsc
 
-sudo mkdir -p ./g1000/EUR
-sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/g1000/g1000_chr_EUR.zip ./
-sudo unzip g1000_chr_EUR.zip -d ./g1000/EUR/
-sudo rm g1000_chr_EUR.zip
+sudo mkdir -p ./g1000
+for ANCESTRY in AFR AMR EAS EUR SAS
+do
+  sudo mkdir -p ./g1000/$ANCESTRY
+  sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/g1000/g1000_chr_$ANCESTRY.zip ./
+  sudo unzip g1000_chr_$ANCESTRY.zip -d ./g1000/$ANCESTRY/
+  sudo rm g1000_chr_$ANCESTRY.zip
+done
 
 sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/ldsc-python-3-2022-09-06.zip ./
 sudo unzip ldsc-python-3-2022-09-06.zip -d ./ldsc/

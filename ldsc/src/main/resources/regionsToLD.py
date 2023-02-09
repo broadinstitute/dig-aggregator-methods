@@ -8,8 +8,7 @@ import re
 import shutil
 import subprocess
 
-import numpy as np
-print(np.__version__)
+os.environ['MKL_NUM_THREADS'] = '16'
 
 
 # g1000 ancestries to be run
@@ -145,7 +144,7 @@ def split_m(ancestry, CHR, region_names):
 
 
 def upload_and_remove_files(sub_region, ancestry):
-    s3_dir = f'{s3_out}/out/ldsc/regions/{sub_region}/ld_score/'
+    s3_dir = f'{s3_out}/out/ldsc/regions/{sub_region}/ld_score/ancestry={ancestry}/'
     subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}/', s3_dir, '--recursive'])
     shutil.rmtree(f'./{ancestry}')
 
