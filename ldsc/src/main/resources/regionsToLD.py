@@ -8,9 +8,6 @@ import re
 import shutil
 import subprocess
 
-print(os.environ['MKL_NUM_THREADS'])
-os.environ['MKL_NUM_THREADS'] = '16'
-
 
 # g1000 ancestries to be run
 ancestries = ['EUR']
