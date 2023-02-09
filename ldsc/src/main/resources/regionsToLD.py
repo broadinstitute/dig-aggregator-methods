@@ -8,6 +8,9 @@ import re
 import shutil
 import subprocess
 
+import numpy as np
+print(np.__version__)
+
 
 # g1000 ancestries to be run
 ancestries = ['EUR']
