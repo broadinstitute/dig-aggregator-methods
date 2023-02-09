@@ -60,4 +60,4 @@ do
   sudo rm g1000_chr_$ANCESTRY.zip
 done
 
-export MKL_NUM_THREADS = '16'
+sudo export MKL_NUM_THREADS = '16'
