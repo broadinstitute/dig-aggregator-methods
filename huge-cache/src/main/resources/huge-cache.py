@@ -42,7 +42,7 @@ def main():
     print('Variant effects data: ', variant_effects_glob)
     print('Gene ids map data: ', gene_ids_map_glob)
     spark = SparkSession.builder.appName('huge-cache').getOrCreate()
-    cqs_cache = spark.read.json(variant_cqs_glob).select('varId', 'impact', 'geneId')
+    cqs_cache = spark.read.json(variant_cqs_glob).select('varId', 'impact', 'geneId').filter(col("pick") == 1)
     inspect_df(cqs_cache, "CQS cache")
     print('Now reading variant effects.')
     effects_cache_symbol = \
