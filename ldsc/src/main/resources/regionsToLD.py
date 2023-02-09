@@ -8,6 +8,7 @@ import re
 import shutil
 import subprocess
 
+print(os.environ['MKL_NUM_THREADS'])
 os.environ['MKL_NUM_THREADS'] = '16'
 
 
