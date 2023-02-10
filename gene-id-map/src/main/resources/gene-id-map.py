@@ -10,9 +10,11 @@ from pyspark.sql.types import StringType
 @udf(returnType=StringType())
 def symbol_to_ensembl(symbol: str) -> str:
     cmd = ('eugene', 'util', 'symbol-to-gene-id', '-s', symbol)
-    process = subprocess.run(cmd, capture_output=True, text=True)
-    ensembl = process.stdout.strip()
-    print("Mapped symbol", symbol, "to Ensembl id ", ensembl)
+    ensembl = None
+    while not ensembl:
+        process = subprocess.run(cmd, capture_output=True, text=True)
+        ensembl = process.stdout.strip()
+        print("Mapped symbol", symbol, "to Ensembl id ", ensembl)
     return ensembl
 
 
