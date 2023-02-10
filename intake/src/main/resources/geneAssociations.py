@@ -43,8 +43,8 @@ def get_lambda(output):
 def get_converted_phenotype_cauchy(ancestry, cauchy_file):
     cauchy_output = {}
     with gzip.open(cauchy_file, 'r') as f:
-        header = f.readline().decode()
-        line = f.readline().decode()
+        header = f.readline().decode().strip()
+        line = f.readline().decode().strip()
         while len(line) > 0:
             line_dict = dict(zip(header.split('\t'), line.split('\t')))
             if line_dict['most_sig_beta'] != 'nan':
@@ -58,20 +58,25 @@ def get_converted_phenotype_cauchy(ancestry, cauchy_file):
                     'gene': line_dict['gene'],
                     'pValue': float(line_dict['P_cauchy']),
                     'beta': float(line_dict['most_sig_beta']),
+                    'cases': float(line_dict['n.cases_Meta']),
+                    'controls': float(line_dict['n.controls_Meta']),
+                    'n': float(line_dict['effective_sample_size']),
                     'masks': []
                 }
-            line = f.readline().decode()
+            line = f.readline().decode().strip()
     return cauchy_output
 
 
 def get_full_phenotype_output(all_file, cauchy_output):
     with gzip.open(all_file, 'r') as f:
-        header = f.readline().decode()
-        line = f.readline().decode()
+        header = f.readline().decode().strip()
+        line = f.readline().decode().strip()
         while len(line) > 0:
             line_dict = dict(zip(header.split('\t'), line.split('\t')))
             mask = {
                 'mask': convert_mask[line_dict['mask']],
+                'cases': float(line_dict['n.cases_Meta']),
+                'controls': float(line_dict['n.controls_Meta']),
                 'n': float(line_dict['effective_sample_size']),
                 'pValue': float(line_dict['pValue']),
                 'beta': float(line_dict['beta']),
@@ -79,7 +84,7 @@ def get_full_phenotype_output(all_file, cauchy_output):
                 'stdErr': float(line_dict['stdErr']) if line_dict['stdErr'] != 'NA' else None
             }
             cauchy_output[line_dict['gene']]['masks'].append(mask)
-            line = f.readline().decode()
+            line = f.readline().decode().strip()
     return cauchy_output
 
 
