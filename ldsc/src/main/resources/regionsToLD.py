@@ -10,7 +10,7 @@ import subprocess
 
 
 # g1000 ancestries to be run
-ancestries = ['EAS', 'SAS']
+ancestries = ['AFR', 'AMR', 'EAS', 'EUR', 'SAS']
 
 downloaded_files = '/mnt/var/ldsc'
 ldsc_files = f'{downloaded_files}/ldsc'
@@ -18,7 +18,7 @@ g1000_files = f'{downloaded_files}/g1000'
 snp_files = f'{downloaded_files}/snps'
 
 s3_in = 's3://dig-analysis-data'
-s3_out = 's3://psmadbec-test'
+s3_out = 's3://dig-analysis-data'
 
 CPUs = 16
 all_processes = CPUs
