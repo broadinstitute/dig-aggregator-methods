@@ -87,7 +87,7 @@ def main():
         .filter(col("row") == 1).drop("row") \
         .withColumnRenamed('varId', 'varId_causal').withColumnRenamed('pValue', 'pValue_causal') \
         .withColumn('causal_coding', is_in_coding)\
-        .withColumn('causal_nearest', col('ensembl') == col('geneId')).drop('ensembl')\
+        .withColumn('causal_nearest', col('ensembl') == col('nearest_ensembl')).drop('ensembl')\
         .withColumn('causal_gwas', lit(True))
     inspect_df(gene_causal, "genes with causal variant")
     gene_coding = \
