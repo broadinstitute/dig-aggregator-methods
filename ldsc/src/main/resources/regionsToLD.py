@@ -10,7 +10,7 @@ import subprocess
 
 
 # g1000 ancestries to be run
-ancestries = ['EUR']
+ancestries = ['EAS', 'SAS']
 
 downloaded_files = '/mnt/var/ldsc'
 ldsc_files = f'{downloaded_files}/ldsc'
@@ -22,7 +22,7 @@ s3_out = 's3://psmadbec-test'
 
 CPUs = 16
 all_processes = CPUs
-ld_processes = 2
+ld_processes = 1
 
 
 def get_all_region_file(sub_region):
@@ -166,7 +166,7 @@ def run_ancestry(sub_region, ancestry):
         os.mkdir(f'./{ancestry}')
     make_ancestry_annot(ancestry)
     make_ancestry_ld(ancestry)
-    #upload_and_remove_files(sub_region, ancestry)
+    upload_and_remove_files(sub_region, ancestry)
 
 
 def run(sub_region):
