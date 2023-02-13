@@ -2,21 +2,16 @@ import argparse
 from pyspark.sql import SparkSession, DataFrame
 from datetime import datetime
 import subprocess
-
-from pyspark.sql.functions import col, udf
+from pyspark.sql.functions import col, udf, when
 from pyspark.sql.types import StringType
 
 
 @udf(returnType=StringType())
 def symbol_to_ensembl(symbol: str) -> str:
     cmd = ('eugene', 'util', 'symbol-to-gene-id', '-s', symbol)
-    ensembl = None
-    count = 0
-    while (not ensembl) and (count < 20):
-        count += 1
-        process = subprocess.run(cmd, capture_output=True, text=True)
-        ensembl = process.stdout.strip()
-        print("Mapped symbol", symbol, "to Ensembl id ", ensembl, "after", count, "attempts.")
+    process = subprocess.run(cmd, capture_output=True, text=True)
+    ensembl = process.stdout.strip()
+    print("Mapped symbol", symbol, "to Ensembl id ", ensembl)
     return ensembl
 
 
@@ -75,6 +70,17 @@ def main():
     inspect_df(symbols, "Nearest from effects")
     gene_id_map = symbols.withColumn("ensembl", symbol_to_ensembl(symbols.symbol))
     inspect_df(gene_id_map, "gene id map")
+    count = 1
+    while count > 0:
+        gene_id_map_missing = gene_id_map.filter(col("ensembl") == "")
+        inspect_df(gene_id_map_missing, "gene id map missing")
+        count = gene_id_map_missing.count()
+        gene_id_map = \
+            gene_id_map.withColumn("ensembl_new",
+                                   when(gene_id_map.ensembl == "", symbol_to_ensembl(gene_id_map.symbol))
+                                   .otherwise(gene_id_map.ensembl)) \
+                .drop("ensembl").withColumnRenamed("ensembl_new", "ensembl")
+
     gene_id_map.write.mode("overwrite").json(map_dir)
     print('Done with work, therefore stopping Spark')
     spark.stop()
