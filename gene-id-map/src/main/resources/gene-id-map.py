@@ -11,10 +11,12 @@ from pyspark.sql.types import StringType
 def symbol_to_ensembl(symbol: str) -> str:
     cmd = ('eugene', 'util', 'symbol-to-gene-id', '-s', symbol)
     ensembl = None
-    while not ensembl:
+    count = 0
+    while (not ensembl) and (count < 20):
+        count += 1
         process = subprocess.run(cmd, capture_output=True, text=True)
         ensembl = process.stdout.strip()
-        print("Mapped symbol", symbol, "to Ensembl id ", ensembl)
+        print("Mapped symbol", symbol, "to Ensembl id ", ensembl, "after", count, "attempts.")
     return ensembl
 
 
