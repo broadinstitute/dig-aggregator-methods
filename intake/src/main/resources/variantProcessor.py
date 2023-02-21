@@ -43,7 +43,8 @@ class BioIndexDB:
 
     def get_is_dichotomous(self, phenotype_name):
         with self.get_engine().connect() as connection:
-            rows = connection.execute(f'SELECT name, dichotomous FROM Phenotypes WHERE name = \"{phenotype_name}\"').all()
+            query = sqlalchemy.text(f'SELECT name, dichotomous FROM Phenotypes WHERE name = \"{phenotype_name}\"')
+            rows = connection.execute(query).all()
             if len(rows) != 1:
                 raise Exception(f"Impossible number of rows returned ({len(rows)}) for phenotype {phenotype_name}."
                                 f"Check the database and try again.")
@@ -51,7 +52,8 @@ class BioIndexDB:
 
     def get_dataset_data(self, dataset_name):
         with self.get_engine().connect() as connection:
-            rows = connection.execute(f'SELECT name, ancestry FROM Datasets WHERE name = \"{dataset_name}\"').all()
+            query = sqlalchemy.text(f'SELECT name, ancestry FROM Datasets WHERE name = \"{dataset_name}\"')
+            rows = connection.execute(query).all()
         if len(rows) != 1:
             raise Exception(f"Impossible number of rows returned ({len(rows)}) for dataset {dataset_name}. "
                             f"Check the database and try again.")
@@ -332,7 +334,7 @@ class VarId:
 
 
 class Line:
-    null_link = ['', 'null', 'na', 'NaN']
+    null_link = ['', 'null', 'na', 'NaN', 'NA']
 
     def __init__(self, var_id, formatted_line, col_map, utils):
         self.var_id = var_id

@@ -13,7 +13,8 @@ class VariantProcessingStage(implicit context: Context) extends Stage {
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("processor_bootstrap.sh"))),
-    instances = 1
+    instances = 1,
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   val variants: Input.Source = Input.Source.Dataset("variants_raw/*/*/*/")

@@ -3,13 +3,13 @@
 LDSC_ROOT=/mnt/var/intake
 
 # install to the root directory
-mkdir -p "$LDSC_ROOT"
+sudo mkdir -p "$LDSC_ROOT"
 cd "$LDSC_ROOT"
 
-aws s3 cp s3://dig-analysis-data/bin/qc/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa ./
-aws s3 cp s3://dig-analysis-data/bin/qc/var_to_af.zip ./
-unzip var_to_af.zip -d ./g1000
-rm var_to_af.zip
+sudo aws s3 cp s3://dig-analysis-data/bin/qc/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa ./
+sudo aws s3 cp s3://dig-analysis-data/bin/qc/var_to_af.zip ./
+sudo unzip var_to_af.zip -d ./g1000
+sudo rm var_to_af.zip
 
 # install dependencies
 sudo yum install -y python3-devel
