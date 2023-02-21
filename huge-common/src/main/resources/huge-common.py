@@ -47,16 +47,12 @@ def main():
     genes_glob = cli_args.genes + files_glob
     variants_glob = cli_args.variants + files_glob
     cache_glob = cli_args.cache + files_glob
-    variant_cqs_glob = cli_args.cqs + files_glob
-    variant_effects_glob = cli_args.effects + files_glob
     padding = cli_args.padding
     out_dir = cli_args.out_dir
     print('Phenotype: ', phenotype)
     print('Genes data with regions: ', genes_glob)
     print('Variant data: ', variants_glob)
     print('Cache data: ', cache_glob)
-    print('Variant CQS data: ', variant_cqs_glob)
-    print('Variant effects data: ', variant_effects_glob)
     print('Padding: ', padding)
     print('Output directory: ', out_dir)
     spark = SparkSession.builder.appName('huge-common').getOrCreate()
