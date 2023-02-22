@@ -9,7 +9,7 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class GeneExpressionStage(implicit context: Context) extends Stage {
-  val geneExpression = Input.Source.Dataset("gene_expression_levels/*/")
+  val geneExpression = Input.Source.Dataset("annotated_regions/gene_expression_levels/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(geneExpression)
