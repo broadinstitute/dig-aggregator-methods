@@ -19,15 +19,15 @@ import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job, Release
   */
 class NearestGeneStage(implicit context: Context) extends Stage {
 
-  val genesDir: String          = "genes/GRCh37/"
-  val variantEffectsDir: String = "out/varianteffect/effects/"
-  val outDir                    = "out/nearestgenes/"
+  val genesDir: String    = "out/geneidmap/genes/"
+  val variantsDir: String = "out/varianteffect/cqs/"
+  val outDir              = "out/nearestgenes/"
 
-  val genes: Input.Source          = Input.Source.Dataset(genesDir)
-  val variantEffects: Input.Source = Input.Source.Dataset(variantEffectsDir)
+  val genes: Input.Source    = Input.Source.Dataset(genesDir)
+  val variants: Input.Source = Input.Source.Dataset(variantsDir)
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(genes, variantEffects)
+  override val sources: Seq[Input.Source] = Seq(genes, variants)
 
   /* Define settings for the cluster to run the job.
    */
@@ -54,10 +54,10 @@ class NearestGeneStage(implicit context: Context) extends Stage {
         script,
         "--genes-dir",
         bucket.s3UriOf(genesDir).toString,
-        "--variant-effects-dir",
-        bucket.s3UriOf(variantEffectsDir).toString,
+        "--variants-dir",
+        bucket.s3UriOf(variantsDir).toString,
         "--out-dir",
-        bucket.s3UriOf(outDir).toString,
+        bucket.s3UriOf(outDir).toString
       )
     )
   }

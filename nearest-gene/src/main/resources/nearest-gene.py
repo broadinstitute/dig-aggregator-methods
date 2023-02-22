@@ -1,8 +1,8 @@
 import argparse
-from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import SparkSession, DataFrame, Window
 from datetime import datetime
 import subprocess
-from pyspark.sql.functions import col, udf, when
+from pyspark.sql.functions import col, udf, when, row_number
 from pyspark.sql.types import StringType
 
 
@@ -40,55 +40,31 @@ def main():
     print('Hello! The time is now ', now_str())
     print('Now building argument parser')
     arg_parser = argparse.ArgumentParser(prog='gene-id-map.py')
-    arg_parser.add_argument("--genes-dir", help="genes data dir", required=True)
-    arg_parser.add_argument("--variant-effects-dir", help="variant effects data dir", required=True)
+    arg_parser.add_argument("--genes-dir", help="gene data dir", required=True)
+    arg_parser.add_argument("--variants-dir", help="variant data dir", required=True)
     arg_parser.add_argument("--out-dir", help="output dir", required=True)
     print('Now parsing CLI arguments')
     cli_args = arg_parser.parse_args()
     files_glob = 'part-*'
     genes_glob = cli_args.genes_dir + files_glob
-    variant_effects_glob = cli_args.variant_effects_dir + files_glob
+    variants_glob = cli_args.variants_dir + files_glob
     out_dir = cli_args.genes_out_dir
     print('Gene data dir: ', genes_glob)
-    print('Variant effects data dir: ', variant_effects_glob)
+    print('Variant effects data dir: ', variants_glob)
     print('Output dir: ', out_dir)
-    spark = SparkSession.builder.appName('nearestgene').getOrCreate()
-    # genes = spark.read.json(genes_glob).select("chromosome", "start", "end", "name", "source")
-    # genes_symbol = \
-    #     genes.filter(genes.source == "symbol") \
-    #         .select("chromosome", "start", "end", "name") \
-    #         .withColumnRenamed("name", "symbol")
-    # genes_ensembl = \
-    #     genes.filter(genes.source == "ensembl") \
-    #         .select("chromosome", "start", "end", "name") \
-    #         .withColumnRenamed("name", "ensembl")
-    # genes_joined = genes_symbol.join(genes_ensembl, ["chromosome", "start", "end"])
-    # genes_joined.write.mode("overwrite").json(genes_out_dir)
-    symbols = \
-        spark.read.json(variant_effects_glob).select("nearest") \
-            .withColumn("symbol", col("nearest").getItem(0)).select("symbol").distinct()
-    inspect_df(symbols, "Nearest from effects")
-    gene_id_map = symbols.withColumn("ensembl", symbol_to_ensembl(symbols.symbol)).persist()
-    inspect_df(gene_id_map, "gene id map")
-    count = 1
-    print("Entering loop")
-    while count > 0:
-        gene_id_map_missing = gene_id_map.filter(col("ensembl") == "").persist()
-        inspect_df(gene_id_map_missing, "gene id map missing")
-        count = gene_id_map_missing.count()
-        print("count is", count, "and time is", now_str())
-        gene_id_map_missing.unpersist()
-        gene_id_map_new = \
-            gene_id_map.withColumn("ensembl_new",
-                                   when(gene_id_map.ensembl == "", symbol_to_ensembl(gene_id_map.symbol))
-                                   .otherwise(gene_id_map.ensembl)) \
-                .drop("ensembl").withColumnRenamed("ensembl_new", "ensembl").persist()
-        gene_id_map.unpersist()
-        gene_id_map = gene_id_map_new
-
-    inspect_df(gene_id_map, "gene id map")
-    print("Exited the loop, now writing gene id map.")
-    gene_id_map.write.mode("overwrite").json(map_dir)
+    spark = SparkSession.builder.appName('nearest_gene').getOrCreate()
+    genes = spark.read.json(genes_glob).select("chromosome", "start", "end", "ensembl")
+    inspect_df(genes, "genes")
+    variants = spark.read.json(variants_glob).select("varId", "chromosome", "position")
+    inspect_df(variants, "variants")
+    joined = genes.join(variants, ["chromosome"])
+    inspect_df(joined)
+    distances = joined.withColumn("distance", max(col("start") - col("position"), col("position") - col("end"), 0))
+    inspect_df(distances, "distance")
+    distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance"))
+    nearest = distances.withColumn("row", row_number().over(distances_by_gene)).filter(col("row") == 1).drop("row")
+    inspect_df(nearest, "nearest")
+    nearest.write.mode('overwrite').json(out_dir)
     print('Done with work, therefore stopping Spark')
     spark.stop()
     print('Spark stopped')
