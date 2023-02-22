@@ -25,6 +25,7 @@ object BioIndex extends Method {
     addStage(new GenesStage)
     addStage(new GeneVariantsStage)
     addStage(new GeneLinksStage)
+    addStage(new GeneExpressionStage)
     addStage(new VariantLinksStage)
     addStage(new VariantsStage)
     addStage(new AnnotatedRegionsStage)
