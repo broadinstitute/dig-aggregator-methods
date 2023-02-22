@@ -7,7 +7,7 @@ def main():
     """
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = 's3://pkudtarkar-test/gene_expression_levels/'
+    srcdir = 's3://pkudtarkar-test/gene_expression_levels/*'
     outdir = 's3://pkudtarkar-test/regions/gene_expression'
 
     # load all variant prediciton regions
