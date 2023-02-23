@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import argparse
+import glob
 import os
+import re
 import shutil
 import subprocess
 
@@ -27,6 +29,11 @@ s3_in = 's3://dig-analysis-data'
 s3_out = 's3://dig-analysis-data'
 
 
+def get_all_annot_basenames(ancestry):
+    pattern = f'{annot_files}/ancestry={ancestry_map[ancestry]}/*/*.annot.gz'
+    return [re.findall('.*/([^/]*).annot.gz', file)[0] for file in glob.glob(pattern)]
+
+
 def make_path(split_path):
     for i in range(len(split_path)):
         path = './{}'.format('/'.join(split_path[:(i+1)]))
@@ -40,31 +47,32 @@ def get_sumstats(ancestry, phenotype):
     subprocess.check_call(['aws', 's3', 'cp', file, f'./data/sumstats/{phenotype}/ancestry={ancestry}/'])
 
 
-def partitioned_heritability(ancestry, phenotype, annot):
-    print(f'Partitioned heritability for ancestry: {ancestry}, phenotype: {phenotype}, annot: {annot}')
+def partitioned_heritability(ancestry, phenotype, annots):
+    print(f'Partitioned heritability for ancestry: {ancestry}, phenotype: {phenotype}, annots: {annots}')
     g1000_ancestry = ancestry_map[ancestry]
-    os.mkdir(f'{ancestry}_{phenotype}_{annot}')
+    annot_str = ','.join([f'{annot_files}/ancestry={g1000_ancestry}/{annot}/{annot}.' for annot in annots])
+    os.mkdir(f'{ancestry}_{phenotype}')
     subprocess.check_call([
         'python3', f'{ldsc_files}/ldsc.py',
         '--h2', f'./data/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz',
-        '--ref-ld-chr', f'{baseline_files}/{g1000_ancestry}/baselineLD.,{annot_files}/ancestry={g1000_ancestry}/{annot}/{annot}.',
+        '--ref-ld-chr', f'{baseline_files}/{g1000_ancestry}/baselineLD.,{annot_str}',
         '--w-ld-chr', f'{weight_files}/{g1000_ancestry}/weights.',
         '--overlap-annot',
         '--frqfile-chr', f'{frq_files}/{g1000_ancestry}/chr.',
-        '--out', f'./{ancestry}_{phenotype}_{annot}/{ancestry}.{phenotype}.{annot}'
+        '--out', f'./{ancestry}_{phenotype}/{ancestry}.{phenotype}'
     ])
 
 
-def upload_and_remove_files(ancestry, phenotype, annot):
-    s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{phenotype}/ancestry={ancestry}/{annot}/'
-    subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}_{phenotype}_{annot}/', s3_dir, '--recursive'])
-    shutil.rmtree(f'./{ancestry}_{phenotype}_{annot}')
+def upload_and_remove_files(ancestry, phenotype):
+    s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{phenotype}/ancestry={ancestry}/'
+    subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}_{phenotype}/', s3_dir, '--recursive'])
+    shutil.rmtree(f'./{ancestry}_{phenotype}')
 
 
-def run(ancestry, phenotype, annot):
+def run(ancestry, phenotype, annots):
     get_sumstats(ancestry, phenotype)
-    partitioned_heritability(ancestry, phenotype, annot)
-    upload_and_remove_files(ancestry, phenotype, annot)
+    partitioned_heritability(ancestry, phenotype, annots)
+    upload_and_remove_files(ancestry, phenotype)
 
 
 def main():
@@ -81,8 +89,8 @@ def main():
     if ancestry not in ancestry_map:
         raise Exception(f'Invalid ancestry ({ancestry}), must be one of {", ".join(ancestry_map.keys())}')
 
-    annot = 'accessible_chromatin___central_nervous_system'
-    run(ancestry, phenotype, annot)
+    annots = get_all_annot_basenames(ancestry)
+    run(ancestry, phenotype, annots)
 
 
 if __name__ == '__main__':
