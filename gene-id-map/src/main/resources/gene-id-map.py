@@ -55,17 +55,17 @@ def main():
     print('Variant effects data dir: ', variant_effects_glob)
     print('Id map output dir: ', map_dir)
     spark = SparkSession.builder.appName('geneidmap').getOrCreate()
-    # genes = spark.read.json(genes_glob).select("chromosome", "start", "end", "name", "source")
-    # genes_symbol = \
-    #     genes.filter(genes.source == "symbol") \
-    #         .select("chromosome", "start", "end", "name") \
-    #         .withColumnRenamed("name", "symbol")
-    # genes_ensembl = \
-    #     genes.filter(genes.source == "ensembl") \
-    #         .select("chromosome", "start", "end", "name") \
-    #         .withColumnRenamed("name", "ensembl")
-    # genes_joined = genes_symbol.join(genes_ensembl, ["chromosome", "start", "end"])
-    # genes_joined.write.mode("overwrite").json(genes_out_dir)
+    genes = spark.read.json(genes_glob).select("chromosome", "start", "end", "name", "source")
+    genes_symbol = \
+        genes.filter(genes.source == "symbol") \
+            .select("chromosome", "start", "end", "name") \
+            .withColumnRenamed("name", "symbol")
+    genes_ensembl = \
+        genes.filter(genes.source == "ensembl") \
+            .select("chromosome", "start", "end", "name") \
+            .withColumnRenamed("name", "ensembl")
+    genes_joined = genes_symbol.join(genes_ensembl, ["chromosome", "start", "end"])
+    genes_joined.write.mode("overwrite").json(genes_out_dir)
     symbols = \
         spark.read.json(variant_effects_glob).select("nearest") \
             .withColumn("symbol", col("nearest").getItem(0)).select("symbol").distinct()

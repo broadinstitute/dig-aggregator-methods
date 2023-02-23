@@ -40,7 +40,7 @@ class NearestGeneStage(implicit context: Context) extends Stage {
 
   /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => Outputs.Named("GeneIdMap")
+    case _ => Outputs.Named("NearestGene")
   }
 
   /** One job per phenotype (e.g. T2D)

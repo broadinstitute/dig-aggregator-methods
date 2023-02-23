@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
 organization := "org.broadinstitute.dig"
 
 // entry point when running this method
-mainClass := Some("org.broadinstitute.dig.aggregator.methods.nearestgene.GeneIdMap")
+mainClass := Some("org.broadinstitute.dig.aggregator.methods.nearestgene.NearestGene")
 
 // enables buildInfo, which bakes git version info into the jar
 enablePlugins(GitVersioning)
