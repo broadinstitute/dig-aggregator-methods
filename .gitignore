@@ -8,3 +8,4 @@ project/project
 project/target
 */.aggregator/
 .DS_Store
+project/build.properties
