@@ -1,20 +1,8 @@
 import argparse
-from pyspark.sql import SparkSession, DataFrame, Window
 from datetime import datetime
-import subprocess
-from pyspark.sql.functions import col, udf, when, row_number
-from pyspark.sql.types import StringType
 
-
-def symbol_to_ensembl_impl(symbol: str) -> str:
-    cmd = ('eugene', 'util', 'symbol-to-gene-id', '-s', symbol)
-    process = subprocess.run(cmd, capture_output=True, text=True)
-    ensembl = process.stdout.strip()
-    print("Mapped symbol", symbol, "to Ensembl id ", ensembl)
-    return ensembl
-
-
-symbol_to_ensembl = udf(lambda symbol: symbol_to_ensembl_impl(symbol), StringType()).asNondeterministic()
+from pyspark.sql import SparkSession, DataFrame, Window
+from pyspark.sql.functions import col, row_number
 
 
 def now_str():
@@ -54,14 +42,14 @@ def main():
     print('Output dir: ', out_dir)
     spark = SparkSession.builder.appName('nearest_gene').getOrCreate()
     genes = spark.read.json(genes_glob).select("chromosome", "start", "end", "ensembl")
-    inspect_df(genes, "genes")
     variants = spark.read.json(variants_glob).select("varId", "chromosome", "position")
-    inspect_df(variants, "variants")
     joined = genes.join(variants, ["chromosome"])
     inspect_df(joined, "joined")
-    distances = joined.withColumn("distance", max(col("start") - col("position"), col("position") - col("end"), 0))
+    distances = \
+        joined.withColumn("distance", max(col("start") - col("position"), col("position") - col("end"), 0))\
+            .withColumn("length", col("end") - col("start"))
     inspect_df(distances, "distance")
-    distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance"))
+    distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance", "length"))
     nearest = distances.withColumn("row", row_number().over(distances_by_gene)).filter(col("row") == 1).drop("row")
     inspect_df(nearest, "nearest")
     nearest.write.mode('overwrite').json(out_dir)
