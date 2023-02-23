@@ -25,7 +25,7 @@ class GeneIdMapStage(implicit context: Context) extends Stage {
   val geneIdsMapDir             = "out/geneidmap/map/"
 
   val genes: Input.Source          = Input.Source.Dataset(genesDir)
-  val variantEffects: Input.Source = Input.Source.Dataset(variantEffectsDir)
+  val variantEffects: Input.Source = Input.Source.Success(variantEffectsDir)
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(genes, variantEffects)

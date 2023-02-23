@@ -23,8 +23,8 @@ class NearestGeneStage(implicit context: Context) extends Stage {
   val variantsDir: String = "out/varianteffect/cqs/"
   val outDir              = "out/nearestgenes/"
 
-  val genes: Input.Source    = Input.Source.Dataset(genesDir)
-  val variants: Input.Source = Input.Source.Dataset(variantsDir)
+  val genes: Input.Source    = Input.Source.Success(genesDir)
+  val variants: Input.Source = Input.Source.Success(variantsDir)
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(genes, variants)

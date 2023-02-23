@@ -48,7 +48,7 @@ def main():
     files_glob = 'part-*'
     genes_glob = cli_args.genes_dir + files_glob
     variants_glob = cli_args.variants_dir + files_glob
-    out_dir = cli_args.genes_out_dir
+    out_dir = cli_args.out_dir
     print('Gene data dir: ', genes_glob)
     print('Variant effects data dir: ', variants_glob)
     print('Output dir: ', out_dir)
@@ -58,7 +58,7 @@ def main():
     variants = spark.read.json(variants_glob).select("varId", "chromosome", "position")
     inspect_df(variants, "variants")
     joined = genes.join(variants, ["chromosome"])
-    inspect_df(joined)
+    inspect_df(joined, "joined")
     distances = joined.withColumn("distance", max(col("start") - col("position"), col("position") - col("end"), 0))
     inspect_df(distances, "distance")
     distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance"))

@@ -35,8 +35,6 @@ def main():
     arg_parser.add_argument("--padding", help="Variants are considered this far away from the gene", type=int,
                             default=100000)
     arg_parser.add_argument("--cache", help="Cache data", required=True)
-    arg_parser.add_argument("--cqs", help="Variant CQS data", required=True)
-    arg_parser.add_argument("--effects", help="Variant effect data", required=True)
     arg_parser.add_argument("--out-dir", help="Output directory", required=True)
 
     print('Now parsing CLI arguments')
