@@ -15,6 +15,7 @@ sudo unzip ldsc-python-3-2023-02-09.zip -d ./ldsc/
 
 ## Download hapmap3 snps (chr specific)
 # From https://data.broadinstitute.org/alkesgroup/LDSCORE/hapmap3_snps.tgz downloaded January 20, 2023
+sudo mkdir -p ./snps
 sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/hapmap3_snps.tgz ./
 sudo tar -xf hapmap3_snps.tgz
 sudo mv hapmap3_snps/* ./snps/
