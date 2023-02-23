@@ -2,7 +2,7 @@ import argparse
 from datetime import datetime
 
 from pyspark.sql import SparkSession, DataFrame, Window
-from pyspark.sql.functions import col, row_number
+from pyspark.sql.functions import col, row_number, greatest, lit
 
 
 def now_str():
@@ -44,9 +44,8 @@ def main():
     genes = spark.read.json(genes_glob).select("chromosome", "start", "end", "ensembl")
     variants = spark.read.json(variants_glob).select("varId", "chromosome", "position")
     joined = genes.join(variants, ["chromosome"])
-    inspect_df(joined, "joined")
     distances = \
-        joined.withColumn("distance", max(col("start") - col("position"), col("position") - col("end"), 0))\
+        joined.withColumn("distance", greatest(col("start") - col("position"), col("position") - col("end"), lit(0)))\
             .withColumn("length", col("end") - col("start"))
     inspect_df(distances, "distance")
     distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance", "length"))
