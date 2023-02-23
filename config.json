@@ -1,7 +1,7 @@
 {
     "aws": {
         "s3": {
-            "bucket": "pkudtarkar-test"
+            "bucket": "dig-analysis-data"
         },
         "emr": {
             "subnetIds": [
@@ -11,8 +11,7 @@
             ],
             "sshKeyName": "GenomeStore REST",
             "jobFlowRoleId": "dig-aggregator-role",
-            "securityGroupIds": [
-            ]
+            "securityGroupIds": []
         },
         "rds": {
             "instance": "dig-analysis-state"
