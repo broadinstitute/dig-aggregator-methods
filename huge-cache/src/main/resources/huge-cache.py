@@ -34,7 +34,7 @@ def main():
     cli_args = arg_parser.parse_args()
     files_glob = 'part-*'
     variant_cqs_glob = cli_args.cqs + files_glob
-    nearest_genes_glob = cli_args.nearest_gene + files_glob
+    nearest_genes_glob = cli_args.nearest_genes + files_glob
     cache_dir = cli_args.cache_dir
     print('Variant CQS data: ', variant_cqs_glob)
     print('Nearest genes data: ', nearest_genes_glob)
