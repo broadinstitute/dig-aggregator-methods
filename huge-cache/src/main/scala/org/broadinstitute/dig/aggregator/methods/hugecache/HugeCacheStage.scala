@@ -21,17 +21,15 @@ class HugeCacheStage(implicit context: Context) extends Stage {
 
   val geneFile: String         = "genes/GRCh37/"
   val variantCqsDir: String    = "out/varianteffect/cqs/"
-  val variantEffectDir: String = "out/varianteffect/effects/"
-  val geneIdsMapDir: String    = "out/geneidmap/map/"
+  val nearestGenesDir: String    = "out/nearestgenes/"
   val cacheDir                 = "out/huge/cache/"
 
   val genes: Input.Source          = Input.Source.Dataset(geneFile)
   val variantCqs: Input.Source     = Input.Source.Success(variantCqsDir)
-  val variantEffects: Input.Source = Input.Source.Success(variantEffectDir)
-  val geneIdsMap: Input.Source     = Input.Source.Success(geneIdsMapDir)
+  val nearestGenes: Input.Source     = Input.Source.Success(nearestGenesDir)
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(genes, variantCqs, variantEffects, geneIdsMap)
+  override val sources: Seq[Input.Source] = Seq(genes, variantCqs, nearestGenes)
 
   /* Define settings for the cluster to run the job.
    */
@@ -55,10 +53,8 @@ class HugeCacheStage(implicit context: Context) extends Stage {
         script,
         "--cqs",
         bucket.s3UriOf(variantCqsDir).toString,
-        "--effects",
-        bucket.s3UriOf(variantEffectDir).toString,
-        "--gene-ids-map",
-        bucket.s3UriOf(geneIdsMapDir).toString,
+        "--nearest-genes",
+        bucket.s3UriOf(nearestGenesDir).toString,
         "--cache-dir",
         bucket.s3UriOf(cacheDir).toString
       )

@@ -9,16 +9,16 @@ def now_str():
     return str(datetime.now())
 
 
-def inspect_df(df: DataFrame, name: str):
-    n_rows = df.count()
-    print("Dataframe ", name, " has ", n_rows, " rows.", "(", now_str(), ")")
-    df.printSchema()
-    n_rows_max = 23
-    if n_rows > n_rows_max:
-        df.sample(fraction=(n_rows_max / n_rows)).show()
-    else:
-        df.show()
-    print('Done showing ', name, ' at ', now_str())
+# def inspect_df(df: DataFrame, name: str):
+#     n_rows = df.count()
+#     print("Dataframe ", name, " has ", n_rows, " rows.", "(", now_str(), ")")
+#     df.printSchema()
+#     n_rows_max = 23
+#     if n_rows > n_rows_max:
+#         df.sample(fraction=(n_rows_max / n_rows)).show()
+#     else:
+#         df.show()
+#     print('Done showing ', name, ' at ', now_str())
 
 
 def main():
@@ -47,11 +47,10 @@ def main():
     distances = \
         joined.withColumn("distance", greatest(col("start") - col("position"), col("position") - col("end"), lit(0)))\
             .withColumn("length", col("end") - col("start"))
-    inspect_df(distances, "distance")
     distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance"), col("length"))
     nearest = distances.withColumn("row", row_number().over(distances_by_gene)).filter(col("row") == 1).drop("row")
-    inspect_df(nearest, "nearest")
-    nearest.write.mode('overwrite').json(out_dir)
+    nearest.select("varId", "ensembl").withColumnRenamed("ensembl", "nearest_gene")\
+        .write.mode('overwrite').json(out_dir)
     print('Done with work, therefore stopping Spark')
     spark.stop()
     print('Spark stopped')

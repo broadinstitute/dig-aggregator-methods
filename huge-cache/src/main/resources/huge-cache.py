@@ -28,35 +28,22 @@ def main():
     print('Now building argument parser')
     arg_parser = argparse.ArgumentParser(prog='huge-cache.py')
     arg_parser.add_argument("--cqs", help="Variant CQS data", required=True)
-    arg_parser.add_argument("--effects", help="Variant effect data", required=True)
-    arg_parser.add_argument("--gene-ids-map", help="Map from gene symbol to Ensembl id", required=True)
+    arg_parser.add_argument("--nearest-genes", help="Variant effect data", required=True)
     arg_parser.add_argument("--cache-dir", help="The cache directory to write to", required=True)
     print('Now parsing CLI arguments')
     cli_args = arg_parser.parse_args()
     files_glob = 'part-*'
     variant_cqs_glob = cli_args.cqs + files_glob
-    variant_effects_glob = cli_args.effects + files_glob
-    gene_ids_map_glob = cli_args.gene_ids_map + files_glob
+    nearest_genes_glob = cli_args.nearest_gene + files_glob
     cache_dir = cli_args.cache_dir
     print('Variant CQS data: ', variant_cqs_glob)
-    print('Variant effects data: ', variant_effects_glob)
-    print('Gene ids map data: ', gene_ids_map_glob)
+    print('Nearest genes data: ', nearest_genes_glob)
+    print('Cache dir: ', cache_dir)
     spark = SparkSession.builder.appName('huge-cache').getOrCreate()
     cqs_cache = spark.read.json(variant_cqs_glob).select('varId', 'impact', 'geneId').filter(col("pick") == 1)
-    inspect_df(cqs_cache, "CQS cache")
     print('Now reading variant effects.')
-    effects_cache_symbol = \
-        spark.read.json(variant_effects_glob).select('id', 'nearest')\
-            .withColumnRenamed('id', 'varId').withColumnRenamed('nearest', 'nearest_list')\
-            .withColumn('nearest_symbol', col('nearest_list').getItem(0)).drop('nearest_list')
-    inspect_df(effects_cache_symbol, "variant effects cache")
-    gene_ids_map = spark.read.json(gene_ids_map_glob).select("symbol", "ensembl")\
-        .withColumnRenamed("symbol", "nearest_symbol").withColumnRenamed("ensembl", "nearest_ensembl")
-    inspect_df(gene_ids_map, "gene ids map")
-    effects_cache = effects_cache_symbol.join(gene_ids_map, ["nearest_symbol"])
-    inspect_df(effects_cache, "variant effects cache")
-    cache = cqs_cache.join(effects_cache, ['varId'], 'outer')
-    inspect_df(cache, "cache")
+    nearest_genes_cache = spark.read.json(nearest_genes_glob).select("varId", "nearest_gene")
+    cache = cqs_cache.join(nearest_genes_cache, ["varId"], "outer")
     print('Now writing cache to', cache_dir)
     cache.write.mode('overwrite').json(cache_dir)
     print('Done writing variants effects cache')
