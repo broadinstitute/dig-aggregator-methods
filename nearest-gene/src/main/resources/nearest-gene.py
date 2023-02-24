@@ -48,7 +48,7 @@ def main():
         joined.withColumn("distance", greatest(col("start") - col("position"), col("position") - col("end"), lit(0)))\
             .withColumn("length", col("end") - col("start"))
     inspect_df(distances, "distance")
-    distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance", "length"))
+    distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance"), col("length"))
     nearest = distances.withColumn("row", row_number().over(distances_by_gene)).filter(col("row") == 1).drop("row")
     inspect_df(nearest, "nearest")
     nearest.write.mode('overwrite').json(out_dir)
