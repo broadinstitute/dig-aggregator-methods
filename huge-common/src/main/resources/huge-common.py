@@ -72,7 +72,7 @@ def main():
         genes.join(variants_gwas.alias('variants'), variant_in_region, "inner") \
             .select('varId', 'gene', 'pValue', 'ensembl')
     inspect_df(gene_gwas, "joined genes and variants")
-    cache = spark.read.json(cache_glob).select('varId', 'impact', 'geneId', 'nearest_ensembl')
+    cache = spark.read.json(cache_glob).select('varId', 'impact', 'geneId', 'nearest_gene')
     inspect_df(cache, "cache")
     gene_gwas_cache = gene_gwas.join(cache, ['varId'], 'left')
     significant_by_gene = Window.partitionBy("gene").orderBy(col("pValue"))
@@ -81,7 +81,7 @@ def main():
         .filter(col("row") == 1).drop("row") \
         .withColumnRenamed('varId', 'varId_causal').withColumnRenamed('pValue', 'pValue_causal') \
         .withColumn('causal_coding', is_in_coding)\
-        .withColumn('causal_nearest', col('ensembl') == col('nearest_ensembl')).drop('ensembl')\
+        .withColumn('causal_nearest', col('ensembl') == col('nearest_gene')).drop('ensembl')\
         .withColumn('causal_gwas', lit(True))
     inspect_df(gene_causal, "genes with causal variant")
     gene_coding = \
