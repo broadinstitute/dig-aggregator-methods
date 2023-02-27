@@ -31,7 +31,7 @@ def main():
     arg_parser.add_argument("--genes-dir", help="gene data dir", required=True)
     arg_parser.add_argument("--variants-dir", help="variant data dir", required=True)
     arg_parser.add_argument("--padding", help="Variants are considered this far away from the gene", type=int,
-                            default=150000)
+                            default=200000)
     arg_parser.add_argument("--out-dir", help="output dir", required=True)
     print('Now parsing CLI arguments')
     cli_args = arg_parser.parse_args()
