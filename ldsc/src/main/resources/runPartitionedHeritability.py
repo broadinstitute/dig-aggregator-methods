@@ -30,8 +30,8 @@ s3_out = 's3://dig-analysis-data'
 
 
 def get_all_annot_basenames(ancestry):
-    pattern = f'{annot_files}/ancestry={ancestry_map[ancestry]}/*/*.annot.gz'
-    return [re.findall('.*/([^/]*).annot.gz', file)[0] for file in glob.glob(pattern)]
+    pattern = f'{annot_files}/ancestry={ancestry_map[ancestry]}/*/*.1.annot.gz'
+    return [re.findall('.*/([^/]*).1.annot.gz', file)[0] for file in glob.glob(pattern)]
 
 
 def make_path(split_path):
