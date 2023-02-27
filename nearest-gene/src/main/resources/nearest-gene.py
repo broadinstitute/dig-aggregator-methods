@@ -31,7 +31,7 @@ def main():
     arg_parser.add_argument("--genes-dir", help="gene data dir", required=True)
     arg_parser.add_argument("--variants-dir", help="variant data dir", required=True)
     arg_parser.add_argument("--padding", help="Variants are considered this far away from the gene", type=int,
-                            default=250000)
+                            default=100000)
     arg_parser.add_argument("--out-dir", help="output dir", required=True)
     print('Now parsing CLI arguments')
     cli_args = arg_parser.parse_args()
@@ -56,7 +56,7 @@ def main():
     distances = \
         joined.withColumn("distance", greatest(col("start") - col("position"), col("position") - col("end"), lit(0)))\
             .withColumn("length", col("end") - col("start"))
-    distances_by_gene = Window.partitionBy("ensembl").orderBy(col("distance"), col("length"))
+    distances_by_gene = Window.partitionBy("varId").orderBy(col("distance"), col("length"))
     nearest = distances.withColumn("row", row_number().over(distances_by_gene)).filter(col("row") == 1).drop("row")
     nearest.select("varId", "ensembl").withColumnRenamed("ensembl", "nearest_gene")\
         .write.mode('overwrite').json(out_dir)
