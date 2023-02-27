@@ -26,8 +26,8 @@ def main():
     """
     Arguments: none
     """
-    print('Hello! The time is now ', now_str())
-    print('Now building argument parser')
+    # print('Hello! The time is now ', now_str())
+    # print('Now building argument parser')
     arg_parser = argparse.ArgumentParser(prog='huge-common.py')
     arg_parser.add_argument("--phenotype", help="The phenotype", required=True)
     arg_parser.add_argument("--genes", help="Gene data with regions", required=True)
@@ -37,7 +37,7 @@ def main():
     arg_parser.add_argument("--cache", help="Cache data", required=True)
     arg_parser.add_argument("--out-dir", help="Output directory", required=True)
 
-    print('Now parsing CLI arguments')
+    # print('Now parsing CLI arguments')
     cli_args = arg_parser.parse_args()
     phenotype = cli_args.phenotype
     files_glob = 'part-*'
@@ -47,12 +47,12 @@ def main():
     cache_glob = cli_args.cache + files_glob
     padding = cli_args.padding
     out_dir = cli_args.out_dir
-    print('Phenotype: ', phenotype)
-    print('Genes data with regions: ', genes_glob)
-    print('Variant data: ', variants_glob)
-    print('Cache data: ', cache_glob)
-    print('Padding: ', padding)
-    print('Output directory: ', out_dir)
+    # print('Phenotype: ', phenotype)
+    # print('Genes data with regions: ', genes_glob)
+    # print('Variant data: ', variants_glob)
+    # print('Cache data: ', cache_glob)
+    # print('Padding: ', padding)
+    # print('Output directory: ', out_dir)
     spark = SparkSession.builder.appName('huge-common').getOrCreate()
     # spark = SparkSession.builder.appName('huge') \
     #     .config('spark.driver.memory', '6g').config('spark.driver.maxResultSize', '2g').getOrCreate()
@@ -89,11 +89,11 @@ def main():
                                 .when(genes_joined.locus_gaws_coding, 20)
                                 .when(genes_joined.causal_gwas, 3)
                                 .otherwise(1))
-    print('Now writing to ', out_dir)
+    # print('Now writing to ', out_dir)
     genes_bf.write.mode('overwrite').json(out_dir)
-    print('Done with work, stopping Spark')
+    # print('Done with work, stopping Spark')
     spark.stop()
-    print('Spark stopped')
+    # print('Spark stopped')
 
 
 if __name__ == '__main__':
