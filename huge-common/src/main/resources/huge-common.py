@@ -60,20 +60,15 @@ def main():
         spark.read.json(genes_glob).select('chromosome', 'start', 'end', 'symbol', 'ensembl') \
             .withColumnRenamed('symbol', 'gene') \
             .withColumnRenamed('chromosome', 'chromosome_gene')
-    inspect_df(genes, "genes")
     variants = spark.read.json(variants_glob).select('varId', 'chromosome', 'position', 'pValue')
-    inspect_df(variants, "variants for phenotype")
     variants_gwas = variants.filter(variants.pValue < p_gwas)
-    inspect_df(variants_gwas, "GWAS variants for phenotype")
     variant_in_region = (genes.chromosome_gene == variants_gwas.chromosome) & \
                         (genes.start - padding <= variants_gwas.position) & \
                         (genes.end + padding >= variants_gwas.position)
     gene_gwas = \
         genes.join(variants_gwas.alias('variants'), variant_in_region, "inner") \
             .select('varId', 'gene', 'pValue', 'ensembl')
-    inspect_df(gene_gwas, "joined genes and variants")
     cache = spark.read.json(cache_glob).select('varId', 'impact', 'geneId', 'nearest_gene')
-    inspect_df(cache, "cache")
     gene_gwas_cache = gene_gwas.join(cache, ['varId'], 'left')
     significant_by_gene = Window.partitionBy("gene").orderBy(col("pValue"))
     is_in_coding = (col('ensembl') == col('geneId')) & ((col('impact') == 'HIGH') | (col('impact') == 'MODERATE'))
@@ -83,12 +78,10 @@ def main():
         .withColumn('causal_coding', is_in_coding)\
         .withColumn('causal_nearest', col('ensembl') == col('nearest_gene')).drop('ensembl')\
         .withColumn('causal_gwas', lit(True))
-    inspect_df(gene_causal, "genes with causal variant")
     gene_coding = \
         gene_gwas_cache.filter(is_in_coding).select('gene').distinct() \
             .withColumn('locus_gaws_coding', lit(True))
     genes_joined = genes.join(gene_causal, ['gene'], 'left').join(gene_coding, ['gene'], 'left')
-    inspect_df(genes_joined, "genes joined")
     genes_bf = \
         genes_joined.withColumn('bf_common',
                                 when(genes_joined.causal_coding, 350)
@@ -96,7 +89,6 @@ def main():
                                 .when(genes_joined.locus_gaws_coding, 20)
                                 .when(genes_joined.causal_gwas, 3)
                                 .otherwise(1))
-    inspect_df(genes_bf, "genes with BF")
     print('Now writing to ', out_dir)
     genes_bf.write.mode('overwrite').json(out_dir)
     print('Done with work, stopping Spark')
