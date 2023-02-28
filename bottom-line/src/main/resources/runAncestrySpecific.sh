@@ -17,8 +17,8 @@ RUN_METAL="/home/hadoop/bin/runMETAL.sh"
 GET_MERGE="/home/hadoop/bin/getmerge-strip-headers.sh"
 
 # start with a clean working directory
-rm -rf "${OUTDIR}"
-mkdir -p "${OUTDIR}"
+sudo rm -rf "${OUTDIR}"
+sudo mkdir -p "${OUTDIR}"
 
 # get all the part files for this phenotype
 PARTS=($(hadoop fs -ls -C "${SRCDIR}/*/*/*/part-*")) || PARTS=()
@@ -47,24 +47,24 @@ for ANCESTRY in "${ANCESTRIES[@]}"; do
         GLOB="${SRCDIR}/dataset=${DATASET}/ancestry=${ANCESTRY}/rare=false/part-*"
 
         # create the destination directory and merge variants there
-        mkdir -p "${ANCESTRY_DIR}/${DATASET}"
-        bash "${GET_MERGE}" "${GLOB}" "${ANCESTRY_DIR}/${DATASET}/common.csv"
+        sudo mkdir -p "${ANCESTRY_DIR}/${DATASET}"
+        sudo bash "${GET_MERGE}" "${GLOB}" "${ANCESTRY_DIR}/${DATASET}/common.csv"
     done
 
     # collect all the input files together into an array
     INPUT_FILES=($(find "${ANCESTRY_DIR}" -name "common.csv" | xargs realpath))
 
     # first run with samplesize (overlap on), then with stderr
-    bash "${RUN_METAL}" "SAMPLESIZE" "ON" "${ANALYSIS_DIR}" "${INPUT_FILES[@]}"
-    bash "${RUN_METAL}" "STDERR" "OFF" "${ANALYSIS_DIR}" "${INPUT_FILES[@]}"
+    sudo bash "${RUN_METAL}" "SAMPLESIZE" "ON" "${ANALYSIS_DIR}" "${INPUT_FILES[@]}"
+    sudo bash "${RUN_METAL}" "STDERR" "OFF" "${ANALYSIS_DIR}" "${INPUT_FILES[@]}"
 
     # nuke any previously existing staging data
-    aws s3 rm "${S3_PATH}/staging/metaanalysis/ancestry-specific/${PHENOTYPE}/" --recursive
+    sudo aws s3 rm "${S3_PATH}/staging/metaanalysis/ancestry-specific/${PHENOTYPE}/" --recursive
 
     # upload the resuts to S3
-    aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=SAMPLESIZE/" --recursive
-    aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=STDERR/" --recursive
+    sudo aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=SAMPLESIZE/" --recursive
+    sudo aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=STDERR/" --recursive
 
     # remove the analysis directory
-    rm -rf "${ANALYSIS_DIR}"
+    sudo rm -rf "${ANALYSIS_DIR}"
 done
