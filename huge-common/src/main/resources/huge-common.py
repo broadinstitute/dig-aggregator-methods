@@ -6,30 +6,11 @@ from pyspark.sql.functions import col, row_number, when, lit
 from pyspark.sql.window import Window
 
 
-def now_str():
-    return str(datetime.now())
-
-
-def inspect_df(df: DataFrame, name: str):
-    n_rows = df.count()
-    print("Dataframe ", name, " has ", n_rows, " rows.", "(", now_str(), ")")
-    df.printSchema()
-    n_rows_max = 23
-    if n_rows > n_rows_max:
-        df.sample(fraction=(n_rows_max / n_rows)).show()
-    else:
-        df.show()
-    print('Done showing ', name, ' at ', now_str())
-
-
 def main():
     """
     Arguments: none
     """
-    # print('Hello! The time is now ', now_str())
-    # print('Now building argument parser')
     arg_parser = argparse.ArgumentParser(prog='huge-common.py')
-    arg_parser.add_argument("--phenotype", help="The phenotype", required=True)
     arg_parser.add_argument("--genes", help="Gene data with regions", required=True)
     arg_parser.add_argument("--variants", help="Variant data", required=True)
     arg_parser.add_argument("--padding", help="Variants are considered this far away from the gene", type=int,
@@ -37,9 +18,7 @@ def main():
     arg_parser.add_argument("--cache", help="Cache data", required=True)
     arg_parser.add_argument("--out-dir", help="Output directory", required=True)
 
-    # print('Now parsing CLI arguments')
     cli_args = arg_parser.parse_args()
-    phenotype = cli_args.phenotype
     files_glob = 'part-*'
     p_gwas = 5e-8
     genes_glob = cli_args.genes + files_glob
@@ -47,15 +26,7 @@ def main():
     cache_glob = cli_args.cache + files_glob
     padding = cli_args.padding
     out_dir = cli_args.out_dir
-    # print('Phenotype: ', phenotype)
-    # print('Genes data with regions: ', genes_glob)
-    # print('Variant data: ', variants_glob)
-    # print('Cache data: ', cache_glob)
-    # print('Padding: ', padding)
-    # print('Output directory: ', out_dir)
     spark = SparkSession.builder.appName('huge-common').getOrCreate()
-    # spark = SparkSession.builder.appName('huge') \
-    #     .config('spark.driver.memory', '6g').config('spark.driver.maxResultSize', '2g').getOrCreate()
     genes = \
         spark.read.json(genes_glob).select('chromosome', 'start', 'end', 'symbol', 'ensembl') \
             .withColumnRenamed('symbol', 'gene') \
@@ -89,11 +60,8 @@ def main():
                                 .when(genes_joined.locus_gaws_coding, 20)
                                 .when(genes_joined.causal_gwas, 3)
                                 .otherwise(1))
-    # print('Now writing to ', out_dir)
     genes_bf.write.mode('overwrite').json(out_dir)
-    # print('Done with work, stopping Spark')
     spark.stop()
-    # print('Spark stopped')
 
 
 if __name__ == '__main__':

@@ -19,17 +19,15 @@ import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
   */
 class HugeCacheStage(implicit context: Context) extends Stage {
 
-  val geneFile: String        = "genes/GRCh37/"
   val variantCqsDir: String   = "out/varianteffect/cqs/"
-  val nearestGenesDir: String = "out/nearestgenes/"
+  val nearestGenesDir: String = "out/huge/nearestgenes/"
   val cacheDir                = "out/huge/cache/"
 
-  val genes: Input.Source        = Input.Source.Dataset(geneFile)
   val variantCqs: Input.Source   = Input.Source.Success(variantCqsDir)
   val nearestGenes: Input.Source = Input.Source.Success(nearestGenesDir)
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(genes, variantCqs, nearestGenes)
+  override val sources: Seq[Input.Source] = Seq(variantCqs, nearestGenes)
 
   /* Define settings for the cluster to run the job.
    */

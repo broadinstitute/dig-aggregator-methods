@@ -19,9 +19,9 @@ import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job, Release
   */
 class NearestGeneStage(implicit context: Context) extends Stage {
 
-  val genesDir: String    = "out/geneidmap/genes/"
+  val genesDir: String    = "out/huge/geneidmap/genes/"
   val variantsDir: String = "out/varianteffect/cqs/"
-  val outDir              = "out/nearestgenes/"
+  val outDir              = "out/huge/nearestgenes/"
 
   val genes: Input.Source    = Input.Source.Success(genesDir)
   val variants: Input.Source = Input.Source.Success(variantsDir)

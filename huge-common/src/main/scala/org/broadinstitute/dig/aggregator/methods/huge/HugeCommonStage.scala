@@ -24,8 +24,6 @@ class HugeCommonStage(implicit context: Context) extends Stage {
     def asGlob: String                          = string.replaceAll(placeHolder, "*")
   }
 
-//  "out/huge/cache/"
-//  val geneFile: String                  = "genes/GRCh37/"
   val genesDir: String                  = "out/geneidmap/genes/"
   val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/52k_*/<phenotype>/")
   val variantFiles: FilesForPhenotype   = new FilesForPhenotype("out/metaanalysis/trans-ethnic/<phenotype>/")
@@ -62,13 +60,10 @@ class HugeCommonStage(implicit context: Context) extends Stage {
   override def make(output: String): Job = {
     val script    = resourceUri("huge-common.py")
     val phenotype = output
-    println(s"Making job with script $script for phenotype $phenotype.")
     val bucket = context.s3
     new Job(
       Job.PySpark(
         script,
-        "--phenotype",
-        phenotype,
         "--genes",
         bucket.s3UriOf(genesDir).toString,
         "--variants",

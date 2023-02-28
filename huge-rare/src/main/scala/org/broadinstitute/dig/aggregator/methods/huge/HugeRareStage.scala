@@ -57,8 +57,6 @@ class HugeRareStage(implicit context: Context) extends Stage {
     new Job(
       Job.PySpark(
         script,
-        "--phenotype",
-        phenotype,
         "--gene-associations",
         bucket.s3UriOf(geneAssocFiles.forPhenotype(phenotype)).toString,
         "--out-dir",

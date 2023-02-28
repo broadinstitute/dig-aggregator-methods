@@ -20,15 +20,12 @@ import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job, Release
 class GeneIdMapStage(implicit context: Context) extends Stage {
 
   val genesDir: String          = "genes/GRCh37/"
-  val variantEffectsDir: String = "out/varianteffect/effects/"
-  val genesOutDir               = "out/geneidmap/genes/"
-  val geneIdsMapDir             = "out/geneidmap/map/"
+  val genesOutDir               = "out/huge/geneidmap/genes/"
 
   val genes: Input.Source          = Input.Source.Dataset(genesDir)
-  val variantEffects: Input.Source = Input.Source.Success(variantEffectsDir)
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(genes, variantEffects)
+  override val sources: Seq[Input.Source] = Seq(genes)
 
   /* Define settings for the cluster to run the job.
    */
@@ -56,12 +53,8 @@ class GeneIdMapStage(implicit context: Context) extends Stage {
         script,
         "--genes-dir",
         bucket.s3UriOf(genesDir).toString,
-        "--variant-effects-dir",
-        bucket.s3UriOf(variantEffectsDir).toString,
         "--genes-out-dir",
         bucket.s3UriOf(genesOutDir).toString,
-        "--map-dir",
-        bucket.s3UriOf(geneIdsMapDir).toString
       )
     )
   }
