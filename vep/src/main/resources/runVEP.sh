@@ -18,6 +18,7 @@ extension="${PART##*.}"
 if [ "$extension" = "zst" ]
 then
   unzstd "$PART"
+  rm "$PART"
   PART="${PART%.*}"
 fi
 
