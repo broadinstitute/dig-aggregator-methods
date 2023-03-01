@@ -19,7 +19,7 @@ if [ "$extension" = "zst" ]
 then
   unzstd "$PART"
   rm "$PART"
-  PART="${PART%.*}"
+  PART="${PART%.zst}"
 fi
 
 # ensure the file is sorted
