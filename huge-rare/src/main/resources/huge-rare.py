@@ -1,7 +1,7 @@
 import argparse
 from pyspark.sql import SparkSession, DataFrame
 from datetime import datetime
-from pyspark.sql.functions import sqrt, exp, udf
+from pyspark.sql.functions import sqrt, exp, udf, when
 from pyspark.sql.types import DoubleType
 from scipy.stats import norm
 
@@ -16,8 +16,14 @@ def calculate_bf_rare(df: DataFrame):
     df = df.withColumn('stdErr', df.beta / df.z)
     df = df.withColumn('v', df.stdErr * df.stdErr)
     omega = 0.3696
-    df = df.withColumn('bf_rare',
+    df = df.withColumn('bf_rare_raw',
                        sqrt(df.v / (df.v + omega)) * exp(omega * df.beta * df.beta / (2.0 * df.v * (df.v + omega))))
+    bf_rare_min = 1
+    bf_rare_max = 348
+    df = df.withColumn('bf_rare',
+                       when(df.bf_rare_raw < bf_rare_min, bf_rare_min)
+                       .when(df.bf_rare_raw > bf_rare_max, bf_rare_max)
+                       .otherwise(df.bf_rare_raw))
     return df
 
 
