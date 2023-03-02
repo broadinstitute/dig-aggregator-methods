@@ -45,7 +45,8 @@ class BioIndexDB:
 
     def get_is_dichotomous(self, phenotype_name):
         with self.get_engine().connect() as connection:
-            rows = connection.execute(f'SELECT name, dichotomous FROM Phenotypes WHERE name = \"{phenotype_name}\"').all()
+            query = sqlalchemy.text(f'SELECT name, dichotomous FROM Phenotypes WHERE name = \"{phenotype_name}\"')
+            rows = connection.execute(query).all()
             if len(rows) != 1:
                 raise Exception(f"Impossible number of rows returned ({len(rows)}) for phenotype {phenotype_name}."
                                 f"Check the database and try again.")
