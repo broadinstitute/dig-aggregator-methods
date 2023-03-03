@@ -1,6 +1,5 @@
 import argparse
 from pyspark.sql import SparkSession, DataFrame
-from datetime import datetime
 from pyspark.sql.functions import sqrt, exp, udf, when
 from pyspark.sql.types import DoubleType
 from scipy.stats import norm
@@ -11,7 +10,11 @@ def p_to_z(p_value: float) -> float:
     return float(abs(norm.ppf(p_value / 2.0)))
 
 
+min_positive = 4e-324  # Python will round this up to the minimum positive float
+
+
 def calculate_bf_rare(df: DataFrame):
+    df = df.withColumn('pValue', when(df.pValue == 0.0, min_positive).otherwise(df.pValue))
     df = df.withColumn('z', p_to_z(df.pValue))
     df = df.withColumn('stdErr', df.beta / df.z)
     df = df.withColumn('v', df.stdErr * df.stdErr)
