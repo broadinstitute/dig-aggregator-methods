@@ -38,6 +38,6 @@ pip3 install -U pandas
 sudo aws s3 cp s3://dig-analysis-data/out/varianteffect/snp/ ./ --recursive --exclude="_SUCCESS"
 sudo touch ./snp.csv
 sudo chmod 777 ./snp.csv
-sudo head -n 1 ./part-*.csv | uniq >> ./snp.csv
-sudo tail -n +2 ./part-*.csv >> ./snp.csv
+sudo cat ./part-* | head -n 1 >> ./snp.csv
+sudo tail -q -n +2 ./part-*.csv >> ./snp.csv
 sudo rm ./part-*.csv
