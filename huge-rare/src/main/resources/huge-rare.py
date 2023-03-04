@@ -10,23 +10,20 @@ def p_to_z(p_value: float) -> float:
     return float(abs(norm.ppf(p_value / 2.0)))
 
 
-min_positive = 4e-324  # Python will round this up to the minimum positive float
-
-
 def calculate_bf_rare(df: DataFrame):
-    df = df.withColumn('pValue', when(df.pValue == 0.0, min_positive).otherwise(df.pValue))
     df = df.withColumn('z', p_to_z(df.pValue))
     df = df.withColumn('stdErr', df.beta / df.z)
     df = df.withColumn('v', df.stdErr * df.stdErr)
     omega = 0.3696
-    df = df.withColumn('bf_rare_raw',
+    df = df.withColumn('bf_rare',
                        sqrt(df.v / (df.v + omega)) * exp(omega * df.beta * df.beta / (2.0 * df.v * (df.v + omega))))
     bf_rare_min = 1
     bf_rare_max = 348
     df = df.withColumn('bf_rare',
-                       when(df.bf_rare_raw < bf_rare_min, bf_rare_min)
-                       .when(df.bf_rare_raw > bf_rare_max, bf_rare_max)
-                       .otherwise(df.bf_rare_raw))
+                       when(df.pValue == 0.0, bf_rare_max)
+                       .when(df.bf_rare < bf_rare_min, bf_rare_min)
+                       .when(df.bf_rare > bf_rare_max, bf_rare_max)
+                       .otherwise(df.bf_rare))
     return df
 
 
