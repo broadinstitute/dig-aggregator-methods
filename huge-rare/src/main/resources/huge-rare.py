@@ -1,4 +1,5 @@
 import argparse
+import math
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import sqrt, exp, udf, when
 from pyspark.sql.types import DoubleType
@@ -20,7 +21,7 @@ def calculate_bf_rare(df: DataFrame):
     bf_rare_min = 1
     bf_rare_max = 348
     df = df.withColumn('bf_rare',
-                       when(df.pValue == 0.0, bf_rare_max)
+                       when((df.pValue == 0.0) | (df.z == math.inf) | (df.z == -math.inf), bf_rare_max)
                        .when(df.bf_rare < bf_rare_min, bf_rare_min)
                        .when(df.bf_rare > bf_rare_max, bf_rare_max)
                        .otherwise(df.bf_rare))
