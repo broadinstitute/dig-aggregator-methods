@@ -44,7 +44,8 @@ def make_path(split_path):
 def get_sumstats(ancestry, phenotype):
     file = f'{s3_in}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz'
     make_path(['data', 'sumstats', f'{phenotype}', f'ancestry={ancestry}'])
-    subprocess.check_call(['aws', 's3', 'cp', file, f'./data/sumstats/{phenotype}/ancestry={ancestry}/'])
+    out = subprocess.run(['aws', 's3', 'cp', file, f'./data/sumstats/{phenotype}/ancestry={ancestry}/'])
+    return out.returncode == 0
 
 
 def partitioned_heritability(ancestry, phenotype, annots):
@@ -70,10 +71,11 @@ def upload_and_remove_files(ancestry, phenotype):
     shutil.rmtree(f'./{ancestry}_{phenotype}')
 
 
+# Need to check on sumstats existence for Mixed ancestry datasets
 def run(ancestry, phenotype, annots):
-    get_sumstats(ancestry, phenotype)
-    partitioned_heritability(ancestry, phenotype, annots)
-    upload_and_remove_files(ancestry, phenotype)
+    if get_sumstats(ancestry, phenotype):
+        partitioned_heritability(ancestry, phenotype, annots)
+        upload_and_remove_files(ancestry, phenotype)
 
 
 def main():

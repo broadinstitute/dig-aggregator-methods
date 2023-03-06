@@ -22,6 +22,10 @@ sudo mv hapmap3_snps/* ./snps/
 sudo rm -r hapmap3_snps
 sudo rm hapmap3_snps.tgz
 
+# testing to see if I need to somehow upgrade the underlying python2 numpy
+sudo rm -r /usr/lib64/python2.7/site-packages/numpy/
+sudo rm -r /usr/lib64/python2.7/site-packages/numpy-1.16.5-py2.7.egg-info/
+
 # install dependencies
 sudo yum install -y python3-devel
 sudo yum install -y bzip2-devel
