@@ -32,7 +32,7 @@ sudo yum install -y bzip2-devel
 
 # reinstall numpy with openblas for multithreading
 sudo yum -y install openblas-devel
-sudo pip3 uninstall numpy
+sudo pip3 uninstall -y numpy
 sudo pip3 install numpy
 
 # install rest of python dependencies
