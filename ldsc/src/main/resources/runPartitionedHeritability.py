@@ -79,7 +79,6 @@ def run(ancestry, phenotype, annots):
 
 
 def main():
-    print(os.cpu_count())
     parser = argparse.ArgumentParser()
     parser.add_argument('--phenotype', type=str, required=True,
                         help="Phenotype (e.g. T2D)")
