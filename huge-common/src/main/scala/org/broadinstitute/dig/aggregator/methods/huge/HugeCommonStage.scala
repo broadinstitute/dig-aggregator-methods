@@ -24,7 +24,7 @@ class HugeCommonStage(implicit context: Context) extends Stage {
     def asGlob: String                          = string.replaceAll(placeHolder, "*")
   }
 
-  val genesDir: String                  = "out/geneidmap/genes/"
+  val genesDir: String                  = "out/huge/geneidmap/genes/"
   val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/52k_*/<phenotype>/")
   val variantFiles: FilesForPhenotype   = new FilesForPhenotype("out/metaanalysis/trans-ethnic/<phenotype>/")
   val cacheDir: String                  = "out/huge/cache/"
