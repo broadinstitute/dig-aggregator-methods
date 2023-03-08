@@ -57,7 +57,7 @@ def partitioned_heritability(ancestry, phenotype, annots):
         'python3', f'{ldsc_files}/ldsc.py',
         '--h2', f'./data/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz',
         '--ref-ld-chr', f'{baseline_files}/{g1000_ancestry}/baselineLD.,{annot_str}',
-        '--h2-split-annot', '--h2-threads', '8',
+        '--h2-split-annot', '--h2-threads', '22',
         '--w-ld-chr', f'{weight_files}/{g1000_ancestry}/weights.',
         '--overlap-annot',
         '--frqfile-chr', f'{frq_files}/{g1000_ancestry}/chr.',

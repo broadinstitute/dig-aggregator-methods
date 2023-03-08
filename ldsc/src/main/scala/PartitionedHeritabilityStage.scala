@@ -29,7 +29,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
       new BootstrapScript(resourceUri("install-ldscore.sh")),
       new BootstrapScript(resourceUri("download-annotation-files.sh"))
     ),
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 16.gb),
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 32, mem = 32.gb),
     releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
