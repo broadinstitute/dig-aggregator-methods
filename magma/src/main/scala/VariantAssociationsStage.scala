@@ -27,7 +27,8 @@ class VariantAssociationsStage(implicit context: Context) extends Stage {
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("installPythonPackages.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("installPythonPackages.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   /** Build the job. */

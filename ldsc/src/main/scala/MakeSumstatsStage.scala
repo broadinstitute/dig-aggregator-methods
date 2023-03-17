@@ -25,7 +25,8 @@ class MakeSumstatsStage(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-sumstats.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-sumstats.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   override def make(output: String): Job = {

@@ -26,7 +26,7 @@ class VariantAssociationsStage(implicit context: Context) extends Stage {
     slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
     masterVolumeSizeInGB = 200,
     slaveVolumeSizeInGB = 200,
-    instances = 6,
+    instances = 10,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
