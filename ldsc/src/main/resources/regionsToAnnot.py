@@ -5,10 +5,6 @@ import os
 import shutil
 import subprocess
 
-
-# g1000 ancestries to be run
-ancestries = ['AFR', 'AMR', 'EAS', 'EUR', 'SAS']
-
 downloaded_files = '/mnt/var/ldsc'
 ldsc_files = f'{downloaded_files}/ldsc'
 g1000_files = f'{downloaded_files}/g1000'
@@ -44,7 +40,7 @@ def make_annot(region_name, ancestry, CHR):
 
 
 def upload_and_remove_files(sub_region, region_name, ancestry):
-    s3_dir = f'{s3_out}/out/ldsc/regions/{sub_region}/annot/{region_name}/ancestry={ancestry}/'
+    s3_dir = f'{s3_out}/out/ldsc/regions/{sub_region}/annot/ancestry={ancestry}/{region_name}/'
     for file in glob.glob(f'./{region_name}/{ancestry}/annot/*'):
         subprocess.check_call(['aws', 's3', 'cp', file, s3_dir])
     shutil.rmtree(f'{region_name}/{ancestry}')
@@ -58,7 +54,7 @@ def run_ancestry(sub_region, region_name, ancestry):
     upload_and_remove_files(sub_region, region_name, ancestry)
 
 
-def run(sub_region, region_name):
+def run(sub_region, ancestries, region_name):
     get_region_file(sub_region, region_name)
     convert_to_bed(region_name)
     for ancestry in ancestries:
@@ -72,10 +68,13 @@ def main():
                         help="Sub region name (default = default)")
     parser.add_argument('--region-name', default=None, required=True, type=str,
                         help="Merge region name.")
+    parser.add_argument('--ancestries', default=None, required=True, type=str,
+                        help="All g1000 ancestries (e.g. EUR) to run.")
     args = parser.parse_args()
     sub_region = args.sub_region
     region_name = args.region_name
-    run(sub_region, region_name)
+    ancestries = args.ancestries.split(',')
+    run(sub_region, ancestries, region_name)
 
 
 if __name__ == '__main__':

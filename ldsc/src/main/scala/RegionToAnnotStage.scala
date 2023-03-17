@@ -7,6 +7,7 @@ class RegionToAnnotStage(implicit context: Context) extends Stage {
 
   val partitions: Seq[String] = Seq()
   val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
+  val ancestries: Seq[String] = Seq("AFR", "AMR", "EAS", "EUR", "SAS")
   val mergedFiles: Input.Source = Input.Source.Success(s"out/ldsc/regions/${subRegion}/merged/*/")
 
   /** Source inputs. */
@@ -29,19 +30,28 @@ class RegionToAnnotStage(implicit context: Context) extends Stage {
     * BED files that can then be read by GREGOR.
     */
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("regionsToAnnot.py"), s"--sub-region=$subRegion", s"--region-name=$output"))
+    new Job(Job.Script(
+      resourceUri("regionsToAnnot.py"),
+      s"--sub-region=$subRegion",
+      s"--region-name=$output",
+      s"--ancestries=${ancestries.mkString(",")}"
+    ))
   }
 
   /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/ldsc/regions/${subRegion}/annot/${output}/")
+    ancestries.foreach { ancestry =>
+      context.s3.rm(s"out/ldsc/regions/${subRegion}/annot/ancestry=$ancestry/$output/")
+    }
   }
 
   /** Update the success flag of the merged regions.
     */
   override def success(output: String): Unit = {
-    context.s3.touch(s"out/ldsc/regions/${subRegion}/annot/${output}/_SUCCESS")
+    ancestries.foreach { ancestry =>
+      context.s3.touch(s"out/ldsc/regions/${subRegion}/annot/ancestry=$ancestry/${output}/_SUCCESS")
+    }
     ()
   }
 }
