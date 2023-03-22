@@ -24,10 +24,10 @@ class HugeRareStage(implicit context: Context) extends Stage {
     def asGlob: String                          = string.replaceAll(placeHolder, "*")
   }
 
-  val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/52k_*/<phenotype>/")
+  val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/combined/<phenotype>/")
   val outDir: FilesForPhenotype         = new FilesForPhenotype("out/huge/rare/<phenotype>/")
 
-  val geneAssociations: Input.Source = Input.Source.Dataset(geneAssocFiles.asGlob)
+  val geneAssociations: Input.Source = Input.Source.Success(geneAssocFiles.asGlob)
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(geneAssociations)
@@ -36,7 +36,7 @@ class HugeRareStage(implicit context: Context) extends Stage {
    */
   override val cluster: ClusterDef = {
     super.cluster.copy(
-      instances = 3,
+      instances = 1,
       bootstrapScripts = Seq(new BootstrapScript(resourceUri("huge-rare-bootstrap.sh"))),
       releaseLabel = ReleaseLabel("emr-6.7.0")
     )
@@ -44,7 +44,7 @@ class HugeRareStage(implicit context: Context) extends Stage {
 
   /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case geneAssociations(_, phenotype) => Outputs.Named(phenotype)
+    case geneAssociations(phenotype) => Outputs.Named(phenotype)
   }
 
   /** One job per phenotype (e.g. T2D)
