@@ -28,6 +28,7 @@ object LDScoreRegression extends Method {
     addStage(new AnnotToLDStage)
     addStage(new MakeSumstatsStage)
     addStage(new PartitionedHeritabilityStage)
+    addStage(new TranslatePartitionedHeritabilityStage)
     addStage(new GeneticCorrelationStage)
     addStage(new TranslateGeneticCorrelationStage)
   }
