@@ -32,7 +32,7 @@ class HugeCacheStage(implicit context: Context) extends Stage {
   /* Define settings for the cluster to run the job.
    */
   override val cluster: ClusterDef = {
-    super.cluster.copy(instances = 10)
+    super.cluster.copy(instances = 3)
   }
 
   /** Map inputs to outputs. */

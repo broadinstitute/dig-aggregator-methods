@@ -52,7 +52,6 @@ class HugeCommonStage(implicit context: Context) extends Stage {
     case genes()                        => Outputs.All
     case geneAssociations(_, phenotype) => Outputs.Named(phenotype)
     case variants(phenotype)            => Outputs.Named(phenotype)
-    case cache()                        => Outputs.All
   }
 
   /** One job per phenotype (e.g. T2D)

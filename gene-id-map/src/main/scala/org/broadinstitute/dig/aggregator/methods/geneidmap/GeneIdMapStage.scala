@@ -31,7 +31,7 @@ class GeneIdMapStage(implicit context: Context) extends Stage {
    */
   override val cluster: ClusterDef = {
     super.cluster.copy(
-      instances = 3,
+      instances = 1,
       bootstrapScripts = Seq(new BootstrapScript(resourceUri("gene-id-map-bootstrap.sh"))),
       releaseLabel = ReleaseLabel("emr-6.7.0")
     )
