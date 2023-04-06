@@ -8,4 +8,5 @@ project/project
 project/target
 */.aggregator/
 .DS_Store
+.bsp/
 project/build.properties
