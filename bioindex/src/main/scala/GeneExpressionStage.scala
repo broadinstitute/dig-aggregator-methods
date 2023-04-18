@@ -1,8 +1,6 @@
 package org.broadinstitute.dig.aggregator.methods.bioindex
 
 import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws.MemorySize.Implicits.Sizes
-import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
 /** The final result of all aggregator methods is building the BioIndex. All
