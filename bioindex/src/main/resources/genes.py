@@ -11,7 +11,7 @@ def main():
     """
     Arguments: none
     """
-    srcdir = f's3://dig-analysis-data/genes/GRCh37_deprecated/part-*'
+    srcdir = f's3://dig-analysis-data/genes/GRCh37/part-*'
     outdir = f's3://{OUT_BUCKET}/genes'
 
     # all valid chromosomes
