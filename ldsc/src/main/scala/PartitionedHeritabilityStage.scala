@@ -27,6 +27,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
+    masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("install-ldscore.sh")),
       new BootstrapScript(resourceUri("download-annotation-files.sh"))
