@@ -4,7 +4,7 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws.emr._
 
 class PartitionRegionsStage(implicit context: Context) extends Stage {
-  val partitions: Seq[String] = Seq()
+  val partitions: Seq[String] = Seq("annotation", "tissue", "biosample")
   val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
   val cisReg: Input.Source = Input.Source.Dataset("annotated_regions/cis-regulatory_elements/*/")
 
