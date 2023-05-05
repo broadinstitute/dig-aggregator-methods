@@ -10,8 +10,8 @@ mkdir -p "$LDSC_ROOT"
 cd "$LDSC_ROOT"
 
 # Download zipped version of python 3 ldsc codebase
-aws s3 cp s3://dig-analysis-data/bin/ldsc/ldsc-python-3-2022-09-06.zip ./
-unzip ldsc-python-3-2022-09-06.zip -d ./ldsc/
+aws s3 cp s3://dig-analysis-data/bin/ldsc/ldsc-python-3-2023-03-09.zip ./
+unzip ldsc-python-3-2023-03-09.zip -d ./ldsc/
 
 ## Download hapmap3 snps (full)
 # From https://data.broadinstitute.org/alkesgroup/LDSCORE/w_hm3.snplist.bz2 downloaded September 9, 2022
@@ -22,6 +22,13 @@ mv w_hm3.snplist ./snps/
 
 # install dependencies
 sudo yum install -y python3-devel
+
+# reinstall numpy with openblas for multithreading
+sudo yum -y install openblas-devel
+sudo pip3 uninstall -y numpy
+sudo pip3 install numpy
+
+# install rest of python dependencies
 sudo pip3 install -U bitarray
 sudo pip3 install -U boto3
 sudo pip3 install -U sqlalchemy
