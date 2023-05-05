@@ -27,14 +27,21 @@ def get_phenotype_annot_ancestries():
 def translate(file):
     with open(file, 'r') as f:
         # Get last line of file
-        last_line = [a.strip() for a in f.readlines()[-1].strip().split('\t')]
+        header = [a.strip() for a in f.readline().strip().split('\t')]
+        last_line = f.readline()
+        next_line = f.readline()
+        while len(next_line) > 0:
+            last_line = next_line
+            next_line = f.readline()
+        last_line = [a.strip() for a in last_line.strip().split('\t')]
+        data_dict = dict(zip(header, last_line))
         return {
-            'snps': float(last_line[1]),
-            'h2': {'beta': float(last_line[2]), 'stdErr': float(last_line[3])},
-            'enrichment': {'beta': float(last_line[4]), 'stdErr': float(last_line[5])},
-            'coefficient': {'beta': float(last_line[7]), 'stdErr': float(last_line[8])},
-            'diff': {'beta': float(last_line[10]), 'stdErr': float(last_line[11])},
-            'pValue': float(last_line[6])
+            'snps': float(data_dict['Prop._SNPs']),
+            'h2': {'beta': float(data_dict['Prop._h2']), 'stdErr': float(data_dict['Prop._h2_std_error'])},
+            'enrichment': {'beta': float(data_dict['Enrichment']), 'stdErr': float(data_dict['Enrichment_std_error'])},
+            'coefficient': {'beta': float(data_dict['Coefficient']), 'stdErr': float(data_dict['Coefficient_std_error'])},
+            'diff': {'beta': float(data_dict['Diff']), 'stdErr': float(data_dict['Diff_std_error'])},
+            'pValue': float(data_dict['Enrichment_p'])
         }
 
 
