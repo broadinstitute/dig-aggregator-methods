@@ -65,16 +65,15 @@ def main():
 
     opts = argparse.ArgumentParser()
     opts.add_argument('dataset')
-    opts.add_argument('sub_region')
 
     # extract the dataset from the command line
     args = opts.parse_args()
 
-    partitions = args.sub_region.split('-') if args.sub_region != "default" else []
+    partitions = ['annotation', 'tissue', 'biosample', 'dataset']
 
     # get the source and output directories
     srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
-    outdir = f'{S3DIR}/out/ldsc/regions/{args.sub_region}/partitioned/{args.dataset}'
+    outdir = f'{S3DIR}/out/ldsc/regions/partitioned/{args.dataset}'
 
     # create a spark session
     spark = SparkSession.builder.appName('ldsc').getOrCreate()
@@ -95,12 +94,11 @@ def main():
     df = df.filter(df.annotation.isNotNull())
 
     # fill empty partitions
-    df = df.fillna({'tissue': 'no_tissue'})
     for partition in partitions:
         df = df.fillna({partition: f'no_{partition}'})
 
     # fix any whitespace issues
-    partition_strs = [regexp_replace(df.annotation, ' ', '_'), regexp_replace(df.tissue, ' ', '_')]
+    partition_strs = []
     for partition in partitions:
         partition_strs.append(regexp_replace(df[partition], ' ', '_'))
     # build the partition name
