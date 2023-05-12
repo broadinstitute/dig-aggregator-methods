@@ -6,8 +6,8 @@ import org.broadinstitute.dig.aws.emr._
 class MergeRegionsStage(implicit context: Context) extends Stage {
   import Implicits.S3Key
 
+  // TODO: Look into an "all" version, at the NoPartition takes too long to be practical as it would run every time
   val partitionsList: Seq[Partitions] = Seq(
-    Partitions.NoPartition,
     Partitions.AnnotationTissue,
     Partitions.AnnotationTissueBiosample
   )
