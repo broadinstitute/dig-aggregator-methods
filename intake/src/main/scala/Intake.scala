@@ -25,6 +25,5 @@ object Intake extends Method {
     addStage(new VariantProcessingStage)
     addStage(new VariantQCStage)
     addStage(new VariantScalingStage)
-    addStage(new GeneAssociationsStage)
   }
 }
