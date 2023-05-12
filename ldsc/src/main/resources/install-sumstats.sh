@@ -25,8 +25,8 @@ sudo yum install -y python3-devel
 
 # reinstall numpy with openblas for multithreading
 sudo yum -y install openblas-devel
-sudo pip3 uninstall -y numpy
-sudo pip3 install numpy
+pip3 uninstall -y numpy
+pip3 install numpy
 
 # install rest of python dependencies
 sudo yum install -y zstd
