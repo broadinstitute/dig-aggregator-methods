@@ -12,7 +12,7 @@ def process_gene_datasets(spark):
     Load all 52k results and write them out both sorted by gene and by
     phenotype, so they may be queried either way.
     """
-    df = spark.read.json('s3://dig-analysis-data/gene_associations/52k_*/*/part-*')
+    df = spark.read.json('s3://dig-analysis-data/gene_associations/combined/*/part-*')
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
     genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
@@ -49,16 +49,18 @@ def process_600trait_datasets(spark):
     df = spark.read.json('s3://dig-analysis-data/gene_associations/600k_600traits/*/*/part-*')
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
-    genes = spark.read.json('s3://dig-analysis-data/genes/ensembl/ensembl_gene_data.json')
+    genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
 
     # fix for join
-    genes = genes.select(
-        genes.ensemblId,
-        genes.chromosome,
-        genes.start,
-        genes.end,
-        genes.type,
-    )
+    genes = genes \
+        .filter(genes.source == 'ensembl') \
+        .select(
+            genes.name.alias('ensemblId'),
+            genes.chromosome,
+            genes.start,
+            genes.end,
+            genes.type,
+        )
 
     df = df.join(genes, on='ensemblId', how='inner')
 
@@ -142,10 +144,10 @@ def process_magma(spark):
 
 def main():
     """
-    Arguments: --52k | --magma / --transcript
+    Arguments: --combined | --magma / --transcript
     """
     opts = argparse.ArgumentParser()
-    opts.add_argument('--52k', action='store_true', dest='flag_52k')
+    opts.add_argument('--combined', action='store_true', dest='flag_combined')
     opts.add_argument('--600trait', action='store_true', dest='flag_600trait')
     opts.add_argument('--magma', action='store_true')
     opts.add_argument('--transcript', action='store_true')
@@ -156,7 +158,7 @@ def main():
     # initialize spark
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    if args.flag_52k:
+    if args.flag_combined:
         process_gene_datasets(spark)
     if args.flag_600trait:
         process_600trait_datasets(spark)
