@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import argparse
 from boto3 import session
 import json
@@ -38,10 +39,13 @@ class BioIndexDB:
     def get_largest_mixed_dataset(self, phenotype):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest mixed dataset')
-            rows = connection.execute(f'SELECT tech, name FROM Datasets '
-                                      f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
-                                      f'AND ancestry="Mixed" AND tech="GWAS" '
-                                      f'ORDER BY subjects DESC LIMIT 1').all()
+            query = sqlalchemy.text(
+                f'SELECT tech, name FROM Datasets '
+                f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
+                f'AND ancestry="Mixed" AND tech="GWAS" '
+                f'ORDER BY subjects DESC LIMIT 1'
+            )
+            rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest mixed dataset')
         if len(rows) == 1:
             return f'{rows[0][0]}/{rows[0][1]}'
