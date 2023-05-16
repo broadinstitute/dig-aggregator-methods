@@ -61,18 +61,19 @@ class VepStage(implicit context: Context) extends Stage {
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
-    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+//    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+    val parts = Seq("part-00659-4b6be879-049b-4b49-82fb-462cb023ed89-c000.csv")
 
     // add a step for each part file
     new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
   }
 
-  /** Before the jobs actually run, perform this operation.
-    */
-  override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/varianteffect/effects/")
-    context.s3.rm("out/varianteffect/warnings/")
-  }
+//  /** Before the jobs actually run, perform this operation.
+//    */
+//  override def prepareJob(output: String): Unit = {
+//    context.s3.rm("out/varianteffect/effects/")
+//    context.s3.rm("out/varianteffect/warnings/")
+//  }
 
   /** On success, write the _SUCCESS file in the output directory.
     */
