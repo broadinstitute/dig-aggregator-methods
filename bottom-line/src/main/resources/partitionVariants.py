@@ -7,6 +7,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import isnan, lit, when  # pylint: disable=E0611
 
 s3dir = 's3://dig-analysis-data'
+s3dir_out = 's3://psmadbec-test'
 
 # entry point
 if __name__ == '__main__':
@@ -17,13 +18,14 @@ if __name__ == '__main__':
 
     opts = argparse.ArgumentParser()
     opts.add_argument('phenotype')
+    opts.add_argument('dataset')
 
     # parse the command line parameters
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = '%s/variants/*/*/%s' % (s3dir, args.phenotype)
-    outdir = '%s/out/metaanalysis/variants/%s' % (s3dir, args.phenotype)
+    srcdir = '%s/variants/*/%s/%s' % (s3dir, args.dataset, args.phenotype)
+    outdir = '%s/out/metaanalysis/variants/%s/dataset=%s' % (s3dir_out, args.phenotype, args.dataset)
 
     # create a spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
@@ -74,7 +76,7 @@ if __name__ == '__main__':
     df.write \
         .mode('overwrite') \
         .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
-        .partitionBy('dataset', 'ancestry', 'rare') \
+        .partitionBy('ancestry', 'rare') \
         .csv(outdir, sep='\t', header=True)
 
     # done

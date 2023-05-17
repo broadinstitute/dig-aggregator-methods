@@ -55,7 +55,7 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
 
   /** There is an output made for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants(tech, dataset, phenotype) => Outputs.Named(phenotype)
+    case variants(tech, dataset, phenotype) => Outputs.Named(PartitionOutput(dataset, phenotype).toOutput)
   }
 
   /** First partition all the variants across datasets (by dataset), then
@@ -67,26 +67,41 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
     val ancestrySpecific = resourceUri("runAncestrySpecific.sh")
     val transEthnic      = resourceUri("runTransEthnic.sh")
     val loadAnalysis     = resourceUri("loadAnalysis.py")
-    val phenotype        = output
+    val partitionOutput = PartitionOutput.fromOutput(output)
 
     // steps run serially
     val steps = Seq(
-      Job.PySpark(partition, phenotype),
-      // ancestry-specific analysis first and load it back
-      Job.Script(ancestrySpecific, phenotype),
-      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
-      // trans-ethnic next using ancestry-specific results
-      Job.Script(transEthnic, phenotype),
-      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
+      Job.PySpark(partition, partitionOutput.phenotype, partitionOutput.dataset)
+//      // ancestry-specific analysis first and load it back
+//      Job.Script(ancestrySpecific, phenotype),
+//      Job.PySpark(loadAnalysis, "--ancestry-specific", phenotype),
+//      // trans-ethnic next using ancestry-specific results
+//      Job.Script(transEthnic, phenotype),
+//      Job.PySpark(loadAnalysis, "--trans-ethnic", phenotype)
     )
 
     new Job(steps)
   }
 
-  /** Nuke the staging directories before the job runs.
-    */
-  override def prepareJob(output: String): Unit = {
-    context.s3.rm(s"out/metaanalysis/staging/ancestry-specific/$output/")
-    context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
+//  /** Nuke the staging directories before the job runs.
+//    */
+//  override def prepareJob(output: String): Unit = {
+//    context.s3.rm(s"out/metaanalysis/staging/ancestry-specific/$output/")
+//    context.s3.rm(s"out/metaanalysis/staging/trans-ethnic/$output/")
+//  }
+}
+
+case class PartitionOutput(
+                            dataset: String,
+                            phenotype: String
+                          ) {
+  def toOutput: String = s"$dataset/$phenotype"
+}
+
+object PartitionOutput {
+  def fromOutput(output: String): PartitionOutput = {
+    output.split("/").toSeq match {
+      case Seq(dataset, phenotype) => PartitionOutput(dataset, phenotype)
+    }
   }
 }
