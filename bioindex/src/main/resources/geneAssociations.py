@@ -49,16 +49,18 @@ def process_600trait_datasets(spark):
     df = spark.read.json('s3://dig-analysis-data/gene_associations/600k_600traits/*/*/part-*')
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
-    genes = spark.read.json('s3://dig-analysis-data/genes/ensembl/ensembl_gene_data.json')
+    genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
 
     # fix for join
-    genes = genes.select(
-        genes.ensemblId,
-        genes.chromosome,
-        genes.start,
-        genes.end,
-        genes.type,
-    )
+    genes = genes \
+        .filter(genes.source == 'ensembl') \
+        .select(
+            genes.name.alias('ensemblId'),
+            genes.chromosome,
+            genes.start,
+            genes.end,
+            genes.type,
+        )
 
     df = df.join(genes, on='ensemblId', how='inner')
 

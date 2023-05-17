@@ -19,7 +19,7 @@ import org.broadinstitute.dig.aws.emr.{BootstrapScript, ClusterDef, Job, Release
   */
 class GeneIdMapStage(implicit context: Context) extends Stage {
 
-  val genesDir: String          = "genes/GRCh37/"
+  val genesDir: String          = "genes/GRCh37_deprecated/"
   val genesOutDir               = "out/huge/geneidmap/genes/"
 
   val genes: Input.Source          = Input.Source.Dataset(genesDir)
