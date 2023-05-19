@@ -50,12 +50,6 @@ class MetaAnalysisStage(implicit context: Context) extends Stage {
     releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
-  /** Additional resources to upload. */
-  override def additionalResources: Seq[String] = Seq(
-    "runMETAL.sh",
-    "getmerge-strip-headers.sh"
-  )
-
   /** Look for new datasets. */
   override val sources: Seq[Input.Source] = Seq(variants)
 

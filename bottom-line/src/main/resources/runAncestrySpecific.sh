@@ -14,7 +14,7 @@ OUTDIR="${LOCAL_DIR}/ancestry-specific/${PHENOTYPE}"
 
 # local scripts
 RUN_METAL="/home/hadoop/bin/runMETAL.sh"
-GET_MERGE="/home/hadoop/bin/getmerge-strip-headers.sh"
+GET_MERGE="/home/hadoop/bin/getmerge-strip-headers-zstd.sh"
 
 # start with a clean working directory
 sudo rm -rf "${OUTDIR}"
@@ -44,7 +44,7 @@ for ANCESTRY in "${ANCESTRIES[@]}"; do
 
     # collect all the common variants for each dataset together
     for DATASET in "${DATASETS[@]}"; do
-        GLOB="${SRCDIR}/dataset=${DATASET}/ancestry=${ANCESTRY}/rare=false/part-*"
+        GLOB="${SRCDIR}/dataset=${DATASET}/ancestry=${ANCESTRY}/rare=false/"
 
         # create the destination directory and merge variants there
         sudo mkdir -p "${ANCESTRY_DIR}/${DATASET}"
@@ -57,9 +57,6 @@ for ANCESTRY in "${ANCESTRIES[@]}"; do
     # first run with samplesize (overlap on), then with stderr
     sudo bash "${RUN_METAL}" "SAMPLESIZE" "ON" "${ANALYSIS_DIR}" "${INPUT_FILES[@]}"
     sudo bash "${RUN_METAL}" "STDERR" "OFF" "${ANALYSIS_DIR}" "${INPUT_FILES[@]}"
-
-    # nuke any previously existing staging data
-    sudo aws s3 rm "${S3_PATH}/staging/metaanalysis/ancestry-specific/${PHENOTYPE}/" --recursive
 
     # upload the resuts to S3
     sudo aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=SAMPLESIZE/" --recursive
