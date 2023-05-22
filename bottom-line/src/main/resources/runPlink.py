@@ -47,6 +47,8 @@ def download(s3_file):
     Copy a file from S3 to here with the same name."
     """
     subprocess.check_call(['aws', 's3', 'cp', '--recursive', s3_file, '.'])
+    for fn in glob.glob('part-*'):
+        subprocess.check_call(['zstd', '-d', '--rm', fn])
 
 
 def upload(local_file, s3_dir):
