@@ -6,7 +6,7 @@ import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
 
-class BassetStage(implicit context: Context) extends Stage {
+class BassetVariantsStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.computeOptimized(),
@@ -39,18 +39,18 @@ class BassetStage(implicit context: Context) extends Stage {
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
     val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
-    val steps   = parts.map(part => Job.Script(bassetScript, part))
+    val steps   = parts.map(part => Job.Script(bassetScript, part)).head
 
     // create the job; run steps in parallel
-    new Job(steps, parallelSteps = true)
+    new Job(Seq(steps), parallelSteps = true)
   }
 
   override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/basset/")
+    context.s3.rm("out/basset/variants/")
   }
 
   override def success(output: String): Unit = {
-    context.s3.touch("out/basset/_SUCCESS")
+    context.s3.touch("out/basset/variants/_SUCCESS")
     ()
   }
 }

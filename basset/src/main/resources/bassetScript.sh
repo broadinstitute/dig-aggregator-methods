@@ -25,7 +25,7 @@ cd "${BASSET_DIR}"
 python3 "fullBassetScript.py" -i "${STEP_DIR}/$VARIANTS" -b 100 -o "${STEP_DIR}/$OUTFILE"
 
 # copy the output of VEP back to S3
-aws s3 cp "${STEP_DIR}/${OUTFILE}" "$S3DIR/basset/${OUTFILE}"
+aws s3 cp "${STEP_DIR}/${OUTFILE}" "$S3DIR/basset/variants/${OUTFILE}"
 
 # delete the files to save space for future steps
 rm "${STEP_DIR}/${OUTFILE}"
