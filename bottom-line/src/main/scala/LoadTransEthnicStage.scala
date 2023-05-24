@@ -6,12 +6,17 @@ import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class LoadTransEthnicStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
+  import org.broadinstitute.dig.aggregator.core.Implicits.S3Key
 
   val variants: Input.Source = Input.Source.Success("variants/*/*/*/")
   val transEthnicTables: Input.Source = Input.Source.Success("out/metaanalysis/staging/trans-ethnic/*/")
 
+  // NOTE: Fairly slow, but this can run with a single m5.2xlarge if necessary
+  // A cluster of 3 decently sized instances though makes it quite swift
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1,
+    slaveInstanceType = Strategy.memoryOptimized(mem = 128.gb),
+    instances = 4,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh"))),
     releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
@@ -22,16 +27,11 @@ class LoadTransEthnicStage(implicit context: Context) extends Stage {
    * */
   override val sources: Seq[Input.Source] = Seq(variants, transEthnicTables)
 
-  /** There is an output made for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
     case variants(_, _, phenotype) => Outputs.Named(phenotype)
     case transEthnicTables(phenotype) => Outputs.Named(phenotype)
   }
 
-  /** First partition all the variants across datasets (by dataset), then
-   * run the ancestry-specific analysis and load it from staging. Finally,
-   * run the trans-ethnic analysis and load the resulst from staging.
-   */
   override def make(output: String): Job = {
     val loadAnalysis = resourceUri("loadAnalysis.py")
 

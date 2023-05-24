@@ -9,11 +9,6 @@ class AncestrySpecificStage(implicit context: Context) extends Stage {
 
   val variants: Input.Source = Input.Source.Success("out/metaanalysis/variants/*/*/")
 
-  /** The master node - the one that actually runs METAL - needs a pretty
-   * sizeable hard drive and more CPUs to download all the variants and run
-   * them efficiently. The load steps can end up performing an RDD on LOTS
-   * of data, so memory optimized instances are helpful.
-   */
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
@@ -21,7 +16,6 @@ class AncestrySpecificStage(implicit context: Context) extends Stage {
     releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
-  /** Look for new datasets. */
   override val sources: Seq[Input.Source] = Seq(variants)
 
   // Makes only one call to get all of the files. Lazy as this class is instantiated whenever any stage it called
@@ -38,7 +32,6 @@ class AncestrySpecificStage(implicit context: Context) extends Stage {
     parts.groupBy(s3Location => (s3Location.phenotype, s3Location.dataset)).toMap
   }
 
-  /** There is an output made for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
     case variants(phenotype: String, dataset: String) =>
       // Filter out Mixed datasets as they don't go through ancestry specific path
@@ -54,10 +47,6 @@ class AncestrySpecificStage(implicit context: Context) extends Stage {
       } else Outputs.Null
   }
 
-  /** First partition all the variants across datasets (by dataset), then
-   * run the ancestry-specific analysis and load it from staging. Finally,
-   * run the trans-ethnic analysis and load the resulst from staging.
-   */
   override def make(output: String): Job = {
     val ancestrySpecific = resourceUri("runAncestrySpecific.sh")
     val ancestrySpecificOutput = AncestrySpecificOutput.fromOutput(output)

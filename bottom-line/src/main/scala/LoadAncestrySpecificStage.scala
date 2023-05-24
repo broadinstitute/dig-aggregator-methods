@@ -1,17 +1,22 @@
 package org.broadinstitute.dig.aggregator.methods.bottomline
 
 import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class LoadAncestrySpecificStage(implicit context: Context) extends Stage {
-  import Implicits.S3Key
+  import MemorySize.Implicits._
+  import org.broadinstitute.dig.aggregator.core.Implicits.S3Key
 
   val ancestrySpecificTables: Input.Source = Input.Source.Success("out/metaanalysis/staging/ancestry-specific/*/*/")
   val variants: Input.Source = Input.Source.Success("out/metaanalysis/variants/*/*/")
 
+  // NOTE: Fairly slow, but this can run with a single m5.2xlarge if necessary
+  // A cluster of 3 decently sized instances though makes it quite swift
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1,
+    slaveInstanceType = Strategy.memoryOptimized(mem = 128.gb),
+    instances = 4,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh"))),
     releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
@@ -37,7 +42,6 @@ class LoadAncestrySpecificStage(implicit context: Context) extends Stage {
     parts.groupBy(s3Location => (s3Location.phenotype, s3Location.dataset)).toMap
   }
 
-  /** There is an output made for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
     case ancestrySpecificTables(phenotype, ancestry) =>
       Outputs.Named(LoadAncestryOutput(phenotype, ancestry.split("=").last).toOutput)
@@ -55,10 +59,6 @@ class LoadAncestrySpecificStage(implicit context: Context) extends Stage {
       } else Outputs.Null
   }
 
-  /** First partition all the variants across datasets (by dataset), then
-   * run the ancestry-specific analysis and load it from staging. Finally,
-   * run the trans-ethnic analysis and load the resulst from staging.
-   */
   override def make(output: String): Job = {
     val loadAnalysis = resourceUri("loadAnalysis.py")
     val loadAncestryOutput = LoadAncestryOutput.fromOutput(output)
