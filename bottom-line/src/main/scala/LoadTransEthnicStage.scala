@@ -13,9 +13,10 @@ class LoadTransEthnicStage(implicit context: Context) extends Stage {
   val transEthnicTables: Input.Source = Input.Source.Success("out/metaanalysis/staging/trans-ethnic/*/")
 
   // NOTE: Fairly slow, but this can run with a single m5.2xlarge if necessary
-  // A cluster of 3 decently sized instances though makes it quite swift
+  // A cluster of 3 compute instances though makes it quite swift
   override val cluster: ClusterDef = super.cluster.copy(
-    slaveInstanceType = Strategy.memoryOptimized(mem = 128.gb),
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 8, mem = 16.gb),
+    slaveInstanceType = Strategy.computeOptimized(vCPUs = 8, mem = 16.gb),
     instances = 4,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh"))),
     releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
