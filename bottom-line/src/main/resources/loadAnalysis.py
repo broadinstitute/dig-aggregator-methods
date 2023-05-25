@@ -13,11 +13,8 @@ from pyspark.sql.functions import col, isnan, lit, when  # pylint: disable=E0611
 
 # where in S3 meta-analysis data is
 s3_bucket = 's3://dig-analysis-data'
-s3_path = '%s/out/metaanalysis' % s3_bucket
-s3_staging = '%s/staging' % s3_path
-
-# where local analysis happens
-localdir = '/mnt/var/metal'
+s3_path = f'{s3_bucket}/out/metaanalysis'
+s3_staging = f'{s3_path}/staging'
 
 # this is the schema written out by the variant partition process
 variants_schema = StructType(
@@ -155,8 +152,8 @@ def load_analysis(spark, path, overlap=False):
     """
     Load the SAMPLESIZE and STDERR analysis and join them together.
     """
-    samplesize_outfile = '%s/scheme=SAMPLESIZE/METAANALYSIS1.tbl' % path
-    stderr_outfile = '%s/scheme=STDERR/METAANALYSIS1.tbl' % path
+    samplesize_outfile = f'{path}/scheme=SAMPLESIZE/METAANALYSIS1.tbl.zst'
+    stderr_outfile = f'{path}/scheme=STDERR/METAANALYSIS1.tbl.zst'
 
     # load both files into data frames
     samplesize_analysis = read_samplesize_analysis(spark, samplesize_outfile, overlap)
@@ -186,67 +183,56 @@ def hadoop_test(path):
     return len(hadoop_ls(path)) > 0
 
 
-def load_ancestry_specific_analysis(phenotype):
+def load_ancestry_specific_analysis(phenotype, ancestry):
     """
     Load the METAL results for each ancestry into a single DataFrame.
     """
-    srcdir = '%s/ancestry-specific/%s' % (s3_staging, phenotype)
-    outdir = '%s/ancestry-specific/%s' % (s3_path, phenotype)
+    srcdir = f'{s3_staging}/ancestry-specific/{phenotype}/ancestry={ancestry}'
+    outdir = f'{s3_path}/ancestry-specific/{phenotype}/ancestry={ancestry}'
 
-    # the final dataframe for each ancestry
-    ancestries = set()
+    print(f'Loading ancestry {ancestry}...')
 
-    # discover all the ancestries
-    for tbl in hadoop_ls('%s/*/*/METAANALYSIS1.tbl' % srcdir):
-        ancestry = re.search(r'/ancestry=([^/]+)/', tbl).group(1)
-        ancestries.add(ancestry)
+    # NOTE: The columns from the analysis and rare variants need to be
+    #       in the same order before unioning the sets together. To
+    #       guarantee this, we'll select from each using the schema written
+    #       by the partition variants script.
 
-    # for each ancestry, load the analysis
-    for ancestry in ancestries:
-        print('Loading ancestry %s...' % ancestry)
+    columns = [col(field.name) for field in variants_schema]
 
-        path = '%s/ancestry=%s' % (srcdir, ancestry)
+    # read the analysis produced by METAL
+    df = load_analysis(spark, srcdir, overlap=True)
 
-        # NOTE: The columns from the analysis and rare variants need to be
-        #       in the same order before unioning the sets together. To
-        #       guarantee this, we'll select from each using the schema written
-        #       by the partition variants script.
+    # add ancestry for partitioning and calculated eaf/maf averages
+    df = df \
+        .withColumn('phenotype', lit(phenotype)) \
+        .select(*columns)
 
-        columns = [col(field.name) for field in variants_schema]
+    # rare variants across all datasets for this phenotype and ancestry
+    rare_path = f'{s3_path}/variants/{phenotype}/*/ancestry={ancestry}/rare=true'
 
-        # read the analysis produced by METAL
-        df = load_analysis(spark, path, overlap=True)
+    # are there rare variants to merge with the analysis?
+    if hadoop_test(rare_path):
+        print('Merging rare variants...')
 
-        # add ancestry for partitioning and calculated eaf/maf averages
-        df = df \
-            .withColumn('phenotype', lit(phenotype)) \
+        # load the rare variants across all datasets
+        rare_variants = spark.read \
+            .csv(rare_path, sep='\t', header=True, schema=variants_schema) \
             .select(*columns)
 
-        # rare variants across all datasets for this phenotype and ancestry
-        rare_path = '%s/variants/%s/*/ancestry=%s/rare=true' % (s3_path, phenotype, ancestry)
+        # update the analysis and keep variants with the largest N
+        df = df.union(rare_variants) \
+            .rdd \
+            .keyBy(lambda v: v.varId) \
+            .reduceByKey(lambda a, b: b if (b.n or 0) > (a.n or 0) else a) \
+            .map(lambda v: v[1]) \
+            .toDF()
+    df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
 
-        # are there rare variants to merge with the analysis?
-        if hadoop_test(rare_path):
-            print('Merging rare variants...')
-
-            # load the rare variants across all datasets
-            rare_variants = spark.read \
-                .csv(rare_path, sep='\t', header=True, schema=variants_schema) \
-                .select(*columns)
-
-            # update the analysis and keep variants with the largest N
-            df = df.union(rare_variants) \
-                .rdd \
-                .keyBy(lambda v: v.varId) \
-                .reduceByKey(lambda a, b: b if (b.n or 0) > (a.n or 0) else a) \
-                .map(lambda v: v[1]) \
-                .toDF()
-        df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
-
-        # write the analysis out, manually partitioned
-        df.write \
-            .mode('overwrite') \
-            .json('%s/ancestry=%s' % (outdir, ancestry))
+    # write the analysis out, manually partitioned
+    df.write \
+        .mode('overwrite') \
+        .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
+        .json(outdir)
 
 
 def load_trans_ethnic_analysis(phenotype):
@@ -255,8 +241,8 @@ def load_trans_ethnic_analysis(phenotype):
     processed with OVERLAP OFF. Once done, the results are uploaded back to
     HDFS (S3) where they can be kept and uploaded to a database.
     """
-    srcdir = '%s/trans-ethnic/%s' % (s3_staging, phenotype)
-    outdir = '%s/trans-ethnic/%s' % (s3_path, phenotype)
+    srcdir = f'{s3_staging}/trans-ethnic/{phenotype}'
+    outdir = f'{s3_path}/trans-ethnic/{phenotype}'
 
     print("Loading from {} to {}".format(srcdir, outdir))
 
@@ -331,7 +317,10 @@ def load_trans_ethnic_analysis(phenotype):
         .withColumn('pValue', when(variants.pValue == 0.0, np.nextafter(0, 1)).otherwise(variants.pValue))
 
     # write the variants
-    variants.write.mode('overwrite').json(outdir)
+    variants.write\
+        .mode('overwrite') \
+        .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
+        .json(outdir)
 
 
 # entry point
@@ -348,20 +337,23 @@ if __name__ == '__main__':
     opts = argparse.ArgumentParser()
     opts.add_argument('--ancestry-specific', action='store_true', default=False)
     opts.add_argument('--trans-ethnic', action='store_true', default=False)
-    opts.add_argument('phenotype')
+    opts.add_argument('--phenotype')
+    opts.add_argument('--ancestry', default=None)
 
     # parse command line arguments
     args = opts.parse_args()
 
     # --ancestry-specific or --trans-ethnic must be provided, but not both!
     assert args.ancestry_specific != args.trans_ethnic
+    # must provide ancestry for ancestry specific
+    assert (args.ancestry_specific and args.ancestry is not None) or args.trans_ethnic
 
     # create the spark context
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
 
     # either run the trans-ethnic analysis or ancestry-specific analysis
     if args.ancestry_specific:
-        load_ancestry_specific_analysis(args.phenotype)
+        load_ancestry_specific_analysis(args.phenotype, args.ancestry)
     else:
         load_trans_ethnic_analysis(args.phenotype)
 

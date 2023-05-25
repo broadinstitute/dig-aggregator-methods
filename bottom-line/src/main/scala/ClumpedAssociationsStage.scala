@@ -31,7 +31,8 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
     masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
     instances = 1,
     masterVolumeSizeInGB = 100,
-    bootstrapSteps = Seq(Job.Script(resourceUri("install-plink.sh")))
+    bootstrapSteps = Seq(Job.Script(resourceUri("install-plink.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Build the job. */

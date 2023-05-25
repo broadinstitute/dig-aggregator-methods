@@ -28,6 +28,7 @@ chmod +x getmerge-strip-headers.sh
 
 # install packages
 sudo yum -y install python3-devel
+sudo yum install -y zstd
 
 sudo pip3 install cython==0.29.24
 sudo pip3 install pandas==1.3.3
