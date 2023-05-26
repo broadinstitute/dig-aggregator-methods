@@ -37,7 +37,7 @@ class VepStage(implicit context: Context) extends Stage {
   /** Definition of each VM "cluster" of 1 machine that will run VEP.
     */
   override def cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 8, mem = 16.gb),
+    masterInstanceType = Strategy.computeOptimized(),
     instances = 1,
     masterVolumeSizeInGB = 200,
     applications = Seq.empty,
