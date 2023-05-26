@@ -18,13 +18,10 @@ aws s3 cp "$S3DIR/variants/$PART" .
 # ensure the file is sorted
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"
 
-# count the number of processors (used for forking)
-CPUS=$(cat /proc/cpuinfo | grep processor | wc | awk '{print $1}')
-
 # run VEP
 perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
     --dir "$VEPDIR" \
-    --fork "$CPUS" \
+    --fork 4 \
     --format ensembl \
     --buffer_size 15000 \
     --json \

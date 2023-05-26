@@ -44,7 +44,8 @@ class VepStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(
       new BootstrapScript(clusterBootstrap),
       new BootstrapScript(installScript)
-    )
+    ),
+    stepConcurrency = 8
   )
 
   /** Map inputs to outputs. */
@@ -66,7 +67,7 @@ class VepStage(implicit context: Context) extends Stage {
     }
 
     // add a step for each part file
-    new Job(parts.map(Job.Script(runScript, _)))
+    new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
   }
 
   /** Before the jobs actually run, perform this operation.
