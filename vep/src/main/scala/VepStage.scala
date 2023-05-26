@@ -37,15 +37,14 @@ class VepStage(implicit context: Context) extends Stage {
   /** Definition of each VM "cluster" of 1 machine that will run VEP.
     */
   override def cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 32),
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 8, mem = 16.gb),
     instances = 1,
-    masterVolumeSizeInGB = 800,
+    masterVolumeSizeInGB = 200,
     applications = Seq.empty,
     bootstrapScripts = Seq(
       new BootstrapScript(clusterBootstrap),
       new BootstrapScript(installScript)
-    ),
-    stepConcurrency = 3
+    )
   )
 
   /** Map inputs to outputs. */
@@ -61,7 +60,10 @@ class VepStage(implicit context: Context) extends Stage {
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
-    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+    val all_parts = objects.map(_.key.split('/').last)
+    val parts: Seq[String] = Seq("00630", "00501", "00744", "00659", "00240", "00587", "00931", "00778").flatMap { p: String =>
+      all_parts.filter(_.startsWith(s"part-$p"))
+    }
 
     // add a step for each part file
     new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
@@ -69,15 +71,15 @@ class VepStage(implicit context: Context) extends Stage {
 
   /** Before the jobs actually run, perform this operation.
     */
-  override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/varianteffect/effects/")
-    context.s3.rm("out/varianteffect/warnings/")
-  }
+//  override def prepareJob(output: String): Unit = {
+//    context.s3.rm("out/varianteffect/effects/")
+//    context.s3.rm("out/varianteffect/warnings/")
+//  }
 
   /** On success, write the _SUCCESS file in the output directory.
     */
-  override def success(output: String): Unit = {
-    context.s3.touch("out/varianteffect/effects/_SUCCESS")
-    ()
-  }
+//  override def success(output: String): Unit = {
+//    context.s3.touch("out/varianteffect/effects/_SUCCESS")
+//    ()
+//  }
 }
