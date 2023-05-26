@@ -66,7 +66,7 @@ class VepStage(implicit context: Context) extends Stage {
     }
 
     // add a step for each part file
-    new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
+    new Job(parts.map(Job.Script(runScript, _)))
   }
 
   /** Before the jobs actually run, perform this operation.
