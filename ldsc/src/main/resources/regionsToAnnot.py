@@ -20,8 +20,8 @@ def get_region_file(sub_region, region_name):
 
 
 def convert_to_bed(sub_region, region_name):
-    with open(f'./{sub_region}{region_name}/{region_name}.bed', 'w') as f_out:
-        with open(f'./{sub_region}{region_name}/{region_name}.csv', 'r') as f_in:
+    with open(f'./{sub_region}/{region_name}/{region_name}.bed', 'w') as f_out:
+        with open(f'./{sub_region}/{region_name}/{region_name}.csv', 'r') as f_in:
             line = f_in.readline()
             while len(line) > 0:
                 filtered_line = '\t'.join(line.split('\t')[:3])
