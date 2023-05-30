@@ -24,7 +24,7 @@ sudo aws s3 cp s3://dig-analysis-data/resources/scripts/getmerge-strip-headers.s
 sudo chmod +x getmerge-strip-headers.sh
 
 # download the dbSNP mapping file
-./getmerge-strip-headers.sh s3://dig-analysis-data/out/varianteffect/snp/part-*.csv ./snps.csv
+sudo ./getmerge-strip-headers.sh s3://dig-analysis-data/out/varianteffect/snp/part-*.csv ./snps.csv
 
 # install packages
 sudo yum -y install python3-devel
