@@ -16,6 +16,7 @@ def main():
     # sort and write
     df.orderBy(['gene']) \
         .write \
+        .option("compression", "is.hail.io.compress.BGzipCodec") \
         .mode('overwrite') \
         .json(outdir)
 

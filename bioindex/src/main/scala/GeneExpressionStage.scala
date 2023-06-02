@@ -1,8 +1,6 @@
 package org.broadinstitute.dig.aggregator.methods.bioindex
 
 import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws._
-import org.broadinstitute.dig.aws.config.emr._
 import org.broadinstitute.dig.aws.emr._
 
 /** The final result of all aggregator methods is building the BioIndex. All
@@ -21,7 +19,8 @@ class GeneExpressionStage(implicit context: Context) extends Stage {
 
   /** Use latest EMR release. */
   override val cluster: ClusterDef = super.cluster.copy(
-    releaseLabel = ReleaseLabel.emrLatest
+    releaseLabel = ReleaseLabel.emrLatest,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("compression.sh")))
   )
 
   /** Output to Job steps. */
