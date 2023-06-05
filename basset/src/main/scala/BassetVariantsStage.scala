@@ -42,7 +42,7 @@ class BassetVariantsStage(implicit context: Context) extends Stage {
     val steps   = parts.map(part => Job.Script(bassetScript, part))
 
     // create the job; run steps in parallel
-    new Job(Seq(steps), parallelSteps = true)
+    new Job(steps, parallelSteps = true)
   }
 
   override def prepareJob(output: String): Unit = {
