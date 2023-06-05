@@ -39,7 +39,7 @@ class BassetVariantsStage(implicit context: Context) extends Stage {
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
     val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
-    val steps   = parts.map(part => Job.Script(bassetScript, part)).head
+    val steps   = parts.map(part => Job.Script(bassetScript, part))
 
     // create the job; run steps in parallel
     new Job(Seq(steps), parallelSteps = true)
