@@ -28,9 +28,8 @@ class AssociationsStage(implicit context: Context) extends Stage {
     masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
     masterVolumeSizeInGB = 200,
     slaveVolumeSizeInGB = 64,
-    bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("cluster-bootstrap.sh"))
-    )
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Output to Job steps. */

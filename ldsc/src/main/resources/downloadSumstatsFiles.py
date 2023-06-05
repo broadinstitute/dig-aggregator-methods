@@ -14,7 +14,7 @@ def download_ancestry_sumstats():
         if re.fullmatch(f'.*\.sumstats\.gz$', file.key):
             ancestry = re.findall(f'.*_(\w+).sumstats.gz', file.key)[0]
             subprocess.check_call([
-                'aws', 's3', 'cp', f's3://dig-analysis-data/{file.key}', f'{sumstat_files}/{ancestry}/'
+                'sudo', 'aws', 's3', 'cp', f's3://dig-analysis-data/{file.key}', f'{sumstat_files}/{ancestry}/'
             ])
 
 
