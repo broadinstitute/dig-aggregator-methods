@@ -2,7 +2,7 @@
 
 CLUMPING_ROOT=/mnt/var/clumping
 
-# create a gregor directory in /mnt/var to copy data locally
+# create a clumping directory in /mnt/var to copy data locally
 mkdir -p "${CLUMPING_ROOT}"
 chmod 775 "${CLUMPING_ROOT}"
 

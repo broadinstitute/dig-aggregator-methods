@@ -26,9 +26,6 @@ class RegionToAnnotStage(implicit context: Context) extends Stage {
     case mergedFiles(region) => Outputs.Named(region)
   }
 
-  /** The partition names are combined together across datasets into single
-    * BED files that can then be read by GREGOR.
-    */
   override def make(output: String): Job = {
     new Job(Job.Script(
       resourceUri("regionsToAnnot.py"),

@@ -2,7 +2,7 @@
 
 METAL_ROOT=/mnt/var/metal
 
-# create a gregor directory in /mnt/var to copy data locally
+# create a metal directory in /mnt/var to copy data locally
 sudo mkdir -p "${METAL_ROOT}"
 sudo chmod 775 "${METAL_ROOT}"
 
