@@ -26,7 +26,7 @@ accessible_chromatin_matches = ['dnase-only']  # To be done later
 @udf(returnType=StringType())
 def harmonized_state(annotation, state):
     """
-    Attempts to discover the annotation used for LDSC and GREGOR
+    Attempts to discover the annotation used for LDSC
     given the current annotation and state columns. If the annotation
     is a chromatin state, then the state field is harmonized and
     used, otherwise the annotation is returned as-is.
@@ -122,7 +122,7 @@ def main():
         df.dataset
     )
 
-    # output the regions partitioned for GREGOR in BED format
+    # output the regions partitioned for LDSC in BED format
     df.write \
         .mode('overwrite') \
         .partitionBy('partition') \

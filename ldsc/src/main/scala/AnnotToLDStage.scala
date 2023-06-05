@@ -28,9 +28,6 @@ class AnnotToLDStage(implicit context: Context) extends Stage {
     case annotFiles(ancestry, _) => Outputs.Named(ancestry.split("=").last)
   }
 
-  /** The partition names are combined together across datasets into single
-    * BED files that can then be read by GREGOR.
-    */
   override def make(output: String): Job = {
     new Job(Job.Script(resourceUri("annotToLD.py"), s"--sub-region=$subRegion", s"--ancestry=$output"))
   }
