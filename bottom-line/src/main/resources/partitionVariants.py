@@ -16,14 +16,15 @@ if __name__ == '__main__':
     print('Python version: %s' % platform.python_version())
 
     opts = argparse.ArgumentParser()
+    opts.add_argument('dataset')
     opts.add_argument('phenotype')
 
     # parse the command line parameters
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = '%s/variants/*/*/%s' % (s3dir, args.phenotype)
-    outdir = '%s/out/metaanalysis/variants/%s' % (s3dir, args.phenotype)
+    srcdir = f'{s3dir}/variants/*/{args.dataset}/{args.phenotype}'
+    outdir = f'{s3dir}/out/metaanalysis/variants/{args.phenotype}/dataset={args.dataset}'
 
     # create a spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
@@ -55,7 +56,6 @@ if __name__ == '__main__':
         .filter(df.beta.isNotNull() & ~isnan(df.beta)) \
         .filter(df.n.isNotNull()) \
         .select(
-            df.dataset,
             df.varId,
             df.chromosome,
             df.position,
@@ -73,7 +73,8 @@ if __name__ == '__main__':
     # output the partitioned variants as CSV files for METAL
     df.write \
         .mode('overwrite') \
-        .partitionBy('dataset', 'ancestry', 'rare') \
+        .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
+        .partitionBy('ancestry', 'rare') \
         .csv(outdir, sep='\t', header=True)
 
     # done

@@ -2,7 +2,7 @@
 
 METAL_ROOT=/mnt/var/metal
 
-# create a gregor directory in /mnt/var to copy data locally
+# create a metal directory in /mnt/var to copy data locally
 sudo mkdir -p "${METAL_ROOT}"
 sudo chmod 775 "${METAL_ROOT}"
 
@@ -23,6 +23,10 @@ sudo ln -s /home/hadoop/metal/build/metal/metal /home/hadoop/bin/metal
 # copy the getmerge-strip-headers shell script from S3
 sudo aws s3 cp "s3://dig-analysis-data/resources/scripts/getmerge-strip-headers.sh" /home/hadoop/bin
 sudo chmod +x /home/hadoop/bin/getmerge-strip-headers.sh
+
+# copy the getmerge-strip-headers-zstd shell script from S3
+sudo aws s3 cp "s3://dig-analysis-data/resources/scripts/getmerge-strip-headers-zstd.sh" /home/hadoop/bin
+sudo chmod +x /home/hadoop/bin/getmerge-strip-headers-zstd.sh
 
 # copy the runMETAL script from S3
 sudo aws s3 cp "s3://dig-analysis-data/resources/pipeline/metaanalysis/runMETAL.sh" /home/hadoop/bin

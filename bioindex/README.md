@@ -87,7 +87,7 @@ Sorts the genes in the aggregator by position and writing it to `genes/...`. How
 
 ### GlobalEnrichmentStage
 
-Joins the output of the GREGOR method with the tissue ontology data, sorts it by phenotype and then pValue (so a query with `limit=1` will return the most impacted tissue) and writes it to `global_enrichment/phenotype/...`.
+Joins the output of the LDSC method with the tissue ontology data, sorts it by phenotype and then pValue (so a query with `limit=1` will return the most impacted tissue) and writes it to `global_enrichment/phenotype/...`.
 
 The output of this stage is queried with the `global-enrichment` index.
 

@@ -58,10 +58,11 @@ class BioIndexDB:
     def get_largest_mixed_dataset(self, phenotype):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest mixed dataset')
-            rows = connection.execute(f'SELECT tech, name FROM Datasets '
-                                      f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
-                                      f'AND ancestry="Mixed" AND tech="GWAS" '
-                                      f'ORDER BY subjects DESC LIMIT 1').all()
+            query = sqlalchemy.text(f'SELECT tech, name FROM Datasets '
+                                    f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
+                                    f'AND ancestry="Mixed" AND tech="GWAS" '
+                                    f'ORDER BY subjects DESC LIMIT 1')
+            rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest mixed dataset')
         if len(rows) == 1:
             return f'{rows[0][0]}/{rows[0][1]}'
@@ -80,7 +81,11 @@ def get_s3_dir(phenotype, ancestry):
 def get_single_json_file(s3_dir, phenotype, ancestry):
     subprocess.check_call(['aws', 's3', 'cp', s3_dir, f'{phenotype_files}/', '--recursive', '--exclude=_SUCCESS', '--exclude=metadata'])
     with open(f'{phenotype_files}/{phenotype}_{ancestry}.json', 'w') as f_out:
-        for file in glob.glob(f'{phenotype_files}/part-*.json', recursive=True):
+        for file in glob.glob(f'{phenotype_files}/part-*', recursive=True):
+            filename, file_extension = os.path.splitext(file)
+            if file_extension == '.zst':
+                subprocess.check_call(['zstd', '-d', file])
+                file = filename  # zst gone from resulting file to use
             with open(file, 'r') as f_in:
                 shutil.copyfileobj(f_in, f_out)
             os.remove(file)

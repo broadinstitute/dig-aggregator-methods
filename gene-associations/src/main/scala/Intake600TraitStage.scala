@@ -1,14 +1,13 @@
-package org.broadinstitute.dig.aggregator.methods.intake
+package org.broadinstitute.dig.aggregator.methods.geneassociations
 
 import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
-class GeneAssociationsStage(implicit context: Context) extends Stage {
+class Intake600TraitStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("gene_bootstrap.sh"))),
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("intake_bootstrap.sh"))),
     releaseLabel = ReleaseLabel("emr-6.7.0"),
     instances = 1,
     stepConcurrency = 10
@@ -24,6 +23,6 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("geneAssociations.py"), s"--filename=$output"))
+    new Job(Job.Script(resourceUri("600TraitIntake.py"), s"--filename=$output"))
   }
 }

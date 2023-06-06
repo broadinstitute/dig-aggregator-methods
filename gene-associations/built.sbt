@@ -1,6 +1,6 @@
 val Versions = new {
   val Aggregator = "0.3.1-SNAPSHOT"
-  val Scala      = "2.13.5"
+  val Scala = "2.13.2"
 }
 
 // set the version of scala to compile with
@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
 organization := "org.broadinstitute.dig"
 
 // entry point when running this method
-mainClass := Some("org.broadinstitute.dig.aggregator.methods.gregor.Gregor")
+mainClass := Some("org.broadinstitute.dig.aggregator.methods.geneassociations.GeneAssociations")
 
 // enables buildInfo, which bakes git version info into the jar
 enablePlugins(GitVersioning)
@@ -39,20 +39,20 @@ buildInfoTask := {
   streams.value.log.info(s"Writing version info to $file...")
 
   // collect git versioning information
-  val branch                = git.gitCurrentBranch.value
-  val lastCommit            = git.gitHeadCommit.value
-  val describedVersion      = git.gitDescribedVersion.value
+  val branch = git.gitCurrentBranch.value
+  val lastCommit = git.gitHeadCommit.value
+  val describedVersion = git.gitDescribedVersion.value
   val anyUncommittedChanges = git.gitUncommittedChanges.value
-  val remoteUrl             = (scmInfo in ThisBuild).value.map(_.browseUrl.toString)
-  val buildDate             = java.time.Instant.now
+  val remoteUrl = (scmInfo in ThisBuild).value.map(_.browseUrl.toString)
+  val buildDate = java.time.Instant.now
 
   // map properties
   val properties = Map[String, String](
-    "branch"             -> branch,
-    "lastCommit"         -> lastCommit.getOrElse(""),
-    "remoteUrl"          -> remoteUrl.getOrElse(""),
+    "branch" -> branch,
+    "lastCommit" -> lastCommit.getOrElse(""),
+    "remoteUrl" -> remoteUrl.getOrElse(""),
     "uncommittedChanges" -> anyUncommittedChanges.toString,
-    "buildDate"          -> buildDate.toString
+    "buildDate" -> buildDate.toString
   )
 
   // build properties content

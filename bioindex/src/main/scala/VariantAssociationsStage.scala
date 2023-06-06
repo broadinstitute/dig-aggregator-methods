@@ -26,8 +26,9 @@ class VariantAssociationsStage(implicit context: Context) extends Stage {
     slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
     masterVolumeSizeInGB = 200,
     slaveVolumeSizeInGB = 200,
-    instances = 6,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
+    instances = 10,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Output to Job steps. */

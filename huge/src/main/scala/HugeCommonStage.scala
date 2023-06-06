@@ -25,14 +25,14 @@ class HugeCommonStage(implicit context: Context) extends Stage {
   }
 
   val genesDir: String                  = "out/huge/geneidmap/genes/"
-  val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/52k_*/<phenotype>/")
+  val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/combined/<phenotype>/")
   val variantFiles: FilesForPhenotype   = new FilesForPhenotype("out/metaanalysis/trans-ethnic/<phenotype>/")
   val cacheDir: String                  = "out/huge/cache/"
   val outDir: FilesForPhenotype         = new FilesForPhenotype("out/huge/common/<phenotype>/")
 
   val genes: Input.Source            = Input.Source.Dataset(genesDir)
   val cache: Input.Source            = Input.Source.Dataset(cacheDir)
-  val geneAssociations: Input.Source = Input.Source.Dataset(geneAssocFiles.asGlob)
+  val geneAssociations: Input.Source = Input.Source.Success(geneAssocFiles.asGlob)
   val variants: Input.Source         = Input.Source.Success(variantFiles.asGlob)
 
   /** Source inputs. */
@@ -50,7 +50,7 @@ class HugeCommonStage(implicit context: Context) extends Stage {
   /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
     case genes()                        => Outputs.All
-    case geneAssociations(_, phenotype) => Outputs.Named(phenotype)
+    case geneAssociations(phenotype) => Outputs.Named(phenotype)
     case variants(phenotype)            => Outputs.Named(phenotype)
   }
 
