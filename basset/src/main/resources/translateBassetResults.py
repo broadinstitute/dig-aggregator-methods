@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import re
 import subprocess
 
 data_location = '/mnt/var/basset'
@@ -27,10 +28,18 @@ def get_part(part):
 
 # Arithmetic mean in lieu of knowing proportion of basset tissues in each portal tissue
 def translate_variant(variant_associations, tissue_map):
-    out = {'varId': variant_associations['varId']}
+    varId = variant_associations['varId']
+    chromosome, position = re.findall('(.*):(.*):.*:.*', variant_associations['varId'])[0]
+    out = []
     for portal_tissue, basset_tissues in tissue_map.items():
         associations = [variant_associations[basset_tissue] for basset_tissue in basset_tissues]
-        out[portal_tissue] = sum(associations) / len(associations)
+        out.append({
+            'varId': varId,
+            'chromosome': chromosome,
+            'position': position,
+            'tissue': portal_tissue,
+            'p': sum(associations) / len(associations)
+        })
     return out
 
 
@@ -41,8 +50,8 @@ def translate_variants(part, tissue_map):
             line = f_in.readline()
             while len(line) > 0:
                 json_line = json.loads(line)
-                translated_line = translate_variant(json_line, tissue_map)
-                f_out.write(f'{json.dumps(translated_line)}\n')
+                for translated_line in translate_variant(json_line, tissue_map):
+                    f_out.write(f'{json.dumps(translated_line)}\n')
                 line = f_in.readline()
     os.remove(f'./data/{part}')
 
