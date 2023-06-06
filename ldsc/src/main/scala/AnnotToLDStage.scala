@@ -48,23 +48,6 @@ class AnnotToLDStage(implicit context: Context) extends Stage {
     }.toSeq
     new Job(jobs)
   }
-
-  /** Before the jobs actually run, perform this operation.
-    */
-  override def prepareJob(output: String): Unit = {
-    regionCache.map { region =>
-      context.s3.rm(s"${region.directory}/")
-    }
-  }
-
-  /** Update the success flag of the merged regions.
-    */
-  override def success(output: String): Unit = {
-    regionCache.map { region =>
-      context.s3.rm(s"${region.directory}/_SUCCESS")
-    }
-    ()
-  }
 }
 
 case class AnnotToLDRegion(
