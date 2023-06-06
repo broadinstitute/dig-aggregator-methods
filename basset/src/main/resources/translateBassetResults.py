@@ -44,6 +44,7 @@ def translate_variants(part, tissue_map):
                 translated_line = translate_variant(json_line, tissue_map)
                 f_out.write(f'{json.dumps(translated_line)}\n')
                 line = f_in.readline()
+    os.remove(f'./data/{part}')
 
 
 def upload(part):
