@@ -36,7 +36,7 @@ def translate_variant(variant_associations, tissue_map):
         out.append({
             'varId': varId,
             'chromosome': chromosome,
-            'position': position,
+            'position': int(position),
             'tissue': portal_tissue,
             'p': sum(associations) / len(associations)
         })
