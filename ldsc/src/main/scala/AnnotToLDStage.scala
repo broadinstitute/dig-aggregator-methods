@@ -46,7 +46,7 @@ class AnnotToLDStage(implicit context: Context) extends Stage {
         s"--regions=${subGroup.map(_.region).mkString(",")}"
       )
     }.toSeq
-    new Job(jobs)
+    new Job(jobs, parallelSteps = true) // parallel so that groups can be run on separate clusters
   }
 }
 
