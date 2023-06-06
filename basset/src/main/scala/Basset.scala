@@ -23,5 +23,6 @@ object Basset extends Method {
     */
   override def initStages(implicit context: Context) = {
     addStage(new BassetVariantsStage)
+    addStage(new TranslateBassetStage)
   }
 }
