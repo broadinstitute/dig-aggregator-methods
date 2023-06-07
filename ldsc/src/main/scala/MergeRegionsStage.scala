@@ -24,7 +24,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   )
 
   // Makes only one call to get all of the files.
-  val s3PartitionMap: Map[String, Seq[String]] = {
+  lazy val s3PartitionMap: Map[String, Seq[String]] = {
     val part = "/([^/]+)/partition=([^/]+)/".r
     val parts: Seq[S3Partition] = context.s3
       .ls(s"${partitionFiles.prefix.commonPrefix}").flatMap { obj =>
