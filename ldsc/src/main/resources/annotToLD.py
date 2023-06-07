@@ -14,9 +14,9 @@ g1000_files = f'{downloaded_files}/g1000'
 snp_files = f'{downloaded_files}/snps'
 
 s3_in = 's3://dig-analysis-data'
-s3_out = 's3://psmadbec-test'
+s3_out = 's3://dig-analysis-data'
 
-CPUs = 16  # For multithreaded combining and splitting annot file
+CPUs = 8  # For multithreaded combining and splitting annot file
 
 
 def get_all_annot_file(ancestry, sub_region, regions):
