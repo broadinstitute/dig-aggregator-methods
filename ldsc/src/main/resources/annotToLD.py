@@ -107,7 +107,7 @@ def make_ancestry_ld(ancestry, sub_region, regions):
 def upload_and_remove_files(ancestry, sub_region, regions):
     for region in regions:
         s3_dir = f'{s3_out}/out/ldsc/regions/ld_score/ancestry={ancestry}/{sub_region}/{region}/'
-        subprocess.check_all(['touch', f'./{ancestry}/{sub_region}/{region}/_SUCCESS'])
+        subprocess.check_call(['touch', f'./{ancestry}/{sub_region}/{region}/_SUCCESS'])
         subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}/{sub_region}/{region}/', s3_dir, '--recursive'])
     shutil.rmtree(f'./{ancestry}')
 
