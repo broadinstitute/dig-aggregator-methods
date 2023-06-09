@@ -9,61 +9,58 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val sumstats: Input.Source = Input.Source.Success("out/ldsc/sumstats/*/*/")
-
-  val partitions: Seq[String] = Seq()
-  val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
-  val annotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/$subRegion/ld_score/")
+  val annotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/ld_score/*/*/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(sumstats, annotations)
 
+  // TODO: Will always be all annotations. Can this also record modified annotations?
+  var allAnnotations: Set[PartitionedHeritabilityRegion] = Set()
+  lazy val annotationMap: Map[String, Set[PartitionedHeritabilityRegion]] = allAnnotations.groupBy(_.subRegion)
+
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case sumstats(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split('=').last}")
-    case annotations() => Outputs.All  // All annotations are run together
+    case sumstats(phenotype, ancestry) =>
+      Outputs.Named(PartitionedHeritabilityInput(phenotype, ancestry.split('=').last).toOutput)
+    case annotations(_, subRegion, region) =>
+      allAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
+      Outputs.Null  // All annotations are run together
   }
 
   /** Just need a single machine with no applications, but a good drive. */
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
-    masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("install-ldscore.sh")),
-      new BootstrapScript(resourceUri("download-annotation-files.sh"))
+      new BootstrapScript(resourceUri("install-ldscore.sh"))
     ),
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 32, mem = 32.gb),
+    masterInstanceType = Strategy.generalPurpose(vCPUs = 8),
     releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   override def make(output: String): Job = {
     val input = PartitionedHeritabilityInput.fromString(output)
-    new Job(Job.Script(resourceUri("runPartitionedHeritability.py"), input.flags:_*))
+    val jobs = annotationMap.flatMap { case(subRegion, regions) =>
+      regions.grouped(100).map { groupedRegions =>
+        Job.Script(
+          resourceUri("runPartitionedHeritability.py"),
+          s"--phenotype=${input.phenotype}",
+          s"--ancestry=${input.ancestry}",
+          s"--subRegion=$subRegion",
+          s"--phenotype=${groupedRegions.mkString(",")}"
+        )
+      }
+    }.toSeq
+    new Job(jobs, parallelSteps=true)
   }
 
-  /** Before the jobs actually run, perform this operation.
-   */
-  override def prepareJob(output: String): Unit = {
-    val input = PartitionedHeritabilityInput.fromString(output)
-    context.s3.rm(s"${input.outputDirectory}/")
-  }
-
-  /** On success, write the _SUCCESS file in the output directory.
-   */
-  override def success(output: String): Unit = {
-    val input = PartitionedHeritabilityInput.fromString(output)
-    context.s3.touch(s"${input.outputDirectory}/_SUCCESS")
-    ()
-  }
 }
 
 case class PartitionedHeritabilityInput(
   phenotype: String,
   ancestry: String
 ) {
-  def outputDirectory: String = s"out/ldsc/staging/partitioned_heritability/$phenotype/ancestry=$ancestry"
-
-  def flags: Seq[String] = Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
+  def toOutput: String = s"$phenotype/$ancestry"
 }
 
 object PartitionedHeritabilityInput {
@@ -73,3 +70,8 @@ object PartitionedHeritabilityInput {
     }
   }
 }
+
+case class PartitionedHeritabilityRegion(
+  subRegion: String,
+  region: String
+)
