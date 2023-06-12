@@ -10,7 +10,7 @@ sudo mkdir -p "$LDSC_ROOT"
 cd "$LDSC_ROOT"
 
 # Download zipped version of python 3 ldsc codebase
-sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/ldsc-python-3-2023-03-09.zip ./
+sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/ldsc-python-3-2023-06-12.zip ./
 sudo unzip ldsc-python-3-2023-03-09.zip -d ./ldsc/
 
 ## Download hapmap3 snps (full)

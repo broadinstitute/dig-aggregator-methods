@@ -45,52 +45,65 @@ def get_regions(ancestry, sub_region, regions):
                                ])
 
 
-def get_sumstats(ancestry, phenotype):
-    file = f'{s3_in}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz'
-    make_path(['data', 'sumstats', f'{phenotype}', f'ancestry={ancestry}'])
-    out = subprocess.run(['aws', 's3', 'cp', file, f'./data/sumstats/{phenotype}/ancestry={ancestry}/'])
-    return out.returncode == 0
+def get_sumstats(ancestry, phenotypes):
+    gathered_phenotypes = []
+    for phenotype in phenotypes:
+        file = f'{s3_in}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz'
+        make_path(['data', 'sumstats', f'{phenotype}', f'ancestry={ancestry}'])
+        out = subprocess.run(['aws', 's3', 'cp', file, f'./data/sumstats/{phenotype}/ancestry={ancestry}/'])
+        if out.returncode == 0:
+            gathered_phenotypes.append(phenotype)
+    return gathered_phenotypes
 
 
-def partitioned_heritability(ancestry, phenotype, sub_region, regions):
-    print(f'Partitioned heritability for ancestry: {ancestry}, phenotype: {phenotype}, '
-          f'sub_region: {sub_region}, annots: {regions}')
+def partitioned_heritability(ancestry, phenotypes, sub_region, regions):
+    print(f'Partitioned heritability for ancestry: {ancestry} for {len(phenotypes)} phenotypes, '
+          f'sub_region: {sub_region}, for {len(regions)}')
     g1000_ancestry = ancestry_map[ancestry]
     annot_str = ','.join([
         f'{annot_files}/ancestry={g1000_ancestry}/{sub_region}/{region}/{region}.' for region in regions
     ])
-    os.mkdir(f'{ancestry}_{phenotype}')
+    phenotype_str = ','.join([
+        f'./data/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz' for phenotype in phenotypes
+    ])
+    phenotype_out_str = ','.join([
+        f'./{ancestry}_{phenotype}/{ancestry}.{phenotype}' for phenotype in phenotypes
+    ])
+    for phenotype in phenotypes:
+        os.mkdir(f'{ancestry}_{phenotype}')
     subprocess.check_call([
         'python3', f'{ldsc_files}/ldsc.py',
-        '--h2', f'./data/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz',
+        '--h2', phenotype_str,
         '--ref-ld-chr', f'{baseline_files}/{g1000_ancestry}/baselineLD.,{annot_str}',
-        '--h2-split-annot', '--h2-threads', '22',
+        '--h2-split-annot', '--h2-threads', '22', '--xtx-override',
         '--w-ld-chr', f'{weight_files}/{g1000_ancestry}/weights.',
         '--overlap-annot', '--print-coefficients',
         '--frqfile-chr', f'{frq_files}/{g1000_ancestry}/chr.',
-        '--out', f'./{ancestry}_{phenotype}/{ancestry}.{phenotype}'
+        '--out', phenotype_out_str
     ])
 
 
-def upload_and_remove_files(ancestry, phenotype):
-    s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{phenotype}/ancestry={ancestry}/'
-    subprocess.check_call(['touch', f'./{ancestry}_{phenotype}/_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}_{phenotype}/', s3_dir, '--recursive'])
-    shutil.rmtree(f'./{ancestry}_{phenotype}')
+def upload_and_remove_files(ancestry, phenotypes):
+    for phenotype in phenotypes:
+        s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{phenotype}/ancestry={ancestry}/'
+        subprocess.check_call(['touch', f'./{ancestry}_{phenotype}/_SUCCESS'])
+        subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}_{phenotype}/', s3_dir, '--recursive'])
+        shutil.rmtree(f'./{ancestry}_{phenotype}')
     shutil.rmtree('./data')
 
 
 # Need to check on sumstats existence for Mixed ancestry datasets
-def run(ancestry, phenotype, sub_region, regions):
-    if get_sumstats(ancestry, phenotype):
-        partitioned_heritability(ancestry, phenotype, sub_region, regions)
-        upload_and_remove_files(ancestry, phenotype)
+def run(ancestry, phenotypes, sub_region, regions):
+    gathered_phenotypes = get_sumstats(ancestry, phenotypes)
+    if len(gathered_phenotypes) > 0:
+        partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions)
+        upload_and_remove_files(ancestry, gathered_phenotypes)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--phenotype', type=str, required=True,
-                        help="Phenotype (e.g. T2D)")
+    parser.add_argument('--phenotypes', type=str, required=True,
+                        help="List of phenotypes in ancestry to be run (comma separated)")
     parser.add_argument('--ancestry', type=str, required=True,
                         help="Short ancestry name (e.g. EU)")
     parser.add_argument('--sub-region', type=str, required=True,
@@ -99,7 +112,7 @@ def main():
                         help="List of regions to be run (comma separated)")
     args = parser.parse_args()
 
-    phenotype = args.phenotype
+    phenotypes = args.phenotype.split(',')
     ancestry = args.ancestry
     sub_region = args.sub_region
     regions = args.regions.split(',')
@@ -107,7 +120,7 @@ def main():
     if ancestry not in ancestry_map:
         raise Exception(f'Invalid ancestry ({ancestry}), must be one of {", ".join(ancestry_map.keys())}')
 
-    run(ancestry, phenotype, sub_region, regions)
+    run(ancestry, phenotypes, sub_region, regions)
 
 
 if __name__ == '__main__':

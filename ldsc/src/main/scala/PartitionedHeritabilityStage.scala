@@ -14,17 +14,19 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(sumstats, annotations)
 
-  // TODO: Will always be all annotations. Can this also record modified annotations?
+  var allPhenotypeAncestries: Set[PartitionedHeritabilityPhenotype] = Set()
+  lazy val phenotypeMap: Map[String, Set[PartitionedHeritabilityPhenotype]] = allPhenotypeAncestries.groupBy(_.ancestry)
   var allAnnotations: Set[PartitionedHeritabilityRegion] = Set()
   lazy val annotationMap: Map[String, Set[PartitionedHeritabilityRegion]] = allAnnotations.groupBy(_.subRegion)
 
-  /** Map inputs to their outputs. */
+  // TODO: At the moment this will always rerun everything which isn't ideal
   override val rules: PartialFunction[Input, Outputs] = {
     case sumstats(phenotype, ancestry) =>
-      Outputs.Named(PartitionedHeritabilityInput(phenotype, ancestry.split('=').last).toOutput)
+      allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
+      Outputs.Named("partitioned-heritability")
     case annotations(_, subRegion, region) =>
       allAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
-      Outputs.Null  // All annotations are run together
+      Outputs.Named("partitioned-heritability")
   }
 
   /** Just need a single machine with no applications, but a good drive. */
@@ -39,39 +41,32 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   )
 
   override def make(output: String): Job = {
-    val input = PartitionedHeritabilityInput.fromString(output)
-    val jobs = annotationMap.flatMap { case(subRegion, regions) =>
-      regions.grouped(100).map { groupedRegions =>
-        Job.Script(
-          resourceUri("runPartitionedHeritability.py"),
-          s"--phenotype=${input.phenotype}",
-          s"--ancestry=${input.ancestry}",
-          s"--subRegion=$subRegion",
-          s"--phenotype=${groupedRegions.mkString(",")}"
-        )
+    val jobs = phenotypeMap.flatMap { case (ancestry, phenotypes) =>
+      phenotypes.grouped(100).flatMap { groupedPhenotypes =>
+        annotationMap.flatMap { case (subRegion, regions) =>
+          regions.grouped(100).map { groupedRegions =>
+            Job.Script(
+              resourceUri("runPartitionedHeritability.py",
+                s"--ancestry=${ancestry}",
+                s"--phenotypes=${groupedPhenotypes.mkString(",")}",
+                s"--sub-region=$subRegion",
+                s"--regions=${groupedRegions.mkString(",")}"
+              )
+            )
+          }
+        }
       }
     }.toSeq
     new Job(jobs, parallelSteps=true)
-  }
-
-}
-
-case class PartitionedHeritabilityInput(
-  phenotype: String,
-  ancestry: String
-) {
-  def toOutput: String = s"$phenotype/$ancestry"
-}
-
-object PartitionedHeritabilityInput {
-  def fromString(output: String): PartitionedHeritabilityInput = {
-    output.split("/").toSeq match {
-      case Seq(phenotype, ancestry) => PartitionedHeritabilityInput(phenotype, ancestry)
-    }
   }
 }
 
 case class PartitionedHeritabilityRegion(
   subRegion: String,
   region: String
+)
+
+case class PartitionedHeritabilityPhenotype(
+  phenotype: String,
+  ancestry: String
 )
