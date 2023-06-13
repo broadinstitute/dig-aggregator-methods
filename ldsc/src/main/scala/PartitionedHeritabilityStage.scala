@@ -27,10 +27,10 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   override val rules: PartialFunction[Input, Outputs] = {
     case sumstats(phenotype, ancestry) =>
       allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
-      Outputs.Named("partitioned-heritability")
+      Outputs.Named(ancestry.split('=').last)
     case annotations(_, subRegion, region) =>
       allAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
-      Outputs.Named("partitioned-heritability")
+      Outputs.All
   }
 
   /** Just need a single machine with no applications, but a good drive. */
@@ -45,20 +45,18 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   )
 
   override def make(output: String): Job = {
-    val jobs = phenotypeMap.filter(_._1 == "EU").flatMap { case (ancestry, phenotypes) =>
-      phenotypes.filter(p => Seq("T2D", "BMI", "TG", "AF").contains(p)).grouped(100).flatMap { groupedPhenotypes =>
-        annotationMap.flatMap { case (subRegion, regions) =>
-          regions.grouped(100).map { groupedRegions =>
-            println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
-              s"and ${groupedRegions.size} regions in sub-region $subRegion")
-            Job.Script(
-              resourceUri("runPartitionedHeritability.py"),
-                s"--ancestry=${ancestry}",
-                s"--phenotypes=${groupedPhenotypes.mkString(",")}",
-                s"--sub-region=$subRegion",
-                s"--regions=${groupedRegions.mkString(",")}"
-            )
-          }
+    val jobs = phenotypeMap.getOrElse(output, Set()).grouped(100).flatMap { groupedPhenotypes =>
+      annotationMap.flatMap { case (subRegion, regions) =>
+        regions.grouped(100).map { groupedRegions =>
+          println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
+            s"and ${groupedRegions.size} regions in sub-region $subRegion")
+          Job.Script(
+            resourceUri("runPartitionedHeritability.py"),
+            s"--ancestry=${ancestry}",
+            s"--phenotypes=${groupedPhenotypes.mkString(",")}",
+            s"--sub-region=$subRegion",
+            s"--regions=${groupedRegions.mkString(",")}"
+          )
         }
       }
     }.toSeq
