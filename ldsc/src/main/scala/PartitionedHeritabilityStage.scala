@@ -47,7 +47,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   override def make(output: String): Job = {
     val jobs = phenotypeMap.filter(_._1 == "EU").flatMap { case (ancestry, phenotypes) =>
       phenotypes.filter(p => Seq("T2D", "BMI", "TG", "AF").contains(p)).grouped(100).flatMap { groupedPhenotypes =>
-        annotationMap.filter(_._1 == "annotation-tissue").flatMap { case (subRegion, regions) =>
+        annotationMap.flatMap { case (subRegion, regions) =>
           regions.grouped(100).map { groupedRegions =>
             println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
               s"and ${groupedRegions.size} regions in sub-region $subRegion")
