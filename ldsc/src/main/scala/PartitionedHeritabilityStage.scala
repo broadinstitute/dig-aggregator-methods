@@ -44,8 +44,8 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
     releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
-  override def make(output: String): Job = {
-    val jobs = phenotypeMap.getOrElse(output, Set()).grouped(100).flatMap { groupedPhenotypes =>
+  override def make(ancestry: String): Job = {
+    val jobs = phenotypeMap.getOrElse(ancestry, Set()).grouped(100).flatMap { groupedPhenotypes =>
       annotationMap.flatMap { case (subRegion, regions) =>
         regions.grouped(100).map { groupedRegions =>
           println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
