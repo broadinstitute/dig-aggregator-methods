@@ -79,9 +79,9 @@ def partitioned_heritability(ancestry, phenotypes, sub_region, regions):
     ])
 
 
-def upload_and_remove_files(ancestry, phenotypes):
+def upload_and_remove_files(ancestry, phenotypes, sub_region):
     for phenotype in phenotypes:
-        s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{phenotype}/ancestry={ancestry}/'
+        s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{phenotype}/ancestry={ancestry}/{sub_region}/'
         subprocess.check_call(['touch', f'./{ancestry}_{phenotype}/_SUCCESS'])
         subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}_{phenotype}/', s3_dir, '--recursive'])
         shutil.rmtree(f'./{ancestry}_{phenotype}')
@@ -94,7 +94,7 @@ def run(ancestry, phenotypes, sub_region, regions):
     gathered_phenotypes = get_sumstats(ancestry, phenotypes)
     if len(gathered_phenotypes) > 0:
         partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions)
-        upload_and_remove_files(ancestry, gathered_phenotypes)
+        upload_and_remove_files(ancestry, gathered_phenotypes, sub_Region)
 
 
 def main():
