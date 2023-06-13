@@ -94,7 +94,7 @@ def run(ancestry, phenotypes, sub_region, regions):
     gathered_phenotypes = get_sumstats(ancestry, phenotypes)
     if len(gathered_phenotypes) > 0:
         partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions)
-        upload_and_remove_files(ancestry, gathered_phenotypes, sub_Region)
+        upload_and_remove_files(ancestry, gathered_phenotypes, sub_region)
 
 
 def main():
