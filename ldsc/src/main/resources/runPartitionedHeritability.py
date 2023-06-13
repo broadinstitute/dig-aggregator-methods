@@ -21,10 +21,9 @@ ldsc_files = f'{downloaded_files}/ldsc'
 baseline_files = f'{downloaded_files}/baseline'
 weight_files = f'{downloaded_files}/weights'
 frq_files = f'{downloaded_files}/frq'
-annot_files = f'./data/annot'
 
 s3_in = 's3://dig-analysis-data'
-s3_out = 's3://psmadbec-test'
+s3_out = 's3://dig-analysis-data'
 
 
 def make_path(split_path):
@@ -38,11 +37,8 @@ def get_regions(ancestry, sub_region, regions):
     g1000_ancestry = ancestry_map[ancestry]
     for region in regions:
         file = f'{s3_in}/out/ldsc/regions/ld_score/ancestry={g1000_ancestry}/{sub_region}/{region}/'
-        make_path(['data', 'annot', f'{sub_region}', f'{region}'])
-        subprocess.check_call(['aws', 's3', 'cp',
-                               file, f'./data/annot/ancestry={g1000_ancestry}/{sub_region}/{region}/',
-                               '--recursive', '--exclude=_SUCCESS'
-                               ])
+        path_out = f'./data/annot/ancestry={g1000_ancestry}/{sub_region}/{region}/'
+        subprocess.check_call(['aws', 's3', 'cp', file, path_out, '--recursive', '--exclude=_SUCCESS'])
 
 
 def get_sumstats(ancestry, phenotypes):
@@ -61,7 +57,7 @@ def partitioned_heritability(ancestry, phenotypes, sub_region, regions):
           f'sub_region: {sub_region}, for {len(regions)}')
     g1000_ancestry = ancestry_map[ancestry]
     annot_str = ','.join([
-        f'{annot_files}/ancestry={g1000_ancestry}/{sub_region}/{region}/{region}.' for region in regions
+        f'./data/annot/ancestry={g1000_ancestry}/{sub_region}/{region}/{region}.' for region in regions
     ])
     phenotype_str = ','.join([
         f'./data/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz' for phenotype in phenotypes
@@ -94,6 +90,7 @@ def upload_and_remove_files(ancestry, phenotypes):
 
 # Need to check on sumstats existence for Mixed ancestry datasets
 def run(ancestry, phenotypes, sub_region, regions):
+    get_regions(ancestry, sub_region, regions)
     gathered_phenotypes = get_sumstats(ancestry, phenotypes)
     if len(gathered_phenotypes) > 0:
         partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions)
@@ -112,7 +109,7 @@ def main():
                         help="List of regions to be run (comma separated)")
     args = parser.parse_args()
 
-    phenotypes = args.phenotype.split(',')
+    phenotypes = args.phenotypes.split(',')
     ancestry = args.ancestry
     sub_region = args.sub_region
     regions = args.regions.split(',')

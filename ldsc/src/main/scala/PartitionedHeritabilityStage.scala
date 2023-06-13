@@ -15,9 +15,13 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(sumstats, annotations)
 
   var allPhenotypeAncestries: Set[PartitionedHeritabilityPhenotype] = Set()
-  lazy val phenotypeMap: Map[String, Set[PartitionedHeritabilityPhenotype]] = allPhenotypeAncestries.groupBy(_.ancestry)
+  lazy val phenotypeMap: Map[String, Set[String]] = allPhenotypeAncestries.groupBy(_.ancestry).map {
+    case (ancestry, phenotypes) => ancestry -> phenotypes.map(_.phenotype)
+  }
   var allAnnotations: Set[PartitionedHeritabilityRegion] = Set()
-  lazy val annotationMap: Map[String, Set[PartitionedHeritabilityRegion]] = allAnnotations.groupBy(_.subRegion)
+  lazy val annotationMap: Map[String, Set[String]] = allAnnotations.groupBy(_.subRegion).map {
+    case (subRegion, regions) => subRegion -> regions.map(_.region)
+  }
 
   // TODO: At the moment this will always rerun everything which isn't ideal
   override val rules: PartialFunction[Input, Outputs] = {
@@ -41,17 +45,18 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   )
 
   override def make(output: String): Job = {
-    val jobs = phenotypeMap.flatMap { case (ancestry, phenotypes) =>
-      phenotypes.grouped(100).flatMap { groupedPhenotypes =>
-        annotationMap.flatMap { case (subRegion, regions) =>
+    val jobs = phenotypeMap.filter(_._1 == "EU").flatMap { case (ancestry, phenotypes) =>
+      phenotypes.filter(p => Seq("T2D", "BMI", "TG", "AF").contains(p)).grouped(100).flatMap { groupedPhenotypes =>
+        annotationMap.filter(_._1 == "annotation-tissue").flatMap { case (subRegion, regions) =>
           regions.grouped(100).map { groupedRegions =>
+            println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
+              s"and ${groupedRegions.size} regions in sub-region $subRegion")
             Job.Script(
-              resourceUri("runPartitionedHeritability.py",
+              resourceUri("runPartitionedHeritability.py"),
                 s"--ancestry=${ancestry}",
                 s"--phenotypes=${groupedPhenotypes.mkString(",")}",
                 s"--sub-region=$subRegion",
                 s"--regions=${groupedRegions.mkString(",")}"
-              )
             )
           }
         }
