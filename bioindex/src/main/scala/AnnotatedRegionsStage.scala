@@ -10,16 +10,10 @@ import org.broadinstitute.dig.aws.emr._
 class AnnotatedRegionsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val partitions: Seq[String] = Seq()
-  val subRegion: String = if (partitions.isEmpty) "default" else partitions.mkString("-")
-  val regions = Input.Source.Success(s"out/ldsc/regions/$subRegion/merged/")
+  val regions = Input.Source.Success(s"out/ldsc/regions/merged/annotation-tissue/")
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
-  override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
-    slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
-    instances = 5
-  )
+  override val cluster: ClusterDef = super.cluster.copy()
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(regions)
@@ -31,6 +25,6 @@ class AnnotatedRegionsStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("annotatedRegions.py"), subRegion))
+    new Job(Job.PySpark(resourceUri("annotatedRegions.py")))
   }
 }
