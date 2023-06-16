@@ -8,8 +8,7 @@ cd "$LDSC_ROOT"
 
 # Download all logs to be translated
 sudo aws s3 cp s3://dig-analysis-data/out/ldsc/staging/partitioned_heritability/ ./ --recursive
-sudo rm ./*/*/_SUCCESS
-sudo rm ./*/*/*.log
+sudo rm ./*/*/*/_SUCCESS
 
 # python packages
 sudo yum install -y python3-devel

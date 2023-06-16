@@ -14,7 +14,7 @@ s3_path = 's3://dig-analysis-data/out/ldsc/partitioned_heritability'
 
 def get_phenotype_annot_ancestries():
     out = {}
-    for file in glob.glob(f'{downloaded_files}/*/*/*'):
+    for file in glob.glob(f'{downloaded_files}/*/*/*/*'):
         ancestry, phenotype, annot = re.findall('.*/(.+).results', file)[0].split('.')
         if phenotype not in out:
             out[phenotype] = {}
