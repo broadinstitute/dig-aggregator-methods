@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import argparse
 import glob
 import json
 import math
@@ -6,21 +7,31 @@ import numpy as np
 import os
 import re
 from scipy.stats import t as tdist
+import shutil
 import subprocess
 
-downloaded_files = '/mnt/var/ldsc'
+s3_in = 's3://dig-analysis-data/out/ldsc/staging/partitioned_heritability'
 s3_path = 's3://dig-analysis-data/out/ldsc/partitioned_heritability'
 
 
-def get_phenotype_annot_ancestries():
+def get_phenotype_annot_ancestries(phenotype):
+    subprocess.check_call(['aws', 's3', 'cp',
+                           f'{s3_in}/{phenotype}/', f'./{phenotype}',
+                           '--recursive', '--exclude=_SUCCESS'])
     out = {}
-    for file in glob.glob(f'{downloaded_files}/*/*/*/*'):
-        ancestry, phenotype, annot = re.findall('.*/(.+).results', file)[0].split('.')
-        if phenotype not in out:
-            out[phenotype] = {}
-        if annot not in out[phenotype]:
-            out[phenotype][annot] = []
-        out[phenotype][annot].append(ancestry)
+    for file in glob.glob(f'./{phenotype}/*/*/*'):
+        results_search = re.findall('./[^/]+/[^/]+/(.+)/(.+).results', file)
+        if len(results_search) > 0:
+            sub_region, result = results_search[0]
+            split_result = result.split('.')
+            ancestry, phenotype, annot = split_result[0], split_result[1], '.'.join(split_result[2:])
+            if phenotype not in out:
+                out[phenotype] = {}
+            if annot not in out[phenotype]:
+                out[phenotype][annot] = {}
+            if sub_region not in out[phenotype][annot]:
+                out[phenotype][annot][sub_region] = []
+            out[phenotype][annot][sub_region].append(ancestry)
     return out
 
 
@@ -47,11 +58,12 @@ def translate(file):
 
 def get_data(phenotype, annot_map):
     out = {}
-    for annot, ancestries in annot_map.items():
-        out[annot] = {}
-        for ancestry in ancestries:
-            file = f'{downloaded_files}/{phenotype}/ancestry={ancestry}/{ancestry}.{phenotype}.{annot}.results'
-            out[annot][ancestry] = translate(file)
+    for annot, sub_region_map in annot_map.items():
+        for sub_region, ancestries in sub_region_map.items():
+            out[annot] = {}
+            for ancestry in ancestries:
+                file = f'{phenotype}/ancestry={ancestry}/{sub_region}/{ancestry}.{phenotype}.{annot}.results'
+                out[annot][ancestry] = translate(file)
     return out
 
 
@@ -89,12 +101,18 @@ def upload_data(phenotype, data):
     file = f'./{phenotype}.json'
     with open(file, 'w') as f:
         for annot, ancestry_data in data.items():
-            annotation, tissue = annot.split('___')
+            split_annot = annot.split('___')
+            if len(split_annot) == 2:
+                annotation, tissue = split_annot
+                biosample = None
+            else:
+                annotation, tissue, biosample = split_annot
             for ancestry, output_data in ancestry_data.items():
                 formatted_data = {
                     'phenotype': phenotype,
                     'annotation': annotation,
                     'tissue': tissue.replace('_', ' '),
+                    'biosample': biosample,
                     'ancestry': ancestry,
                     'SNPs': output_data['snps'],
                     'h2_beta': output_data['h2']['beta'],
@@ -109,11 +127,21 @@ def upload_data(phenotype, data):
                 }
                 f.write(json.dumps(formatted_data) + '\n')
     subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_path}/{phenotype}/'])
+    subprocess.check_call(['touch', '_SUCCESS'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_path}/{phenotype}/'])
     os.remove(file)
+    os.remove('_SUCCESS')
+    shutil.rmtree(f'./{phenotype}')
 
 
 def main():
-    phenotype_annot_ancestries = get_phenotype_annot_ancestries()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--phenotype', type=str, required=True, help="Phenotype to translate (e.g. T2D)")
+    args = parser.parse_args()
+
+    phenotype = args.phenotype
+
+    phenotype_annot_ancestries = get_phenotype_annot_ancestries(phenotype)
     for phenotype, annot_map in phenotype_annot_ancestries.items():
         data = get_data(phenotype, annot_map)
         data = meta_analyze(data)
