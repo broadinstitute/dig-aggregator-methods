@@ -26,10 +26,16 @@ def main():
         'pValue'
     ])
 
+    df_null = df.filter(df.biosample.isNull())
     mixed_df = df.filter(df.ancestry == 'Mixed')
     non_mixed_df = df.filter(df.ancestry != 'Mixed')
 
     # sort by phenotype and then p-value
+    df_null.orderBy(['phenotype', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{outdir}/annotation-tissue')
+
     mixed_df.orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
