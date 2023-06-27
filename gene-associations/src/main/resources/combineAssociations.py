@@ -50,6 +50,9 @@ def get_gene_data(data_type, phenotype):
     return out
 
 
+# 1 - eps = 1.0 (and minp = 0.0) if eps < 1E-16
+# 1 - (1 - eps)^N ~ 1 - 1 + N * eps - HOT(eps^2) -> N * eps in the limit eps -> 0
+# https://en.wikipedia.org/wiki/%C5%A0id%C3%A1k_correction
 def minp(p_values):
     N = len(p_values)
     min_p = min(p_values)
