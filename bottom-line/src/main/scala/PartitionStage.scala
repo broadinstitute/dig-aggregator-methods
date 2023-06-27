@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class PartitionStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants: Input.Source = Input.Source.Success("variants/*/*/*/")
+  val variants: Input.Source = Input.Source.Success("furkan-v1-new/variants/*/*/*/")
 
   // The small cluster is cheapest (even for large datasets) generally
   // For speed on a large phenotype with lots of Mixed datasets a c5.9xlarge is a cost efficient option

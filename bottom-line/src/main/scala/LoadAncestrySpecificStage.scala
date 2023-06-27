@@ -9,8 +9,8 @@ class LoadAncestrySpecificStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
   import org.broadinstitute.dig.aggregator.core.Implicits.S3Key
 
-  val ancestrySpecificTables: Input.Source = Input.Source.Success("out/metaanalysis/staging/ancestry-specific/*/*/")
-  val variants: Input.Source = Input.Source.Success("out/metaanalysis/variants/*/*/")
+  val ancestrySpecificTables: Input.Source = Input.Source.Success("furkan-v1-new/out/metaanalysis/staging/ancestry-specific/*/*/")
+  val variants: Input.Source = Input.Source.Success("furkan-v1-new/out/metaanalysis/variants/*/*/")
 
   // NOTE: Fairly slow, but this can run with a single m5.2xlarge if necessary
   // A cluster of 3 compute instances though makes it quite swift

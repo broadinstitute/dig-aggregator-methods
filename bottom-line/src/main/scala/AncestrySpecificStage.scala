@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class AncestrySpecificStage(implicit context: Context) extends Stage {
   import Implicits.S3Key
 
-  val variants: Input.Source = Input.Source.Success("out/metaanalysis/variants/*/*/")
+  val variants: Input.Source = Input.Source.Success("furkan-v1-new/out/metaanalysis/variants/*/*/")
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
