@@ -16,7 +16,8 @@ class BassetVariantsStage(implicit context: Context) extends Stage {
     applications = Seq.empty,
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("bassetBootstrap.sh"))
-    )
+    ),
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
