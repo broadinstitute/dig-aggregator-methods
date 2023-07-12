@@ -11,7 +11,7 @@ from scipy.stats import norm
 import shutil
 import subprocess
 
-output_s3 = 's3://dig-analysis-data/out/magma/pathway-associations'
+output_s3 = 's3://kmoogala-test/out/magma/pathway-associations'
 
 
 def download_ancestry_pathway_associations(phenotype):

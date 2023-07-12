@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-S3DIR="s3://dig-analysis-data"
+S3DIR="s3://kmoogala-test"
 MAGMA_DIR="/mnt/var/magma"
 
 # make the work directory

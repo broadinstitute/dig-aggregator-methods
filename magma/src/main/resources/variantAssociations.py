@@ -3,7 +3,7 @@ import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType
 
-s3dir = f's3://dig-analysis-data'
+s3dir = f's3://kmoogala-test'
 
 
 def get_s3_dirs(phenotype, ancestry, dataset):
