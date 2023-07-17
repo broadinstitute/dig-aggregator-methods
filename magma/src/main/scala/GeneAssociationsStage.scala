@@ -12,7 +12,6 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val associations: Input.Source = Input.Source.Success("out/magma/variant-associations/*/*/")
-  val variants: Input.Source     = Input.Source.Success("out/magma/staging/variants/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(associations)
@@ -20,7 +19,6 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
     case associations(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("=").last}")
-    case variants()              => Outputs.All
   }
 
   /** Simple cluster with more memory. */
