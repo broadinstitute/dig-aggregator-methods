@@ -11,14 +11,15 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class GeneResultsTransformStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val genes: Input.Source = Input.Source.Success("out/magma/staging/genes/*/")
+  val genes: Input.Source = Input.Source.Success("out/magma/staging/genes/*/*/")
 
   /** The output of gene pvalue analysis is the input for top results file. */
   override val sources: Seq[Input.Source] = Seq(genes)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case genes(phenotype) => Outputs.Named(phenotype)
+    case genes(phenotype, inputType) if inputType.contains("ancestry=") => Outputs.Named(phenotype)
+    case genes(_, inputType) if inputType.contains("dataset=") => Outputs.Null
   }
 
   /** Simple cluster with more memory. */

@@ -31,7 +31,7 @@ def get_gene_map():
 def download_ancestry_gene_associations(phenotype):
     s3 = boto3.resource('s3')
     my_bucket = s3.Bucket('dig-analysis-data')
-    for file in my_bucket.objects.filter(Prefix=f'out/magma/staging/genes/{phenotype}/').all():
+    for file in my_bucket.objects.filter(Prefix=f'out/magma/staging/genes/{phenotype}/ancestry=').all():
         if re.fullmatch(f'.*/associations\.genes\.out$', file.key):
             ancestry = re.findall(f'.*/ancestry=(\w+)/associations\.genes\.out$', file.key)[0]
             subprocess.check_call([
