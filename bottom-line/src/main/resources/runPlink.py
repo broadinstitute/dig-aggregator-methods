@@ -14,7 +14,7 @@ from scipy.sparse import lil_matrix
 from scipy.sparse.csgraph import connected_components
 
 
-S3DIR = 's3://dig-analysis-data'
+S3DIR = 's3://dig-giant-sandbox'
 CLUMPING_ROOT = f'/mnt/var/clumping'
 
 # clumping parameters
