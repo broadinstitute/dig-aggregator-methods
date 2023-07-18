@@ -8,6 +8,14 @@ mkdir -p "${MAGMA_DIR}"
 cd "${MAGMA_DIR}"
 mkdir -p "${MAGMA_DIR}"/pathway-genes
 
+# download a common script for use
+aws s3 cp "${S3DIR}/resources/scripts/getmerge-strip-headers.sh" "${MAGMA_DIR}/"
+chmod +x "${MAGMA_DIR}/getmerge-strip-headers.sh"
+
+# get script
+aws s3 cp "${S3DIR}/resources/Magma/geneAssociations.sh" "${MAGMA_DIR}/"
+chmod +x "${MAGMA_DIR}/geneAssociations.sh"
+
 # copy data files
 aws s3 cp "${S3DIR}/bin/magma/NCBI37.3.gene.loc" .
 

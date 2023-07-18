@@ -18,63 +18,51 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case associations(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("=").last}")
+    case associations(phenotype, ancestry_or_dataset) => Outputs.Named(s"$phenotype/$ancestry_or_dataset")
   }
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 32),
     instances = 1,
     masterVolumeSizeInGB = 80,
     applications = Seq.empty,
     stepConcurrency = 5,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("installMagma.sh")))
+    bootstrapScripts = Seq(
+      new BootstrapScript(resourceUri("installMagma.sh")),
+      new BootstrapScript(resourceUri("installRDSPackages.sh"))
+      )
+  )
+
+  override def additionalResources: Seq[String] = Seq(
+    "geneAssociations.sh"
   )
 
   /** Build the job. */
   override def make(output: String): Job = {
-    val jobInput = GeneAssociationsInput.fromOutput(output)
-    new Job(Job.Script(resourceUri("geneAssociations.sh"), jobInput.phenotype, jobInput.ancestry, jobInput.g1000Ancestry))
-  }
-
-  /** Before the jobs actually run, perform this operation.
-    */
-  override def prepareJob(output: String): Unit = {
-    val jobInput = GeneAssociationsInput.fromOutput(output)
-    context.s3.rm(s"out/magma/staging/genes/${jobInput.phenotype}/ancestry=${jobInput.ancestry}/")
-  }
-
-  /** On success, write the _SUCCESS file in the output directory.
-    */
-  override def success(output: String): Unit = {
-    val jobInput = GeneAssociationsInput.fromOutput(output)
-    context.s3.touch(s"out/magma/staging/genes/${jobInput.phenotype}/ancestry=${jobInput.ancestry}/_SUCCESS")
-    ()
+    val input = GeneAssociationsInput.fromOutput(output)
+    new Job(Job.Script(resourceUri("geneAssociations.py"), input.flags:_*))
   }
 }
 
 case class GeneAssociationsInput(
   phenotype: String,
-  ancestry: String,
-  g1000Ancestry: String
-)
+  maybeAncestry: Option[String],
+  maybeDataset: Option[String]
+) {
+  def flags: Seq[String] = Seq(
+    Some(s"--phenotype=$phenotype"),
+    maybeAncestry.map(ancestry => s"--ancestry=$ancestry"),
+    maybeDataset.map(dataset => s"--dataset=$dataset")
+  ).flatten
+}
 
 case object GeneAssociationsInput {
-  val ancestry_to_g1000: Map[String, String] = Map(
-    "AA" -> "afr",
-    "AF" -> "afr",
-    "SSAF" -> "afr",
-    "HS" -> "amr",
-    "EA" -> "eas",
-    "EU" -> "eur",
-    "SA" -> "sas",
-    "GME" -> "sas",
-    "Mixed" -> "eur"
-  )
-
   def fromOutput(output: String): GeneAssociationsInput = {
     output.split("/").toSeq match {
-      case Seq(phenotype, ancestry) => GeneAssociationsInput(phenotype, ancestry, ancestry_to_g1000(ancestry))
+      case Seq(phenotype, ancestry) if ancestry.contains("ancestry=") =>
+        GeneAssociationsInput(phenotype, Some(ancestry.split("=").last), None)
+      case Seq(phenotype, dataset) if dataset.contains("dataset=") =>
+        GeneAssociationsInput(phenotype, None, Some(dataset.split("=").last))
     }
   }
 }
