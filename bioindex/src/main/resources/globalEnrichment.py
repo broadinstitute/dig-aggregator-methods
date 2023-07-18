@@ -36,6 +36,11 @@ def main():
         .mode('overwrite') \
         .json(f'{outdir}/annotation-tissue')
 
+    df.orderBy(['ancestry', 'tissue', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{outdir}/tissue')
+
     mixed_df.orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
