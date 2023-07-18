@@ -33,3 +33,8 @@ sudo yum install -y zstd
 pip3 install cython==0.29.24
 pip3 install pandas==1.3.3
 pip3 install scipy==1.7.1
+
+# For RDS connection
+pip3 install -U boto3
+pip3 install -U sqlalchemy
+pip3 install -U pymysql

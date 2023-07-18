@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 import argparse
+from boto3 import session
 import glob
+import json
 import numpy as np
 import os
 import os.path
 import pandas as pd
+import sqlalchemy
 import subprocess
 
 from scipy.sparse import lil_matrix
@@ -40,6 +43,46 @@ TRANS_ETHNIC_ANCESTRIES = {
     'EA': 'eas',
     'SA': 'sas'
 }
+
+
+class BioIndexDB:
+    def __init__(self):
+        self.secret_id = 'dig-bio-portal'
+        self.region = 'us-east-1'
+        self.config = None
+        self.engine = None
+
+    def get_config(self):
+        if self.config is None:
+            client = session.Session(region_name=self.region).client('secretsmanager')
+            self.config = json.loads(client.get_secret_value(SecretId=self.secret_id)['SecretString'])
+        return self.config
+
+    def get_engine(self):
+        if self.engine is None:
+            self.config = self.get_config()
+            print(f'creating engine for {self.config["host"]}:{self.config["port"]}/{self.config["dbname"]}')
+            self.engine = sqlalchemy.create_engine('{engine}://{username}:{password}@{host}:{port}/{db}'.format(
+                engine=self.config['engine'] + ('+pymysql' if self.config['engine'] == 'mysql' else ''),
+                username=self.config['username'],
+                password=self.config['password'],
+                host=self.config['host'],
+                port=self.config['port'],
+                db=self.config['dbname']
+            ))
+        return self.engine
+
+    def get_dataset_ancestry(self, dataset):
+        with self.get_engine().connect() as connection:
+            print(f'Querying db for dataset {dataset} ancestry')
+            query = sqlalchemy.text(
+                f'SELECT name, ancestry FROM Datasets '
+                f'WHERE name = :dataset LIMIT 1'
+            )
+            rows = connection.execute(query, {'dataset': dataset}).all()
+        print(f'Returned {len(rows)} rows for dataset to ancestry')
+        if len(rows) == 1:
+            return rows[0][1]
 
 
 def download(s3_file):
@@ -297,6 +340,13 @@ def get_ancestry_specific_paths(args):
     return srcdir, plinkdir, outdir
 
 
+def get_dataset_paths(args):
+    srcdir = f'{S3DIR}/variants/GWAS/{args.dataset}/{args.phenotype}'
+    plinkdir = f'{S3DIR}/out/metaanalysis/staging/dataset-plink/{args.phenotype}'
+    outdir = f'{S3DIR}/out/metaanalysis/staging/dataset-clumped/{args.phenotype}/dataset={args.dataset}'
+    return srcdir, plinkdir, outdir
+
+
 def main():
     pd.show_versions()
 
@@ -307,18 +357,33 @@ def main():
     """
     opts = argparse.ArgumentParser()
     opts.add_argument('--phenotype', type=str, required=True)
-    opts.add_argument('--ancestry', type=str, required=True)
+    opts.add_argument('--ancestry', type=str, required=False)
+    opts.add_argument('--dataset', type=str, required=False)
 
     # parse command line
     args = opts.parse_args()
 
+    if args.ancestry is None and args.dataset is None:
+        raise Exception('must set either --ancestry or --dataset')
+    if args.ancestry is not None and args.dataset is not None:
+        raise Exception('cannot set both --ancestry and --dataset')
+
     # source data and output location
-    if args.ancestry == 'Mixed':
-        srcdir, plinkdir, outdir = get_trans_ethnic_paths(args)
-        ancestries = TRANS_ETHNIC_ANCESTRIES
+    if args.ancestry is not None:
+        if args.ancestry == 'Mixed':
+            srcdir, plinkdir, outdir = get_trans_ethnic_paths(args)
+            ancestries = TRANS_ETHNIC_ANCESTRIES
+        else:
+            srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
+            ancestries = {args.ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]}
     else:
-        srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
-        ancestries = {args.ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]}
+        db = BioIndexDB()
+        maybe_ancestry = db.get_dataset_ancestry(args.dataset)
+        if maybe_ancestry is not None:
+            srcdir, plinkdir, outdir = get_dataset_paths(args)
+            ancestries = {maybe_ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]}
+        else:
+            raise Exception(f'No ancestry set for dataset {args.dataset}')
 
     # download and read the meta-analysis results
     df = load_bottom_line(f'{srcdir}/')

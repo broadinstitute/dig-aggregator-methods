@@ -13,6 +13,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
 
   val transEthnic = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
   val ancestrySpecific = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
+  val datasets = Input.Source.Success("variants/*/*/*/")
   val snps: Input.Source       = Input.Source.Success("out/varianteffect/snp/")
 
   /** The output of meta-analysis is the input for top associations. */
@@ -20,9 +21,9 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case transEthnic(phenotype) => Outputs.Named(phenotype)
-    case ancestrySpecific(phenotype, ancestry) =>
-      Outputs.Named(s"$phenotype/${ancestry.split("ancestry=").last}")
+    case transEthnic(phenotype) => Outputs.Named(s"trans-ethnic/$phenotype")
+    case ancestrySpecific(phenotype, ancestry) => Outputs.Named(s"ancestry/$phenotype/$ancestry")
+    case datasets(tech, dataset, phenotype) if tech == "GWAS" => Outputs.Named(s"dataset/$phenotype/$dataset")
     case snps() => Outputs.All
   }
 
@@ -37,15 +38,11 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
 
   /** Build the job. */
   override def make(output: String): Job = {
-    // run clumping and then join with bottom line
-    val flags = output.split("/").toSeq match {
-      case Seq(phenotype) => Seq(s"--phenotype=$phenotype", s"--ancestry=Mixed")
-      case Seq(phenotype, ancestry) => Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
-    }
+    val input = ClumpedAssociationsInput.fromOutput(output)
 
     val steps = Seq(
-      Job.Script(resourceUri("runPlink.py"), flags:_*),
-      Job.PySpark(resourceUri("clumpedAssociations.py"), flags:_*)
+      Job.Script(resourceUri("runPlink.py"), input.flags:_*),
+      Job.PySpark(resourceUri("clumpedAssociations.py"), input.flags:_*)
     )
     new Job(steps)
   }
@@ -53,14 +50,48 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   /** Nuke the staging directories before the job runs.
     */
   override def prepareJob(output: String): Unit = {
-    output.split("/").toSeq match {
-      case Seq(phenotype) =>
-        context.s3.rm(s"out/metaanalysis/staging/clumped/$phenotype/")
-        context.s3.rm(s"out/metaanalysis/staging/plink/$phenotype/")
-      case Seq(phenotype, ancestry) =>
-        context.s3.rm(s"out/metaanalysis/staging/ancestry-clumped/$phenotype/ancestry=$ancestry")
-        context.s3.rm(s"out/metaanalysis/staging/ancestry-plink/$phenotype/ancestry=$ancestry")
+    val input = ClumpedAssociationsInput.fromOutput(output)
+    input.outputDirectory("clumped").foreach { clumpingDirectory =>
+      context.s3.rm(clumpingDirectory)
     }
+    input.outputDirectory("plink").foreach { plinkDirectory =>
+      context.s3.rm(plinkDirectory)
+    }
+  }
+}
 
+case class ClumpedAssociationsInput(
+  inputType: String,
+  phenotype: String,
+  maybeAncestry: Option[String],
+  maybeDataset: Option[String]
+) {
+  def flags: Seq[String] = Seq(
+    Some(s"--phenotype=$phenotype"),
+    maybeAncestry.map(ancestry => s"--ancestry=$ancestry"),
+    maybeDataset.map(dataset => s"--dataset=$dataset")
+  ).flatten
+
+  def outputDirectory(outputType: String): Option[String] = inputType match {
+    case "trans-ethnic" => Some(s"out/metaanalysis/staging/$outputType/$phenotype/")
+    case "ancestry" => maybeAncestry.map { ancestry =>
+      s"out/metaanalysis/staging/ancestry-$outputType/$phenotype/ancestry=$ancestry"
+    }
+    case "dataset" => maybeDataset.map { dataset =>
+      s"out/metaanalysis/staging/dataset-$outputType/$phenotype/dataset=$dataset"
+    }
+  }
+}
+
+case object ClumpedAssociationsInput {
+  def fromOutput(output: String): ClumpedAssociationsInput = {
+    output.split("/").toSeq match {
+      case Seq(inputType, phenotype) if inputType == "trans-ethnic" =>
+        ClumpedAssociationsInput(inputType, phenotype, Some("Mixed"), None)
+      case Seq(inputType, phenotype, ancestry) if inputType == "ancestry" =>
+        ClumpedAssociationsInput(inputType, phenotype, Some(ancestry.split("=").last), None)
+      case Seq(inputType, phenotype, dataset) if inputType == "dataset" =>
+        ClumpedAssociationsInput(inputType, phenotype, None, Some(dataset.split("=").last))
+    }
   }
 }
