@@ -13,11 +13,11 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
 
   val transEthnic = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
   val ancestrySpecific = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
-  val datasets = Input.Source.Success("variants/*/*/*/")
+  val datasets = Input.Source.Dataset("variants/*/*/*/")
   val snps: Input.Source       = Input.Source.Success("out/varianteffect/snp/")
 
   /** The output of meta-analysis is the input for top associations. */
-  override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific, snps)
+  override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific, datasets, snps)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
