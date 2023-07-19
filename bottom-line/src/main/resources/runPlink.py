@@ -90,7 +90,7 @@ def download(s3_file):
     Copy a file from S3 to here with the same name."
     """
     subprocess.check_call(['aws', 's3', 'cp', '--recursive', s3_file, '.'])
-    for fn in glob.glob('part-*'):
+    for fn in glob.glob('part-*.zst'):
         subprocess.check_call(['zstd', '-d', '--rm', fn])
 
 
@@ -381,7 +381,7 @@ def main():
         maybe_ancestry = db.get_dataset_ancestry(args.dataset)
         if maybe_ancestry is not None:
             srcdir, plinkdir, outdir = get_dataset_paths(args)
-            ancestries = {maybe_ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]}
+            ancestries = {maybe_ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[maybe_ancestry]}
         else:
             raise Exception(f'No ancestry set for dataset {args.dataset}')
 
