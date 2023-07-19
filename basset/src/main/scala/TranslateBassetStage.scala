@@ -12,7 +12,8 @@ class TranslateBassetStage(implicit context: Context) extends Stage {
     applications = Seq.empty,
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("translateBootstrap.sh"))
-    )
+    ),
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   val basset: Input.Source = Input.Source.Success("out/basset/variants/")

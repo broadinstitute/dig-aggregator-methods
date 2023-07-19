@@ -24,6 +24,8 @@ def get_tissue_conversion_map():
 
 def get_part(part):
     subprocess.check_call(['aws', 's3', 'cp', f's3://dig-analysis-data/out/basset/variants/{part}', './data/'])
+    subprocess.check_call(['zstd', '-d', f'./data/{part}', '--rm'])
+    return os.path.splitext(part)[0]
 
 
 # Arithmetic mean in lieu of knowing proportion of basset tissues in each portal tissue
@@ -44,19 +46,22 @@ def translate_variant(variant_associations, tissue_map):
 
 
 def translate_variants(part, tissue_map):
-    get_part(part)
-    with open(f'{part}', 'w') as f_out:
-        with open(f'data/{part}', 'r') as f_in:
+    decompressed_part = get_part(part)
+    with open(f'{decompressed_part}', 'w') as f_out:
+        with open(f'data/{decompressed_part}', 'r') as f_in:
             line = f_in.readline()
             while len(line) > 0:
                 json_line = json.loads(line)
                 for translated_line in translate_variant(json_line, tissue_map):
                     f_out.write(f'{json.dumps(translated_line)}\n')
                 line = f_in.readline()
-    os.remove(f'./data/{part}')
+    os.remove(f'./data/{decompressed_part}')
+    return decompressed_part
 
 
-def upload(part):
+def upload(decompressed_part):
+    subprocess.check_call(['zstd', decompressed_part, '--rm'])
+    part = f'{decompressed_part }.zst'
     subprocess.check_call(['aws', 's3', 'cp', part, f'{s3_out}/{part}'])
     os.remove(part)
 
@@ -67,8 +72,8 @@ def main():
     args = opts.parse_args()
 
     tissue_map = get_tissue_conversion_map()
-    translate_variants(args.part, tissue_map)
-    upload(args.part)
+    decompressed_part = translate_variants(args.part, tissue_map)
+    upload(decompressed_part )
 
 
 if __name__ == '__main__':
