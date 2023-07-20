@@ -23,18 +23,25 @@ class SnpStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   // import directly from the raw datasource
-  val dbSNP: Input.Source = Input.Source.Raw("raw/dbSNP_common_GRCh37.vcf.gz")
+  val dbSNP_common: Input.Source = Input.Source.Raw("raw/dbSNP_common_GRCh37.vcf.gz")
+  val dbSNP: Input.Source = Input.Source.Raw("raw/dbSNP_full_GRCh37.vcf.gz")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(dbSNP)
+  override val sources: Seq[Input.Source] = Seq(dbSNP_common, dbSNP)
 
   /** Make inputs to the outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => Outputs.Named("snp")
+    case dbSNP_common() => Outputs.Named("snp")
+    case dbSNP() => Outputs.Named("snp_full")
   }
 
   /** All effect results are combined together, so the results list is ignored. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("snp.py")))
+    val flags: Seq[String] = if (output == "snp") {
+      Seq("--fname=dbSNP_common_GRCh37.vcf.gz", "--output=snp")
+    } else {
+      Seq("--fname=dbSNP_full_GRCh37.vcf.gz", "--output=snp_full")
+    }
+    new Job(Job.PySpark(resourceUri("snp.py"), flags: _*))
   }
 }

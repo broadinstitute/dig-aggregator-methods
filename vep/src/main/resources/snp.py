@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import argparse
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, concat_ws, explode, regexp_replace, row_number, split
 from pyspark.sql.window import Window
@@ -8,15 +9,10 @@ from pyspark.sql.window import Window
 S3DIR = 's3://dig-analysis-data/out/varianteffect'
 
 
-def main():
-    """
-    Arguments: none
-    """
-    spark = SparkSession.builder.appName('vep').getOrCreate()
-
+def get_snp_df(spark, fname):
     # load the dbSNP database for GRCh37
     df = spark.read.csv(
-        's3://dig-analysis-data/raw/dbSNP_common_GRCh37.vcf.gz',
+        fname,
         sep='\t',
         header=False,
         comment='#',
@@ -49,9 +45,20 @@ def main():
     w = Window.partitionBy('varId').orderBy(col('rsInt').asc())
     df = df.withColumn('row', row_number().over(w))
     df = df[df.row == 1].drop('row', 'rsInt')
+    return df
 
+
+def main():
+    opts = argparse.ArgumentParser()
+    opts.add_argument('fname', required=True)
+    opts.add_argument('output', required=True)
+    args = opts.parse_args()
+
+    spark = SparkSession.builder.appName('vep').getOrCreate()
+
+    df = get_snp_df(spark, f's3://dig-analysis-data/raw/{args.fname}')
     # output the common data in CSV format (for other systems to use)
-    df.write.mode('overwrite').csv('%s/snp' % S3DIR, sep='\t', header=True)
+    df.write.mode('overwrite').csv(f'{S3DIR}/{args.output}', sep='\t', header=True)
 
     # done
     spark.stop()
