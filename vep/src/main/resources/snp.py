@@ -50,8 +50,8 @@ def get_snp_df(spark, fname):
 
 def main():
     opts = argparse.ArgumentParser()
-    opts.add_argument('fname', required=True)
-    opts.add_argument('output', required=True)
+    opts.add_argument('--fname', required=True)
+    opts.add_argument('--output', required=True)
     args = opts.parse_args()
 
     spark = SparkSession.builder.appName('vep').getOrCreate()
