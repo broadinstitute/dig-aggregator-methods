@@ -19,6 +19,10 @@ chmod +x "${MAGMA_DIR}/geneAssociations.sh"
 # copy data files
 aws s3 cp "${S3DIR}/bin/magma/NCBI37.3.gene.loc" .
 
+# download a common script for use
+aws s3 cp "${JOB_BUCKET}/resources/scripts/getmerge-strip-headers.sh" .
+chmod +x getmerge-strip-headers.sh
+
 aws s3 cp "${S3DIR}/bin/magma/g1000_amr.zip" .
 unzip -o g1000_amr.zip
 aws s3 cp "${S3DIR}/bin/magma/g1000_afr.zip" .
