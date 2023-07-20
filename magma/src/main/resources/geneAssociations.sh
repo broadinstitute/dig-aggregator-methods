@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 # set where the source and destination is in S3 and the phenotype
-OUT_DIR="s3://dis-analysis-data/out/magma"
+OUT_DIR="s3://kmoogala-test/out/magma"
 MAGMA_DIR="/mnt/var/magma"
 PHENOTYPE=$1
 INPUT_TYPE=$2

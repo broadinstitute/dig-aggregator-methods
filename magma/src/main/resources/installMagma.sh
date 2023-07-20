@@ -13,7 +13,7 @@ aws s3 cp "${S3DIR}/resources/scripts/getmerge-strip-headers.sh" "${MAGMA_DIR}/"
 chmod +x "${MAGMA_DIR}/getmerge-strip-headers.sh"
 
 # get script
-aws s3 cp "${S3DIR}/resources/Magma/geneAssociations.sh" "${MAGMA_DIR}/"
+aws s3 cp "s3://kmoogala-test/resources/Magma/geneAssociations.sh" "${MAGMA_DIR}/"
 chmod +x "${MAGMA_DIR}/geneAssociations.sh"
 
 # copy data files
