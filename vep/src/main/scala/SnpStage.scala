@@ -35,6 +35,15 @@ class SnpStage(implicit context: Context) extends Stage {
     case dbSNP() => Outputs.Named("snp_full")
   }
 
+  // EMR cluster to run the job steps on
+  override def cluster: ClusterDef = super.cluster.copy(
+    masterInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
+    slaveInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
+    masterVolumeSizeInGB = 250,
+    slaveVolumeSizeInGB = 300,
+    instances = 3
+  )
+
   /** All effect results are combined together, so the results list is ignored. */
   override def make(output: String): Job = {
     val flags: Seq[String] = if (output == "snp") {
