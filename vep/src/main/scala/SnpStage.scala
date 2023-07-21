@@ -1,10 +1,8 @@
 package org.broadinstitute.dig.aggregator.methods.vep
 
 import org.broadinstitute.dig.aggregator.core._
-import org.broadinstitute.dig.aws.Ec2.Strategy
-import org.broadinstitute.dig.aws.MemorySize
+import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
-import org.broadinstitute.dig.aws.emr.configurations.{MapReduce, Spark}
 
 /** After all the variants across all datasets have had VEP run on them in the
   * previous step the rsID for each variant is extracted into its own file.
