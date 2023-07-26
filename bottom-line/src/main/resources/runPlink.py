@@ -381,7 +381,10 @@ def main():
         maybe_ancestry = db.get_dataset_ancestry(args.dataset)
         if maybe_ancestry is not None:
             srcdir, plinkdir, outdir = get_dataset_paths(args)
-            ancestries = {maybe_ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[maybe_ancestry]}
+            if args.ancestry == 'Mixed':
+                ancestries = TRANS_ETHNIC_ANCESTRIES
+            else:
+                ancestries = {maybe_ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[maybe_ancestry]}
         else:
             raise Exception(f'No ancestry set for dataset {args.dataset}')
 
