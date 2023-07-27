@@ -25,15 +25,15 @@ def main():
 
     df = spark.read.json(srcdir)
 
-    # common vep data
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
+    # # common vep data
+    # common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
 
     # load the top-association, lead SNPs for every phenotype
     df = df.filter(df.leadSNP)
 
-    # load common data for variants and join
-    common = spark.read.json(common_dir)
-    df = df.join(common, on='varId', how='left')
+    # # load common data for variants and join
+    # common = spark.read.json(common_dir)
+    # df = df.join(common, on='varId', how='left')
 
     # sort all by clump range
     df.orderBy(['ancestry', 'sex', 'chromosome', 'clumpStart']) \
