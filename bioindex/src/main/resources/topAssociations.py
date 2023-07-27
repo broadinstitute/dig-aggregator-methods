@@ -17,7 +17,7 @@ def main():
 
     # source and output locations
     if args.ancestry == 'Mixed':
-        srcdir = f's3://{s3_in}/out/metaanalysis/dataset-clumped/*/part-*'
+        srcdir = f's3://{s3_in}/out/metaanalysis/dataset-clumped/*/*/part-*'
         outdir = f's3://{s3_bucket}/associations/{{}}'
     else:
         srcdir = f's3://{s3_in}/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
