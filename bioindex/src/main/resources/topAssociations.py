@@ -1,8 +1,9 @@
 import argparse
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import lit
 
+s3_in = 'dig-giant-sandbox'
+s3_bucket = 'dig-giant-sandbox/bioindex'
 
 def main():
     """
@@ -15,16 +16,14 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output locations
-    s3_bucket = 'dig-bio-index'
     if args.ancestry == 'Mixed':
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/clumped/*/part-*'
+        srcdir = f's3://{s3_in}/out/metaanalysis/dataset-clumped/*/part-*'
         outdir = f's3://{s3_bucket}/associations/{{}}'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
+        srcdir = f's3://{s3_in}/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
         outdir = f's3://{s3_bucket}/ancestry-associations/{{}}/{args.ancestry}'
 
-    df = spark.read.json(srcdir) \
-        .withColumn('ancestry', lit(args.ancestry))
+    df = spark.read.json(srcdir)
 
     # common vep data
     common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
@@ -37,13 +36,13 @@ def main():
     df = df.join(common, on='varId', how='left')
 
     # sort all by clump range
-    df.orderBy(['chromosome', 'clumpStart']) \
+    df.orderBy(['ancestry', 'sex', 'chromosome', 'clumpStart']) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('top'))
 
     # sort by phenotype then p-value for global associations
-    df.orderBy(['phenotype', 'pValue']) \
+    df.orderBy(['ancestry', 'sex', 'phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('global'))
