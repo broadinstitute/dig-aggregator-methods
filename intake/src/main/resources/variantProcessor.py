@@ -15,6 +15,8 @@ s3_path = f's3://dig-analysis-psx/variants_raw'
 s3_output = f's3://dig-analysis-psx/variants_processed'
 data_path = f'/mnt/var/intake'
 
+print(os.environ)
+
 
 class BioIndexDB:
     def __init__(self):
