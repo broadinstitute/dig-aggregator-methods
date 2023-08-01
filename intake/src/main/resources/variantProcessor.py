@@ -11,8 +11,8 @@ from scipy.stats import norm
 import sqlalchemy
 import subprocess
 
-s3_path = f's3://dig-analysis-data/variants_raw'
-s3_output = f's3://dig-analysis-data/variants_processed'
+s3_path = f's3://dig-analysis-psx/variants_raw'
+s3_output = f's3://dig-analysis-psx/variants_processed'
 data_path = f'/mnt/var/intake'
 
 
@@ -137,9 +137,11 @@ class IntakeUtilities:
     def from_metadata_file(data_path, db):
         with open('metadata', 'r') as f:
             metadata = json.load(f)
-        metadata['dichotomous'] = db.get_is_dichotomous(metadata['phenotype'])
-        dataset_data = db.get_dataset_data(metadata['dataset'])
-        metadata['ancestry'] = dataset_data['ancestry']
+        #metadata['dichotomous'] = db.get_is_dichotomous(metadata['phenotype'])
+        # dataset_data = db.get_dataset_data(metadata['dataset'])
+        # metadata['ancestry'] = dataset_data['ancestry']
+        metadata['dichotomous'] = False
+        metadata['ancestry'] = 'EU'
         return IntakeUtilities(metadata, FaFinder(data_path), G1000Reference(data_path, metadata['ancestry']))
 
 
