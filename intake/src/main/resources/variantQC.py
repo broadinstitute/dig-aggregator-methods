@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import os
 import platform
 import subprocess
 
@@ -8,7 +9,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, BooleanType, FloatType, DoubleType
 
-s3dir = 's3://dig-analysis-data'
+s3dir = os.environ['JOB_BUCKET']
+print(f'Running on s3 bucket: {s3dir}')
 
 variants_schema = StructType([
     StructField('varId', StringType(), nullable=False),

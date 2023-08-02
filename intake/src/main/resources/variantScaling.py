@@ -14,7 +14,9 @@ import subprocess
 MAF_SCALING_THRESHOLD = 2
 FALLBACK_SCALING_THRESHOLD = 5
 TRAINING_DATA_MINIMUM_COUNT = 1000
-s3dir = 's3://dig-analysis-data'
+s3dir = os.environ['JOB_BUCKET']
+
+print(f'Running on s3 bucket: {s3dir}')
 
 
 class BioIndexDB:
@@ -157,7 +159,8 @@ def main():
 
     db = BioIndexDB()
     tech, dataset, phenotype = args.method_dataset_phenotype.split('/')
-    is_dichotomous = db.get_is_dichotomous(phenotype)
+    #is_dichotomous = db.get_is_dichotomous(phenotype)
+    is_dichotomous = False
 
     srcdir = f'{s3dir}/variants_qc/{args.method_dataset_phenotype}/pass'
     outdir = f'{s3dir}/variants/{args.method_dataset_phenotype}'

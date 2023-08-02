@@ -11,11 +11,12 @@ from scipy.stats import norm
 import sqlalchemy
 import subprocess
 
-s3_path = f's3://dig-analysis-psx/variants_raw'
-s3_output = f's3://dig-analysis-psx/variants_processed'
+s3dir = os.environ['JOB_BUCKET']
+s3_path = f'{s3dir}/variants_raw'
+s3_output = f'{s3dir}/variants_processed'
 data_path = f'/mnt/var/intake'
 
-print(os.environ)
+print(f'Running on s3 bucket: {s3dir}')
 
 
 class BioIndexDB:
