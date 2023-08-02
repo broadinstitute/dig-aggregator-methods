@@ -7,7 +7,7 @@ import re
 import subprocess
 import tempfile
 
-S3DIR = 's3://dig-analysis-data/out/varianteffect'
+S3DIR = 's3://dig-analysis-pxs/out/varianteffect'
 
 
 def colocated_variant(row, ref, alt):
