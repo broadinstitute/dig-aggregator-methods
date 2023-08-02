@@ -19,11 +19,11 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = f's3://dig-analysis-data/variants/{args.path}/part-*'
-    outdir = f's3://dig-bio-index/associations/dataset'
+    srcdir = f's3://dig-analysis-pxs/variants/{args.path}/part-*'
+    outdir = f's3://dig-analysis-pxs/bioindex/associations/dataset'
 
     # common vep data
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common'
+    common_dir = 's3://dig-analysis-pxs/out/varianteffect/common'
 
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
     df = spark.read.json(srcdir)
