@@ -14,7 +14,7 @@ import subprocess
 MAF_SCALING_THRESHOLD = 2
 FALLBACK_SCALING_THRESHOLD = 5
 TRAINING_DATA_MINIMUM_COUNT = 1000
-s3dir = os.environ['JOB_BUCKET']
+s3dir = 's3://dig-analysis-psx'
 
 print(f'Running on s3 bucket: {s3dir}')
 
