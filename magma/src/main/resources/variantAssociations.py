@@ -6,7 +6,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType
 import sqlalchemy
 
-s3dir = f's3://dig-analysis-data'
+s3dir = f's3://dig-analysis-pxs'
 
 
 class BioIndexDB:

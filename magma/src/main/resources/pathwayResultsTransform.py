@@ -11,17 +11,18 @@ from scipy.stats import norm
 import shutil
 import subprocess
 
-output_s3 = 's3://dig-analysis-pxs/out/magma/pathway-associations'
+s3_bucket = 'dig-analysis-pxs'
+output_s3 = f's3://{s3_bucket}/out/magma/pathway-associations'
 
 
 def download_ancestry_pathway_associations(phenotype):
     s3 = boto3.resource('s3')
-    my_bucket = s3.Bucket('dig-analysis-data')
+    my_bucket = s3.Bucket(s3_bucket)
     for file in my_bucket.objects.filter(Prefix=f'out/magma/staging/pathways/{phenotype}/').all():
         if re.fullmatch(f'.*/associations\.pathways\.gsa\.out$', file.key):
             ancestry = re.findall(f'.*/ancestry=(\w+)/associations\.pathways\.gsa\.out$', file.key)[0]
             subprocess.check_call([
-                'aws', 's3', 'cp', f's3://dig-analysis-data/{file.key}', f'./{phenotype}/{ancestry}/'
+                'aws', 's3', 'cp', f's3://{s3_bucket}/{file.key}', f'./{phenotype}/{ancestry}/'
             ])
 
 
