@@ -12,7 +12,7 @@ import shutil
 import subprocess
 
 files_location = '/mnt/var/magma'
-output_s3 = 's3://dig-analysis-data/out/magma/gene-associations'
+output_s3 = 's3://dig-analysis-pxs/out/magma/gene-associations'
 
 
 def get_gene_map():
