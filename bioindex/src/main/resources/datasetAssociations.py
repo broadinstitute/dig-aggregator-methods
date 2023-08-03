@@ -5,6 +5,9 @@ from pyspark.sql.functions import rank
 from pyspark.sql.window import Window
 
 
+s3_dir = 's3://dig-analysis-pxs'
+bioindex_dir = 's3://dig-analysis-pxs/bioindex'
+
 def main():
     """
     Arguments: dataset/phenotype
@@ -19,11 +22,11 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = f's3://dig-analysis-pxs/variants/{args.path}/part-*'
-    outdir = f's3://dig-analysis-pxs/bioindex/associations/dataset'
+    srcdir = f'{s3_dir}/variants/{args.path}/part-*'
+    outdir = f'{bioindex_dir}/associations/dataset'
 
     # common vep data
-    common_dir = 's3://dig-analysis-pxs/out/varianteffect/common'
+    common_dir = f'{s3_dir}/out/varianteffect/common'
 
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
     df = spark.read.json(srcdir)
