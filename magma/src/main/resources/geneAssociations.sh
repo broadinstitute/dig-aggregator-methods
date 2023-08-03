@@ -25,7 +25,7 @@ if [[ "${#PARTS[@]}" -eq 0 ]]; then
 fi
 
 # download associations for this phenotype locally
-./$MAGMA_DIR/getmerge-strip-headers.sh $PARTSDIR ./associations.csv
+"${MAGMA_DIR}/getmerge-strip-headers.sh" $PARTSDIR ./associations.csv
 
 # create symbolic links to the magma data
 ln -s "${MAGMA_DIR}/g1000_$G1000_ANCESTRY.bed" .
