@@ -10,6 +10,6 @@ sudo pip3 install -U scipy
 
 # download NCBI data
 MAGMA_DIR="/mnt/var/magma"
-mkdir -p "${MAGMA_DIR}"
+sudo mkdir -p "${MAGMA_DIR}"
 cd "${MAGMA_DIR}"
-aws s3 cp s3://dig-analysis-data/bin/magma/NCBI37.3.gene.loc .
+sudo aws s3 cp s3://dig-analysis-data/bin/magma/NCBI37.3.gene.loc .
