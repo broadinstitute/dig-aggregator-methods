@@ -62,7 +62,6 @@ def load_bottom_line(s3_dir):
 
     # load the dataframe, ensure p-values are high-precision
     download(s3_dir)
-    print(glob.glob('part-*'))
     df = pd.concat([pd.read_json(fn, dtype={'pValue': np.float64}, lines=True) for fn in glob.glob('part-*')])
     df = df[['varId', 'pValue']]
 
@@ -320,11 +319,6 @@ def main():
     else:
         srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
         ancestries = {args.ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]}
-
-    print(srcdir)
-    print(plinkdir)
-    print(outdir)
-    print(ancestries)
 
     # download and read the meta-analysis results
     df = load_bottom_line(f'{srcdir}/')
