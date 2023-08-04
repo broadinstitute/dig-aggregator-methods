@@ -35,57 +35,58 @@ if __name__ == '__main__':
     # if ancestry isn't set assume it's mixed
     ancestry = when(df.ancestry.isNull(), lit('Mixed')) \
         .otherwise(df.ancestry)
+    if ancestry in ['SSAF', 'GME']:
 
-    # Convert SSAF -> AF And GME -> SA
-    if args.phenotype == 'T2D':
-        AF_convert = 'AA'
-    else:
-        AF_convert = 'AF'
-    ancestry = when(ancestry == 'SSAF', lit(AF_convert)) \
-        .otherwise(ancestry)
-    ancestry = when(ancestry == 'GME', lit('SA')) \
-        .otherwise(ancestry)
+        # Convert SSAF -> AF And GME -> SA
+        if args.phenotype == 'T2D':
+            AF_convert = 'AA'
+        else:
+            AF_convert = 'AF'
+        ancestry = when(ancestry == 'SSAF', lit(AF_convert)) \
+            .otherwise(ancestry)
+        ancestry = when(ancestry == 'GME', lit('SA')) \
+            .otherwise(ancestry)
 
-    # # keep a sum total across datasets for variants with EAF and/or MAF
-    # eafCount = when(df.eaf.isNull() | isnan(df.eaf), 0).otherwise(1)
-    # mafCount = when(df.maf.isNull() | isnan(df.maf), 0).otherwise(1)
+        # # keep a sum total across datasets for variants with EAF and/or MAF
+        # eafCount = when(df.eaf.isNull() | isnan(df.eaf), 0).otherwise(1)
+        # mafCount = when(df.maf.isNull() | isnan(df.maf), 0).otherwise(1)
 
-    # # EAF and MAF need to be NA if not preset or NaN so that METAL ignores them
-    # eaf = when(eafCount == 1, df.eaf).otherwise(lit('NA'))
-    # maf = when(mafCount == 1, df.maf).otherwise(lit('NA'))
+        # # EAF and MAF need to be NA if not preset or NaN so that METAL ignores them
+        # eaf = when(eafCount == 1, df.eaf).otherwise(lit('NA'))
+        # maf = when(mafCount == 1, df.maf).otherwise(lit('NA'))
 
-    # rare variants have an allele frequency < 5%
-    rare = when(df.maf.isNotNull() & (df.maf < 0.05), lit(True)).otherwise(lit(False))
+        # rare variants have an allele frequency < 5%
+        rare = when(df.maf.isNotNull() & (df.maf < 0.05), lit(True)).otherwise(lit(False))
 
-    # keep only variants for the desired phenotype, that are bi-allelic, and
-    # have a valid p-value
-    df = df \
-        .filter(df.phenotype == args.phenotype) \
-        .filter(df.multiAllelic == False) \
-        .filter(df.pValue.isNotNull() & ~isnan(df.pValue)) \
-        .filter(df.beta.isNotNull() & ~isnan(df.beta)) \
-        .filter(df.n.isNotNull()) \
-        .select(
-            df.varId,
-            df.chromosome,
-            df.position,
-            df.reference,
-            df.alt,
-            df.phenotype,
-            ancestry.alias('ancestry'),
-            df.pValue,
-            df.beta,
-            df.stdErr,
-            df.n,
-            rare.alias('rare'),
-        )
+        # keep only variants for the desired phenotype, that are bi-allelic, and
+        # have a valid p-value
+        df = df \
+            .filter(df.phenotype == args.phenotype) \
+            .filter(df.multiAllelic == False) \
+            .filter(df.pValue.isNotNull() & ~isnan(df.pValue)) \
+            .filter(df.beta.isNotNull() & ~isnan(df.beta)) \
+            .filter(df.n.isNotNull()) \
+            .select(
+                df.varId,
+                df.chromosome,
+                df.position,
+                df.reference,
+                df.alt,
+                df.phenotype,
+                ancestry.alias('ancestry'),
+                df.pValue,
+                df.beta,
+                df.stdErr,
+                df.n,
+                rare.alias('rare'),
+            )
 
-    # output the partitioned variants as CSV files for METAL
-    df.write \
-        .mode('overwrite') \
-        .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
-        .partitionBy('ancestry', 'rare') \
-        .csv(outdir, sep='\t', header=True)
+        # output the partitioned variants as CSV files for METAL
+        df.write \
+            .mode('overwrite') \
+            .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
+            .partitionBy('ancestry', 'rare') \
+            .csv(outdir, sep='\t', header=True)
 
     # done
     spark.stop()
