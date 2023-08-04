@@ -37,7 +37,11 @@ if __name__ == '__main__':
         .otherwise(df.ancestry)
 
     # Convert SSAF -> AF And GME -> SA
-    ancestry = when(ancestry == 'SSAF', lit('AF')) \
+    if args.phenotype == 'T2D':
+        AF_convert = 'AA'
+    else:
+        AF_convert = 'AF'
+    ancestry = when(ancestry == 'SSAF', lit(AF_convert)) \
         .otherwise(ancestry)
     ancestry = when(ancestry == 'GME', lit('SA')) \
         .otherwise(ancestry)
