@@ -36,6 +36,12 @@ if __name__ == '__main__':
     ancestry = when(df.ancestry.isNull(), lit('Mixed')) \
         .otherwise(df.ancestry)
 
+    # Convert SSAF -> AF And GME -> SA
+    ancestry = when(ancestry == 'SSAF', lit('AF')) \
+        .otherwise(ancestry)
+    ancestry = when(ancestry == 'GME', lit('SA')) \
+        .otherwise(ancestry)
+
     # # keep a sum total across datasets for variants with EAF and/or MAF
     # eafCount = when(df.eaf.isNull() | isnan(df.eaf), 0).otherwise(1)
     # mafCount = when(df.maf.isNull() | isnan(df.maf), 0).otherwise(1)
