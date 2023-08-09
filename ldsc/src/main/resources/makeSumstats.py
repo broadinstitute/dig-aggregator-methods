@@ -8,6 +8,7 @@ import shutil
 import sqlalchemy
 import subprocess
 
+s3_dir = 's3://dig-analysis-pxs'
 
 # This map is used to map portal ancestries to g1000 ancestries
 ancestry_map = {
@@ -73,9 +74,9 @@ def get_s3_dir(phenotype, ancestry):
         db = BioIndexDB()
         tech_dataset = db.get_largest_mixed_dataset(phenotype)
         if tech_dataset is not None:
-            return f's3://dig-analysis-data/variants/{tech_dataset}/{phenotype}/'
+            return f'{s3_dir}/variants/{tech_dataset}/{phenotype}/'
     else:
-        return f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/{phenotype}/ancestry={ancestry}/'
+        return f'{s3_dir}/out/metaanalysis/ancestry-specific/{phenotype}/ancestry={ancestry}/'
 
 
 def get_single_json_file(s3_dir, phenotype, ancestry):
@@ -92,9 +93,9 @@ def get_single_json_file(s3_dir, phenotype, ancestry):
 
 
 def upload_and_remove_files(phenotype, ancestry):
-    s3_dir = f's3://dig-analysis-data/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/'
-    subprocess.check_call(['aws', 's3', 'cp', f'{phenotype_files}/{phenotype}_{ancestry}.log', s3_dir])
-    subprocess.check_call(['aws', 's3', 'cp', f'{phenotype_files}/{phenotype}_{ancestry}.sumstats.gz', s3_dir])
+    s3_out = f'{s3_dir}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/'
+    subprocess.check_call(['aws', 's3', 'cp', f'{phenotype_files}/{phenotype}_{ancestry}.log', s3_out])
+    subprocess.check_call(['aws', 's3', 'cp', f'{phenotype_files}/{phenotype}_{ancestry}.sumstats.gz', s3_out])
     for file in glob.glob(f'{phenotype_files}/{phenotype}_{ancestry}.*'):
         os.remove(file)
 
