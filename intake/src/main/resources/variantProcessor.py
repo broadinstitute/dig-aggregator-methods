@@ -156,7 +156,9 @@ class LineFlipper:
 
     def format_line(self):
         if self.line.var_id.is_valid():
-            if self.line.var_id.is_unambiguous():
+            if len(self.line.var_id.ref) != len(self.line.var_id.alt):
+                flip_output = self.build_indel()
+            elif self.line.var_id.is_unambiguous():
                 flip_output = self.build_unambiguous_line()
             else:
                 flip_output = self.build_ambiguous_line()
@@ -169,6 +171,25 @@ class LineFlipper:
             if len(self.intake_debug.skipped_lines) < 100000:
                 self.intake_debug.skipped_lines.append(raw_line)
                 print(f"Invalid line: {raw_line}")
+
+    def build_indel(self):
+        if self.line.var_id.ref_match():
+            af_ref = self.utils.g1000_reference.get(self.line.var_id.format_var_id(self.line.var_id.ref, self.line.var_id.alt))
+            af_alt = self.utils.g1000_reference.get(self.line.var_id.format_var_id(self.line.var_id.alt, self.line.var_id.ref))
+            if af_ref is None and af_alt is not None:
+                return FlipOutput(flip=True, compliment=False, null_beta=False, missing_af=False, is_ambiguous=False)
+            else:
+                return FlipOutput(flip=False, compliment=False, null_beta=False, missing_af=False, is_ambiguous=False)
+        elif self.line.var_id.ref_compliment():
+            af_ref = self.utils.g1000_reference.get(self.line.var_id.format_var_id(self.line.var_id.ref_compliment, self.line.var_id.alt_compliment))
+            af_alt = self.utils.g1000_reference.get(self.line.var_id.format_var_id(self.line.var_id.alt_compliment, self.line.var_id.ref_compliment))
+            if af_ref is None and af_alt is not None:
+                return FlipOutput(flip=True, compliment=True, null_beta=False, missing_af=False, is_ambiguous=False)
+            else:
+                return FlipOutput(flip=False, compliment=True, null_beta=False, missing_af=False, is_ambiguous=False)
+        else:
+            raise Exception(f'Invalid ref/alt/actual_ref '
+                            f'({self.line.var_id.ref}/{self.line.var_id.alt}/{self.line.var_id.actual_ref})')
 
     def build_unambiguous_line(self):
         # Note that with ATGC required these four cases cover all ref/alt/actual_ref combinations
