@@ -152,16 +152,19 @@ class LineFlipper:
     AF_CHECK_THRESHOLD = 0.3
     NEVER_COMPLIMENT_THRESHOLD = 0.1
     ALWAYS_COMPLIMENT_THRESHOLD = 1 - NEVER_COMPLIMENT_THRESHOLD
+    NEVER_FLIP_THRESHOLD = 0.1
+    ALWAYS_FLIP_THRESHOLD = 1 - NEVER_FLIP_THRESHOLD
 
-    def __init__(self, line, utils, dataset_compliment_fraction, intake_debug):
+    def __init__(self, line, utils, dataset_compliment_fraction, dataset_flip_fraction, intake_debug):
         self.line = line
         self.utils = utils
         self.dataset_compliment_fraction = dataset_compliment_fraction
+        self.dataset_flip_fraction = dataset_flip_fraction
         self.intake_debug = intake_debug
 
     def format_line(self):
         if self.line.var_id.is_valid():
-            if len(self.line.var_id.ref) != len(self.line.var_id.alt):
+            if self.line.var_id.is_indel():
                 flip_output = self.build_indel()
             elif self.line.var_id.is_unambiguous():
                 flip_output = self.build_unambiguous_line()
@@ -177,21 +180,28 @@ class LineFlipper:
                 self.intake_debug.skipped_lines.append(raw_line)
                 print(f"Invalid line: {raw_line}")
 
+    def build_ambiguous_indel(self, compliment):
+        if self.dataset_flip_fraction < self.NEVER_FLIP_THRESHOLD:
+            return FlipOutput(flip=False, compliment=compliment, null_beta=False, missing_af=False, is_ambiguous=True)
+        elif self.dataset_flip_fraction > self.ALWAYS_FLIP_THRESHOLD:
+            return FlipOutput(flip=True, compliment=compliment, null_beta=False, missing_af=False, is_ambiguous=True)
+        else:
+            raise Exception(f'Invalid ref/alt/actual_ref '
+                            f'({self.line.var_id.ref}/{self.line.var_id.alt}/{self.line.var_id.actual_ref})')
+
     def build_indel(self):
-        if self.line.var_id.ref_match():
-            af_ref = self.utils.g1000_reference.get(self.line.var_id.format_var_id(self.line.var_id.ref, self.line.var_id.alt))
-            af_alt = self.utils.g1000_reference.get(self.line.var_id.format_var_id(self.line.var_id.alt, self.line.var_id.ref))
-            if af_ref is None and af_alt is not None:
-                return FlipOutput(flip=True, compliment=False, null_beta=False, missing_af=False, is_ambiguous=False)
-            else:
-                return FlipOutput(flip=False, compliment=False, null_beta=False, missing_af=False, is_ambiguous=False)
-        elif self.line.var_id.ref_compliment():
-            af_ref = self.utils.g1000_reference.get(self.line.var_id.format_var_id(self.line.var_id.ref_compliment, self.line.var_id.alt_compliment))
-            af_alt = self.utils.g1000_reference.get(self.line.var_id.format_var_id(self.line.var_id.alt_compliment, self.line.var_id.ref_compliment))
-            if af_ref is None and af_alt is not None:
-                return FlipOutput(flip=True, compliment=True, null_beta=False, missing_af=False, is_ambiguous=False)
-            else:
-                return FlipOutput(flip=False, compliment=True, null_beta=False, missing_af=False, is_ambiguous=False)
+        if self.line.var_id.ref_match() and self.line.var_id.alt_match():  # ambiguous not compliment
+            return self.build_ambiguous_indel(compliment=False)
+        elif self.line.var_id.ref_compliment() and self.line.var_id.alt_compliment():  # ambiguous compliment
+            return self.build_ambiguous_indel(compliment=True)
+        elif self.line.var_id.ref_match():  # unambiguous not compliment
+            return FlipOutput(flip=False, compliment=False, null_beta=False, missing_af=False, is_ambiguous=False)
+        elif self.line.var_id.alt_match():  # unambiguous not compliment
+            return FlipOutput(flip=True, compliment=False, null_beta=False, missing_af=False, is_ambiguous=False)
+        elif self.line.var_id.ref_compliment():  # unambiguous compliment
+            return FlipOutput(flip=False, compliment=True, null_beta=False, missing_af=False, is_ambiguous=False)
+        elif self.line.var_id.alt_compliment():  # unambiguous compliment
+            return FlipOutput(flip=True, compliment=True, null_beta=False, missing_af=False, is_ambiguous=False)
         else:
             raise Exception(f'Invalid ref/alt/actual_ref '
                             f'({self.line.var_id.ref}/{self.line.var_id.alt}/{self.line.var_id.actual_ref})')
@@ -321,8 +331,12 @@ class VarId:
         max_ref_length = max([len(self.ref), len(self.alt)])  # will be equal in the case of ambiguous line
         return self.utils.fa_finder.get_actual_ref(chromosome, position, max_ref_length)
 
+    def is_indel(self):
+        return len(self.alt) != len(self.ref)
+
     def is_unambiguous(self):
-        return self.compliment_ref is not None and \
+        return not self.is_indel() and \
+               self.compliment_ref is not None and \
                self.compliment_alt is not None and \
                not self.alt == self.compliment_ref
 
@@ -540,24 +554,27 @@ class LineSplitter:
     def number_of_compliments(self, raw_line):
         num_unambiguous = 0
         num_unambiguous_and_complimentary = 0
+        num_unambiguous_and_flipped = 0
         for split_ref, split_alt, formatted_line, multiallelic in self.var_id_iterator(raw_line):
             try:
                 var_id = VarId(split_ref, split_alt, formatted_line, multiallelic, self.col_map, self.utils)
-                if var_id.is_unambiguous():
+                if var_id.is_unambiguous() and not var_id.is_indel():
                     num_unambiguous += 1
                     if var_id.is_complimentary():
                         num_unambiguous_and_complimentary += 1
+                    if var_id.alt_match() or var_id.alt_compliment():
+                        num_unambiguous_and_flipped += 1
             except Exception as err:
                 print(err)
                 print(f"Unable to parse line: {raw_line.strip()}")
-        return num_unambiguous, num_unambiguous_and_complimentary
+        return num_unambiguous, num_unambiguous_and_complimentary, num_unambiguous_and_flipped
 
-    def write_lines(self, raw_line, dataset_compliment_fraction, f_out, intake_debug):
+    def write_lines(self, raw_line, dataset_compliment_fraction, dataset_flip_fraction, f_out, intake_debug):
         for split_ref, split_alt, formatted_line, multiallelic in self.var_id_iterator(raw_line):
             try:
                 var_id = VarId(split_ref, split_alt, formatted_line, multiallelic, self.col_map, self.utils)
                 line = Line(var_id, formatted_line, self.col_map, self.utils)
-                line_flipper = LineFlipper(line, self.utils, dataset_compliment_fraction, intake_debug)
+                line_flipper = LineFlipper(line, self.utils, dataset_compliment_fraction, dataset_flip_fraction, intake_debug)
                 line_str = line_flipper.format_line()
                 if line_str is not None:
                     f_out.write(f'{line_str}\n')
@@ -574,30 +591,35 @@ class DataIntake:
         self.file = file
         self.utils = utils
         self.dataset_compliment_fraction = None
+        self.dataset_flip_fraction = None
 
-    def generate_dataset_compliment_fraction(self):
+    def generate_dataset_fractions(self):
         num_unambiguous = 0
         num_unambiguous_and_complimentary = 0
+        num_unambiguous_and_flipped = 0
         with gzip.open(self.file, 'r') as f_in:
             line_splitter = LineSplitter(f_in.readline().decode(), self.utils)
             new_line = f_in.readline().decode()
             while len(new_line) > 0:
-                new_unambiguous, new_unambiguous_and_complimentary = line_splitter.number_of_compliments(new_line)
+                new_unambiguous, new_unambiguous_and_complimentary, new_unambiguous_and_flipped = \
+                    line_splitter.number_of_compliments(new_line)
                 num_unambiguous += new_unambiguous
                 num_unambiguous_and_complimentary += new_unambiguous_and_complimentary
+                num_unambiguous_and_flipped += new_unambiguous_and_flipped
                 new_line = f_in.readline().decode()
         if num_unambiguous > 0:
             self.dataset_compliment_fraction = num_unambiguous_and_complimentary / num_unambiguous
+            self.dataset_flip_fraction = num_unambiguous_and_flipped / num_unambiguous
 
     def process_file(self, output_name, intake_debug):
-        if self.dataset_compliment_fraction is None:
-            self.generate_dataset_compliment_fraction()
+        if self.dataset_compliment_fraction is None or self.dataset_flip_fraction is None:
+            self.generate_dataset_fractions()
         with gzip.open(self.file, 'r') as f_in:
             with open(output_name, 'w') as f_out:
                 line_splitter = LineSplitter(f_in.readline().decode(), self.utils)
                 new_line = f_in.readline().decode()
                 while len(new_line) > 0:
-                    line_splitter.write_lines(new_line, self.dataset_compliment_fraction, f_out, intake_debug)
+                    line_splitter.write_lines(new_line, self.dataset_compliment_fraction, self.dataset_flip_fraction, f_out, intake_debug)
                     new_line = f_in.readline().decode()
 
 
