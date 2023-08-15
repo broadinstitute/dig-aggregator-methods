@@ -5,8 +5,8 @@ from pyspark.sql.functions import rank
 from pyspark.sql.window import Window
 
 
-s3_in = 's3://dig-analysis-pxs'
-s3_out = 's3://dig-analysis-pxs/bioindex'
+s3_in = 'dig-analysis-pxs'
+s3_out = 'dig-analysis-pxs/bioindex'
 
 def main():
     """
