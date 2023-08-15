@@ -30,6 +30,19 @@ def main():
 
     df = spark.read.json(srcdir) \
         .withColumn('ancestry', lit(args.ancestry))
+    df = df.select(
+        df.varId,
+        df.chromosome,
+        df.position,
+        df.reference,
+        df.alt,
+        df.phenotype,
+        df.ancestry,
+        df.pValue,
+        df.beta,
+        df.stdErr,
+        df.n
+    )
 
     # common vep data (can we cache this?)
     common_dir = f's3://{s3_in}/out/varianteffect/common/part-*'
