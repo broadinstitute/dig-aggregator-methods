@@ -11,6 +11,12 @@ class TopAssociationsStage(implicit context: Context) extends Stage {
   val clumped: Input.Source = Input.Source.Success("out/metaanalysis/clumped/")
   val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-clumped/*/*/")
 
+  override val cluster: ClusterDef = super.cluster.copy(
+    instances = 1,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+  )
+
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(clumped, ancestryClumped)
 

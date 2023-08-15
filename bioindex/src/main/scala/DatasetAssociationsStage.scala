@@ -20,10 +20,8 @@ class DatasetAssociationsStage(implicit context: Context) extends Stage {
     case variants(tech, dataset, phenotype) => Outputs.Named(s"$tech/$dataset/$phenotype")
   }
 
-  /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.memoryOptimized(),
-    masterVolumeSizeInGB = 200,
+    instances = 1,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
     releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )

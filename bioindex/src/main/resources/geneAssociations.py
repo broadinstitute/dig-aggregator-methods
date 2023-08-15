@@ -6,6 +6,9 @@ from pyspark.sql.functions import when
 
 OUTDIR = 's3://dig-bio-index'
 
+s3_in = 'dig-analysis-pxs'
+s3_out = 'dig-analysis-pxs/bioindex'
+
 
 def process_gene_datasets(spark):
     """
@@ -97,7 +100,7 @@ def process_magma(spark):
     Load the MAGMA results and write them out both sorted by gene and by
     phenotype, so they may be queried either way.
     """
-    df = spark.read.json('s3://dig-analysis-data/out/magma/gene-associations/*/*/')
+    df = spark.read.json(f's3://{s3_in}/out/magma/gene-associations/*/*/')
     genes = spark.read.json('s3://dig-analysis-data/genes/GRCh37/part-*')
 
     # fix for join
@@ -121,25 +124,25 @@ def process_magma(spark):
     mixed_df.orderBy(['gene', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{OUTDIR}/gene_associations/gene/trans-ethnic')
+        .json(f's3://{s3_out}/gene_associations/gene/trans-ethnic')
 
     # sort by phenotype, then by p-value for the gene finder
     mixed_df.orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f's3://dig-bio-index/finder/gene/trans-ethnic')
+        .json(f's3://{s3_out}/finder/gene/trans-ethnic')
 
     # sort by gene, ancestry, then by p-value
     non_mixed_df.orderBy(['gene', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{OUTDIR}/gene_associations/gene/ancestry-specific')
+        .json(f's3://{s3_out}/gene_associations/gene/ancestry-specific')
 
     # sort by phenotype, ancestry, then by p-value for the gene finder
     non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f's3://dig-bio-index/finder/gene/ancestry-specific')
+        .json(f's3://{s3_out}/finder/gene/ancestry-specific')
 
 
 def main():

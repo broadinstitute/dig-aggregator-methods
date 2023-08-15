@@ -1,6 +1,9 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 
+s3_in = 'dig-analysis-pxs'
+s3_out = 'dig-analysis-pxs/bioindex'
+
 
 def main():
     """
@@ -9,8 +12,8 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = f's3://dig-analysis-data/out/ldsc/partitioned_heritability/*/*.json'
-    outdir = f's3://dig-bio-index/partitioned_heritability'
+    srcdir = f's3://{s3_in}/out/ldsc/partitioned_heritability/*/*.json'
+    outdir = f's3://{s3_out}/partitioned_heritability'
 
     # load the global enrichment summaries
     df = spark.read.json(srcdir)

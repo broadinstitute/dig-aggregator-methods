@@ -3,8 +3,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 
 
-s3_bucket = 'dig-bio-index'
-
+s3_in = 'dig-analysis-pxs'
+s3_out = 'dig-analysis-pxs/bioindex'
 
 def main():
     """
@@ -22,17 +22,17 @@ def main():
 
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
     if args.ancestry == 'Mixed':
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
-        outdir = f's3://{s3_bucket}/associations/phenotype/trans-ethnic/{args.phenotype}'
+        srcdir = f's3://{s3_in}/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
+        outdir = f's3://{s3_out}/associations/phenotype/trans-ethnic/{args.phenotype}'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
-        outdir = f's3://{s3_bucket}/ancestry-associations/phenotype/{args.phenotype}/{args.ancestry}'
+        srcdir = f's3://{s3_in}/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
+        outdir = f's3://{s3_out}/ancestry-associations/phenotype/{args.phenotype}/{args.ancestry}'
 
     df = spark.read.json(srcdir) \
         .withColumn('ancestry', lit(args.ancestry))
 
     # common vep data (can we cache this?)
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
+    common_dir = f's3://{s3_in}/out/varianteffect/common/part-*'
     common = spark.read.json(common_dir)
 
     # join the common data

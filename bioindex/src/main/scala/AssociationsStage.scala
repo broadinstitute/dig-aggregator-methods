@@ -23,14 +23,10 @@ class AssociationsStage(implicit context: Context) extends Stage {
       Outputs.Named(s"$phenotype/${ancestry.split("ancestry=").last}")
   }
 
-  /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
-    masterVolumeSizeInGB = 200,
-    slaveVolumeSizeInGB = 64,
-    bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("cluster-bootstrap.sh"))
-    )
+    instances = 1,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Output to Job steps. */

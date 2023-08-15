@@ -20,10 +20,10 @@ class GeneticCorrelationStage(implicit context: Context) extends Stage {
     case geneticCorrelation() => Outputs.Named("geneticCorrelation")
   }
 
-  /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Output to Job steps. */

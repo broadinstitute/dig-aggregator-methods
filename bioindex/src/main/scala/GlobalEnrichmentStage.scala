@@ -13,9 +13,10 @@ class GlobalEnrichmentStage(implicit context: Context) extends Stage {
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(enrichment)
 
-  /** Use latest EMR release. */
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 1,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Rules for mapping input to outputs. */
