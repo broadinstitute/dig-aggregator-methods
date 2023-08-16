@@ -10,8 +10,8 @@ from scipy.stats import t as tdist
 import shutil
 import subprocess
 
-s3_in = 's3://dig-analysis-data/out/ldsc/staging/partitioned_heritability'
-s3_path = 's3://dig-analysis-data/out/ldsc/partitioned_heritability'
+s3_in = 's3://dig-analysis-pxs/out/ldsc/staging/partitioned_heritability'
+s3_path = 's3://dig-analysis-pxs/out/ldsc/partitioned_heritability'
 
 
 def get_phenotype_annot_ancestries(phenotype):
