@@ -5,18 +5,18 @@ use warnings;
 my $s3dir="s3://dig-analysis-data/out/ldsc";
 
 # which partition is being made
-my $partition=$ARGV[0];
-my $sub_region=$ARGV[1];
-# Have to figure out the sub region here to fix things
+my $partition_name=$ARGV[0];
+my $partition_in=$ARGV[1];
+my $partition_out=$ARGV[2];
 
 # create a temporary file to download all the partition data into
 my $tmpFile="partitions.csv";
 my $sortedFile="sorted.csv";
-my $bedFile="$partition.csv";
+my $bedFile="$partition_name.csv";
 
 # mergepart files together and sort it by position
-`hadoop fs -getmerge -nl -skip-empty-file "$s3dir/regions/$sub_region/partitioned/*/partition=$partition/part-*" "$tmpFile"`;
-`sort -u -k1,1 -k2,2n "$tmpFile" > "$sortedFile"`;
+`hadoop fs -getmerge -nl -skip-empty-file "$s3dir/regions/$partition_in" "$tmpFile"`;
+`sort -k1,1 -k2,2n "$tmpFile" > "$sortedFile"`;
 
 # open the sorted file and write to the bed file
 open(IN, '<', $sortedFile) or die "Cannot read $sortedFile";
@@ -68,7 +68,7 @@ close IN;
 close OUT;
 
 # copy the final output file back to S3
-`aws s3 cp "$bedFile" "${s3dir}/regions/$sub_region/merged/$partition/$bedFile"`;
+`aws s3 cp "$bedFile" "${s3dir}/regions/$partition_out/$bedFile"`;
 
 # delete the files to make room for other merges
 unlink "$tmpFile";
