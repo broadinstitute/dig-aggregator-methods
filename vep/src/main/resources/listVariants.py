@@ -75,6 +75,7 @@ def main():
     # output the variants as CSV part files
     df.write \
         .mode('overwrite') \
+        .option("compression", "org.apache.hadoop.io.compress.ZStandardCodec") \
         .csv(outdir, sep='\t')
 
     # done

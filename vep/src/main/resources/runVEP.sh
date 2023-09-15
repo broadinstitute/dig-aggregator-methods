@@ -14,6 +14,13 @@ PATH="$PATH:$VEPDIR/samtools-1.9/:$VEPDIR/ensembl-vep/htslib"
 
 # copy the part file from S3 to local
 aws s3 cp "$S3DIR/variants/$PART" .
+extension="${PART##*.}"
+if [ "$extension" = "zst" ]
+then
+  unzstd "$PART"
+  rm "$PART"
+  PART="${PART%.zst}"
+fi
 
 # ensure the file is sorted
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"

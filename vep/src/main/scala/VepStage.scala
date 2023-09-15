@@ -45,7 +45,8 @@ class VepStage(implicit context: Context) extends Stage {
       new BootstrapScript(clusterBootstrap),
       new BootstrapScript(installScript)
     ),
-    stepConcurrency = 3
+    stepConcurrency = 3,
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Map inputs to outputs. */
