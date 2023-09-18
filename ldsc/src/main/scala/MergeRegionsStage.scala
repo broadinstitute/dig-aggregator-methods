@@ -9,9 +9,10 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
 
   val partitionFiles: Input.Source = Input.Source.Success(s"out/ldsc/regions/partitioned/*/")
   val biosamplePartitions: Input.Source = Input.Source.Success(s"out/ldsc/regions/merged/annotation-tissue-biosample/*/")
+  val tissuePartitions: Input.Source = Input.Source.Success(s"out/ldsc/regions/merged/annotation-tissue/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(partitionFiles, biosamplePartitions)
+  override val sources: Seq[Input.Source] = Seq(partitionFiles, biosamplePartitions, tissuePartitions)
 
   /** Just need a single machine with no applications, but a good drive. */
   override def cluster: ClusterDef = super.cluster.copy(
@@ -47,6 +48,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
         case partitionOutputs => Outputs.Named(partitionOutputs: _*)
       }
     case biosamplePartitions(partition) => Outputs.Named(TissueMergeOutput(partition).toOutput)
+    case tissuePartitions(partition) => Outputs.Named(AnnotationMergeOutput(partition).toOutput)
   }
 
   override def make(output: String): Job = {
@@ -99,6 +101,18 @@ case class TissueMergeOutput(partition: String) {
   def toMergeOutput: MergeOutput = MergeOutput(outputPartition, partitionIn, partitionOut)
 }
 
+case class AnnotationMergeOutput(partition: String) {
+  val Seq(annotation, _) = partition.split("___").toSeq
+  val inputPartition: String = s"${annotation}___*/*.csv"
+  val outputPartition: String = s"${annotation}"
+
+  val partitionIn: String = s"merged/annotation-tissue/$inputPartition"
+  val partitionOut: String = s"merged/annotation/$outputPartition"
+
+  def toOutput: String = s"annotation/$outputPartition"
+  def toMergeOutput: MergeOutput = MergeOutput(outputPartition, partitionIn, partitionOut)
+}
+
 object MergeOutput {
   def fromOutput(output: String): MergeOutput = {
     output.split("/").toSeq match {
@@ -106,6 +120,8 @@ object MergeOutput {
         BiosampleMergeOutput(s"${outputPartition}___*").toMergeOutput
       case Seq(subRegion, outputPartition) if subRegion == "tissue" =>
         TissueMergeOutput(s"${outputPartition}___*").toMergeOutput
+      case Seq(subRegion, outputPartition) if subRegion == "annotation" =>
+        AnnotationMergeOutput(s"${outputPartition}___*").toMergeOutput
     }
   }
 }
