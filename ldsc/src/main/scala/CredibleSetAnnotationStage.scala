@@ -6,7 +6,7 @@ import org.broadinstitute.dig.aws.emr._
 class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
 
   val regions: Input.Source = Input.Source.Success("out/ldsc/regions/merged/annotation-tissue-biosample/*/")
-  val credibleSets: Input.Source = Input.Source.Dataset("out/credible-sets/*/*/")
+  val credibleSets: Input.Source = Input.Source.Dataset("credible_sets/*/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(regions, credibleSets)
@@ -25,7 +25,7 @@ class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
 
   override val rules: PartialFunction[Input, Outputs] = {
     case regions(region) =>
-      val (annotation, tissue, _) = region.split("___")
+      val Seq(annotation, tissue, _) = region.split("___").toSeq
       val regionOutput = RegionOutput(annotation, tissue)
       allRegions ++= Set(regionOutput)
       Outputs.Named(regionOutput.toOutput)
@@ -39,9 +39,9 @@ class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
   // Then if a credible set (e.g.) comes up it'll run against all the regions minus the already altered regions
   // Etc. This should results in a minimal set of jobs being defined and run
   override def make(output: String): Job = {
-    val jobs = CredibleSetAnnotationOutput.fromOutput(output) match {
+    val jobs: Seq[Job.Step] = CredibleSetAnnotationOutput.fromOutput(output) match {
       case output: CredibleSetOutput =>
-        alteredCredibleSets ++= output
+        alteredCredibleSets ++= Set(output)
         (allRegions -- alteredRegions).map { region =>
           Job.Script(
             resourceUri("credibleSetAnnotation.py"),
@@ -49,9 +49,9 @@ class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
             s"--tissue=${region.tissue}",
             s"--credible-set-path=${output.dataset}/${output.phenotype}"
           )
-        }
+        }.toSeq
       case output: RegionOutput =>
-        alteredRegions ++= output
+        alteredRegions ++= Set(output)
         (allCredibleSets -- alteredCredibleSets).map { credibleSet =>
           Job.Script(
             resourceUri("credibleSetAnnotation.py"),
@@ -59,7 +59,7 @@ class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
             s"--tissue=${output.tissue}",
             s"--credible-set-path=${credibleSet.dataset}/${credibleSet.phenotype}"
           )
-        }
+        }.toSeq
     }
     new Job(jobs, parallelSteps=true)
   }
