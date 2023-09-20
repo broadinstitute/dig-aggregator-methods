@@ -5,9 +5,9 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
 /** The final result of all aggregator methods is building the BioIndex. All
-  * outputs are to the dig-bio-index bucket in S3.
-  */
-class DatasetAssociationsStage(implicit context: Context) extends Stage {
+ * outputs are to the dig-bio-index bucket in S3.
+ */
+class DatasetAssociationsPlotStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val variants = Input.Source.Success("variants/*/*/*/")
@@ -24,14 +24,15 @@ class DatasetAssociationsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Ec2.Strategy.memoryOptimized(),
     masterVolumeSizeInGB = 200,
-    instances = 5,
+    instances = 1,
+    applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
     releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    val step = Seq(Job.PySpark(resourceUri("datasetAssociations.py"), output))
-    new Job(step)
+    val steps = Seq(Job.Script(resourceUri("plotAssociations.py"), s"--dataset=$output"))
+    new Job(steps)
   }
 }
