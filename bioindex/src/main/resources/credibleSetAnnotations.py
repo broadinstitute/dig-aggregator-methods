@@ -6,7 +6,7 @@ def main():
 
     # read all
     srcdir = f's3://dig-analysis-data/out/ldsc/regions/credible_sets/*/*/*/*/part-*'
-    outdir = f's3://dig-bioindex/regions/credible_sets'
+    outdir = f's3://dig-bio-index/regions/credible_sets'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()

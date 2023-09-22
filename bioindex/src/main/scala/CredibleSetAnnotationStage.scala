@@ -8,12 +8,12 @@ import org.broadinstitute.dig.aws.emr._
 class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val annotations: Input.Source = Input.Source.Success("out/ldsc/regions/credible_sets/")
+  val annotations: Input.Source = Input.Source.Success("out/ldsc/regions/credible_sets/*/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(annotations)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case annotations(_) => Outputs.Named("annotations")
+    case annotations(_, _, _, _) => Outputs.Named("annotations")
   }
 
   override val cluster: ClusterDef = super.cluster.copy(
