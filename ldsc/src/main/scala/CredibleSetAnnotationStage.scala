@@ -43,7 +43,7 @@ class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
       case output: CredibleSetOutput =>
         alteredCredibleSets ++= Set(output)
         (allRegions -- alteredRegions).map { region =>
-          Job.Script(
+          Job.PySpark(
             resourceUri("credibleSetAnnotation.py"),
             s"--annotation=${region.annotation}",
             s"--tissue=${region.tissue}",
@@ -53,7 +53,7 @@ class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
       case output: RegionOutput =>
         alteredRegions ++= Set(output)
         (allCredibleSets -- alteredCredibleSets).map { credibleSet =>
-          Job.Script(
+          Job.PySpark(
             resourceUri("credibleSetAnnotation.py"),
             s"--annotation=${output.annotation}",
             s"--tissue=${output.tissue}",

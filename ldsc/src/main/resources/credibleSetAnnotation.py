@@ -52,7 +52,7 @@ def get_grouped_df(region_df, credible_set_df):
 
     # aggregate posterior probability
     return df \
-        .groupBy(['riskSignal', 'varId', 'biosample'])\
+        .groupBy(['riskSignal', 'annotation', 'tissue', 'biosample'])\
         .agg(sum('posteriorProbability').alias('posteriorProbability'))
 
 
@@ -79,3 +79,7 @@ def main():
         .json(f's3://{s3_out}/out/ldsc/regions/credible_sets/{args.credible_set_path}/{args.annotation}/{args.tissue}/')
 
     spark.stop()
+
+# entry point
+if __name__ == '__main__':
+    main()
