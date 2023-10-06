@@ -38,7 +38,7 @@ def main():
 
     # sort credible set IDs by region
     df.rdd \
-        .keyBy(lambda r: (r.phenotype, r.dataset, r.credibleSetId, r.chromosome)) \
+        .keyBy(lambda r: (r.phenotype, r.dataset, r.method, r.pmid, r.credibleSetId, r.chromosome)) \
         .combineByKey(
             lambda r: (r.position, r.position),
             lambda a, b: (min(a[0], b.position), max(a[1], b.position)),
@@ -47,8 +47,10 @@ def main():
         .map(lambda r: Row(
             phenotype=r[0][0],
             dataset=r[0][1],
-            credibleSetId=r[0][2],
-            chromosome=r[0][3],
+            method=r[0][2],
+            pmid=r[0][3],
+            credibleSetId=r[0][4],
+            chromosome=r[0][5],
             start=r[1][0],
             end=r[1][1]
         )) \

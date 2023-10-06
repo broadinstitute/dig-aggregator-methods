@@ -22,8 +22,7 @@ class CredibleSetsStage(implicit context: Context) extends Stage {
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
-    instances = 4
+    instances = 1
   )
 
   /** Output to Job steps. */
