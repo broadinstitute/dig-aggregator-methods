@@ -14,13 +14,16 @@ def main():
 
     df = spark.read.json(srcdir)
 
-    # sort by varId
-    df.orderBy(['varId']) \
+    # add chromosome and position
+    df = df.withColumn('chromosome',  split(df.varId, ':').getItem(0)) \
+        .withColumn('position', split(df.varId, ':').getItem(1).cast(IntegerType()))
+
+    # sort by chromosome, position
+    df.orderBy(['chromosome', 'position']) \
         .write \
         .mode('overwrite') \
         .json(outdir)
 
-    # done
     spark.stop()
 
 # entry point
