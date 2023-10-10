@@ -26,6 +26,7 @@ object LDScoreRegression extends Method {
     addStage(new MergeRegionsStage)
     addStage(new RegionToAnnotStage)
     addStage(new AnnotToLDStage)
+    addStage(new CombineLDStage)
     addStage(new MakeSumstatsStage)
     addStage(new PartitionedHeritabilityStage)
     addStage(new TranslatePartitionedHeritabilityStage)
