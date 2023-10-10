@@ -9,7 +9,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val sumstats: Input.Source = Input.Source.Success("out/ldsc/sumstats/*/*/")
-  val annotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/ld_score/*/*/*/")
+  val annotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/combined_ld/*/*/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(sumstats, annotations)
@@ -47,15 +47,15 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   override def make(ancestry: String): Job = {
     val jobs = phenotypeMap.getOrElse(ancestry, Set()).grouped(100).flatMap { groupedPhenotypes =>
       annotationMap.flatMap { case (subRegion, regions) =>
-        regions.grouped(100).map { groupedRegions =>
+        regions.map { region =>
           println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
-            s"and ${groupedRegions.size} regions in sub-region $subRegion")
+            s"and region $region in sub-region $subRegion")
           Job.Script(
             resourceUri("runPartitionedHeritability.py"),
             s"--ancestry=${ancestry}",
             s"--phenotypes=${groupedPhenotypes.mkString(",")}",
             s"--sub-region=$subRegion",
-            s"--regions=${groupedRegions.mkString(",")}"
+            s"--region=$region"
           )
         }
       }
