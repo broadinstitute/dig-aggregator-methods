@@ -13,6 +13,7 @@ class CredibleSetAnnotationStage(implicit context: Context) extends Stage {
 
   /** Just need a single machine with no applications, but a good drive. */
   override def cluster: ClusterDef = super.cluster.copy(
+    instances = 6,
     releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
