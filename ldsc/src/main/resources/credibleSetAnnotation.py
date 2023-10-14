@@ -38,6 +38,7 @@ def get_credible_set_df(spark, credible_set_path):
     credible_set_base = f's3://{s3_in}/credible_sets/{credible_set_path}'
     phenotype = credible_set_path.split('/')[1]
     df = spark.read.json(f'{credible_set_base}/part-00000.json') \
+        .repartition(20) \
         .withColumn('phenotype', lit(phenotype)) \
         .select([
             col('chromosome').alias('cs_chromosome'),
