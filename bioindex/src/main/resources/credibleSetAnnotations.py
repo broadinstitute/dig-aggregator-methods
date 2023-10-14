@@ -15,7 +15,7 @@ def main():
     df = spark.read.json(srcdir)
 
     # sort by credible set and then locus
-    df.orderBy(col('annotation'), col('tissue'), col('posteriorProbability').desc()) \
+    df.orderBy(col('phenotype'), col('annotation'), col('tissue'), col('posteriorProbability').desc()) \
         .write \
         .mode('overwrite') \
         .json(f'{outdir}/')
