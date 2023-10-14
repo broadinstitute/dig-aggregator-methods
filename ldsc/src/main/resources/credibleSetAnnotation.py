@@ -56,7 +56,7 @@ def get_grouped_df(region_df, credible_set_df):
         (region_df.chromosome == credible_set_df.cs_chromosome) & \
         (region_df.start <= credible_set_df.position) & \
         (region_df.end > credible_set_df.position)
-    df = credible_set_df.join(region_df, variant_in_region) \
+    df = region_df.join(credible_set_df, variant_in_region) \
         .drop('cs_chromosome', 'start', 'end')
 
     # aggregate posterior probability
