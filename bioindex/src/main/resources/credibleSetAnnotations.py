@@ -5,7 +5,7 @@ from pyspark.sql.functions import col
 def main():
 
     # read all
-    srcdir = f's3://dig-analysis-data/out/ldsc/regions/credible_sets/*/*/*/*/part-*'
+    srcdir = f's3://dig-analysis-data/out/ldsc/regions/credible_sets/*/*/part-*'
     outdir = f's3://dig-bio-index/regions/credible_sets'
 
     # initialize spark session
