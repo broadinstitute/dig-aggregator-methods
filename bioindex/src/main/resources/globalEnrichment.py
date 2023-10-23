@@ -19,17 +19,37 @@ def main():
         'phenotype',
         'ancestry',
         'annotation',
+        'biosample',
         'tissue',
         col('SNPs').alias('expectedSNPs'),
         col('h2_beta').alias('SNPs'),
         'pValue'
     ])
 
+    df_null = df.filter(df.biosample.isNull())
+    mixed_df = df.filter(df.ancestry == 'Mixed')
+    non_mixed_df = df.filter(df.ancestry != 'Mixed')
+
     # sort by phenotype and then p-value
-    df.orderBy(['phenotype', 'pValue']) \
+    df_null.orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(outdir)
+        .json(f'{outdir}/annotation-tissue')
+
+    df.orderBy(['ancestry', 'tissue', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{outdir}/tissue')
+
+    mixed_df.orderBy(['phenotype', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{outdir}/trans-ethnic')
+
+    non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{outdir}/ancestry')
 
     # done
     spark.stop()
