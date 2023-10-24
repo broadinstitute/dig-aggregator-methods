@@ -28,5 +28,6 @@ object BottomLine extends Method {
     addStage(new TransEthnicStage)
     addStage(new LoadTransEthnicStage)
     addStage(new ClumpedAssociationsStage)
+    addStage(new MinPStage)
   }
 }
