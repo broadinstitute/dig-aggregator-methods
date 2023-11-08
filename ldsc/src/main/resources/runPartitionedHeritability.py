@@ -22,8 +22,8 @@ baseline_files = f'{downloaded_files}/baseline'
 weight_files = f'{downloaded_files}/weights'
 frq_files = f'{downloaded_files}/frq'
 
-s3_in = 's3://dig-analysis-data'
-s3_out = 's3://dig-analysis-data'
+s3_in = 's3://dig-giant-sandbox'
+s3_out = 's3://dig-giant-sandbox'
 
 
 def make_path(split_path):
@@ -40,31 +40,32 @@ def get_region(ancestry, sub_region, region):
     subprocess.check_call(['aws', 's3', 'cp', file, path_out, '--recursive', '--exclude=_SUCCESS'])
 
 
-def get_sumstats(ancestry, phenotypes):
+def get_sumstats(ancestry, phenotype_sexes):
     gathered_phenotypes = []
-    for phenotype in phenotypes:
-        file = f'{s3_in}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz'
-        make_path(['data', 'sumstats', f'{phenotype}', f'ancestry={ancestry}'])
-        out = subprocess.run(['aws', 's3', 'cp', file, f'./data/sumstats/{phenotype}/ancestry={ancestry}/'])
+    for phenotype_sex in phenotype_sexes:
+        phenotype, sex = phenotype_sex.split('/')
+        file = f'{s3_in}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/sex={sex}/{phenotype}_{ancestry}_{sex}.sumstats.gz'
+        make_path(['data', 'sumstats', f'{phenotype}', f'ancestry={ancestry}', f'sex={sex}'])
+        out = subprocess.run(['aws', 's3', 'cp', file, f'./data/sumstats/{phenotype}/ancestry={ancestry}/sex={sex}/'])
         if out.returncode == 0:
-            gathered_phenotypes.append(phenotype)
+            gathered_phenotypes.append(phenotype_sex.split('/'))
     return gathered_phenotypes
 
 
-def partitioned_heritability(ancestry, phenotypes, sub_region, region):
-    print(f'Partitioned heritability for ancestry: {ancestry} for {len(phenotypes)} phenotypes, '
+def partitioned_heritability(ancestry, phenotype_sexes, sub_region, region):
+    print(f'Partitioned heritability for ancestry: {ancestry} for {len(phenotype_sexes)} phenotypes, '
           f'sub_region: {sub_region}, for {region}')
     g1000_ancestry = ancestry_map[ancestry]
     annotation, tissue = region.split('___')
     annot_str = f'./data/annot/ancestry={g1000_ancestry}/{sub_region}/{region}/{annotation}.{tissue}.'
     phenotype_str = ','.join([
-        f'./data/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz' for phenotype in phenotypes
+        f'./data/sumstats/{phenotype}/ancestry={ancestry}/sex={sex}/{phenotype}_{ancestry}_{sex}.sumstats.gz' for phenotype, sex in phenotype_sexes
     ])
     phenotype_out_str = ','.join([
-        f'./{ancestry}_{phenotype}/{ancestry}.{phenotype}.{annotation}.{tissue}' for phenotype in phenotypes
+        f'./{ancestry}_{phenotype}_{sex}/{ancestry}.{phenotype}.{sex}.{annotation}.{tissue}' for phenotype, sex in phenotype_sexes
     ])
-    for phenotype in phenotypes:
-        os.mkdir(f'{ancestry}_{phenotype}')
+    for phenotype, sex in phenotype_sexes:
+        os.mkdir(f'{ancestry}_{phenotype}_{sex}')
     subprocess.check_call([
         'python3', f'{ldsc_files}/ldsc.py',
         '--h2', phenotype_str,
@@ -77,28 +78,28 @@ def partitioned_heritability(ancestry, phenotypes, sub_region, region):
     ])
 
 
-def upload_and_remove_files(ancestry, phenotypes, sub_region, region):
-    for phenotype in phenotypes:
-        s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{phenotype}/ancestry={ancestry}/{sub_region}/{region}/'
-        subprocess.check_call(['touch', f'./{ancestry}_{phenotype}/_SUCCESS'])
-        subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}_{phenotype}/', s3_dir, '--recursive'])
-        shutil.rmtree(f'./{ancestry}_{phenotype}')
+def upload_and_remove_files(ancestry, phenotype_sexes, sub_region, region):
+    for phenotype, sex in phenotype_sexes:
+        s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{phenotype}/ancestry={ancestry}/sex={sex}/{sub_region}/{region}/'
+        subprocess.check_call(['touch', f'./{ancestry}_{phenotype}_{sex}/_SUCCESS'])
+        subprocess.check_call(['aws', 's3', 'cp', f'./{ancestry}_{phenotype}_{sex}/', s3_dir, '--recursive'])
+        shutil.rmtree(f'./{ancestry}_{phenotype}_{sex}')
     shutil.rmtree('./data')
 
 
 # Need to check on sumstats existence for Mixed ancestry datasets
-def run(ancestry, phenotypes, sub_region, region):
+def run(ancestry, phenotype_sexes, sub_region, region):
     get_region(ancestry, sub_region, region)
-    gathered_phenotypes = get_sumstats(ancestry, phenotypes)
-    if len(gathered_phenotypes) > 0:
-        partitioned_heritability(ancestry, gathered_phenotypes, sub_region, region)
-        upload_and_remove_files(ancestry, gathered_phenotypes, sub_region, region)
+    gathered_phenotype_sexes = get_sumstats(ancestry, phenotype_sexes)
+    if len(gathered_phenotype_sexes) > 0:
+        partitioned_heritability(ancestry, gathered_phenotype_sexes, sub_region, region)
+        upload_and_remove_files(ancestry, gathered_phenotype_sexes, sub_region, region)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--phenotypes', type=str, required=True,
-                        help="List of phenotypes in ancestry to be run (comma separated)")
+                        help="List of phenotype/sex pairs in ancestry to be run (comma separated, slash between phenotype and sex)")
     parser.add_argument('--ancestry', type=str, required=True,
                         help="Short ancestry name (e.g. EU)")
     parser.add_argument('--sub-region', type=str, required=True,
@@ -107,7 +108,7 @@ def main():
                         help="Region to be run (e.g. accessible_chromatin___pancreas)")
     args = parser.parse_args()
 
-    phenotypes = args.phenotypes.split(',')
+    phenotype_sexes = args.phenotypes.split(',')
     ancestry = args.ancestry
     sub_region = args.sub_region
     region = args.region
@@ -115,7 +116,7 @@ def main():
     if ancestry not in ancestry_map:
         raise Exception(f'Invalid ancestry ({ancestry}), must be one of {", ".join(ancestry_map.keys())}')
 
-    run(ancestry, phenotypes, sub_region, region)
+    run(ancestry, phenotype_sexes, sub_region, region)
 
 
 if __name__ == '__main__':

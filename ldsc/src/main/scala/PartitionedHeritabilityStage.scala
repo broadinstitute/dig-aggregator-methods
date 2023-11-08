@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.MemorySize
 class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val sumstats: Input.Source = Input.Source.Success("out/ldsc/sumstats/*/*/")
+  val sumstats: Input.Source = Input.Source.Success("out/ldsc/sumstats/*/*/*/")
   val annotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/combined_ld/*/*/*/")
 
   /** Source inputs. */
@@ -16,7 +16,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
 
   var allPhenotypeAncestries: Set[PartitionedHeritabilityPhenotype] = Set()
   lazy val phenotypeMap: Map[String, Set[String]] = allPhenotypeAncestries.groupBy(_.ancestry).map {
-    case (ancestry, phenotypes) => ancestry -> phenotypes.map(_.phenotype)
+    case (ancestry, phenotypes) => ancestry -> phenotypes.map(p => s"${p.phenotype}/${p.sex}")
   }
   var allAnnotations: Set[PartitionedHeritabilityRegion] = Set()
   lazy val annotationMap: Map[String, Set[String]] = allAnnotations.groupBy(_.subRegion).map {
@@ -25,8 +25,12 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
 
   // TODO: At the moment this will always rerun everything which isn't ideal
   override val rules: PartialFunction[Input, Outputs] = {
-    case sumstats(phenotype, ancestry) =>
-      allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
+    case sumstats(phenotype, ancestry, sex) =>
+      allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(
+        phenotype,
+        ancestry.split('=').last,
+        sex.split("=").last
+      ))
       Outputs.Named(ancestry.split('=').last)
     case annotations(_, subRegion, region) =>
       allAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
@@ -45,15 +49,15 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   )
 
   override def make(ancestry: String): Job = {
-    val jobs = phenotypeMap.getOrElse(ancestry, Set()).grouped(100).flatMap { groupedPhenotypes =>
+    val jobs = phenotypeMap.getOrElse(ancestry, Set()).grouped(100).flatMap { groupedPhenotypeSexes =>
       annotationMap.flatMap { case (subRegion, regions) =>
         regions.map { region =>
-          println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
+          println(s"creating Job for ${groupedPhenotypeSexes.size} phenotypes in ancestry $ancestry " +
             s"and region $region in sub-region $subRegion")
           Job.Script(
             resourceUri("runPartitionedHeritability.py"),
             s"--ancestry=${ancestry}",
-            s"--phenotypes=${groupedPhenotypes.mkString(",")}",
+            s"--phenotypes=${groupedPhenotypeSexes.mkString(",")}",
             s"--sub-region=$subRegion",
             s"--region=$region"
           )
@@ -71,5 +75,6 @@ case class PartitionedHeritabilityRegion(
 
 case class PartitionedHeritabilityPhenotype(
   phenotype: String,
-  ancestry: String
+  ancestry: String,
+  sex: String
 )
