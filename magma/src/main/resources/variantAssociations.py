@@ -58,7 +58,7 @@ def get_s3_dir(phenotype, ancestry):
         if tech_dataset is not None:
             return f'{s3dir}/variants/{tech_dataset}/{phenotype}/'
     else:
-        return f'{s3dir}/out/metaanalysis/ancestry-specific/{phenotype}/ancestry={ancestry}/'
+        return f'{s3dir}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/'
 
 
 def main():

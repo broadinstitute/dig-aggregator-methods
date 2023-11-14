@@ -22,14 +22,14 @@ def main():
 
     # source data and output location
     if args.ancestry == 'Mixed':
-        srcdir = f'{S3_BUCKET}/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
-        clumpdir = f'{S3_BUCKET}/out/metaanalysis/staging/clumped/{args.phenotype}/*.json'
-        outdir = f'{S3_BUCKET}/out/metaanalysis/clumped/{args.phenotype}'
+        srcdir = f'{S3_BUCKET}/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}/part-*'
+        clumpdir = f'{S3_BUCKET}/out/metaanalysis/bottom-line/staging/clumped/{args.phenotype}/*.json'
+        outdir = f'{S3_BUCKET}/out/metaanalysis/bottom-line/clumped/{args.phenotype}'
     else:
         ancestry_path = f'{args.phenotype}/ancestry={args.ancestry}'
-        srcdir = f'{S3_BUCKET}/out/metaanalysis/ancestry-specific/{ancestry_path}/part-*'
-        clumpdir = f'{S3_BUCKET}/out/metaanalysis/staging/ancestry-clumped/{ancestry_path}/*.json'
-        outdir = f'{S3_BUCKET}/out/metaanalysis/ancestry-clumped/{ancestry_path}'
+        srcdir = f'{S3_BUCKET}/out/metaanalysis/bottom-line/ancestry-specific/{ancestry_path}/part-*'
+        clumpdir = f'{S3_BUCKET}/out/metaanalysis/bottom-line/staging/ancestry-clumped/{ancestry_path}/*.json'
+        outdir = f'{S3_BUCKET}/out/metaanalysis/bottom-line/ancestry-clumped/{ancestry_path}'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()

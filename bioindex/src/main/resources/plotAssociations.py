@@ -81,10 +81,10 @@ def get_input_output(args):
         return f's3://dig-analysis-data/variants/{args.dataset}',\
                f's3://{s3_bucket}/plot/dataset/{args.dataset}'
     elif args.ancestry == 'Mixed':
-        return f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/{args.phenotype}',\
+        return f's3://dig-analysis-data/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}',\
                f's3://{s3_bucket}/plot/phenotype/{args.phenotype}'
     else:
-        return f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}', \
+        return f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}', \
                f's3://{s3_bucket}/plot/phenotype/{args.phenotype}/{args.ancestry}'
 
 

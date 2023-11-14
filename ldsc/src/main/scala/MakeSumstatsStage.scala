@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.MemorySize
 class MakeSumstatsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/*/")
   val mixedDatasets: Input.Source = Input.Source.Success("variants/*/*/*/")
 
   /** Source inputs. */

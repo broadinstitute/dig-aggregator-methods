@@ -22,10 +22,10 @@ def main():
 
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
     if args.ancestry == 'Mixed':
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/trans-ethnic/{args.phenotype}/part-*'
+        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}/part-*'
         outdir = f's3://{s3_bucket}/associations/phenotype/trans-ethnic/{args.phenotype}'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
+        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
         outdir = f's3://{s3_bucket}/ancestry-associations/phenotype/{args.phenotype}/{args.ancestry}'
 
     df = spark.read.json(srcdir) \

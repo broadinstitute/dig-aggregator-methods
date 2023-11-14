@@ -75,7 +75,7 @@ def get_s3_dir(phenotype, ancestry):
         if tech_dataset is not None:
             return f's3://dig-analysis-data/variants/{tech_dataset}/{phenotype}/'
     else:
-        return f's3://dig-analysis-data/out/metaanalysis/ancestry-specific/{phenotype}/ancestry={ancestry}/'
+        return f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/'
 
 
 def get_single_json_file(s3_dir, phenotype, ancestry):

@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class TransEthnicStage(implicit context: Context) extends Stage {
 
-  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-specific/*/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/")
 
   // NOTE: If jobs report a mem_alloc issue bump the instance memory. For disk space errors increase the volume size
   override val cluster: ClusterDef = super.cluster.copy(

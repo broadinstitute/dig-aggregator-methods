@@ -9,7 +9,7 @@ S3_PATH="s3://dig-analysis-data/out/metaanalysis"
 LOCAL_DIR="/mnt/var/metal"
 
 # read and output directories
-SRCDIR="${S3_PATH}/ancestry-specific/${PHENOTYPE}"
+SRCDIR="${S3_PATH}/bottom-line/ancestry-specific/${PHENOTYPE}"
 OUTDIR="${LOCAL_DIR}/trans-ethnic/${PHENOTYPE}"
 
 # local scripts
@@ -72,9 +72,9 @@ sudo zstd --rm "${ANALYSIS_DIR}/scheme=SAMPLESIZE/METAANALYSIS1.tbl"
 sudo zstd --rm "${ANALYSIS_DIR}/scheme=STDERR/METAANALYSIS1.tbl"
 
 # upload the resuts to S3
-sudo aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_PATH}/staging/trans-ethnic/${PHENOTYPE}/scheme=SAMPLESIZE/" --recursive
-sudo aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_PATH}/staging/trans-ethnic/${PHENOTYPE}/scheme=STDERR/" --recursive
+sudo aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_PATH}/bottom-line/staging/trans-ethnic/${PHENOTYPE}/scheme=SAMPLESIZE/" --recursive
+sudo aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_PATH}/bottom-line/staging/trans-ethnic/${PHENOTYPE}/scheme=STDERR/" --recursive
 sudo touch "${ANALYSIS_DIR}/_SUCCESS"
-sudo aws s3 cp "${ANALYSIS_DIR}/_SUCCESS" "${S3_PATH}/staging/trans-ethnic/${PHENOTYPE}/"
+sudo aws s3 cp "${ANALYSIS_DIR}/_SUCCESS" "${S3_PATH}/bottom-line/staging/trans-ethnic/${PHENOTYPE}/"
 
 sudo rm -rf "${OUTDIR}"

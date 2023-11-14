@@ -284,16 +284,16 @@ def concat_rare(clumped, rare):
 
 
 def get_trans_ethnic_paths(args):
-    srcdir = f'{S3DIR}/out/metaanalysis/trans-ethnic/{args.phenotype}'
-    plinkdir = f'{S3DIR}/out/metaanalysis/staging/plink/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/staging/clumped/{args.phenotype}'
+    srcdir = f'{S3DIR}/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}'
+    plinkdir = f'{S3DIR}/out/metaanalysis/bottom-line/staging/plink/{args.phenotype}'
+    outdir = f'{S3DIR}/out/metaanalysis/bottom-line/staging/clumped/{args.phenotype}'
     return srcdir, plinkdir, outdir
 
 
 def get_ancestry_specific_paths(args):
-    srcdir = f'{S3DIR}/out/metaanalysis/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
-    plinkdir = f'{S3DIR}/out/metaanalysis/staging/ancestry-plink/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/staging/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}'
+    srcdir = f'{S3DIR}/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
+    plinkdir = f'{S3DIR}/out/metaanalysis/bottom-line/staging/ancestry-plink/{args.phenotype}'
+    outdir = f'{S3DIR}/out/metaanalysis/bottom-line/staging/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}'
     return srcdir, plinkdir, outdir
 
 

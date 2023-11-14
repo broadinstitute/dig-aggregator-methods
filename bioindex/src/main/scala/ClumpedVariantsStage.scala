@@ -10,8 +10,8 @@ import org.broadinstitute.dig.aws.emr._
 class ClumpedVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val clumped: Input.Source = Input.Source.Success("out/metaanalysis/clumped/*/")
-  val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-clumped/*/*/")
+  val clumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/clumped/*/")
+  val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(clumped, ancestryClumped)

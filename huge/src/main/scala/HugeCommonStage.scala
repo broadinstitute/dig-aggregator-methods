@@ -26,7 +26,7 @@ class HugeCommonStage(implicit context: Context) extends Stage {
 
   val genesDir: String                  = "out/huge/geneidmap/genes/"
   val geneAssocFiles: FilesForPhenotype = new FilesForPhenotype("gene_associations/combined/<phenotype>/")
-  val variantFiles: FilesForPhenotype   = new FilesForPhenotype("out/metaanalysis/trans-ethnic/<phenotype>/")
+  val variantFiles: FilesForPhenotype   = new FilesForPhenotype("out/metaanalysis/bottom-line/trans-ethnic/<phenotype>/")
   val cacheDir: String                  = "out/huge/cache/"
   val outDir: FilesForPhenotype         = new FilesForPhenotype("out/huge/common/<phenotype>/")
 
