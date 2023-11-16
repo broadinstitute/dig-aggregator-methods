@@ -55,10 +55,10 @@ sudo zstd --rm "${ANALYSIS_DIR}/scheme=SAMPLESIZE/METAANALYSIS1.tbl"
 sudo zstd --rm "${ANALYSIS_DIR}/scheme=STDERR/METAANALYSIS1.tbl"
 
 # upload the resuts to S3
-sudo aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=SAMPLESIZE/" --recursive
-sudo aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=STDERR/" --recursive
+sudo aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_PATH}/bottom-line/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=SAMPLESIZE/" --recursive
+sudo aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_PATH}/bottom-line/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=STDERR/" --recursive
 sudo touch "${ANALYSIS_DIR}/_SUCCESS"
-sudo aws s3 cp "${ANALYSIS_DIR}/_SUCCESS" "${S3_PATH}/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/"
+sudo aws s3 cp "${ANALYSIS_DIR}/_SUCCESS" "${S3_PATH}/bottom-line/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/"
 
 # remove the analysis directory
 sudo rm -rf "${OUTDIR}"

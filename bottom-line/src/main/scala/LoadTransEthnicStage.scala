@@ -10,7 +10,7 @@ class LoadTransEthnicStage(implicit context: Context) extends Stage {
   import org.broadinstitute.dig.aggregator.core.Implicits.S3Key
 
   val variants: Input.Source = Input.Source.Success("variants/*/*/*/")
-  val transEthnicTables: Input.Source = Input.Source.Success("out/metaanalysis/staging/trans-ethnic/*/")
+  val transEthnicTables: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/staging/trans-ethnic/*/")
 
   // NOTE: Fairly slow, but this can run with a single m5.2xlarge if necessary
   // A cluster of 3 compute instances though makes it quite swift

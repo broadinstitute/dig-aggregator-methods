@@ -17,10 +17,10 @@ def main():
     # source and output locations
     s3_bucket = 'dig-bio-index'
     if args.ancestry == 'Mixed':
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/clumped/*/part-*'
+        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/clumped/*/part-*'
         outdir = f's3://{s3_bucket}/associations/{{}}'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
+        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
         outdir = f's3://{s3_bucket}/ancestry-associations/{{}}/{args.ancestry}'
 
     df = spark.read.json(srcdir) \

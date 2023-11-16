@@ -8,8 +8,8 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class TopAssociationsStage(implicit context: Context) extends Stage {
-  val clumped: Input.Source = Input.Source.Success("out/metaanalysis/clumped/")
-  val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-clumped/*/*/")
+  val clumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/clumped/")
+  val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(clumped, ancestryClumped)

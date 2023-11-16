@@ -5,7 +5,7 @@ S3DIR=$JOB_BUCKET
 PHENOTYPE=$1
 
 # input and output
-SRCDIR="${S3DIR}/out/metaanalysis/staging/trans-ethnic/${PHENOTYPE}"
+SRCDIR="${S3DIR}/out/metaanalysis/bottom-line/staging/trans-ethnic/${PHENOTYPE}"
 OUTDIR="${S3DIR}/out/ldsc/sumstats/${PHENOTYPE}"
 
 # TODO: Remove references to staging data. Use trans-ethnic results instead

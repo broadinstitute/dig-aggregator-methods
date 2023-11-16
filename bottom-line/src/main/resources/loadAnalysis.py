@@ -14,7 +14,8 @@ from pyspark.sql.functions import col, isnan, lit, when  # pylint: disable=E0611
 # where in S3 meta-analysis data is
 s3_bucket = 's3://dig-analysis-data'
 s3_path = f'{s3_bucket}/out/metaanalysis'
-s3_staging = f'{s3_path}/staging'
+s3_bottom_line = f'{s3_path}/bottom-line'
+s3_staging = f'{s3_bottom_line}/staging'
 
 # this is the schema written out by the variant partition process
 variants_schema = StructType(
@@ -188,7 +189,7 @@ def load_ancestry_specific_analysis(phenotype, ancestry):
     Load the METAL results for each ancestry into a single DataFrame.
     """
     srcdir = f'{s3_staging}/ancestry-specific/{phenotype}/ancestry={ancestry}'
-    outdir = f'{s3_path}/ancestry-specific/{phenotype}/ancestry={ancestry}'
+    outdir = f'{s3_bottom_line}/ancestry-specific/{phenotype}/ancestry={ancestry}'
 
     print(f'Loading ancestry {ancestry}...')
 
@@ -242,7 +243,7 @@ def load_trans_ethnic_analysis(phenotype):
     HDFS (S3) where they can be kept and uploaded to a database.
     """
     srcdir = f'{s3_staging}/trans-ethnic/{phenotype}'
-    outdir = f'{s3_path}/trans-ethnic/{phenotype}'
+    outdir = f'{s3_bottom_line}/trans-ethnic/{phenotype}'
 
     print("Loading from {} to {}".format(srcdir, outdir))
 

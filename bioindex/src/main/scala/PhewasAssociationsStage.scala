@@ -10,10 +10,10 @@ import org.broadinstitute.dig.aws.emr._
 class PhewasAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val transEthnic: Input.Source = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
-  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
-  val clumped: Input.Source = Input.Source.Success("out/metaanalysis/clumped/*/")
-  val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/ancestry-clumped/*/*/")
+  val transEthnic: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/*/")
+  val clumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/clumped/*/")
+  val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific, clumped, ancestryClumped)

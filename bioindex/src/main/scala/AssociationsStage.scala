@@ -10,8 +10,8 @@ import org.broadinstitute.dig.aws.emr._
 class AssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val transEthnic = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
-  val ancestrySpecific = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
+  val transEthnic = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
+  val ancestrySpecific = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific)

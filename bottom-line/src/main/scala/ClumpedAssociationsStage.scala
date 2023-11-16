@@ -11,8 +11,8 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val transEthnic = Input.Source.Success("out/metaanalysis/trans-ethnic/*/")
-  val ancestrySpecific = Input.Source.Success("out/metaanalysis/ancestry-specific/*/*/")
+  val transEthnic = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
+  val ancestrySpecific = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/*/")
   val snps: Input.Source       = Input.Source.Success("out/varianteffect/snp/")
 
   /** The output of meta-analysis is the input for top associations. */
