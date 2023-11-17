@@ -6,7 +6,7 @@ import platform
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import isnan, lit, when  # pylint: disable=E0611
 
-s3dir = 's3://dig-analysis-data'
+s3dir = 's3://dig-giant-sandbox'
 
 # entry point
 if __name__ == '__main__':
@@ -30,19 +30,11 @@ if __name__ == '__main__':
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
 
     # slurp all the variant batches
-    df = spark.read.json('%s/part-*' % srcdir)
+    df = spark.read.json(f'{srcdir}/part-*')
 
     # if ancestry isn't set assume it's mixed
     ancestry = when(df.ancestry.isNull(), lit('Mixed')) \
         .otherwise(df.ancestry)
-
-    # # keep a sum total across datasets for variants with EAF and/or MAF
-    # eafCount = when(df.eaf.isNull() | isnan(df.eaf), 0).otherwise(1)
-    # mafCount = when(df.maf.isNull() | isnan(df.maf), 0).otherwise(1)
-
-    # # EAF and MAF need to be NA if not preset or NaN so that METAL ignores them
-    # eaf = when(eafCount == 1, df.eaf).otherwise(lit('NA'))
-    # maf = when(mafCount == 1, df.maf).otherwise(lit('NA'))
 
     # rare variants have an allele frequency < 5%
     rare = when(df.maf.isNotNull() & (df.maf < 0.05), lit(True)).otherwise(lit(False))
