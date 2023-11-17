@@ -6,7 +6,7 @@ ANCESTRY="$2"
 echo $JOB_BUCKET
 
 # output HDFS location
-S3_PATH="s3://dig-giant-sandbox/out/metaanalysis"
+S3_PATH="s3://$JOB_BUCKET/out/metaanalysis"
 
 # working directory
 LOCAL_DIR="/mnt/var/metal"
