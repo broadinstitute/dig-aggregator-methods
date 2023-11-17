@@ -3,6 +3,8 @@
 PHENOTYPE="$1"
 ANCESTRY="$2"
 
+echo $JOB_BUCKET
+
 # output HDFS location
 S3_PATH="s3://dig-giant-sandbox/out/metaanalysis"
 
