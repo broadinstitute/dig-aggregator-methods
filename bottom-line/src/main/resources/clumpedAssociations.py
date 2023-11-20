@@ -4,7 +4,7 @@ import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, signum
 
-S3_BUCKET = 's3://dig-analysis-data'
+S3_BUCKET = 's3://dig-giant-sandbox'
 
 
 def main():
