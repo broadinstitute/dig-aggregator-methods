@@ -9,6 +9,15 @@ s3_in = 's3://dig-analysis-data/out/ldsc/regions/ld_score'
 s3_out = 's3://dig-analysis-data/out/ldsc/regions/combined_ld'
 
 
+# Cannot include a biosample with 0 SNPs
+def check_biosample(annotation, tissue, biosample):
+    total_m_50 = 0
+    for CHR in range(1, 23):
+        with open(f'{biosample_to_file(annotation, tissue, biosample)}.{CHR}.M_5_50', 'r') as f:
+            total_m_50 += int(f.readline().strip())
+    return total_m_50 > 0
+
+
 def download_files(ancestry, annotation, tissue):
     subprocess.check_call(['aws', 's3', 'cp',
                            f'{s3_in}/ancestry={ancestry}/annotation/{annotation}/',
@@ -25,7 +34,8 @@ def download_files(ancestry, annotation, tissue):
             subprocess.check_call(['aws', 's3', 'cp',
                                    f'{s3_in}/ancestry={ancestry}/annotation-tissue-biosample/{s3_folder}/',
                                    f'ld_files/annotation-tissue-biosample/{s3_folder}/', '--recursive'])
-            biosamples.append(s3_biosample)
+            if check_biosample(annotation, tissue, s3_biosample):
+                biosamples.append(s3_biosample)
     return biosamples
 
 
