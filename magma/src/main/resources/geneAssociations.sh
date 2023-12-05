@@ -13,7 +13,7 @@ ANCESTRY=$2
 G1000_ANCESTRY=$3
 
 # download a common script for use
-aws s3 cp "${JOB_BUCKET}/resources/scripts/getmerge-strip-headers.sh" .
+aws s3 cp "s3://dig-analysis-data/resources/scripts/getmerge-strip-headers.sh" .
 chmod +x getmerge-strip-headers.sh
 
 PARTSDIR="${OUT_DIR}/variant-associations/${PHENOTYPE}/ancestry=$ANCESTRY/part-*"
