@@ -11,8 +11,8 @@ from scipy.stats import norm
 import sqlalchemy
 import subprocess
 
-s3_path = f's3://dig-analysis-data/variants_raw'
-s3_output = f's3://dig-analysis-data/variants_processed'
+s3_path = f's3://dig-analysis-hermes/variants_raw'
+s3_output = f's3://dig-analysis-hermes/variants_processed'
 data_path = f'/mnt/var/intake'
 
 
