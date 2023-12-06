@@ -8,8 +8,9 @@ import re
 from scipy.stats import norm
 import subprocess
 
+s3_in = 'dig-analysis-hermes'
 downloaded_files = '/mnt/var/ldsc'
-s3_path = 's3://dig-analysis-data/out/ldsc/genetic_correlation'
+s3_path = f's3://{s3_in}/out/ldsc/genetic_correlation'
 
 
 def get_phenotype_ancestries():
