@@ -51,8 +51,8 @@ def main():
         clumpdir = f's3://{s3_in}/out/metaanalysis/bottom-line/clumped/*/part-*'
         outdir = f's3://{s3_out}/associations/phewas'
     else:
-        srcdir = f's3://{s3_out}/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
-        clumpdir = f's3://{s3_out}/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
+        srcdir = f's3://{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
+        clumpdir = f's3://{s3_in}/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
         outdir = f's3://{s3_out}/ancestry-associations/phewas/{args.ancestry}'
 
     df = get_src_df(spark, srcdir) \
