@@ -21,7 +21,8 @@ ldsc_files = f'{downloaded_files}/ldsc'
 sumstat_files = f'{downloaded_files}/sumstats'
 ldscore_files = f'{downloaded_files}/ldscore'
 
-s3_path = 's3://dig-analysis-data/out/ldsc/staging/genetic_correlation'
+s3_in = 'dig-analysis-hermes'
+s3_path = f's3://{s3_in}/out/ldsc/staging/genetic_correlation'
 
 
 def run_all(ancestry, phenotype, all_files):
