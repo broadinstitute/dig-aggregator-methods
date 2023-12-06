@@ -8,7 +8,7 @@ OUTDIR = f's3://{s3_out}/genetic-correlation'
 
 
 def process_datasets(spark):
-    df = spark.read.json(f's3://{s3_out}/out/ldsc/genetic_correlation/*/*.json')
+    df = spark.read.json(f's3://{s3_in}/out/ldsc/genetic_correlation/*/*.json')
 
     # filter out all entries with pValue >= 0.05
     df = df[df['pValue'] < 0.05]
