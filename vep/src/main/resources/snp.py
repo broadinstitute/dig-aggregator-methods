@@ -5,7 +5,7 @@ from pyspark.sql.functions import col, concat_ws, explode, regexp_replace, row_n
 from pyspark.sql.window import Window
 
 # where in S3 VEP data (input and output) is
-S3DIR = 's3://dig-analysis-data/out/varianteffect'
+S3DIR = 's3://dig-analysis-hermes/out/varianteffect'
 
 
 def main():

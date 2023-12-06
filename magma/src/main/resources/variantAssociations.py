@@ -6,7 +6,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType
 import sqlalchemy
 
-vep_dir = 's3://dig-analysis-data'
 s3dir = 's3://dig-analysis-hermes'
 
 
@@ -78,7 +77,7 @@ def main():
     spark = SparkSession.builder.appName('magma').getOrCreate()
 
     # input and output directories
-    snpdir = f'{vep_dir}/out/varianteffect/snp'
+    snpdir = f'{s3dir}/out/varianteffect/snp'
     outdir = f'{s3dir}/out/magma/variant-associations/{args.phenotype}/ancestry={args.ancestry}'
     srcdir = get_s3_dir(args.phenotype, args.ancestry)
     if srcdir is not None:
