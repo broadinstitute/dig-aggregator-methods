@@ -5,7 +5,8 @@ from pyspark.sql.functions import col, concat_ws, explode, regexp_replace, row_n
 from pyspark.sql.window import Window
 
 # where in S3 VEP data (input and output) is
-S3DIR = 's3://dig-analysis-hermes/out/varianteffect'
+S3BUCKET = 'dig-analysis-hermes'
+S3DIR = f's3://{S3BUCKET}/out/varianteffect'
 
 
 def main():
@@ -16,7 +17,7 @@ def main():
 
     # load the dbSNP database for GRCh37
     df = spark.read.csv(
-        's3://dig-analysis-data/raw/dbSNP_common_GRCh37.vcf.gz',
+        f's3://{S3BUCKET}/raw/dbSNP_common_GRCh37.vcf.gz',
         sep='\t',
         header=False,
         comment='#',
