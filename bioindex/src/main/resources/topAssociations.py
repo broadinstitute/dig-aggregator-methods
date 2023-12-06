@@ -3,6 +3,9 @@ import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 
+s3_in = 'dig-analysis-hermes'
+s3_out = 'dig-analysis-hermes/bioindex'
+
 
 def main():
     """
@@ -15,19 +18,18 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output locations
-    s3_bucket = 'dig-bio-index'
     if args.ancestry == 'Mixed':
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/clumped/*/part-*'
-        outdir = f's3://{s3_bucket}/associations/{{}}'
+        srcdir = f's3://{s3_in}/out/metaanalysis/bottom-line/clumped/*/part-*'
+        outdir = f's3://{s3_out}/associations/{{}}'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
-        outdir = f's3://{s3_bucket}/ancestry-associations/{{}}/{args.ancestry}'
+        srcdir = f's3://{s3_in}/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
+        outdir = f's3://{s3_out}/ancestry-associations/{{}}/{args.ancestry}'
 
     df = spark.read.json(srcdir) \
         .withColumn('ancestry', lit(args.ancestry))
 
     # common vep data
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
+    common_dir = f's3://{s3_in}/out/varianteffect/common/part-*'
 
     # load the top-association, lead SNPs for every phenotype
     df = df.filter(df.leadSNP)

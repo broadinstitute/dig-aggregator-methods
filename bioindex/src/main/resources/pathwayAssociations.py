@@ -1,13 +1,14 @@
 from pyspark.sql import SparkSession
 
-OUTDIR = 's3://dig-bio-index/pathway_associations'
+s3_in = 'dig-analysis-hermes'
+s3_out = 'dig-analysis-hermes/bioindex'
 
 
 def process_magma(spark):
     """
     Load the MAGMA results and write them out by phenotype
     """
-    df = spark.read.json('s3://dig-analysis-data/out/magma/pathway-associations/*/*/')
+    df = spark.read.json(f's3://{s3_in}/out/magma/pathway-associations/*/*/')
 
     # partition dataframe
     mixed_df = df[df['ancestry'] == 'Mixed']
@@ -17,13 +18,13 @@ def process_magma(spark):
     mixed_df.orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{OUTDIR}/trans-ethnic')
+        .json(f's3://{s3_out}/pathway_associations/trans-ethnic')
 
     # sort by gene, then by p-value
     non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{OUTDIR}/ancestry-specific')
+        .json(f's3://{s3_out}/pathway_associations/ancestry-specific')
 
 
 def main():

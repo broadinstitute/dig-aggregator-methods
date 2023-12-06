@@ -3,6 +3,8 @@ import argparse
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import lit
 
+s3_in = 'dig-analysis-hermes'
+s3_out = 'dig-analysis-hermes/bioindex'
 
 def main():
     """
@@ -15,18 +17,17 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output locations
-    s3_bucket = 'dig-bio-index'
     if args.ancestry == 'Mixed':
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/clumped/*/part-*'
-        outdir = f's3://{s3_bucket}/associations/clump'
+        srcdir = f's3://{s3_in}/out/metaanalysis/bottom-line/clumped/*/part-*'
+        outdir = f's3://{s3_out}/associations/clump'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
-        outdir = f's3://{s3_bucket}/ancestry-associations/clump/{args.ancestry}'
+        srcdir = f's3://{s3_in}/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
+        outdir = f's3://{s3_out}/ancestry-associations/clump/{args.ancestry}'
 
     clumps = spark.read.json(srcdir)\
         .withColumn('ancestry', lit(args.ancestry))
 
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common'
+    common_dir = f's3://{s3_in}/out/varianteffect/common'
     common = spark.read.json(f'{common_dir}/part-*')
 
     # join to get and common fields

@@ -2,11 +2,13 @@ import numpy as np
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import when
 
-OUTDIR = 's3://dig-bio-index/genetic-correlation'
+s3_in = 'dig-analysis-hermes'
+s3_out = 'dig-analysis-hermes/bioindex'
+OUTDIR = f's3://{s3_out}/genetic-correlation'
 
 
 def process_datasets(spark):
-    df = spark.read.json('s3://dig-analysis-data/out/ldsc/genetic_correlation/*/*.json')
+    df = spark.read.json(f's3://{s3_out}/out/ldsc/genetic_correlation/*/*.json')
 
     # filter out all entries with pValue >= 0.05
     df = df[df['pValue'] < 0.05]
@@ -22,13 +24,13 @@ def process_datasets(spark):
     mixed_df.orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{OUTDIR}/trans-ethnic')
+        .json(f's3://{s3_out}/genetic-correlation/trans-ethnic')
 
     # For non-mixed: sort by phenotype, ancestry, then by p-value
     non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{OUTDIR}/ancestry-specific')
+        .json(f's3://{s3_out}/genetic-correlation/ancestry-specific')
 
 
 def main():
