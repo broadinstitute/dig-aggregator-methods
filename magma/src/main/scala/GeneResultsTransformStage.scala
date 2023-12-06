@@ -25,7 +25,8 @@ class GeneResultsTransformStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("installTransformPackages.sh"))),
-    instances = 1
+    instances = 1,
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   /** Build the job. */
