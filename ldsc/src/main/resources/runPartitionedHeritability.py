@@ -22,8 +22,8 @@ baseline_files = f'{downloaded_files}/baseline'
 weight_files = f'{downloaded_files}/weights'
 frq_files = f'{downloaded_files}/frq'
 
-s3_in = 's3://dig-analysis-hermes'
-s3_out = 's3://dig-analysis-hermes'
+s3_in = 's3://dig-giant-sandbox'
+s3_out = 's3://dig-giant-sandbox'
 
 
 def make_path(split_path):

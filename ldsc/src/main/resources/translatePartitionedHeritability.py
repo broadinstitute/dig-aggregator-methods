@@ -10,7 +10,7 @@ from scipy.stats import t as tdist
 import shutil
 import subprocess
 
-s3_bucket = 'dig-analysis-hermes'
+s3_bucket = 'dig-giant-sandbox'
 s3_in = f's3://{s3_bucket}/out/ldsc/staging/partitioned_heritability'
 s3_path = f's3://{s3_bucket}/out/ldsc/partitioned_heritability'
 

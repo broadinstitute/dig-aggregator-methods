@@ -18,10 +18,33 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   lazy val phenotypeMap: Map[String, Set[String]] = allPhenotypeAncestries.groupBy(_.ancestry).map {
     case (ancestry, phenotypes) => ancestry -> phenotypes.map(_.phenotype)
   }
-  var allAnnotations: Set[PartitionedHeritabilityRegion] = Set()
-  lazy val annotationMap: Map[String, Set[String]] = allAnnotations.groupBy(_.subRegion).map {
-    case (subRegion, regions) => subRegion -> regions.map(_.region)
-  }
+  val annotationMap: Map[String, Set[String]] = Map("annotation-tissue-biosample" -> Set(
+    "accessible_chromatin___blood",
+    "accessible_chromatin___central_nervous_system",
+    "accessible_chromatin___large_intestine",
+    "accessible_chromatin___muscle_structure",
+    "accessible_chromatin___simple_tissue",
+    "accessible_chromatin___skin_of_body",
+    "binding_sites___blood",
+    "binding_sites___eye",
+    "binding_sites___heart",
+    "binding_sites___large_intestine",
+    "binding_sites___lung",
+    "binding_sites___mammary_gland",
+    "enhancer___blood",
+    "enhancer___blood_vessel",
+    "enhancer___cardiovascular_system",
+    "enhancer___mammary_gland",
+    "enhancer___placenta",
+    "enhancer___uterus",
+    "promoter___blood",
+    "promoter___central_nervous_system",
+    "promoter___esophogus",
+    "promoter___eye",
+    "promoter___gastrointestinal_system",
+    "promoter___simple_tissue",
+    "promoter___skin_of_body",
+  ))
 
   // TODO: At the moment this will always rerun everything which isn't ideal
   override val rules: PartialFunction[Input, Outputs] = {
@@ -29,7 +52,6 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
       allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
       Outputs.Named(ancestry.split('=').last)
     case annotations(_, subRegion, region) =>
-      allAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
       Outputs.All
   }
 
