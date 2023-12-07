@@ -39,7 +39,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
     "enhancer___uterus",
     "promoter___blood",
     "promoter___central_nervous_system",
-    "promoter___esophogus",
+    "promoter___esophagus",
     "promoter___eye",
     "promoter___gastrointestinal_system",
     "promoter___simple_tissue",

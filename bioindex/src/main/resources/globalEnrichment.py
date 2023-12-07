@@ -1,8 +1,8 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 
-s3_in = 'dig-analysis-hermes'
-s3_out = 'dig-analysis-hermes/bioindex'
+s3_in = 'dig-giant-sandbox'
+s3_out = 'dig-giant-sandbox/bioindex'
 
 def main():
     """
