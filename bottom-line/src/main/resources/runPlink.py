@@ -11,7 +11,7 @@ from scipy.sparse import lil_matrix
 from scipy.sparse.csgraph import connected_components
 
 
-S3DIR = 's3://dig-analysis-hermes'
+S3DIR = 's3://dig-analysis-igvf'
 CLUMPING_ROOT = f'/mnt/var/clumping'
 
 # clumping parameters

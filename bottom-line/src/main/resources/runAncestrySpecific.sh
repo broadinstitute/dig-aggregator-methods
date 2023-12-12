@@ -4,7 +4,7 @@ PHENOTYPE="$1"
 ANCESTRY="$2"
 
 # output HDFS location
-S3_PATH="s3://dig-analysis-hermes/out/metaanalysis"
+S3_PATH="s3://dig-analysis-igvf/out/metaanalysis"
 
 # working directory
 LOCAL_DIR="/mnt/var/metal"
