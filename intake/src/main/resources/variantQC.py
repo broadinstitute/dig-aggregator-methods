@@ -8,7 +8,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, BooleanType, FloatType, DoubleType
 
-s3dir = 's3://dig-analysis-hermes'
+s3dir = 's3://dig-analysis-igvf'
 
 variants_schema = StructType([
     StructField('varId', StringType(), nullable=False),

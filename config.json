@@ -1,7 +1,7 @@
 {
     "aws": {
         "s3": {
-            "bucket": "dig-giant-sandbox"
+            "bucket": "dig-analysis-igvf"
         },
         "emr": {
             "subnetIds": [
