@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 # set where the source and destination is in S3 and where VEP is
-S3DIR="s3://dig-analysis-hermes/out/varianteffect"
+S3DIR="s3://dig-analysis-igvf/out/varianteffect"
 VEPDIR="/mnt/var/vep"
 
 # get the name of the part file from the command line; set the output filename

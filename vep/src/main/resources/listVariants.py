@@ -4,7 +4,7 @@ import platform
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import concat_ws, length, lit, when  # pylint: disable=E0611
 
-S3DIR = 's3://dig-analysis-hermes'
+S3DIR = 's3://dig-analysis-igvf'
 
 
 def get_df(spark, srcdir):

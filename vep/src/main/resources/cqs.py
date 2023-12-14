@@ -7,7 +7,7 @@ import re
 import subprocess
 import tempfile
 
-S3DIR = 's3://dig-analysis-hermes/out/varianteffect'
+S3DIR = 's3://dig-analysis-igvf/out/varianteffect'
 
 
 def rename_cqs_field(s):
