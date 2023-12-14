@@ -3,8 +3,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 
 
-s3_in = 'dig-analysis-hermes'
-s3_out = 'dig-analysis-hermes/bioindex'
+s3_in = 'dig-analysis-igvf'
+s3_out = 'dig-analysis-igvf/bioindex'
 
 
 def main():
