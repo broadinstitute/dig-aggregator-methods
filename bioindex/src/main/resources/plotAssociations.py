@@ -10,8 +10,8 @@ import pandas as pd
 import statsmodels.api as sm
 
 
-s3_in = 'dig-analysis-hermes'
-s3_out = 'dig-analysis-hermes/bioindex'
+s3_in = 'dig-analysis-igvf'
+s3_out = 'dig-analysis-igvf/bioindex'
 
 # color map
 COLORS = ['#08306b', '#41ab5d', '#000000', '#f16913', '#3f007d', '#cb181d']
