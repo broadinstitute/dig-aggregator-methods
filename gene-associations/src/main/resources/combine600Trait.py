@@ -5,7 +5,7 @@ import math
 import os
 import subprocess
 
-s3_in = 's3://dig-analysis-data/gene_associations/600k_600traits/Mixed'
+s3_in = 's3://dig-analysis-data/gene_associations/600k_600traits/Mixed/UKB_450k_MGB_53k_AoU_100k_META'
 s3_out = 's3://dig-analysis-data/gene_associations/600k_combined'
 
 
@@ -24,13 +24,14 @@ def get_phecode(phenotype, phecode):
     with open('part-00000.json', 'r') as f:
         for line in f.readlines():
             json_line = json.loads(line.strip())
-            out[json_line['gene']] = {
-                'phenotype': phenotype,
-                'gene': json_line['gene'],
-                'pValue': json_line['pValue'],
-                'beta': json_line['beta'],
-                'masks': json_line['masks']
-            }
+            if json_line['pValue_rare'] is not None and json_line['beta'] is not None:
+                out[json_line['gene']] = {
+                    'phenotype': phenotype,
+                    'gene': json_line['gene'],
+                    'pValue': json_line['pValue_rare'],
+                    'beta': json_line['beta'],
+                    'masks': json_line['masks']
+                }
     os.remove('part-00000.json')
     return out
 
@@ -43,9 +44,10 @@ def cauchy(p_values):
 def merge_masks(all_masks):
     grouped_masks = {}
     for mask in all_masks:
-        if mask['mask'] not in grouped_masks:
-            grouped_masks[mask['mask']] = []
-        grouped_masks[mask['mask']].append(mask)
+        if mask['pValue'] is not None and mask['beta'] is not None:
+            if mask['mask'] not in grouped_masks:
+                grouped_masks[mask['mask']] = []
+            grouped_masks[mask['mask']].append(mask)
     merged_data = []
     for mask, masks in grouped_masks.items():
         min_p_masks = sorted(masks, key=lambda x: x['pValue'])[0]

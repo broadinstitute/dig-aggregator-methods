@@ -27,7 +27,10 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
 
   /** Use latest EMR release. */
   override val cluster: ClusterDef = super.cluster.copy(
-    releaseLabel = ReleaseLabel.emrLatest
+    instances = 6,
+    masterVolumeSizeInGB = 100,
+    slaveVolumeSizeInGB = 100,
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Output to Job steps. */
