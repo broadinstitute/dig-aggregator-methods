@@ -1,16 +1,5 @@
 #!/bin/bash -xe
 
-LDSC_ROOT=/mnt/var/ldsc
-
-# install to the root directory
-sudo mkdir -p "$LDSC_ROOT"
-cd "$LDSC_ROOT"
-
-# Download all logs to be translated
-sudo aws s3 cp s3://dig-analysis-data/out/ldsc/staging/partitioned_heritability/ ./ --recursive
-sudo rm ./*/*/_SUCCESS
-sudo rm ./*/*/*.log
-
 # python packages
 sudo yum install -y python3-devel
 pip3 install -U Cython
