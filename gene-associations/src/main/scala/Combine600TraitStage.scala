@@ -11,7 +11,7 @@ class Combine600TraitStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val traits_600 = Input.Source.Dataset("gene_associations/600k_600traits/*/")
+  val traits_600 = Input.Source.Dataset("gene_associations/600k_600traits/Mixed/UKB_450k_MGB_53k_AoU_100k_META/*/")
 
   override val sources: Seq[Input.Source] = Seq(traits_600)
 
