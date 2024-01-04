@@ -13,7 +13,7 @@ s3_out = 's3://dig-analysis-data/out/ldsc/regions/combined_ld'
 def check_biosample(annotation, tissue, biosample):
     total_m_50 = 0
     for CHR in range(1, 23):
-        with open(f'{biosample_to_file(annotation, tissue, biosample)}.{CHR}.M_5_50', 'r') as f:
+        with open(f'{biosample_to_file(annotation, tissue, biosample)}.{CHR}.l2.M_5_50', 'r') as f:
             total_m_50 += int(f.readline().strip())
     return total_m_50 > 0
 
