@@ -40,7 +40,7 @@ def num_dataset(phenotype, ancestry):
     files = subprocess.check_output(['aws', 's3', 'ls', path, '--recursive']).decode().strip().split('\n')
     datasets = set()
     for file in files:
-        m = re.match(f'.*/dataset=([^/]+)/ancestry={ancestry}/rare=.*/part-00000.*', file)
+        m = re.match(f'.*/dataset=([^/]+)/ancestry={ancestry}/rare=.*/part-.*', file)
         if m:
             datasets |= {m.group(1)}
     return len(datasets)
