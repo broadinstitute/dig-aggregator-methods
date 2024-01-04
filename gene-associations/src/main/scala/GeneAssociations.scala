@@ -11,6 +11,7 @@ object GeneAssociations extends Method {
    */
   override def initStages(implicit context: Context) = {
     addStage(new Intake600TraitStage)
+    addStage(new IntakeGenebassStage)
     addStage(new Combine600TraitStage)
     addStage(new CombineAssociationsStage)
   }
