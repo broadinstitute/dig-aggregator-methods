@@ -25,7 +25,8 @@ class PathwayResultsTransformStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("installTransformPackages.sh"))),
-    instances = 1
+    instances = 1,
+    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
   )
 
   /** Build the job. */
