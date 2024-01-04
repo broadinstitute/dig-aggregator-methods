@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 
 
 def main():
@@ -12,6 +13,23 @@ def main():
 
     # load all variant prediciton regions
     df = spark.read.json(f'{srcdir}/part-*')
+
+    # Need to make sure these values are floats/ints and filter out if not
+    df = df.withColumn('minTpm', col('minTpm').cast('float')) \
+        .withColumn('firstQuTpm', col('firstQuTpm').cast('float')) \
+        .withColumn('medianTpm', col('medianTpm').cast('float')) \
+        .withColumn('meanTpm', col('meanTpm').cast('float')) \
+        .withColumn('thirdQuTpm', col('thirdQuTpm').cast('float')) \
+        .withColumn('maxTpm', col('maxTpm').cast('float')) \
+        .withColumn('nSamples', col('nSamples').cast('int'))
+
+    df = df.filter(df.minTpm.isNotNull()) \
+        .filter(df.firstQuTpm.isNotNull()) \
+        .filter(df.medianTpm.isNotNull()) \
+        .filter(df.meanTpm.isNotNull()) \
+        .filter(df.thirdQuTpm.isNotNull()) \
+        .filter(df.maxTpm.isNotNull()) \
+        .filter(df.nSamples.isNotNull())
 
     # sort and write
     df.orderBy(['gene']) \
