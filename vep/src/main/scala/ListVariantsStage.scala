@@ -16,9 +16,10 @@ class ListVariantsStage(implicit context: Context) extends Stage {
 
   val datasetVariants: Input.Source = Input.Source.Success("variants/")
   val ldServerVariants: Input.Source = Input.Source.Success("ld_server/variants/*/")
+  val variantCounts: Input.Source = Input.Source.Dataset("variant_counts/*/*/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(datasetVariants, ldServerVariants)
+  override val sources: Seq[Input.Source] = Seq(datasetVariants, ldServerVariants, variantCounts)
 
   /* Define settings for the cluster to run the job.
    */
@@ -36,6 +37,7 @@ class ListVariantsStage(implicit context: Context) extends Stage {
   override val rules: PartialFunction[Input, Outputs] = {
     case datasetVariants() => Outputs.Named("variants")
     case ldServerVariants(_) => Outputs.Named("variants")
+    case variantCounts(_, _, _) => Outputs.Named("variants")
   }
 
   /** All that matters is that there are new datasets. The input datasets are

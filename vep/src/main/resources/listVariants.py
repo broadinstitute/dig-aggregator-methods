@@ -27,6 +27,7 @@ def main():
     # get the source and output directories
     dataset_srcdir = f'{S3DIR}/variants/*/*/*'
     ld_server_srcdir = f'{S3DIR}/ld_server/variants/*'
+    variant_counts_srcdir = f'{S3DIR}/variant_counts/*/*/*'
     outdir = f'{S3DIR}/out/varianteffect/variants'
 
     # create a spark session
@@ -36,8 +37,11 @@ def main():
     # combine with variants in LD Server to make sure all LD Server variants go through VEP for burden binning
     dataset_df = get_df(spark, dataset_srcdir)
     ld_server_df = get_df(spark, ld_server_srcdir)
+    variant_counts_df = get_df(spark, variant_counts_srcdir)
 
-    df = dataset_df.union(ld_server_df)\
+    dataset_ld_df = dataset_df.union(ld_server_df)\
+        .dropDuplicates(['varId'])
+    df = dataset_ld_df.union(variant_counts_df)\
         .dropDuplicates(['varId'])
 
     # get the length of the reference and alternate alleles

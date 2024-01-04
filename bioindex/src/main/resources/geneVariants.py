@@ -1,7 +1,5 @@
-import os
-
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode
+from pyspark.sql.functions import collect_list, struct
 
 
 def main():
@@ -13,7 +11,8 @@ def main():
     # where to read input from
     variants_dir = 's3://dig-analysis-data/variant_counts/*/*/*/part-*'
     genes_dir = 's3://dig-analysis-data/genes/GRCh37/part-*'
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
+    cqs_dir = 's3a://dig-analysis-data/out/varianteffect/cqs/part-*'
+    common_dir = 's3a://dig-analysis-data/out/varianteffect/common/part-*'
 
     # where to write the output to
     outdir = f's3://dig-bio-index/variants/gene'
@@ -26,9 +25,6 @@ def main():
     genes = genes.filter(genes.source == 'symbol') \
         .withColumnRenamed('name', 'gene')
 
-    # load variant effects, keep only the pick=1 consequence
-    common = spark.read.json(common_dir)
-
     # keep only variants overlapping genes
     overlap = (variants.chromosome == genes.chromosome) & \
         (variants.position >= genes.start) & \
@@ -39,7 +35,14 @@ def main():
         .drop(genes.chromosome)
 
     # join with common data per variant
-    df = df.join(common, on='varId', how='left_outer')
+    common = spark.read.json(common_dir)
+    df = df.join(common, on='varId', how='left')
+
+    # join with cqs data per variant (as list)
+    cqs = spark.read.json(cqs_dir)
+    col_struct = struct([c for c in cqs.columns if c not in ['varId']])
+    cqs = cqs.groupBy('varId').agg(collect_list(col_struct).alias('vepRecords'))
+    df = cqs.join(df, on='varId', how='right')
 
     # index by position
     df.orderBy(['gene']) \
