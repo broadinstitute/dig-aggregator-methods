@@ -59,7 +59,9 @@ def get_converted_phenotype_cauchy(ancestry, cohort, cauchy_file):
                     'gene': line_dict['gene'],
                     'pValue_rare': optional_float(line_dict, 'P_cauchy'),
                     'pValue_low_freq': float(line_dict['P_cauchy_v2']),
+                    'pValue_best_mask': optional_float(line_dict, 'pValue'),
                     'beta': optional_float(line_dict, 'most_sig_beta'),
+                    'best_mask': line_dict.get('most_sig_mask_name'),
                     'cases': optional_float(line_dict, 'n.cases_Meta'),
                     'controls': float(line_dict['n.controls_Meta']),
                     'n': float(line_dict['effective_sample_size']),
@@ -77,6 +79,7 @@ def get_full_phenotype_output(all_file, cauchy_output):
             line_dict = dict(zip(header.split('\t'), line.split('\t')))
             mask = {
                 'mask': line_dict['mask_name'],
+                'mask_type': line_dict['mask_type'],
                 'cases': optional_float(line_dict, 'n.cases_Meta'),
                 'controls': optional_float(line_dict, 'n.controls_Meta'),
                 'n': optional_float(line_dict, 'effective_sample_size'),
