@@ -23,7 +23,8 @@ class TranslateGeneticCorrelationStage(implicit context: Context) extends Stage 
     applications = Seq.empty,
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("install-translate.sh"))
-    )
+    ),
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   override def make(output: String): Job = {
