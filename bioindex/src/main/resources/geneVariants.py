@@ -9,7 +9,7 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # where to read input from
-    variants_dir = 's3://dig-analysis-data/variant_counts/*/*/*/part-*'
+    variants_dir = 's3://dig-analysis-data/variant_counts/*/*/*/part-00000*'
     genes_dir = 's3://dig-analysis-data/genes/GRCh37/part-*'
     cqs_dir = 's3a://dig-analysis-data/out/varianteffect/cqs/part-*'
     common_dir = 's3a://dig-analysis-data/out/varianteffect/common/part-*'
@@ -42,10 +42,11 @@ def main():
     cqs = spark.read.json(cqs_dir)
     col_struct = struct([c for c in cqs.columns if c not in ['varId']])
     cqs = cqs.groupBy('varId').agg(collect_list(col_struct).alias('vepRecords'))
-    df = cqs.join(df, on='varId', how='right')
+    df = df.join(cqs, on='varId', how='left')
 
     # index by position
-    df.orderBy(['gene']) \
+    df.repartition(100) \
+        .orderBy(['gene']) \
         .write \
         .mode('overwrite') \
         .json(outdir)
