@@ -41,12 +41,7 @@ def main():
     # join with cqs data per variant (as list)
     cqs = spark.read.json(cqs_dir)
     cqs = cqs.drop('chromosome', 'position')
-    col_struct = struct([c for c in cqs.columns if c not in ['varId']])
-
-    flat_df = df.join(cqs, on='varId', how='left')
-    vep_records = flat_df.groupBy('varId').agg(collect_list(col_struct).alias('vepRecords'))
-
-    df = df.join(vep_records, on='varId', how='left')
+    df = df.join(cqs, on='varId', how='left')
 
     # index by position
     df.orderBy(['gene']) \
