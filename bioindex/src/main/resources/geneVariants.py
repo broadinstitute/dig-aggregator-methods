@@ -9,7 +9,7 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # where to read input from
-    variants_dir = 's3://dig-analysis-data/variant_counts/*/*/*/part-00000*'
+    variants_dir = 's3://dig-analysis-data/variant_counts/*/*/*/part-*'
     genes_dir = 's3://dig-analysis-data/genes/GRCh37/part-*'
     cqs_dir = 's3://dig-analysis-data/out/varianteffect/cqs/part-*'
     common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
