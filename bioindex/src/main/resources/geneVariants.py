@@ -59,6 +59,7 @@ def main():
             vepRecords=r[1]
         )) \
         .toDF()
+    vep_records.write.json('s3://psmadbec-test/ndkp-test')
 
     df = df.join(vep_records, on='varId', how='left')
 
