@@ -58,6 +58,7 @@ def main():
             varId=r[0],
             vepRecords=r[1]
         )) \
+        .repartition(500) \
         .toDF()
     vep_records.write.json('s3://psmadbec-test/ndkp-test')
 
