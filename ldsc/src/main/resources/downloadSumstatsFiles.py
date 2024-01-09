@@ -6,7 +6,7 @@ import subprocess
 downloaded_files = '/mnt/var/ldsc'
 sumstat_files = f'{downloaded_files}/sumstats'
 
-buckets = ['dig-analysis-data', 'dig-analysis-hermes']
+buckets = ['dig-analysis-data', 'dig-analysis-igvf']
 
 def download_ancestry_sumstats(bucket):
     s3 = boto3.resource('s3')

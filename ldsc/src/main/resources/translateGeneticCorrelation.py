@@ -8,7 +8,7 @@ import re
 from scipy.stats import norm
 import subprocess
 
-s3_in = 'dig-analysis-hermes'
+s3_in = 'dig-analysis-igvf'
 downloaded_files = '/mnt/var/ldsc'
 s3_path = f's3://{s3_in}/out/ldsc/genetic_correlation'
 

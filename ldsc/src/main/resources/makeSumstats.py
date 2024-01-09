@@ -22,7 +22,7 @@ ancestry_map = {
     'Mixed': 'EUR'
 }
 
-s3_bucket = 'dig-giant-sandbox'
+s3_bucket = 'dig-analysis-igvf'
 downloaded_files = '/mnt/var/ldsc'
 ldsc_files = f'{downloaded_files}/ldsc'
 phenotype_files = '.'

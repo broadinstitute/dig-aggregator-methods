@@ -8,7 +8,7 @@ cd "$LDSC_ROOT"
 
 # Download all logs to be translated
 # TODO: put this into the translate bit
-sudo aws s3 cp s3://dig-analysis-hermes/out/ldsc/staging/genetic_correlation/ ./ --recursive
+sudo aws s3 cp s3://dig-analysis-igvf/out/ldsc/staging/genetic_correlation/ ./ --recursive
 sudo rm ./*/_SUCCESS
 
 # python packages
