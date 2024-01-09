@@ -12,7 +12,7 @@ import shutil
 import subprocess
 
 files_location = '/mnt/var/magma'
-s3_bucket = 'dig-analysis-hermes'
+s3_bucket = 'dig-analysis-igvf'
 output_s3 = f's3://{s3_bucket}/out/magma/gene-associations'
 
 

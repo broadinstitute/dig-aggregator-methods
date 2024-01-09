@@ -4,8 +4,8 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
 
 # EC2 development localhost directories
-SRCDIR = 's3://dig-analysis-hermes/out/varianteffect'
-OUTDIR = 's3://dig-analysis-hermes/out/magma'
+SRCDIR = 's3://dig-analysis-igvf/out/varianteffect'
+OUTDIR = 's3://dig-analysis-igvf/out/magma'
 
 
 # CSV schema of the variants input to VEP
