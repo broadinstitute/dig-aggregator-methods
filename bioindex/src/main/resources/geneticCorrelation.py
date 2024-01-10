@@ -2,8 +2,8 @@ import numpy as np
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import when
 
-s3_in = 'dig-analysis-hermes'
-s3_out = 'dig-analysis-hermes/bioindex'
+s3_in = 'dig-analysis-igvf'
+s3_out = 'dig-analysis-igvf/bioindex'
 OUTDIR = f's3://{s3_out}/genetic-correlation'
 
 

@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 
-s3_in = 'dig-analysis-hermes'
-s3_out = 'dig-analysis-hermes/bioindex'
+s3_in = 'dig-analysis-igvf'
+s3_out = 'dig-analysis-igvf/bioindex'
 
 
 def process_magma(spark):
