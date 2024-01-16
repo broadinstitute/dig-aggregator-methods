@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
 from pyspark.sql.functions import lit, col
 
-s3dir = 's3://dig-analysis-data'
+s3dir = 's3://psmadbec-test'
 
 variants_schema = StructType(
     [
