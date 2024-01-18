@@ -71,7 +71,7 @@ def main():
 
     # get the source and output directories
     srcdir = f'{s3dir}/out/metaanalysis/variants/{args.phenotype}/*/ancestry={args.ancestry}/*/part-*'
-    outdir = f'{s3dir}/out/metaanalysis/naive/ancestry_specific/{args.phenotype}/ancestry={args.ancestry}/'
+    outdir = f'{s3dir}/out/metaanalysis/naive/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
 
     # create a spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()

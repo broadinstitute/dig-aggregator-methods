@@ -6,7 +6,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class MinPTransEthnicStage(implicit context: Context) extends Stage {
 
-  val minP: Input.Source = Input.Source.Success("out/metaanalysis/min_p/ancestry_specific/*/*/")
+  val minP: Input.Source = Input.Source.Success("out/metaanalysis/min_p/ancestry-specific/*/*/")
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 6,

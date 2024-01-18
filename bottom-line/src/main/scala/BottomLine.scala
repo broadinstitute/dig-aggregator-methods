@@ -32,5 +32,6 @@ object BottomLine extends Method {
     addStage(new MinPTransEthnicStage)
     addStage(new NaiveStage)
     addStage(new NaiveTransEthnicStage)
+    addStage(new LargestStage)
   }
 }
