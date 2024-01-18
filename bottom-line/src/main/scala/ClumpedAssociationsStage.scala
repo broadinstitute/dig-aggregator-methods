@@ -11,18 +11,30 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val transEthnic = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
-  val ancestrySpecific = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/*/")
+  val transEthnic = Input.Source.Success("out/metaanalysis/*/trans-ethnic/*/")
+  val ancestrySpecific = Input.Source.Success("out/metaanalysis/*/ancestry-specific/*/*/")
   val snps: Input.Source       = Input.Source.Success("out/varianteffect/snp/")
+
+  val paramTypes: Map[String, Seq[String]] = Map(
+    "bottom-line" -> Seq("portal", "analysis"),
+    "naive" -> Seq("analysis"),
+    "min_p" -> Seq("analysis"),
+    "largest" -> Seq("analysis")
+  )
 
   /** The output of meta-analysis is the input for top associations. */
   override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific, snps)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case transEthnic(phenotype) => Outputs.Named(phenotype)
-    case ancestrySpecific(phenotype, ancestry) =>
-      Outputs.Named(s"$phenotype/${ancestry.split("ancestry=").last}")
+    case transEthnic(metaType, phenotype) =>
+      Outputs.Named(paramTypes(metaType).map { paramType =>
+        s"$metaType/$paramType/$phenotype"
+      }: _*)
+    case ancestrySpecific(metaType, phenotype, ancestry) =>
+      Outputs.Named(paramTypes(metaType).map { paramType =>
+        s"$metaType/$paramType/$phenotype/${ancestry.split("ancestry=").last}"
+      }: _*)
     case snps() => Outputs.All
   }
 
@@ -39,8 +51,10 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   override def make(output: String): Job = {
     // run clumping and then join with bottom line
     val flags = output.split("/").toSeq match {
-      case Seq(phenotype) => Seq(s"--phenotype=$phenotype", s"--ancestry=Mixed")
-      case Seq(phenotype, ancestry) => Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
+      case Seq(metaType, paramType, phenotype) =>
+        Seq(s"--phenotype=$phenotype", s"--ancestry=TE", s"--meta-type=$metaType", s"--param-type=$paramType")
+      case Seq(metaType, paramType, phenotype, ancestry) =>
+        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry", s"--meta-type=$metaType", s"--param-type=$paramType")
     }
 
     val steps = Seq(
@@ -48,19 +62,5 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
       Job.PySpark(resourceUri("clumpedAssociations.py"), flags:_*)
     )
     new Job(steps)
-  }
-
-  /** Nuke the staging directories before the job runs.
-    */
-  override def prepareJob(output: String): Unit = {
-    output.split("/").toSeq match {
-      case Seq(phenotype) =>
-        context.s3.rm(s"out/metaanalysis/staging/clumped/$phenotype/")
-        context.s3.rm(s"out/metaanalysis/staging/plink/$phenotype/")
-      case Seq(phenotype, ancestry) =>
-        context.s3.rm(s"out/metaanalysis/staging/ancestry-clumped/$phenotype/ancestry=$ancestry")
-        context.s3.rm(s"out/metaanalysis/staging/ancestry-plink/$phenotype/ancestry=$ancestry")
-    }
-
   }
 }
