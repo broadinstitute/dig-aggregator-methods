@@ -36,7 +36,7 @@ def naive(df):
 
 
 def num_ancestries(phenotype):
-    path = f'{s3dir}/out/metaanalysis/naive/ancestry_specific/{phenotype}/'
+    path = f'{s3dir}/out/metaanalysis/naive/ancestry-specific/{phenotype}/'
     files = subprocess.check_output(['aws', 's3', 'ls', path, '--recursive']).decode().strip().split('\n')
     ancestries = set()
     for file in files:
@@ -54,8 +54,8 @@ def main():
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = f'{s3dir}/out/metaanalysis/naive/ancestry_specific/{args.phenotype}/*/part-*'
-    outdir = f'{s3dir}/out/metaanalysis/naive/trans_ethnic/{args.phenotype}/'
+    srcdir = f'{s3dir}/out/metaanalysis/naive/ancestry-specific/{args.phenotype}/*/part-*'
+    outdir = f'{s3dir}/out/metaanalysis/naive/trans-ethnic/{args.phenotype}/'
 
     # create a spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
