@@ -4,7 +4,7 @@ import subprocess
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, signum
 
-S3_BUCKET = 's3://dig-analysis-data'
+S3_BUCKET = 's3://psmadbec-test'
 
 def check_clump_error(clump_path):
     return subprocess.call(['aws', 's3', 'ls', clump_path, '--recursive'])
