@@ -10,8 +10,7 @@ class MinPStage(implicit context: Context) extends Stage {
   val variants: Input.Source = Input.Source.Success("out/metaanalysis/variants/*/*/")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 6,
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+    instances = 6
   )
 
   override val sources: Seq[Input.Source] = Seq(variants)

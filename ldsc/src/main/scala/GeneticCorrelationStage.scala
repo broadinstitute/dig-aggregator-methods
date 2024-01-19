@@ -28,8 +28,7 @@ class GeneticCorrelationStage(implicit context: Context) extends Stage {
       new BootstrapScript(resourceUri("downloadSumstatsFiles.py"))
     ),
     stepConcurrency = 10,
-    masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
-    releaseLabel = ReleaseLabel("emr-6.7.0")
+    masterInstanceType = Strategy.generalPurpose(mem = 64.gb)
   )
 
   override def make(output: String): Job = {

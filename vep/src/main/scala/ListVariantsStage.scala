@@ -28,8 +28,7 @@ class ListVariantsStage(implicit context: Context) extends Stage {
     masterVolumeSizeInGB = 400,
     slaveVolumeSizeInGB = 400,
     instances = 8,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("list-variant-bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("list-variant-bootstrap.sh")))
   )
 
   /** Map inputs to outputs. */

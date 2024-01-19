@@ -24,7 +24,6 @@ class TranslatePartitionedHeritabilityStage(implicit context: Context) extends S
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("install-translate-ph.sh"))
     ),
-    releaseLabel = ReleaseLabel("emr-6.7.0"),
     stepConcurrency = 5
   )
 

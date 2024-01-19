@@ -25,11 +25,6 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
     case transcript(phenotype, file) => Outputs.Named("transcript")
   }
 
-  /** Use latest EMR release. */
-  override val cluster: ClusterDef = super.cluster.copy(
-    releaseLabel = ReleaseLabel.emrLatest
-  )
-
   /** Output to Job steps. */
   override def make(output: String): Job = {
     val script = resourceUri("geneAssociations.py")

@@ -9,8 +9,7 @@ class MinPTransEthnicStage(implicit context: Context) extends Stage {
   val minP: Input.Source = Input.Source.Success("out/metaanalysis/min_p/ancestry-specific/*/*/")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 6,
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+    instances = 6
   )
 
   override val sources: Seq[Input.Source] = Seq(minP)

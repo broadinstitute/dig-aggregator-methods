@@ -19,11 +19,6 @@ class GeneLinksStage(implicit context: Context) extends Stage {
     case geneLinks(_) => Outputs.Named("links")
   }
 
-  /** Use latest EMR release. */
-  override val cluster: ClusterDef = super.cluster.copy(
-    releaseLabel = ReleaseLabel.emrLatest
-  )
-
   /** Output to Job steps. */
   override def make(output: String): Job = {
     new Job(Job.PySpark(resourceUri("geneLinks.py")))

@@ -18,8 +18,7 @@ class AnnotToLDStage(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     masterInstanceType = Strategy.generalPurpose(vCPUs = 8),
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ldscore.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0")
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ldscore.sh")))
   )
 
   var regionCache: Seq[AnnotToLDRegion] = Seq.empty

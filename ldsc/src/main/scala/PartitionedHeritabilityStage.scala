@@ -40,8 +40,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("install-ldscore.sh"))
     ),
-    masterInstanceType = Strategy.generalPurpose(vCPUs = 8),
-    releaseLabel = ReleaseLabel("emr-6.7.0")
+    masterInstanceType = Strategy.generalPurpose(vCPUs = 8)
   )
 
   override def make(ancestry: String): Job = {

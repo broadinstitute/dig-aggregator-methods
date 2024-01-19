@@ -8,8 +8,7 @@ class VariantScalingStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 2,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("scaling_bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to write json files properly
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("scaling_bootstrap.sh")))
   )
 
   val variants: Input.Source = Input.Source.Dataset("variants_qc/*/*/*/")

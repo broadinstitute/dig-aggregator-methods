@@ -15,7 +15,8 @@ class TranscriptionsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Ec2.Strategy.generalPurpose(),
     slaveInstanceType = Ec2.Strategy.generalPurpose(),
-    instances = 6
+    instances = 6,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   /** Input sources. */

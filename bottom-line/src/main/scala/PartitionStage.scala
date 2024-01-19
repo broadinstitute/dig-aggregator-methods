@@ -15,8 +15,7 @@ class PartitionStage(implicit context: Context) extends Stage {
   // TODO: Reassess if/when the file structure on the variants directory allows the selection of only Mixed datasets
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   override val sources: Seq[Input.Source] = Seq(variants)

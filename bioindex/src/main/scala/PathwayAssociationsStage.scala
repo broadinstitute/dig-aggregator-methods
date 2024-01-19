@@ -19,11 +19,6 @@ class PathwayAssociationsStage(implicit context: Context) extends Stage {
     case pathways(phenotype) => Outputs.Named("pathways")
   }
 
-  /** Use latest EMR release. */
-  override val cluster: ClusterDef = super.cluster.copy(
-    releaseLabel = ReleaseLabel.emrLatest
-  )
-
   /** Output to Job steps. */
   override def make(output: String): Job = {
     val script = resourceUri("pathwayAssociations.py")
