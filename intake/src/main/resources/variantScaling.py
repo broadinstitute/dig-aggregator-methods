@@ -14,7 +14,9 @@ import subprocess
 MAF_SCALING_THRESHOLD = 2
 FALLBACK_SCALING_THRESHOLD = 5
 TRAINING_DATA_MINIMUM_COUNT = 1000
-s3dir = 's3://dig-analysis-data'
+
+s3_bucket = os.environ['JOB_BUCKET']
+s3dir = f'{s3_bucket}'
 
 
 class BioIndexDB:
