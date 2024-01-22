@@ -18,8 +18,7 @@ class LoadTransEthnicStage(implicit context: Context) extends Stage {
     masterInstanceType = Strategy.computeOptimized(vCPUs = 8, mem = 16.gb),
     slaveInstanceType = Strategy.computeOptimized(vCPUs = 8, mem = 16.gb),
     instances = 4,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   /** Any new dataset means the trans-ethnic loading has to be run again.

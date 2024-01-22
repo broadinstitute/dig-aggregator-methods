@@ -7,8 +7,7 @@ import org.broadinstitute.dig.aws.emr._
 class Intake600TraitStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("intake_bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0"),
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("intake_bootstrap.sh")))
     instances = 1,
     stepConcurrency = 10
   )

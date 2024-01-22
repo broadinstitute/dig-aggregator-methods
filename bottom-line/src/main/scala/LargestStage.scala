@@ -11,8 +11,7 @@ class LargestStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 6,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("largest-bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("largest-bootstrap.sh")))
   )
 
   override val sources: Seq[Input.Source] = Seq(variants)

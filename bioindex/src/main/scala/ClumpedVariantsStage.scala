@@ -29,8 +29,7 @@ class ClumpedVariantsStage(implicit context: Context) extends Stage {
     masterVolumeSizeInGB = 100,
     slaveVolumeSizeInGB = 100,
     instances = 5,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap-6.7.0.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   /** Output to Job steps. */

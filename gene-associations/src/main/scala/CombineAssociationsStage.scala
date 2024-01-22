@@ -10,7 +10,6 @@ class CombineAssociationsStage(implicit context: Context) extends Stage {
     applications = Seq.empty,
     instances = 1,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("intake_bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0"),
     stepConcurrency = 10
   )
 

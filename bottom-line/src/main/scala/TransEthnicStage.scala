@@ -14,8 +14,7 @@ class TransEthnicStage(implicit context: Context) extends Stage {
     masterInstanceType = Strategy.memoryOptimized(),
     instances = 1,
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0") // Need emr 6.1+ to read zstd files
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific)

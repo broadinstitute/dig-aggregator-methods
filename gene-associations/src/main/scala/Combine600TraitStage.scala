@@ -8,8 +8,7 @@ class Combine600TraitStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     applications = Seq.empty,
-    instances = 1,
-    releaseLabel = ReleaseLabel("emr-6.7.0")
+    instances = 1
   )
 
   val traits_600 = Input.Source.Dataset("gene_associations/600k_600traits/*/")

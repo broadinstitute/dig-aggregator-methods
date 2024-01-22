@@ -37,8 +37,7 @@ class HugeRareStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = {
     super.cluster.copy(
       instances = 1,
-      bootstrapScripts = Seq(new BootstrapScript(resourceUri("huge-rare-bootstrap.sh"))),
-      releaseLabel = ReleaseLabel("emr-6.7.0")
+      bootstrapScripts = Seq(new BootstrapScript(resourceUri("huge-rare-bootstrap.sh")))
     )
   }
 

@@ -33,8 +33,7 @@ class NearestGeneStage(implicit context: Context) extends Stage {
    */
   override val cluster: ClusterDef = {
     super.cluster.copy(
-      instances = 10,
-      releaseLabel = ReleaseLabel("emr-6.7.0")
+      instances = 10
     )
   }
 

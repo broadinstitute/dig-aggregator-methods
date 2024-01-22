@@ -19,11 +19,6 @@ class GeneExpressionStage(implicit context: Context) extends Stage {
     case geneExpression(_) => Outputs.Named("expression")
   }
 
-  /** Use latest EMR release. */
-  override val cluster: ClusterDef = super.cluster.copy(
-    releaseLabel = ReleaseLabel.emrLatest
-  )
-
   /** Output to Job steps. */
   override def make(output: String): Job = {
     new Job(Job.PySpark(resourceUri("geneExpression.py")))

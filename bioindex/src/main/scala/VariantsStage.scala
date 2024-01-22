@@ -19,12 +19,6 @@ class VariantsStage(implicit context: Context) extends Stage {
     case common() => Outputs.Named("variants")
   }
 
-  override val cluster: ClusterDef = {
-    super.cluster.copy(
-      releaseLabel = ReleaseLabel("emr-6.7.0")
-    )
-  }
-
   /** Output to Job steps. */
   override def make(output: String): Job = {
     new Job(Job.PySpark(resourceUri("variants.py")))
