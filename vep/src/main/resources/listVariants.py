@@ -24,7 +24,7 @@ def main():
     """
     print('Python version: %s' % platform.python_version())
     # get the source and output directories
-    dataset_srcdir = f'{S3DIR}/variants/GWAS/Agrawal2022_LocalAdiposity_Mixed_males/ASAT'
+    dataset_srcdir = f'{S3DIR}/variants/GWAS/Agrawal2022_LocalAdiposity_Mixed_males/GFAT'
     ld_server_srcdir = f'{S3DIR}/ld_server/variants/*'
     outdir = 's3://drew-vep-test/out/varianteffect/variants'
 
@@ -37,6 +37,11 @@ def main():
     ld_server_df = get_df(spark, ld_server_srcdir)
     df = dataset_df.union(ld_server_df)\
         .dropDuplicates(['varId'])
+    existing_variants = spark.read.csv(outdir, sep='\t', header=False)
+    existing_variants = existing_variants.select('_c5').withColumnRenamed('_c5', 'varId')
+    # exclude those dataset variants that are already in the list variants stage output
+    df = df.join(existing_variants, dataset_df.varId == existing_variants.varId, "leftanti")
+
 
     # get the length of the reference and alternate alleles
     ref_len = length(df.reference)
@@ -71,9 +76,10 @@ def main():
     )
 
     # output the variants as CSV part files
-    df.write \
-        .mode('append') \
-        .csv(outdir, sep='\t')
+    if not df.rdd.isEmpty():
+        df.write \
+            .mode('append') \
+            .csv(outdir, sep='\t')
 
     # done
     spark.stop()
