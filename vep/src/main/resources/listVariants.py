@@ -25,9 +25,10 @@ def main():
     print('Python version: %s' % platform.python_version())
 
     # get the source and output directories
-    dataset_srcdir = f'{S3DIR}/variants/*/*/*'
+    dataset_srcdir = f'{S3DIR}/variants/GWAS/Agrawal2022_LocalAdiposity_Mixed_males/ASAT'
     ld_server_srcdir = f'{S3DIR}/ld_server/variants/*'
-    outdir = f'{S3DIR}/out/varianteffect/variants'
+    outdir = 's3://drew-vep-test/out/varianteffect/variants'
+    existing_variant_data = f'{S3DIR}/out/varianteffect/variants'
 
     # create a spark session
     spark = SparkSession.builder.appName('vep').getOrCreate()
@@ -35,10 +36,12 @@ def main():
     # slurp all the variants across ALL datasets, but only locus information
     # combine with variants in LD Server to make sure all LD Server variants go through VEP for burden binning
     dataset_df = get_df(spark, dataset_srcdir)
-    ld_server_df = get_df(spark, ld_server_srcdir)
-
-    df = dataset_df.union(ld_server_df)\
-        .dropDuplicates(['varId'])
+    # ld_server_df = get_df(spark, ld_server_srcdir)
+    existing_variants = spark.read.csv(existing_variant_data, sep='\t', header=False)
+    just_existing_variants = existing_variants.select('_c5')
+    just_existing_variants = just_existing_variants.withColumnRenamed('_c5', 'varId')
+    df = dataset_df.join(just_existing_variants, dataset_df.varId == just_existing_variants.varId,
+                    "leftanti")
 
     # get the length of the reference and alternate alleles
     ref_len = length(df.reference)
@@ -74,7 +77,7 @@ def main():
 
     # output the variants as CSV part files
     df.write \
-        .mode('overwrite') \
+        .mode('append') \
         .csv(outdir, sep='\t')
 
     # done
