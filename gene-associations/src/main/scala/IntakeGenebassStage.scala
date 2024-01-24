@@ -8,7 +8,6 @@ class IntakeGenebassStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("intake_bootstrap.sh"))),
-    releaseLabel = ReleaseLabel("emr-6.7.0"),
     instances = 1,
     stepConcurrency = 10
   )

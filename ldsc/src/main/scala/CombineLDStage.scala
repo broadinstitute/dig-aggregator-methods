@@ -16,7 +16,6 @@ class CombineLDStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
-    releaseLabel = ReleaseLabel("emr-6.7.0"),
     stepConcurrency = 5
   )
 
