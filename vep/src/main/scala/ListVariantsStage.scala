@@ -27,7 +27,7 @@ class ListVariantsStage(implicit context: Context) extends Stage {
     slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
     masterVolumeSizeInGB = 400,
     slaveVolumeSizeInGB = 400,
-    instances = 1,
+    instances = 8,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("list-variant-bootstrap.sh")))
   )
 
