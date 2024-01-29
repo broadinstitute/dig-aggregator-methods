@@ -10,7 +10,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
 from pyspark.sql.functions import lit, col
 
-s3dir = 's3://dig-analysis-data'
+s3dir = 's3://psmadbec-test'
 
 variants_schema = StructType(
     [
@@ -51,28 +51,28 @@ class BioIndexDB:
                 password=self.config['password'],
                 host=self.config['host'],
                 port=self.config['port'],
-                db=self.config['dbname']
+                db='portal_20231016142849'
             ))
         return self.engine
 
-    def get_largest_dataset(self, phenotype, ancestry):
+    def get_2nd_largest_dataset_data(self, phenotype, ancestry):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
             query = sqlalchemy.text(
                 f'SELECT name FROM Datasets '
                 f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
                 f'AND ancestry="{ancestry}" AND tech="GWAS" '
-                f'ORDER BY subjects DESC LIMIT 1'
+                f'ORDER BY subjects DESC LIMIT 2'
             )
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest mixed dataset')
-        if len(rows) == 1:
-            return rows[0][0]
+        if len(rows) == 2:
+            return rows[1][0]
 
 
 def get_dataset(phenotype, ancestry):
     db = BioIndexDB()
-    return db.get_largest_dataset(phenotype, ancestry)
+    return db.get_2nd_largest_dataset_data(phenotype, ancestry)
 
 
 def main():
@@ -88,7 +88,7 @@ def main():
 
     # get the source and output directories
     dataset = get_dataset(args.phenotype, args.ancestry)
-    print(f'Largest GWAS dataset for phenotype {args.phenotype}, ancestry {args.ancestry}: {dataset}')
+    print(f'Second Largest GWAS dataset for phenotype {args.phenotype}, ancestry {args.ancestry}: {dataset}')
     if dataset is not None:
         srcdir = f'{s3dir}/out/metaanalysis/variants/{args.phenotype}/dataset={dataset}/ancestry={args.ancestry}/*/part-*'
         outdir = f'{s3dir}/out/metaanalysis/largest/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
