@@ -2,7 +2,7 @@
 import platform
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import concat_ws, length, lit, when  # pylint: disable=E0611
+from pyspark.sql.functions import concat_ws, length, lit, when, broadcast  # pylint: disable=E0611
 
 S3DIR = 's3://dig-analysis-data'
 
@@ -24,21 +24,25 @@ def main():
     """
     print('Python version: %s' % platform.python_version())
 
-    # get the source and output directories
-    dataset_srcdir = f'{S3DIR}/variants/*/*/*'
-    ld_server_srcdir = f'{S3DIR}/ld_server/variants/*'
-    outdir = f'{S3DIR}/out/varianteffect/variants'
+    # just specify, potentially with a list only new datasets
+    dataset_srcdir = f'{S3DIR}/variants/ExSeq/*/*'
+    existing_variants = f'{S3DIR}/out/varianteffect/variants'
+    new_variants = f'{S3DIR}/out/new-variants'
 
-    # create a spark session
+
     spark = SparkSession.builder.appName('vep').getOrCreate()
 
-    # slurp all the variants across ALL datasets, but only locus information
-    # combine with variants in LD Server to make sure all LD Server variants go through VEP for burden binning
+    # reduce new datasets just to their variants
     dataset_df = get_df(spark, dataset_srcdir)
-    ld_server_df = get_df(spark, ld_server_srcdir)
+    df = dataset_df.dropDuplicates(['varId'])
 
-    df = dataset_df.union(ld_server_df)\
-        .dropDuplicates(['varId'])
+    # read in all the variants we already know about and put them in varId column
+    existing_variants_df = spark.read.csv(existing_variants, sep='\t', header=False)
+    existing_variants_df = existing_variants_df.select('_c5').withColumnRenamed('_c5', 'varId')
+
+    # find variants in new datasets that aren't already in existing datasets
+    df = broadcast(df).join(existing_variants_df, dataset_df.varId == existing_variants.varId,
+                                    "leftanti")
 
     # get the length of the reference and alternate alleles
     ref_len = length(df.reference)
@@ -72,10 +76,11 @@ def main():
         df.varId,
     )
 
-    # output the variants as CSV part files
-    df.write \
-        .mode('overwrite') \
-        .csv(outdir, sep='\t')
+    # if we find new variants, put them in the new_variants path for additional processing
+    # and append them to the existing deduped variants path
+    if not df.rdd.isEmpty():
+        df.write.mode('overwrite').csv(new_variants, sep='\t')
+        df.write.mode('append').csv(existing_variants, sep='\t')
 
     # done
     spark.stop()
