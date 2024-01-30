@@ -40,7 +40,8 @@ def main():
     existing_variants_df = spark.read.csv(existing_variants, sep='\t', header=False)
     existing_variants_df = existing_variants_df.select('_c5').withColumnRenamed('_c5', 'varId')
 
-    # find variants in new datasets that aren't already in existing datasets
+    # find variants in new datasets that aren't already in existing datasets, this code
+    # assumes that the data in df is significantly smaller than existing_variants_df
     df = broadcast(df).join(existing_variants_df, dataset_df.varId == existing_variants.varId,
                                     "leftanti")
 
