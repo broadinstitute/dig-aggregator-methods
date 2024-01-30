@@ -15,7 +15,7 @@ WARNINGS="${OUTFILE}_warnings.txt"
 PATH="$PATH:$VEPDIR/samtools-1.9/:$VEPDIR/ensembl-vep/htslib"
 
 # copy the part file from S3 to local
-aws s3 cp "$S3DIR/varianteffects/new-variants/$PART" .
+aws s3 cp "$S3DIR/varianteffect/new-variants/$PART" .
 
 # ensure the file is sorted
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"
@@ -58,8 +58,8 @@ perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
     --force_overwrite | tee >(python3 commonStdin.py > "$COMMON_OUTFILE") | python3 cqsStdin.py > "$CQS_OUTFILE"
 
 # transfer common and cqs output to s3
-aws s3 cp "$COMMON_OUTFILE" "$S3DIR/varianteffects/common/$OUTFILE"
-aws s3 cp "$CQS_OUTFILE" "$S3DIR/varianteffects/cqs/$OUTFILE"
+aws s3 cp "$COMMON_OUTFILE" "$S3DIR/varianteffect/common/$OUTFILE"
+aws s3 cp "$CQS_OUTFILE" "$S3DIR/varianteffect/cqs/$OUTFILE"
 
 # delete the input and output files; keep the cluster clean
 rm "$PART"
