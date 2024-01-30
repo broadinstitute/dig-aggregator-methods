@@ -27,7 +27,7 @@ def main():
     # just specify, potentially with a list only new datasets
     dataset_srcdir = f'{S3DIR}/variants/ExSeq/*/*'
     existing_variants = f'{S3DIR}/out/varianteffect/variants'
-    new_variants = f'{S3DIR}/out/new-variants'
+    new_variants = f'{S3DIR}/out/varianteffect/new-variants'
 
 
     spark = SparkSession.builder.appName('vep').getOrCreate()
