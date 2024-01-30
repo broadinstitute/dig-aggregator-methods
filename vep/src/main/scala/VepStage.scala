@@ -21,11 +21,11 @@ import org.broadinstitute.dig.aws.emr._
 class VepStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
+  val variants: Input.Source = Input.Source.Success("out/varianteffect/new-variants/")
 
   /** Additional resources that need uploaded to S3. */
   override def additionalResources: Seq[String] = Seq(
-    "runVEP.sh"
+    "runVEP.sh", "commonStdin.py", "cqsStdin.py"
   )
 
   /** Input sources. */
@@ -59,24 +59,12 @@ class VepStage(implicit context: Context) extends Stage {
     val runScript = resourceUri("runVEP.sh")
 
     // get all the variant part files to process, use only the part filename
-    val objects = context.s3.ls(s"out/varianteffect/variants/")
+    val objects = context.s3.ls(s"out/varianteffect/new-variants/")
     val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
 
     // add a step for each part file
     new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
   }
 
-  /** Before the jobs actually run, perform this operation.
-    */
-  override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/varianteffect/effects/")
-    context.s3.rm("out/varianteffect/warnings/")
-  }
 
-  /** On success, write the _SUCCESS file in the output directory.
-    */
-  override def success(output: String): Unit = {
-    context.s3.touch("out/varianteffect/effects/_SUCCESS")
-    ()
-  }
 }

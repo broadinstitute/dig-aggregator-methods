@@ -25,7 +25,5 @@ object Vep extends Method {
     addStage(new ListVariantsStage)
     addStage(new VepStage)
     addStage(new SnpStage)
-    addStage(new CommonStage)
-    addStage(new CqsStage)
   }
 }

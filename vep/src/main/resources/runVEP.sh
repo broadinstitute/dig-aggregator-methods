@@ -1,19 +1,21 @@
 #!/bin/bash -xe
 
 # set where the source and destination is in S3 and where VEP is
-S3DIR="s3://dig-analysis-data/out/varianteffect"
+S3DIR="s3://dig-analysis-data/out"
 VEPDIR="/mnt/var/vep"
 
 # get the name of the part file from the command line; set the output filename
 PART=$(basename -- "$1")
 OUTFILE="${PART%.*}.json"
+COMMON_OUTFILE="${PART%.*}_common.json"
+CQS_OUTFILE="${PART%.*}_cqs.json"
 WARNINGS="${OUTFILE}_warnings.txt"
 
 # update the path to include samtools and tabix
 PATH="$PATH:$VEPDIR/samtools-1.9/:$VEPDIR/ensembl-vep/htslib"
 
 # copy the part file from S3 to local
-aws s3 cp "$S3DIR/variants/$PART" .
+aws s3 cp "$S3DIR/varianteffects/new-variants/$PART" .
 
 # ensure the file is sorted
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"
@@ -51,16 +53,19 @@ perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
     --plugin dbNSFP,$VEPDIR/dbNSFP/dbNSFP4.1a_grch37.gz,M-CAP_score,CADD_raw_rankscore,DANN_rankscore,Eigen-PC-raw_coding_rankscore,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,SIFT_pred,LRT_pred,MutationTaster_pred,FATHMM_pred,fathmm-MKL_coding_pred,PROVEAN_pred,MetaSVM_pred,MetaLR_pred,VEST4_score,VEST4_rankscore,gnomAD_genomes_POPMAX_AF \
     --fields SYMBOL,NEAREST,IMPACT,MAX_AF,AFR_AF,AMR_AF,EAS_AF,EUR_AF,SAS_AF,HGVSc,HGVSp,HGVS_OFFSET,PICK,CCDS,TSL,APPRIS,BIOTYPE,CANONICAL,HGNC,ENSP,DOMAINS,MOTIF_NAME,MOTIF_POS,HIGH_INF_POS,MOTIF_SCORE_CHANGE,SIFT,cDNA_position,CDS_position,Amino_acids,Codons,Protein_position,Protein_change,LoF,LoF_filter,LoF_flags,M-CAP_score,CADD_raw_rankscore,DANN_rankscore,Eigen-PC-raw_coding_rankscore,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,SIFT_pred,LRT_pred,MutationTaster_pred,FATHMM_pred,fathmm-MKL_coding_pred,PROVEAN_pred,MetaSVM_pred,MetaLR_pred,VEST4_score,VEST4_rankscore,gnomAD_genomes_POPMAX_AF \
     -i "$PART.sorted" \
-    -o "$OUTFILE" \
-    --force_overwrite
+    -o /dev/stdout \
+    --warning_file "$WARNINGS" \
+    --force_overwrite | tee >(python3 commonStdin.py > "$COMMON_OUTFILE") | python3 cqsStdin.py > "$CQS_OUTFILE"
 
-# copy the output of VEP back to S3
-aws s3 cp "$OUTFILE" "$S3DIR/effects/$OUTFILE"
+# transfer common and cqs output to s3
+aws s3 cp "$COMMON_OUTFILE" "$S3DIR/varianteffects/common/$OUTFILE"
+aws s3 cp "$CQS_OUTFILE" "$S3DIR/varianteffects/cqs/$OUTFILE"
 
 # delete the input and output files; keep the cluster clean
 rm "$PART"
 rm "$PART.sorted"
-rm "$OUTFILE"
+rm "$COMMON_OUTFILE"
+rm "$CQS_OUTFILE"
 
 # check for a warnings file, upload that, too and then delete it
 if [ -e "$WARNINGS" ]; then
