@@ -55,24 +55,30 @@ class BioIndexDB:
             ))
         return self.engine
 
-    def get_2nd_largest_dataset_data(self, phenotype, ancestry):
+    def get_sorted_datasets(self, phenotype, ancestry):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
             query = sqlalchemy.text(
                 f'SELECT name FROM Datasets '
                 f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
                 f'AND ancestry="{ancestry}" AND tech="GWAS" '
-                f'ORDER BY subjects DESC LIMIT 2'
+                f'ORDER BY subjects DESC'
             )
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest mixed dataset')
-        if len(rows) == 2:
-            return rows[1][0]
+        return [row[0] for row in rows]
+
+def check_existence(phenotype, ancestry, dataset):
+    path = f'{s3dir}/out/metaanalysis/variants/{phenotype}/dataset={dataset}/ancestry={ancestry}/'
+    return subprocess.call(['aws', 's3', 'ls', path, '--recursive'])
 
 
 def get_dataset(phenotype, ancestry):
     db = BioIndexDB()
-    return db.get_2nd_largest_dataset_data(phenotype, ancestry)
+    datasets = db.get_sorted_datasets(phenotype, ancestry)
+    for dataset in datasets:
+        if not check_existence(phenotype, ancestry, dataset):
+            return dataset
 
 
 def main():
