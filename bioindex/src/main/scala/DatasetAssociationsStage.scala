@@ -10,14 +10,14 @@ import org.broadinstitute.dig.aws.emr._
 class DatasetAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants = Input.Source.Success("variants/*/*/*/")
+  val variants = Input.Source.Success("variants/*/*/*/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(variants)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants(tech, dataset, phenotype) => Outputs.Named(s"$tech/$dataset/$phenotype")
+    case variants(tech, dataset, phenotype, ancestry) => Outputs.Named(s"$tech/$dataset/$phenotype/$ancestry")
   }
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
