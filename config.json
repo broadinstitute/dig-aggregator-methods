@@ -1,14 +1,15 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "vision",
         "input": {
-            "bucket": "dig-analysis-data"
+          "bucket": "dig-vision-genomics"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-vision-genomics"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-vision-genomics",
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [
