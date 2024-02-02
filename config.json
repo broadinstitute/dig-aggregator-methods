@@ -1,7 +1,9 @@
 {
     "aws": {
         "s3": {
-            "bucket": "dig-analysis-data"
+            "inputBucket": "dig-analysis-data",
+            "outputBucket": "dig-analysis-data",
+            "bioindexBucket": "dig-bio-index"
         },
         "emr": {
             "subnetIds": [
