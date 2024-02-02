@@ -11,11 +11,15 @@ from scipy.stats import norm
 import sqlalchemy
 import subprocess
 
-s3_path = f's3://dig-analysis-data/variants_raw'
-s3_output = f's3://dig-analysis-data/variants_processed'
+input_path = os.environ['INPUT_PATH']
+output_path = os.environ['OUTPUT_PATH']
+
+s3_path = f's3://{input_path}/variants_raw'
+s3_output = f's3://{output_path}/variants_processed'
 data_path = f'/mnt/var/intake'
 
 
+# TODO: Add local sqlite / file version of BioIndexDB for use in private repos.
 class BioIndexDB:
     def __init__(self):
         self.secret_id = 'dig-bio-portal'

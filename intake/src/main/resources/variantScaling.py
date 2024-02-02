@@ -14,9 +14,15 @@ import subprocess
 MAF_SCALING_THRESHOLD = 2
 FALLBACK_SCALING_THRESHOLD = 5
 TRAINING_DATA_MINIMUM_COUNT = 1000
-s3dir = 's3://dig-analysis-data'
+
+input_path = os.environ['INPUT_PATH']
+output_path = os.environ['OUTPUT_PATH']
+
+s3_in = f's3://{input_path}'
+s3_out = f's3://{output_path}'
 
 
+# TODO: Add local sqlite / file version of BioIndexDB for use in private repos.
 class BioIndexDB:
     def __init__(self):
         self.secret_id = 'dig-bio-portal'
@@ -159,8 +165,8 @@ def main():
     tech, dataset, phenotype = args.method_dataset_phenotype.split('/')
     is_dichotomous = db.get_is_dichotomous(phenotype)
 
-    srcdir = f'{s3dir}/variants_qc/{args.method_dataset_phenotype}/pass'
-    outdir = f'{s3dir}/variants/{args.method_dataset_phenotype}'
+    srcdir = f'{s3_in}/variants_qc/{args.method_dataset_phenotype}/pass'
+    outdir = f'{s3_out}/variants/{args.method_dataset_phenotype}'
 
     logger = ScalingLogger('scaling.log')
     logger.log(f'Reading from {srcdir}')
