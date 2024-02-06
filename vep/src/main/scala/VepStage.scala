@@ -23,11 +23,6 @@ class VepStage(implicit context: Context) extends Stage {
 
   val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
 
-  /** Additional resources that need uploaded to S3. */
-  override def additionalResources: Seq[String] = Seq(
-    "runVEP.sh"
-  )
-
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(variants)
 

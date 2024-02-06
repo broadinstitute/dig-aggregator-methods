@@ -27,7 +27,7 @@ perlbrew install-cpanm
 
 # install required perl modules
 cpanm --sudo --force Archive::Zip
-cpanm --sudo --force DBD::mysql
+cpanm --sudo --force DVEEDEN/DBD-mysql-4.052.tar.gz
 cpanm --sudo --force DBI
 cpanm --sudo --force JSON
 cpanm --sudo --force PerlIO::gzip
