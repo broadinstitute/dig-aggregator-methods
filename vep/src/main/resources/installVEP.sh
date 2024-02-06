@@ -6,12 +6,12 @@ VEP_ROOT=/mnt/var/vep
 #       will timeout the cluster if the bootstrap takes over 1 hour to run.
 
 # create a vep directory in /mnt/var to copy data locally
-mkdir -p $VEP_ROOT
-chmod 775 $VEP_ROOT
+sudo mkdir -p $VEP_ROOT
+sudo chmod 775 $VEP_ROOT
 
 # install to the VEP directory
 cd $VEP_ROOT
 
 # download the VEP program + data and extract it
-aws s3 cp s3://dig-analysis-data/bin/vep/vep-97.tar.gz .
-tar zxf vep-97.tar.gz
+sudo aws s3 cp s3://dig-analysis-data/bin/vep/vep-97.tar.gz .
+sudo tar zxf vep-97.tar.gz
