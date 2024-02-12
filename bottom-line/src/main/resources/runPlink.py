@@ -14,22 +14,9 @@ from scipy.sparse.csgraph import connected_components
 S3DIR = 's3://dig-analysis-data'
 CLUMPING_ROOT = f'/mnt/var/clumping'
 
-# clumping parameters
-PLINK_P1 = 5e-8
-PLINK_P2 = 1e-2
-PLINK_R2 = 0.2
-PLINK_KB = 250
-
-# ancestry mapping portal -> g1000 for all possible ancestries
-ANCESTRY_SPECIFIC_ANCESTRIES = {
-    'AA': 'afr',
-    'AF': 'afr',
-    'SSAF': 'afr',
-    'EU': 'eur',
-    'HS': 'amr',
-    'EA': 'eas',
-    'SA': 'sas',
-    'GME': 'sas'
+params_by_type = {
+    'portal': {'p1': 5E-8, 'p2': 1E-2, 'r2': 0.2, 'kb': 250},
+    'analysis': {'p1': 5E-8, 'p2': 5E-6, 'r2': 0.01, 'kb': 5000}
 }
 
 # Each of the ancestries should only be run once. Runs against trans-ethnic results
@@ -39,6 +26,19 @@ TRANS_ETHNIC_ANCESTRIES = {
     'HS': 'amr',
     'EA': 'eas',
     'SA': 'sas'
+}
+
+# ancestry mapping portal -> g1000 for all possible ancestries
+ANCESTRY_SPECIFIC_ANCESTRIES = {
+    'AA': {'AA': 'afr'},
+    'AF': {'AF': 'afr'},
+    'SSAF': {'SSAF': 'afr'},
+    'EU': {'EU': 'eur'},
+    'HS': {'HS': 'amr'},
+    'EA': {'EA': 'eas'},
+    'SA': {'SA': 'sas'},
+    'GME': {'GME': 'sas'},
+    'Mixed': TRANS_ETHNIC_ANCESTRIES
 }
 
 
@@ -58,7 +58,7 @@ def upload(local_file, s3_dir):
     subprocess.check_call(['aws', 's3', 'cp', local_file, f'{s3_dir}/{local_file}'])
 
 
-def load_bottom_line(s3_dir):
+def load_bottom_line(s3_dir, params):
 
     # load the dataframe, ensure p-values are high-precision
     download(s3_dir)
@@ -76,28 +76,26 @@ def load_bottom_line(s3_dir):
     })
 
     # filter variants within absolute limit, and drop p=0 associations
-    return df[df['pValue'] <= 0.05]
+    return df[df['pValue'] <= params['p2']]
 
 
-def update_plink_args(df, expected_clumps=50):
+def update_plink_args(df, params, expected_clumps=50):
     """
     Modify the plink P1 and P2 arguments if there aren't enough associations
     in the dataframe that will generate clumps.
     """
-    global PLINK_P1, PLINK_P2
 
-    while PLINK_P1 < PLINK_P2:
-        n = (df['pValue'] <= PLINK_P1).value_counts().get(True, 0)
+    while params['p1'] < params['p2']:
+        n = (df['pValue'] <= params['p1']).value_counts().get(True, 0)
 
         # if there are enough associations, these are good values
         if n >= expected_clumps:
-            return
+            return params
 
         # increase P1 by a factor of 10
-        PLINK_P1 *= 10
-
-    # worse case scenario
-    PLINK_P1 = PLINK_P2
+        params['p1'] *= 10
+    params['p1'] = params['p2']
+    return params
 
 
 def build_assoc_file(assoc_file, df):
@@ -115,7 +113,7 @@ def build_assoc_file(assoc_file, df):
     df[['CHR', 'SNP', 'BP', 'P']].to_csv(assoc_file, sep='\t', index=False)
 
 
-def run_plink(assoc_file, outdir, ancestries):
+def run_plink(assoc_file, outdir, ancestries, params):
     """
     Run plink for each ancestry. Uploads results to S3.
     """
@@ -128,13 +126,13 @@ def run_plink(assoc_file, outdir, ancestries):
             '--bfile',
             f'{CLUMPING_ROOT}/{g1000}/{g1000}',
             '--clump-p1',
-            str(PLINK_P1),
+            str(params['p1']),
             '--clump-p2',
-            str(PLINK_P2),
+            str(params['p2']),
             '--clump-r2',
-            str(PLINK_R2),
+            str(params['r2']),
             '--clump-kb',
-            str(PLINK_KB),
+            str(params['kb']),
             '--clump',
             assoc_file,
         ])
@@ -257,14 +255,14 @@ def concat_rare(clumped, rare):
     """
     Append rare variants that aren't within a range of any clumped.
     """
-    ranges = list(clumped[['clumpStart', 'clumpEnd']].itertuples(index=False, name=None))
+    ranges = list(clumped[['chromosome', 'clumpStart', 'clumpEnd']].itertuples(index=False, name=None))
 
     # returns True if position is within any of the ranges
-    def is_clumped(position):
-        return any(map(lambda r: r[0] <= position < r[1], ranges))
+    def is_clumped(chromosome, position):
+        return any(map(lambda r: r[0] == chromosome and r[1] <= position < r[2], ranges))
 
     # find all rare variants not within any range
-    outside = rare[rare['position'].map(is_clumped) == False]
+    outside = rare[rare.apply(lambda row: not is_clumped(row.chromosome, row.position), axis=1)]
 
     # for the 'outside' variants, set their range to 1 bp
     outside['clumpStart'] = outside['position'].copy()
@@ -284,51 +282,53 @@ def concat_rare(clumped, rare):
 
 
 def get_trans_ethnic_paths(args):
-    srcdir = f'{S3DIR}/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}'
-    plinkdir = f'{S3DIR}/out/metaanalysis/bottom-line/staging/plink/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/bottom-line/staging/clumped/{args.phenotype}'
+    param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
+    srcdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
+    plinkdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/plink{param_type_suffix}/{args.phenotype}'
+    outdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/clumped{param_type_suffix}/{args.phenotype}'
     return srcdir, plinkdir, outdir
 
 
 def get_ancestry_specific_paths(args):
-    srcdir = f'{S3DIR}/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
-    plinkdir = f'{S3DIR}/out/metaanalysis/bottom-line/staging/ancestry-plink/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/bottom-line/staging/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}'
+    param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
+    srcdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
+    if args.ancestry == 'Mixed':
+        plinkdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
+    else:
+        plinkdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}'
+    outdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
     return srcdir, plinkdir, outdir
 
 
 def main():
-    pd.show_versions()
-
-    """
-    Arguments:  phenotype
-                trans-ethnic - flag to indicate analysis for trans-ethnic results
-                ancestry-specific - str indicating which ancestry to run the analysis against
-    """
     opts = argparse.ArgumentParser()
     opts.add_argument('--phenotype', type=str, required=True)
     opts.add_argument('--ancestry', type=str, required=True)
+    opts.add_argument('--meta-type', type=str, required=True)
+    opts.add_argument('--param-type', type=str, required=True)
 
     # parse command line
     args = opts.parse_args()
+    params = params_by_type[args.param_type]
 
     # source data and output location
-    if args.ancestry == 'Mixed':
+    if args.ancestry == 'TE':
         srcdir, plinkdir, outdir = get_trans_ethnic_paths(args)
         ancestries = TRANS_ETHNIC_ANCESTRIES
     else:
         srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
-        ancestries = {args.ancestry: ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]}
+        ancestries = ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]
 
     # download and read the meta-analysis results
-    df = load_bottom_line(f'{srcdir}/')
+    df = load_bottom_line(f'{srcdir}/', params)
 
     # if there are no associations, just stop
     if df.empty:
         return
 
-    # make sure P1 and P2 are good for this data
-    update_plink_args(df)
+    # For portal make sure P1 and P2 are good for this data
+    if args.param_type == 'portal':
+        params = update_plink_args(df, params)
 
     # load the SNPs file
     snps = pd.read_csv(f'{CLUMPING_ROOT}/snps.csv', sep='\t', header=0)
@@ -338,11 +338,11 @@ def main():
 
     # separate common (has dbSNP) and rare associations
     common = df[df['dbSNP'].notna()]
-    rare = df[df['dbSNP'].isna() & (df['pValue'] < PLINK_P1)]
+    rare = df[df['dbSNP'].isna() & (df['pValue'] < params['p1'])]
 
     # join and write out the assoc file for plink
     build_assoc_file('snps.assoc', common)
-    run_plink('snps.assoc', plinkdir, ancestries)
+    run_plink('snps.assoc', plinkdir, ancestries, params)
 
     # get the final output of top and clumped SNPs (clump ID, SNP)
     clumped = merge_results()
