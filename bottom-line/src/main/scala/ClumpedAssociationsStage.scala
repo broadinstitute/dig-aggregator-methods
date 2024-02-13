@@ -12,7 +12,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/*/variants.json")
-  val ancestrySpecific: Input.Source = Input.SourceRaw("out/metaanalysis/*/staging/ancestry-clumped/*/*/variants.json")
+  val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/ancestry-clumped/*/*/variants.json")
 
   val paramTypes: Map[String, Seq[String]] = Map(
     "bottom-line" -> Seq("portal", "analysis"),
@@ -34,7 +34,6 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
       Outputs.Named(paramTypes(metaType).map { paramType =>
         s"$metaType/$paramType/$phenotype/${ancestry.split("ancestry=").last}"
       }: _*)
-    case snps() => Outputs.All
   }
 
   /** Simple cluster with more memory. */
