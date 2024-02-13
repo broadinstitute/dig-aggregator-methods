@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import argparse
 import glob
+import json
+from multiprocessing import Pool
 import numpy as np
 import os
 import os.path
@@ -13,6 +15,8 @@ from scipy.sparse.csgraph import connected_components
 
 S3DIR = 's3://dig-analysis-data'
 CLUMPING_ROOT = f'/mnt/var/clumping'
+
+import_threads = 8
 
 params_by_type = {
     'portal': {'p1': 5E-8, 'p2': 1E-2, 'r2': 0.2, 'kb': 250},
@@ -58,12 +62,15 @@ def upload(local_file, s3_dir):
     subprocess.check_call(['aws', 's3', 'cp', local_file, f'{s3_dir}/{local_file}'])
 
 
-def load_bottom_line(s3_dir, params):
-
-    # load the dataframe, ensure p-values are high-precision
-    download(s3_dir)
-    df = pd.concat([pd.read_json(fn, dtype={'pValue': np.float64}, lines=True) for fn in glob.glob('part-*')])
-    df = df[['varId', 'pValue']]
+def load_individual_bottom_line(data):
+    file, params = data
+    lines = []
+    cols = ['varId', 'pValue']
+    with open(file, 'r') as f:
+        for line in f:
+            json_line = json.loads(line, parse_float=np.float64)
+            lines.append([json_line[col] for col in cols])
+    df = pd.DataFrame(data=lines, columns=['varId', 'pValue'])
 
     # explode varId to get chrom, pos, ref, and alt (alt will be catch all for everything else in the string)
     df[['chromosome', 'position', 'reference', 'alt']] = df['varId'].str.split(':', n=3, expand=True)
@@ -77,6 +84,15 @@ def load_bottom_line(s3_dir, params):
 
     # filter variants within absolute limit, and drop p=0 associations
     return df[df['pValue'] <= params['p2']]
+
+
+def load_bottom_line(s3_dir, params):
+    # load the dataframe, ensure p-values are high-precision
+    download(s3_dir)
+    inputs = [(fn, params) for fn in glob.glob('part-*')]
+    with Pool(import_threads) as p:
+        dfs = p.map(load_individual_bottom_line, inputs)
+    return pd.concat(dfs)
 
 
 def update_plink_args(df, params, expected_clumps=50):
