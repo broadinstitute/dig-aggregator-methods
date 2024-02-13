@@ -54,7 +54,6 @@ def download(s3_file):
     for fn in glob.glob('part-*'):
         subprocess.check_call(['zstd', '-d', '--rm', fn])
 
-
 def upload(local_file, s3_dir):
     """
     Copy a local file to S3.
