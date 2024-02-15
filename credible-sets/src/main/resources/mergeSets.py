@@ -6,8 +6,8 @@ import os
 import shutil
 import subprocess
 
-s3_in = 's3://dig-giant-sandbox'
-s3_out = 's3://dig-giant-sandbox'
+s3_in = 's3://dig-analysis-data'
+s3_out = 's3://dig-analysis-data'
 
 
 def download_data(args):
