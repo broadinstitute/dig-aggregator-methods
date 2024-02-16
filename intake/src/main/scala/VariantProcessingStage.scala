@@ -8,6 +8,10 @@ import org.broadinstitute.dig.aws.emr._
 
 class VariantProcessingStage(implicit context: Context) extends Stage {
 
+  override val additionalResources: Seq[String] = Seq(
+    "PortalDB.py"
+  )
+
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.memoryOptimized(),
     applications = Seq.empty,

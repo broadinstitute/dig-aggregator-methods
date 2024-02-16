@@ -12,8 +12,8 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType, 
 input_path = os.environ['INPUT_PATH']
 output_path = os.environ['OUTPUT_PATH']
 
-s3_in = f's3://{input_path}'
-s3_out = f's3://{output_path}'
+s3_in = input_path
+s3_out = output_path
 
 variants_schema = StructType([
     StructField('varId', StringType(), nullable=False),

@@ -6,9 +6,8 @@ LDSC_ROOT=/mnt/var/intake
 sudo mkdir -p "$LDSC_ROOT"
 cd "$LDSC_ROOT"
 
-# TODO: move to BIN_PATH and add to config as well
-sudo aws s3 cp s3://dig-analysis-data/bin/qc/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa ./
-sudo aws s3 cp s3://dig-analysis-data/bin/qc/var_to_af.zip ./
+sudo aws s3 cp s3://dig-analysis-bin/bin/intake/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa ./
+sudo aws s3 cp s3://dig-analysis-bin/bin/intake/var_to_af.zip ./
 sudo unzip var_to_af.zip -d ./g1000
 sudo rm var_to_af.zip
 

@@ -6,6 +6,10 @@ import org.broadinstitute.dig.aws.emr._
 
 class VariantScalingStage(implicit context: Context) extends Stage {
 
+  override val additionalResources: Seq[String] = Seq(
+    "PortalDB.py"
+  )
+
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 2,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("scaling_bootstrap.sh")))
