@@ -29,10 +29,12 @@ def convert_credible_set(df):
     df = df.select(
         ['varId', 'chromosome', 'position', 'reference', 'alt',
          'beta', 'stdErr', 'pValue',
-         'phenotype', 'ancestry', 'gwas_dataset', 'credibleSetId', 'posteriorProbability']
-    ).withColumnRenamed('gwas_dataset', 'dataset')\
+         'phenotype', 'ancestry', 'gwas_dataset', 'dataset', 'credibleSetId', 'posteriorProbability']
+    ).filter(df.varId.isNotNull()) \
         .dropDuplicates(['credibleSetId', 'varId'])
-    df = df.withColumn('source', lit('credible_set'))
+    df = df.withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
+        .drop('gwas_dataset') \
+        .withColumn('source', lit('credible_set'))
 
     # TODO: This shouldn't be necessary, but we need external credible sets and out credible sets on an equal footing
     # Normalize
