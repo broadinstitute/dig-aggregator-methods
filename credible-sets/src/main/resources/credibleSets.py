@@ -85,9 +85,9 @@ def bayes_pp(df):
     k = 0.974
     df = df.withColumn('z', p_to_z(df.pValue))
     df = df.withColumn('abf', 1 / (1 + k)**0.5 * exp(df.z * df.z * k / 2 / (1 + k)))
-    bayes_sum = df.groupBy('clump')\
+    bayes_sum = df.groupBy('credibleSetId')\
         .agg(sum('abf').alias('abfSum'))
-    df = df.join(bayes_sum, on=['clump'], how='left')
+    df = df.join(bayes_sum, on=['credibleSetId'], how='left')
     return df.withColumn('posteriorProbability', df.abf / df.abfSum)\
         .drop('z', 'abf', 'abfSum')
 
