@@ -101,7 +101,8 @@ def convert_clump_file(phenotype, ancestry, df):
         .withColumn('ancestry', lit(ancestry)) \
         .withColumn('credibleSetId', credible_set_id_from_clump(df.clump)) \
         .withColumn('dataset', lit(f'BL_{phenotype}_{ancestry}')) \
-        .withColumn('source', lit('bottom_line'))
+        .withColumn('source', lit('bottom_line')) \
+        .drop('clump')
 
     df = bayes_pp(df)
 
