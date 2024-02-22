@@ -77,7 +77,11 @@ def credible_set_id_from_clump(clump):
 
 @udf(returnType=DoubleType())
 def p_to_z(p_value):
-    return float(abs(norm.ppf(p_value / 2.0)))
+    # Becomes infinity for lower values, smallest possible value marginally less at 5E-324
+    if p_value < 1E-323:
+        return float(abs(norm.ppf(1E-323 / 2.0)))
+    else:
+        return float(abs(norm.ppf(p_value / 2.0)))
 
 
 # define posteriorProbability as Bayes Factor
