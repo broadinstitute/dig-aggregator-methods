@@ -34,7 +34,8 @@ def convert_credible_set(df):
         .dropDuplicates(['credibleSetId', 'varId'])
     df = df.withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
         .drop('gwas_dataset') \
-        .withColumn('source', lit('credible_set'))
+        .withColumn('source', lit('credible_set')) \
+        .withColumn('chromosome', df.chromosome.cast("string"))
 
     # TODO: This shouldn't be necessary, but we need external credible sets and out credible sets on an equal footing
     # Normalize
