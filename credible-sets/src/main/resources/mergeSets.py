@@ -11,7 +11,7 @@ s3_out = 's3://dig-analysis-data'
 
 
 def download_data(args):
-    src_dir = f'{s3_in}/out/credible_sets/{args.phenotype}/{args.ancestry}/'
+    src_dir = f'{s3_in}/out/credible_sets/intake/{args.phenotype}/{args.ancestry}/'
     subprocess.check_call(['aws', 's3', 'cp', src_dir, f'./{args.phenotype}/{args.ancestry}/', '--recursive'])
     paths = set()
     with open('part-tmp.json', 'w') as f_out:
@@ -50,7 +50,7 @@ def adjust():
 
 
 def upload(args):
-    out_dir = f'{s3_out}/out/credible_sets/{args.phenotype}/{args.ancestry}/merged/'
+    out_dir = f'{s3_out}/out/credible_sets/merged/{args.phenotype}/{args.ancestry}/'
     subprocess.check_call(['touch', '_SUCCESS'])
     subprocess.check_call(['aws', 's3', 'cp', 'part-00000.json', out_dir])
     subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', out_dir])

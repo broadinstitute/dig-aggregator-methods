@@ -10,7 +10,7 @@ class MergeSetsStage(implicit context: Context) extends Stage  {
     instances = 1
   )
 
-  val credibleSets: Input.Source = Input.Source.Success("out/credible_sets/*/*/")
+  val credibleSets: Input.Source = Input.Source.Success("out/credible_sets/intake/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(credibleSets)
 

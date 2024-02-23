@@ -122,7 +122,7 @@ def get_out_dir(df):
     source = df_first['source']
     dataset = df_first['dataset']
     phenotype = df_first['phenotype']
-    return f'{s3_out}/out/credible_sets/{phenotype}/{ancestry}/{source}/{dataset}/'
+    return f'{s3_out}/out/credible_sets/intake/{phenotype}/{ancestry}/{source}/{dataset}/'
 
 
 def save_df(df, out_dir):
