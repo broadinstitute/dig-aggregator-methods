@@ -24,5 +24,6 @@ object CredibleSets extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new CredibleSetsStage)
     addStage(new MergeSetsStage)
+    addStage(new C2CTStage)
   }
 }
