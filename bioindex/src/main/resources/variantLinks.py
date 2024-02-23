@@ -27,6 +27,12 @@ def main():
         .mode('overwrite') \
         .json(outdir + '/gene')
 
+    # sort and write
+    df.orderBy(['chromosome', 'start']) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir + '/region')
+
     # done
     spark.stop()
 
