@@ -15,7 +15,7 @@ class RegionToAnnotStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ldscore.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ldscore.sh"))),
     stepConcurrency = 7
   )
 
