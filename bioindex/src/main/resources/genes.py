@@ -6,12 +6,11 @@ from pyspark.sql.functions import col
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
-
 def main():
     """
     Arguments: none
     """
-    srcdir = f's3://dig-analysis-bin/genes/GRCh37/part-*'
+    srcdir = f's3://dig-analysis-bin/genes/GRCh38/part-*'
     outdir = f'{s3_bioindex}/genes'
 
     # all valid chromosomes
