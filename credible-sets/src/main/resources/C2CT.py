@@ -39,6 +39,7 @@ def get_credible_sets(phenotype, ancestry):
     tmp_path = f'data/credible_sets/{ancestry}/{phenotype}/'
     subprocess.check_call(['aws', 's3', 'cp', credible_set_base, tmp_path])
     out = {}
+    cs_data = {}
     with open(f'{tmp_path}/part-00000.json', 'r') as f:
         for line in f:
             json_line = json.loads(line.strip())
@@ -48,13 +49,18 @@ def get_credible_sets(phenotype, ancestry):
             out[chromosome].append((
                 json_line['position'],
                 json_line['posteriorProbability'],
-                json_line['credibleSetId'],
-                json_line['source'],
-                json_line['dataset']
+                json_line['credibleSetId']
             ))
+            cs_data[json_line['credibleSetId']] = (
+                json_line['source'],
+                json_line['dataset'],
+                json_line['chromosome'],
+                json_line['clumpStart'],
+                json_line['clumpEnd']
+            )
     for chromosome, data in out.items():
         out[chromosome] = sorted(data, key=lambda d: (d[0], d[1]))
-    return out
+    return out, cs_data
 
 
 def get_chromosome_overlap(credible_set_data, region_data):
@@ -69,10 +75,10 @@ def get_chromosome_overlap(credible_set_data, region_data):
         elif cs[0] < region[0]:
             curr_cs += 1
         else:
-            pos, pp, cs_id, source, dataset = cs
-            if (source, dataset, cs_id) not in overlap:
-                overlap[(source, dataset, cs_id)] = 0.0
-            overlap[(source, dataset, cs_id)] += pp
+            pos, pp, cs_id = cs
+            if cs_id not in overlap:
+                overlap[cs_id] = 0.0
+            overlap[cs_id] += pp
             curr_cs += 1
     return overlap
 
@@ -94,15 +100,17 @@ def get_output(annotation_tissue_biosamples, credible_set_map):
     return overlap
 
 
-def write_output(phenotype, ancestry, overlap):
+def write_output(phenotype, ancestry, overlap, credible_set_data):
     path_out = f's3://{s3_out}/out/credible_sets/c2ct/{phenotype}/{ancestry}'
     tmp_file = f'part-00000.json'
     with open(tmp_file, 'w') as f:
         for (annotation, tissue, biosample), data in overlap.items():
-            for (source, dataset, credibleSetId), pp in data.items():
+            for credible_set_id, pp in data.items():
+                source, dataset, chromosome, clump_start, clump_end = credible_set_data[credible_set_id]
                 f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": "{biosample}", '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
-                        f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credibleSetId}", '
+                        f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credible_set_id}", '
+                        f'"chromosome": "{chromosome}", "clumpStart": {clump_start}, "clumpEnd": {clump_end}, '
                         f'"posteriorProbability": {pp}}}\n')
     subprocess.check_call(['touch', '_SUCCESS'])
 
@@ -120,12 +128,12 @@ def main():
     parser.add_argument('--ancestry', type=str, required=True)
     args = parser.parse_args()
 
-    credible_set_map = get_credible_sets(args.phenotype, args.ancestry)
+    credible_set_map, credible_set_data = get_credible_sets(args.phenotype, args.ancestry)
 
     annotation_tissue_biosamples = get_annotation_tissue_biosamples()
     overlap = get_output(annotation_tissue_biosamples, credible_set_map)
 
-    write_output(args.phenotype, args.ancestry, overlap)
+    write_output(args.phenotype, args.ancestry, overlap, credible_set_data)
 
 
 # entry point
