@@ -4,14 +4,14 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 
 # what bucket will be output to?
-OUT_BUCKET = f'dig-bio-{"test" if os.getenv("JOB_DRYRUN") else "index"}'
+OUT_BUCKET = 'dig-vision-genomics/bioindex'
 
 
 def main():
     """
     Arguments: none
     """
-    srcdir = f's3://dig-analysis-data/genes/GRCh37/part-*'
+    srcdir = f's3://dig-vision-genomics/genes/GRCh38/part-*'
     outdir = f's3://{OUT_BUCKET}/genes'
 
     # all valid chromosomes
