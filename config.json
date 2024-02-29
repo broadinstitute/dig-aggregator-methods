@@ -1,13 +1,16 @@
 {
     "aws": {
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "GTEx"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "GTEx"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [
@@ -20,7 +23,8 @@
             "securityGroupIds": []
         },
         "runs": {
-            "instance": "dig-analysis-state"
+            "instance": "dig-analysis-state",
+            "dbOverride": "aggregator_cfde"
         },
         "portal": {
             "instance": "dig-bio-portal"
