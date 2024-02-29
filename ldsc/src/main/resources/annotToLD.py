@@ -13,8 +13,8 @@ ldsc_files = f'{downloaded_files}/ldsc'
 g1000_files = f'{downloaded_files}/g1000'
 snp_files = f'{downloaded_files}/snps'
 
-s3_in = 's3://dig-analysis-data'
-s3_out = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 CPUs = 8  # For multithreaded combining and splitting annot file
 
