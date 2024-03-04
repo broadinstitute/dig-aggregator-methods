@@ -5,8 +5,11 @@ import os
 import shutil
 import subprocess
 
-s3_in = 's3://dig-analysis-data/out/ldsc/regions/ld_score'
-s3_out = 's3://dig-analysis-data/out/ldsc/regions/combined_ld'
+input_path = os.environ['INPUT_PATH']
+output_path = os.environ['OUTPUT_PATH']
+
+s3_in = f'{input_path}/out/ldsc/regions/ld_score'
+s3_out = f'{output_path}/out/ldsc/regions/combined_ld'
 
 
 # Cannot include a biosample with 0 SNPs
