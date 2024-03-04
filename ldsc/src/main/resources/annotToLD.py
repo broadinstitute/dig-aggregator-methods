@@ -57,7 +57,6 @@ def make_ld(ancestry, CHR):
         '--print-snps', f'{snp_files}/hm.{CHR}.snp'
     ])
     os.remove(f'./{ancestry}.combined.{CHR}.annot.gz')
-    os.remove(f'./{ancestry}.combined.{CHR}.log')
 
 
 def split_ld_file(args):
