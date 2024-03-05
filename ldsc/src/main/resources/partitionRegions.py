@@ -70,7 +70,7 @@ def main():
     # extract the dataset from the command line
     args = opts.parse_args()
 
-    partitions = ['annotation', 'tissue', 'targetGene']
+    partitions = ['annotation', 'tissue', 'targetGene', 'dataset']
 
     # get the source and output directories
     srcdir = f'{s3_in}/annotated_regions/target_gene_links/{args.dataset}/part-*'
