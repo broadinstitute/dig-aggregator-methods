@@ -2,7 +2,8 @@
 use strict;
 use warnings;
 
-my $s3dir="s3://dig-analysis-data/out/ldsc";
+my $s3in="$ENV{INPUT_PATH}/out/ldsc";
+my $s3out="$ENV{OUTPUT_PATH}/out/ldsc";
 
 # which partition is being made
 my $partition_name=$ARGV[0];
@@ -15,7 +16,7 @@ my $sortedFile="sorted.csv";
 my $bedFile="$partition_name.csv";
 
 # mergepart files together and sort it by position
-`hadoop fs -getmerge -nl -skip-empty-file "$s3dir/regions/$partition_in" "$tmpFile"`;
+`hadoop fs -getmerge -nl -skip-empty-file "$s3in/regions/$partition_in" "$tmpFile"`;
 `sort -k1,1 -k2,2n "$tmpFile" > "$sortedFile"`;
 
 # open the sorted file and write to the bed file
@@ -68,7 +69,7 @@ close IN;
 close OUT;
 
 # copy the final output file back to S3
-`aws s3 cp "$bedFile" "${s3dir}/regions/$partition_out/$bedFile"`;
+`aws s3 cp "$bedFile" "${s3out}/regions/$partition_out/$bedFile"`;
 
 # delete the files to make room for other merges
 unlink "$tmpFile";
