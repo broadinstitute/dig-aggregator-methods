@@ -2,11 +2,11 @@
     "aws": {
         "input": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "GTEx"
+            "subdir": "4DN"
         },
         "output": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "GTEx"
+            "subdir": "4DN"
         },
         "bioindex": {
             "bucket": "dig-analysis-cfde",

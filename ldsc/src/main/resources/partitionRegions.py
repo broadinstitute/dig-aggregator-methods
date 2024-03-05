@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 import argparse
+import os
 import platform
-import re
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
 from pyspark.sql.functions import concat_ws, lower, regexp_replace, udf, when
 from pyspark.sql.functions import lit
 
-S3DIR = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 # BED files need to be sorted by chrom/start, this orders the chromosomes
 CHROMOSOMES = list(map(lambda c: str(c + 1), range(22))) + ['X', 'Y', 'MT']
 
@@ -69,11 +70,11 @@ def main():
     # extract the dataset from the command line
     args = opts.parse_args()
 
-    partitions = ['annotation', 'tissue', 'biosample', 'dataset']
+    partitions = ['annotation', 'tissue', 'targetGene']
 
     # get the source and output directories
-    srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
-    outdir = f'{S3DIR}/out/ldsc/regions/partitioned/{args.dataset}'
+    srcdir = f'{s3_in}/annotated_regions/target_gene_links/{args.dataset}/part-*'
+    outdir = f'{s3_out}/out/ldsc/regions/partitioned/{args.dataset}'
 
     # create a spark session
     spark = SparkSession.builder.appName('ldsc').getOrCreate()
@@ -82,7 +83,7 @@ def main():
     df = spark.read.json(srcdir)
 
     df = get_optional_column(df, 'state')
-    df = get_optional_column(df, 'biosample')
+    df = get_optional_column(df, 'targetGene')
     df = get_optional_column(df, 'method')
     df = get_optional_column(df, 'source')
     df = get_optional_column(df, 'dataset')
@@ -114,7 +115,7 @@ def main():
         df.start,
         df.end,
         df.state,
-        df.biosample,
+        df.targetGene,
         df.method,
         df.source,
         df.dataset
