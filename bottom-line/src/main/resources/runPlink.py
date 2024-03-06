@@ -289,6 +289,8 @@ def concat_rare(clumped, rare):
     # add clump id starting from clumped['clump'].max() + 1
     outside['clump'] = list(range(rare_clump_id, last_clump_id))
 
+    outside['freqType'] = 'rare'
+
     # only concat if there is something to append
     if not outside.empty:
         return pd.concat([clumped, outside])
@@ -375,17 +377,22 @@ def main():
     clumped['clumpStart'] = clumped['clump'].apply(lambda i: ranges[i][0])
     clumped['clumpEnd'] = clumped['clump'].apply(lambda i: ranges[i][1])
 
+    # frequency type
+    clumped['freqType'] = 'common'
+
     # add rare variants that do not overlap a clumped range
     clumped = concat_rare(clumped, rare)
 
     # make sure the clump ID is an integer
     clumped = clumped.astype({'clump': np.int32})
 
-    # finally, append the phenotype to the data
+    # finally, append the phenotype, meta type, and param type to data
     clumped['phenotype'] = args.phenotype
+    clumped['metaType'] = args.meta_type
+    clumped['paramType'] = args.param_type
 
     # filter out only the data needed for later joins
-    clumped = clumped[['varId', 'phenotype', 'clump', 'clumpStart', 'clumpEnd']]
+    clumped = clumped[['varId', 'phenotype', 'metaType', 'paramType', 'freqType', 'clump', 'clumpStart', 'clumpEnd']]
 
     # sort by clump for easy debugging in S3
     clumped = clumped.sort_values('clump')

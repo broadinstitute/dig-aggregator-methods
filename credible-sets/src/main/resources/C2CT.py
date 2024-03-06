@@ -51,13 +51,15 @@ def get_credible_sets(phenotype, ancestry):
                 json_line['posteriorProbability'],
                 json_line['credibleSetId']
             ))
-            cs_data[json_line['credibleSetId']] = (
-                json_line['source'],
-                json_line['dataset'],
-                json_line['chromosome'],
-                json_line['clumpStart'],
-                json_line['clumpEnd']
-            )
+            if bool(json_line['leadSNP']):
+                cs_data[json_line['credibleSetId']] = (
+                    json_line['source'],
+                    json_line['dataset'],
+                    json_line['chromosome'],
+                    json_line['clumpStart'],
+                    json_line['clumpEnd'],
+                    json_line['varId']
+                )
     for chromosome, data in out.items():
         out[chromosome] = sorted(data, key=lambda d: (d[0], d[1]))
     return out, cs_data
@@ -106,12 +108,12 @@ def write_output(phenotype, ancestry, overlap, credible_set_data):
     with open(tmp_file, 'w') as f:
         for (annotation, tissue, biosample), data in overlap.items():
             for credible_set_id, pp in data.items():
-                source, dataset, chromosome, clump_start, clump_end = credible_set_data[credible_set_id]
+                source, dataset, chromosome, clump_start, clump_end, lead_snp = credible_set_data[credible_set_id]
                 f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": "{biosample}", '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
                         f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credible_set_id}", '
                         f'"chromosome": "{chromosome}", "clumpStart": {clump_start}, "clumpEnd": {clump_end}, '
-                        f'"posteriorProbability": {pp}}}\n')
+                        f'"leadSNP": {lead_snp}, "posteriorProbability": {pp}}}\n')
     subprocess.check_call(['touch', '_SUCCESS'])
 
     # Copy and then remove all data generated in this step

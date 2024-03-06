@@ -72,8 +72,18 @@ def convert_credible_set(df):
 
 
 @udf(returnType=StringType())
-def credible_set_id_from_clump(clump):
-    return f'bottom_line_clump_{clump}'
+def credible_set_id_from_clump(clump, meta_type, param_type, freq_type):
+    return f'{clump}_{get_source(meta_type, param_type, freq_type)}'
+
+
+@udf(returnType=StringType())
+def get_source(meta_type, param_type, freq_type):
+    return f'{meta_type}_{param_type}_{freq_type}'
+
+
+@udf(returnType=StringType())
+def get_dataset(meta_type, param_type, phenotype, ancestry):
+    return f'{meta_type}_{param_type}_{phenotype}_{ancestry}'
 
 
 @udf(returnType=DoubleType())
@@ -106,9 +116,9 @@ def convert_clump_file(phenotype, ancestry, df):
          'phenotype', 'clump', 'clumpStart', 'clumpEnd', 'leadSNP', 'alignment']
     ) \
         .withColumn('ancestry', lit(ancestry)) \
-        .withColumn('credibleSetId', credible_set_id_from_clump(df.clump)) \
-        .withColumn('dataset', lit(f'BL_{phenotype}_{ancestry}')) \
-        .withColumn('source', lit('bottom_line')) \
+        .withColumn('credibleSetId', credible_set_id_from_clump(df.clump, df.metaType, df.paramType, df.freqType)) \
+        .withColumn('dataset', get_dataset(df.metaType, df.paramType, phenotype, ancestry)) \
+        .withColumn('source', get_source(df.metaType, df.paramType, df.freqType)) \
         .drop('clump')
 
     df = bayes_pp(df)
