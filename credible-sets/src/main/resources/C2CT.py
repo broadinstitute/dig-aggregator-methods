@@ -7,8 +7,8 @@ import re
 import shutil
 import subprocess
 
-s3_in = 'dig-analysis-data'
-s3_out = 'dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 ldsc_data = '/mnt/var/c2ct/annotation-tissue-biosample'
 
 

@@ -12,8 +12,8 @@ import subprocess
 from scipy.sparse import lil_matrix
 from scipy.sparse.csgraph import connected_components
 
-
-S3DIR = 's3://dig-analysis-data'
+input_path = os.environ['INPUT_PATH']
+output_path = os.environ['OUTPUT_PATH']
 CLUMPING_ROOT = f'/mnt/var/clumping'
 
 import_threads = 8
@@ -300,20 +300,20 @@ def concat_rare(clumped, rare):
 
 def get_trans_ethnic_paths(args):
     param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
-    srcdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
-    plinkdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/plink{param_type_suffix}/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/clumped{param_type_suffix}/{args.phenotype}'
+    srcdir = f'{input_path}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
+    plinkdir = f'{output_path}/out/metaanalysis/{args.meta_type}/staging/plink{param_type_suffix}/{args.phenotype}'
+    outdir = f'{output_path}/out/metaanalysis/{args.meta_type}/staging/clumped{param_type_suffix}/{args.phenotype}'
     return srcdir, plinkdir, outdir
 
 
 def get_ancestry_specific_paths(args):
     param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
-    srcdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
+    srcdir = f'{input_path}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
     if args.ancestry == 'Mixed':
-        plinkdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
+        plinkdir = f'{output_path}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
     else:
-        plinkdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}'
-    outdir = f'{S3DIR}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
+        plinkdir = f'{output_path}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}'
+    outdir = f'{output_path}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
     return srcdir, plinkdir, outdir
 
 

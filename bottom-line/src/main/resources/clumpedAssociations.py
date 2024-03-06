@@ -1,10 +1,12 @@
 import argparse
+import os
 import subprocess
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, signum
 
-S3_BUCKET = 's3://dig-analysis-data'
+input_path = os.environ['INPUT_PATH']
+output_path = os.environ['OUTPUT_PATH']
 
 def check_clump_error(clump_path):
     return subprocess.call(['aws', 's3', 'ls', clump_path, '--recursive'])
@@ -27,15 +29,15 @@ def main():
 
     # source data and output location
     if args.ancestry == 'TE':
-        srcdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}/part-*'
-        clumpdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.phenotype}'
-        outdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/clumped/{args.phenotype}'
+        srcdir = f'{input_path}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}/part-*'
+        clumpdir = f'{input_path}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.phenotype}'
+        outdir = f'{output_path}/out/metaanalysis/{args.meta_type}/clumped/{args.phenotype}'
     else:
         param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
         ancestry_path = f'{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
-        srcdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
-        clumpdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{ancestry_path}'
-        outdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/ancestry-clumped{ancestry_path}'
+        srcdir = f'{input_path}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
+        clumpdir = f'{input_path}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{ancestry_path}'
+        outdir = f'{output_path}/out/metaanalysis/{args.meta_type}/ancestry-clumped{ancestry_path}'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
