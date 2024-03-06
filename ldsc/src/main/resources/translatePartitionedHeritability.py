@@ -10,8 +10,11 @@ from scipy.stats import t as tdist
 import shutil
 import subprocess
 
-s3_in = 's3://dig-analysis-data/out/ldsc/staging/partitioned_heritability'
-s3_path = 's3://dig-analysis-data/out/ldsc/partitioned_heritability'
+input_path = os.environ['INPUT_PATH']
+output_path = os.environ['OUTPUT_PATH']
+
+s3_in = f'{input_path}/out/ldsc/staging/partitioned_heritability'
+s3_out = f'{output_path}/out/ldsc/partitioned_heritability'
 
 
 def get_annot_map(phenotype):
@@ -136,9 +139,9 @@ def upload_data(phenotype, data):
                             'pValue': output_data['pValue']
                         }
                         f.write(json.dumps(formatted_data) + '\n')
-    subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_path}/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_out}/{phenotype}/'])
     subprocess.check_call(['touch', '_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_path}/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/{phenotype}/'])
     os.remove(file)
     os.remove('_SUCCESS')
     shutil.rmtree(f'./{phenotype}')
