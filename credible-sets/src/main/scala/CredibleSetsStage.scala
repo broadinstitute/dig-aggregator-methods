@@ -13,12 +13,14 @@ class CredibleSetsStage(implicit context: Context) extends Stage {
 
   val credibleSets: Input.Source = Input.Source.Dataset("credible_sets/*/*/")
   val ancestryBottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/*/")
+  val transEthnicBottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/clumped/*/")
 
-  override val sources: Seq[Input.Source] = Seq(credibleSets, ancestryBottomLine)
+  override val sources: Seq[Input.Source] = Seq(credibleSets, ancestryBottomLine, transEthnicBottomLine)
 
   override val rules: PartialFunction[Input, Outputs] = {
     case credibleSets(dataset, phenotype) => Outputs.Named(s"credible-sets/$dataset/$phenotype")
     case ancestryBottomLine(phenotype, ancestry) => Outputs.Named(s"bottom-line/$phenotype/${ancestry.split("=").last}")
+    case transEthnicBottomLine(phenotype) => Outputs.Names(s"bottom-line/$phenotype/Mixed")
   }
 
   override def make(output: String): Job = {
