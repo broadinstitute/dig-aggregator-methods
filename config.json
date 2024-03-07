@@ -4,10 +4,10 @@
             "bucket": "dig-giant-sandbox"
         },
         "output": {
-            "bucket": "dig-analysis-sandbox"
+            "bucket": "dig-giant-sandbox"
         },
         "bioindex": {
-            "bucket": "dig-analysis-sandbox",
+            "bucket": "dig-giant-sandbox",
             "subdir": "bioindex"
         },
         "emr": {
