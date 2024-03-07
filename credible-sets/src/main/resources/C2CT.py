@@ -113,7 +113,7 @@ def write_output(phenotype, ancestry, overlap, credible_set_data):
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
                         f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credible_set_id}", '
                         f'"chromosome": "{chromosome}", "clumpStart": {clump_start}, "clumpEnd": {clump_end}, '
-                        f'"leadSNP": {lead_snp}, "posteriorProbability": {pp}}}\n')
+                        f'"leadSNP": "{lead_snp}", "posteriorProbability": {pp}}}\n')
     subprocess.check_call(['touch', '_SUCCESS'])
 
     # Copy and then remove all data generated in this step
