@@ -114,6 +114,7 @@ def bayes_pp(df):
 def convert_clump_file(phenotype, ancestry, df):
     df = df.select(
         ['varId', 'chromosome', 'position', 'reference', 'alt',
+         'metaType', 'paramType', 'freqType',
          'beta', 'stdErr', 'pValue',
          'phenotype', 'clump', 'clumpStart', 'clumpEnd', 'leadSNP', 'alignment']
     ) \
@@ -121,7 +122,7 @@ def convert_clump_file(phenotype, ancestry, df):
         .withColumn('credibleSetId', credible_set_id_from_clump(df.clump, df.metaType, df.paramType, df.freqType)) \
         .withColumn('dataset', get_dataset(df.metaType, df.paramType, phenotype, ancestry)) \
         .withColumn('source', get_source(df.metaType, df.paramType, df.freqType)) \
-        .drop('clump')
+        .drop('clump', 'metaType', 'paramType', 'freqType')
 
     df = bayes_pp(df)
 
