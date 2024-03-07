@@ -75,7 +75,7 @@ def convert_credible_set(df):
 
 @udf(returnType=StringType())
 def credible_set_id_from_clump(clump, meta_type, param_type, freq_type):
-    return f'{clump}_{get_source(meta_type, param_type, freq_type)}'
+    return f'{clump}_{meta_type}_{param_type}_{freq_type}'
 
 
 @udf(returnType=StringType())
