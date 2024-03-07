@@ -35,7 +35,7 @@ def get_annotation_tissue_biosample_regions(annotation, tissue, biosample):
 
 
 def get_credible_sets(phenotype, ancestry):
-    credible_set_base = f's3://{s3_in}/out/credible_sets/merged/{phenotype}/{ancestry}/part-00000.json'
+    credible_set_base = f'{s3_in}/out/credible_sets/merged/{phenotype}/{ancestry}/part-00000.json'
     tmp_path = f'data/credible_sets/{ancestry}/{phenotype}/'
     subprocess.check_call(['aws', 's3', 'cp', credible_set_base, tmp_path])
     out = {}
@@ -103,7 +103,7 @@ def get_output(annotation_tissue_biosamples, credible_set_map):
 
 
 def write_output(phenotype, ancestry, overlap, credible_set_data):
-    path_out = f's3://{s3_out}/out/credible_sets/c2ct/{phenotype}/{ancestry}'
+    path_out = f'{s3_out}/out/credible_sets/c2ct/{phenotype}/{ancestry}'
     tmp_file = f'part-00000.json'
     with open(tmp_file, 'w') as f:
         for (annotation, tissue, biosample), data in overlap.items():
