@@ -161,7 +161,7 @@ def main():
     if args.source == 'credible-set':
         df = convert_credible_set(df)
     else:
-        df = convert_clump_file(args.phenotype, args.ancestry, df)
+        df = convert_clump_file(args.ancestry, df)
     out_dir = get_out_dir(df)
 
     save_df(df, out_dir)
