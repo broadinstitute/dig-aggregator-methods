@@ -1,15 +1,13 @@
 {
     "aws": {
         "input": {
-            "bucket": "dig-analysis-cfde",
-            "subdir": "4DN"
+            "bucket": "dig-giant-sandbox"
         },
         "output": {
-            "bucket": "dig-analysis-cfde",
-            "subdir": "4DN"
+            "bucket": "dig-analysis-sandbox"
         },
         "bioindex": {
-            "bucket": "dig-analysis-cfde",
+            "bucket": "dig-analysis-sandbox",
             "subdir": "bioindex"
         },
         "emr": {
@@ -23,8 +21,7 @@
             "securityGroupIds": []
         },
         "runs": {
-            "instance": "dig-analysis-state",
-            "dbOverride": "aggregator_cfde"
+            "instance": "dig-analysis-state"
         },
         "portal": {
             "instance": "dig-bio-portal"
