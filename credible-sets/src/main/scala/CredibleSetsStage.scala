@@ -20,7 +20,7 @@ class CredibleSetsStage(implicit context: Context) extends Stage {
   override val rules: PartialFunction[Input, Outputs] = {
     case credibleSets(dataset, phenotype) => Outputs.Named(s"credible-sets/$dataset/$phenotype")
     case ancestryBottomLine(phenotype, ancestry) => Outputs.Named(s"bottom-line/$phenotype/${ancestry.split("=").last}")
-    case transEthnicBottomLine(phenotype) => Outputs.Names(s"bottom-line/$phenotype/Mixed")
+    case transEthnicBottomLine(phenotype) => Outputs.Named(s"bottom-line/$phenotype/Mixed")
   }
 
   override def make(output: String): Job = {
