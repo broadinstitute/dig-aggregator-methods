@@ -70,7 +70,7 @@ def main():
     # extract the dataset from the command line
     args = opts.parse_args()
 
-    partitions = ['annotation', 'tissue', 'targetGene', 'dataset']
+    partitions = ['tissue', 'biosample', 'targetGene', 'dataset']
 
     # get the source and output directories
     srcdir = f'{s3_in}/annotated_regions/target_gene_links/{args.dataset}/part-*'
@@ -83,6 +83,7 @@ def main():
     df = spark.read.json(srcdir)
 
     df = get_optional_column(df, 'state')
+    df = get_optional_column(df, 'biosample')
     df = get_optional_column(df, 'targetGene')
     df = get_optional_column(df, 'method')
     df = get_optional_column(df, 'source')
@@ -115,7 +116,7 @@ def main():
         df.start,
         df.end,
         df.state,
-        df.targetGene,
+        df.biosample,
         df.method,
         df.source,
         df.dataset
