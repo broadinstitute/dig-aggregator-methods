@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import os
 import platform
 import subprocess
 
@@ -8,7 +9,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, BooleanType, FloatType, DoubleType
 
-s3dir = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 variants_schema = StructType([
     StructField('varId', StringType(), nullable=False),
@@ -109,9 +111,9 @@ if __name__ == '__main__':
     tech, dataset, phenotype = args.method_dataset_phenotype.split('/')
 
     # get the source and output directories (method_dataset is formatted as method/dataset here)
-    srcdir = f'{s3dir}/variants_processed/{args.method_dataset_phenotype}'
-    outdir = f'{s3dir}/variants_qc/{args.method_dataset_phenotype}/pass'
-    qcdir = f'{s3dir}/variants_qc/{args.method_dataset_phenotype}/fail'
+    srcdir = f'{s3_in}/variants_processed/{args.method_dataset_phenotype}'
+    outdir = f'{s3_out}/variants_qc/{args.method_dataset_phenotype}/pass'
+    qcdir = f'{s3_out}/variants_qc/{args.method_dataset_phenotype}/fail'
 
     # create a spark session and dataframe from part files
     spark = SparkSession.builder.appName('qc').getOrCreate()

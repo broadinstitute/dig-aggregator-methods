@@ -11,21 +11,25 @@ from scipy.stats import norm
 import sqlalchemy
 import subprocess
 
-s3_path = f's3://dig-analysis-data/variants_raw'
-s3_output = f's3://dig-analysis-data/variants_processed'
+input_path = os.environ['INPUT_PATH']
+output_path = os.environ['OUTPUT_PATH']
+
+s3_path = f'{input_path}/variants_raw'
+s3_output = f'{output_path}/variants_processed'
 data_path = f'/mnt/var/intake'
 
 
-class BioIndexDB:
+class PortalDB:
     def __init__(self):
-        self.secret_id = 'dig-bio-portal'
+        self.secret_id = os.environ['PORTAL_SECRET']
+        self.db_name = os.environ['PORTAL_DB']
         self.config = None
         self.engine = None
 
     def get_config(self):
         if self.config is None:
             client = Session().client('secretsmanager')
-            self.config = json.loads(client.get_secret_value(SecretId='dig-bio-portal')['SecretString'])
+            self.config = json.loads(client.get_secret_value(SecretId=self.secret_id)['SecretString'])
         return self.config
 
     def get_engine(self):
@@ -37,7 +41,7 @@ class BioIndexDB:
                 password=self.config['password'],
                 host=self.config['host'],
                 port=self.config['port'],
-                db=self.config['dbname']
+                db=self.db_name
             ))
         return self.engine
 
@@ -46,16 +50,23 @@ class BioIndexDB:
             query = sqlalchemy.text(f'SELECT name, dichotomous FROM Phenotypes WHERE name = \"{phenotype_name}\"')
             rows = connection.execute(query).all()
             if len(rows) != 1:
-                raise Exception(f"Impossible number of rows returned ({len(rows)}) for phenotype {phenotype_name}."
+                raise Exception(f"Invalid number of rows returned ({len(rows)}) for phenotype {phenotype_name}."
+                                f"Check the database and try again.")
+            if rows[0][1] is None:
+                raise Exception(f"Invalid dichotomous information ({rows[0][1]}) for phenotype {phenotype_name}."
                                 f"Check the database and try again.")
             return rows[0][1] == 1
 
-    def get_dataset_data(self, dataset_name):
+    def get_dataset_data(self, dataset):
         with self.get_engine().connect() as connection:
-            query = sqlalchemy.text(f'SELECT name, ancestry FROM Datasets WHERE name = \"{dataset_name}\"')
-            rows = connection.execute(query).all()
+            rows = connection.execute(
+                sqlalchemy.text(f'SELECT name, ancestry FROM Datasets WHERE name = \"{dataset}\"')
+            ).all()
         if len(rows) != 1:
-            raise Exception(f"Impossible number of rows returned ({len(rows)}) for dataset {dataset_name}. "
+            raise Exception(f"Impossible number of rows returned ({len(rows)}) for phenotype {dataset}. "
+                            f"Check the database and try again.")
+        if rows[0][0] is None or rows[0][1] is None:
+            raise Exception(f"Invalid name / ancestry information ({rows[0][0]} / {rows[0][1]}) for dataset {dataset}. "
                             f"Check the database and try again.")
         return {'name': rows[0][0], 'ancestry': rows[0][1]}
 
@@ -600,7 +611,7 @@ def main():
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_path}/{args.filepath}', filename])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_path}/{path_to_file}/metadata', 'metadata'])
 
-    db = BioIndexDB()
+    db = PortalDB()
     utils = IntakeUtilities.from_metadata_file(data_path, db)
     data_intake = DataIntake(filename, utils)
 
