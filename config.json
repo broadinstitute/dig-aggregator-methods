@@ -1,9 +1,13 @@
 {
     "aws": {
-        "s3": {
-            "inputBucket": "dig-analysis-data",
-            "outputBucket": "dig-analysis-data",
-            "bioindexBucket": "dig-bio-index"
+        "input": {
+            "bucket": "dig-analysis-data"
+        },
+        "output": {
+            "bucket": "dig-analysis-data"
+        },
+        "bioindex": {
+            "bucket": "dig-bio-index"
         },
         "emr": {
             "subnetIds": [
@@ -15,8 +19,11 @@
             "jobFlowRoleId": "dig-aggregator-role",
             "securityGroupIds": []
         },
-        "rds": {
+        "runs": {
             "instance": "dig-analysis-state"
+        },
+        "portal": {
+            "instance": "dig-bio-portal"
         }
     }
 }

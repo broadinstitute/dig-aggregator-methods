@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 import argparse
 from boto3.session import Session
-import json
 import math
+import json
 import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import mean
@@ -14,20 +14,22 @@ import subprocess
 MAF_SCALING_THRESHOLD = 2
 FALLBACK_SCALING_THRESHOLD = 5
 TRAINING_DATA_MINIMUM_COUNT = 1000
-s3dir = 's3://dig-analysis-data'
+
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
-class BioIndexDB:
+class PortalDB:
     def __init__(self):
-        self.secret_id = 'dig-bio-portal'
-        self.region = 'us-east-1'
+        self.secret_id = os.environ['PORTAL_SECRET']
+        self.db_name = os.environ['PORTAL_DB']
         self.config = None
         self.engine = None
 
     def get_config(self):
         if self.config is None:
-            client = Session().client('secretsmanager', region_name=self.region)
-            self.config = json.loads(client.get_secret_value(SecretId='dig-bio-portal')['SecretString'])
+            client = Session().client('secretsmanager')
+            self.config = json.loads(client.get_secret_value(SecretId=self.secret_id)['SecretString'])
         return self.config
 
     def get_engine(self):
@@ -39,7 +41,7 @@ class BioIndexDB:
                 password=self.config['password'],
                 host=self.config['host'],
                 port=self.config['port'],
-                db=self.config['dbname']
+                db=self.db_name
             ))
         return self.engine
 
@@ -48,9 +50,25 @@ class BioIndexDB:
             query = sqlalchemy.text(f'SELECT name, dichotomous FROM Phenotypes WHERE name = \"{phenotype_name}\"')
             rows = connection.execute(query).all()
             if len(rows) != 1:
-                raise Exception(f"Impossible number of rows returned ({len(rows)}) for phenotype {phenotype_name}."
+                raise Exception(f"Invalid number of rows returned ({len(rows)}) for phenotype {phenotype_name}."
+                                f"Check the database and try again.")
+            if rows[0][1] is None:
+                raise Exception(f"Invalid dichotomous information ({rows[0][1]}) for phenotype {phenotype_name}."
                                 f"Check the database and try again.")
             return rows[0][1] == 1
+
+    def get_dataset_data(self, dataset):
+        with self.get_engine().connect() as connection:
+            rows = connection.execute(
+                sqlalchemy.text(f'SELECT name, ancestry FROM Datasets WHERE name = \"{dataset}\"')
+            ).all()
+        if len(rows) != 1:
+            raise Exception(f"Impossible number of rows returned ({len(rows)}) for phenotype {dataset}. "
+                            f"Check the database and try again.")
+        if rows[0][0] is None or rows[0][1] is None:
+            raise Exception(f"Invalid name / ancestry information ({rows[0][0]} / {rows[0][1]}) for dataset {dataset}. "
+                            f"Check the database and try again.")
+        return {'name': rows[0][0], 'ancestry': rows[0][1]}
 
 
 class ScalingLogger:
@@ -155,12 +173,12 @@ def main():
     opts.add_argument('method_dataset_phenotype')
     args = opts.parse_args()
 
-    db = BioIndexDB()
+    db = PortalDB()
     tech, dataset, phenotype = args.method_dataset_phenotype.split('/')
     is_dichotomous = db.get_is_dichotomous(phenotype)
 
-    srcdir = f'{s3dir}/variants_qc/{args.method_dataset_phenotype}/pass'
-    outdir = f'{s3dir}/variants/{args.method_dataset_phenotype}'
+    srcdir = f'{s3_in}/variants_qc/{args.method_dataset_phenotype}/pass'
+    outdir = f'{s3_out}/variants/{args.method_dataset_phenotype}'
 
     logger = ScalingLogger('scaling.log')
     logger.log(f'Reading from {srcdir}')
