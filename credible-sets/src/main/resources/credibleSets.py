@@ -109,17 +109,19 @@ def bayes_pp(df):
         .drop('z', 'abf', 'abfSum')
 
 
-def convert_clump_file(phenotype, ancestry, df):
+def convert_clump_file(ancestry, df):
     df = df.select(
         ['varId', 'chromosome', 'position', 'reference', 'alt',
+         'metaType', 'paramType', 'freqType',
          'beta', 'stdErr', 'pValue',
          'phenotype', 'clump', 'clumpStart', 'clumpEnd', 'leadSNP', 'alignment']
     ) \
-        .withColumn('ancestry', lit(ancestry)) \
+        .withColumn('ancestry', lit(ancestry))
+    df = df \
         .withColumn('credibleSetId', credible_set_id_from_clump(df.clump, df.metaType, df.paramType, df.freqType)) \
-        .withColumn('dataset', get_dataset(df.metaType, df.paramType, phenotype, ancestry)) \
+        .withColumn('dataset', get_dataset(df.metaType, df.paramType, df.phenotype, df.ancestry)) \
         .withColumn('source', get_source(df.metaType, df.paramType, df.freqType)) \
-        .drop('clump')
+        .drop('clump', 'metaType', 'paramType', 'freqType')
 
     df = bayes_pp(df)
 
@@ -157,7 +159,7 @@ def main():
     if args.source == 'credible-set':
         df = convert_credible_set(df)
     else:
-        df = convert_clump_file(args.phenotype, args.ancestry, df)
+        df = convert_clump_file(args.ancestry, df)
     out_dir = get_out_dir(df)
 
     save_df(df, out_dir)
