@@ -79,8 +79,9 @@ def get_chromosome_overlap(credible_set_data, region_data):
         else:
             pos, pp, cs_id = cs
             if cs_id not in overlap:
-                overlap[cs_id] = 0.0
-            overlap[cs_id] += pp
+                overlap[cs_id] = (0.0, 0)
+            curr_pp, curr_count = overlap[cs_id]
+            overlap[cs_id] = (curr_pp + pp, curr_count + 1)
             curr_cs += 1
     return overlap
 
@@ -107,13 +108,13 @@ def write_output(phenotype, ancestry, overlap, credible_set_data):
     tmp_file = f'part-00000.json'
     with open(tmp_file, 'w') as f:
         for (annotation, tissue, biosample), data in overlap.items():
-            for credible_set_id, pp in data.items():
+            for credible_set_id, (pp, count) in data.items():
                 source, dataset, chromosome, clump_start, clump_end, lead_snp = credible_set_data[credible_set_id]
                 f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": "{biosample}", '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
                         f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credible_set_id}", '
                         f'"chromosome": "{chromosome}", "clumpStart": {clump_start}, "clumpEnd": {clump_end}, '
-                        f'"leadSNP": "{lead_snp}", "posteriorProbability": {pp}}}\n')
+                        f'"leadSNP": "{lead_snp}", "posteriorProbability": {pp}, "varCount": {count}}}\n')
     subprocess.check_call(['touch', '_SUCCESS'])
 
     # Copy and then remove all data generated in this step
