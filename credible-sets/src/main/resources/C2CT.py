@@ -122,6 +122,7 @@ def write_output(phenotype, ancestry, overlap, credible_set_data):
             for credible_set_id, (pp, count) in data.items():
                 source, dataset, chromosome, clump_start, clump_end, lead_snp = credible_set_data[credible_set_id]
                 biosample_str = 'null' if biosample is None else f'"{biosample}"'
+                pp = max(min(pp, 1.0), 0.0)
                 f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": {biosample_str}, '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
                         f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credible_set_id}", '
