@@ -9,21 +9,32 @@ import subprocess
 
 s3_in = 's3://dig-analysis-data'
 s3_out = 's3://dig-analysis-data'
-ldsc_data = '/mnt/var/c2ct/annotation-tissue-biosample'
+ldsc_data = '/mnt/var/c2ct'
 
 
 def get_annotation_tissue_biosamples():
     annotation_tissue_biosamples = []
-    for folder in glob.glob(f'{ldsc_data}/*'):
+    for folder in glob.glob(f'{ldsc_data}/annotation-tissue-biosample/*'):
         match = re.findall('.*/(.*)___(.*)___(.*)', folder)
         annotation_tissue_biosamples.append((match[0][0], match[0][1], match[0][2]))
+    for folder in glob.glob(f'{ldsc_data}/annotation-tissue/*'):
+        match = re.findall('.*/(.*)___(.*)', folder)
+        annotation_tissue_biosamples.append((match[0][0], match[0][1], None))
     return annotation_tissue_biosamples
 
 
+def get_path(annotation, tissue, biosample):
+    if biosample is not None:
+        key = f'{annotation}___{tissue}___{biosample}'
+        return f'{ldsc_data}/annotation-tissue-biosample/{key}/{key}.csv'
+    else:
+        key = f'{annotation}___{tissue}'
+        return f'{ldsc_data}/annotation-tissue/{key}/{key}.csv'
+
+
 def get_annotation_tissue_biosample_regions(annotation, tissue, biosample):
-    key = f'{annotation}___{tissue}___{biosample}'
     out = {}
-    with open(f'{ldsc_data}/{key}/{key}.csv', 'r') as f:
+    with open(get_path(annotation, tissue, biosample), 'r') as f:
         for line in f:
             chromosome, start, end, _ = line.strip().split('\t', 3)
             if chromosome not in out:
@@ -110,7 +121,8 @@ def write_output(phenotype, ancestry, overlap, credible_set_data):
         for (annotation, tissue, biosample), data in overlap.items():
             for credible_set_id, (pp, count) in data.items():
                 source, dataset, chromosome, clump_start, clump_end, lead_snp = credible_set_data[credible_set_id]
-                f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": "{biosample}", '
+                biosample_str = 'null' if biosample is None else f'"{biosample}"'
+                f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": {biosample_str}, '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
                         f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credible_set_id}", '
                         f'"chromosome": "{chromosome}", "clumpStart": {clump_start}, "clumpEnd": {clump_end}, '
