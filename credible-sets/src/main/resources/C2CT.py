@@ -34,15 +34,18 @@ def get_path(annotation, tissue, biosample):
 
 def get_annotation_tissue_biosample_regions(annotation, tissue, biosample):
     out = {}
+    annotation_sizes = {}
     with open(get_path(annotation, tissue, biosample), 'r') as f:
+        annotation_sizes[annotation, tissue, biosample] = 0
         for line in f:
             chromosome, start, end, _ = line.strip().split('\t', 3)
             if chromosome not in out:
                 out[chromosome] = []
             out[chromosome].append((int(start), int(end)))
+            annotation_sizes[annotation, tissue, biosample] += int(end) - int(start)
     for chromosome, regions in out.items():
         out[chromosome] = sorted(out[chromosome])
-    return out
+    return out, annotation_sizes
 
 
 def get_credible_sets(phenotype, ancestry):
@@ -109,16 +112,17 @@ def get_output(annotation_tissue_biosamples, credible_set_map):
     overlap = {}
     for i, (annotation, tissue, biosample) in enumerate(annotation_tissue_biosamples):
         print(i, annotation, tissue, biosample)
-        region_map = get_annotation_tissue_biosample_regions(annotation, tissue, biosample)
+        region_map, annotation_sizes = get_annotation_tissue_biosample_regions(annotation, tissue, biosample)
         overlap[(annotation, tissue, biosample)] = get_overlap(credible_set_map, region_map)
-    return overlap
+    return overlap, annotation_sizes
 
 
-def write_output(phenotype, ancestry, overlap, credible_set_data):
+def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_sizes):
     path_out = f'{s3_out}/out/credible_sets/c2ct/{phenotype}/{ancestry}'
     tmp_file = f'part-00000.json'
     with open(tmp_file, 'w') as f:
         for (annotation, tissue, biosample), data in overlap.items():
+            annot_size = annotation_sizes[(annotation, tissue, biosample)]
             for credible_set_id, (pp, count) in data.items():
                 source, dataset, chromosome, clump_start, clump_end, lead_snp = credible_set_data[credible_set_id]
                 biosample_str = 'null' if biosample is None else f'"{biosample}"'
@@ -127,7 +131,8 @@ def write_output(phenotype, ancestry, overlap, credible_set_data):
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
                         f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credible_set_id}", '
                         f'"chromosome": "{chromosome}", "clumpStart": {clump_start}, "clumpEnd": {clump_end}, '
-                        f'"leadSNP": "{lead_snp}", "posteriorProbability": {pp}, "varCount": {count}}}\n')
+                        f'"leadSNP": "{lead_snp}", "posteriorProbability": {pp}, '
+                        f'"varCount": {count}, "annot_bp": {annot_size}}}\n')
     subprocess.check_call(['touch', '_SUCCESS'])
 
     # Copy and then remove all data generated in this step
@@ -147,9 +152,9 @@ def main():
     credible_set_map, credible_set_data = get_credible_sets(args.phenotype, args.ancestry)
 
     annotation_tissue_biosamples = get_annotation_tissue_biosamples()
-    overlap = get_output(annotation_tissue_biosamples, credible_set_map)
+    overlap, annotation_sizes = get_output(annotation_tissue_biosamples, credible_set_map)
 
-    write_output(args.phenotype, args.ancestry, overlap, credible_set_data)
+    write_output(args.phenotype, args.ancestry, overlap, credible_set_data, annotation_sizes)
 
 
 # entry point
