@@ -34,18 +34,17 @@ def get_path(annotation, tissue, biosample):
 
 def get_annotation_tissue_biosample_regions(annotation, tissue, biosample):
     out = {}
-    annotation_sizes = {}
+    annotation_size = 0
     with open(get_path(annotation, tissue, biosample), 'r') as f:
-        annotation_sizes[annotation, tissue, biosample] = 0
         for line in f:
             chromosome, start, end, _ = line.strip().split('\t', 3)
             if chromosome not in out:
                 out[chromosome] = []
             out[chromosome].append((int(start), int(end)))
-            annotation_sizes[annotation, tissue, biosample] += int(end) - int(start)
+            annotation_size += int(end) - int(start)
     for chromosome, regions in out.items():
         out[chromosome] = sorted(out[chromosome])
-    return out, annotation_sizes
+    return out, annotation_size
 
 
 def get_credible_sets(phenotype, ancestry):
@@ -110,9 +109,11 @@ def get_overlap(credible_set_map, region_map):
 
 def get_output(annotation_tissue_biosamples, credible_set_map):
     overlap = {}
+    annotation_sizes = {}
     for i, (annotation, tissue, biosample) in enumerate(annotation_tissue_biosamples):
         print(i, annotation, tissue, biosample)
-        region_map, annotation_sizes = get_annotation_tissue_biosample_regions(annotation, tissue, biosample)
+        region_map, annotation_size = get_annotation_tissue_biosample_regions(annotation, tissue, biosample)
+        annotation_sizes[(annotation, tissue, biosample)] = annotation_size
         overlap[(annotation, tissue, biosample)] = get_overlap(credible_set_map, region_map)
     return overlap, annotation_sizes
 
