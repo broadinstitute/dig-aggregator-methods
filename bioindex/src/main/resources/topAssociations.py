@@ -16,7 +16,7 @@ def main():
 
     # source and output locations
     s3_bucket = 'dig-bio-index'
-    srcdir = f's3://dig-analysis-data/out/credible_sets/merged/*/ancestry={args.ancestry}/part-*'
+    srcdir = f's3://dig-analysis-data/out/credible_sets/merged/*/{args.ancestry}/part-*'
     if args.ancestry == 'Mixed':
         outdir = f's3://{s3_bucket}/associations/{{}}'
     else:
