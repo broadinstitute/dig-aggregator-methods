@@ -16,15 +16,17 @@ def main():
 
     # source and output locations
     s3_bucket = 'dig-bio-index'
+    srcdir = f's3://dig-analysis-data/out/credible_sets/merged/*/ancestry={args.ancestry}/part-*'
     if args.ancestry == 'Mixed':
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/clumped/*/part-*'
         outdir = f's3://{s3_bucket}/associations/{{}}'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
         outdir = f's3://{s3_bucket}/ancestry-associations/{{}}/{args.ancestry}'
 
     df = spark.read.json(srcdir) \
         .withColumn('ancestry', lit(args.ancestry))
+    df = df \
+        .withColumn('clump', df.credibleSetId) \
+        .filter(df.source != 'credible_set')
 
     # common vep data
     common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
