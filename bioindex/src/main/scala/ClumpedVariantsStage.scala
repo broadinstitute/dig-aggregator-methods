@@ -10,16 +10,14 @@ import org.broadinstitute.dig.aws.emr._
 class ClumpedVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val clumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/clumped/*/")
-  val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/*/")
+  val clumped: Input.Source = Input.Source.Success("out/credible_sets/merged/*/*/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(clumped, ancestryClumped)
+  override val sources: Seq[Input.Source] = Seq(clumped)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case clumped(_) => Outputs.Named("clumps")
-    case ancestryClumped(_, ancestry) => Outputs.Named(ancestry.split("=").last)
+    case clumped(_, ancestry) => Outputs.Named(ancestry)
   }
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
@@ -34,13 +32,9 @@ class ClumpedVariantsStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    val flag = output match {
-      case "clumps" => "--ancestry=Mixed"
-      case ancestry => s"--ancestry=$ancestry"
-    }
     val steps = Seq(
-      Job.PySpark(resourceUri("clumpedVariants.py"), flag),
-      Job.PySpark(resourceUri("clumpedAssociationsMatrix.py"), flag)
+      Job.PySpark(resourceUri("clumpedVariants.py"), s"--ancestry=$output"),
+      Job.PySpark(resourceUri("clumpedAssociationsMatrix.py"), s"--ancestry=$output")
     )
 
     new Job(steps)
