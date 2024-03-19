@@ -14,6 +14,10 @@ class TopAssociationsStage(implicit context: Context) extends Stage {
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(clumped, ancestryClumped)
 
+  override val cluster: ClusterDef = super.cluster.copy(
+    instances = 4
+  )
+
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
     case clumped() => Outputs.Named("clumped")
