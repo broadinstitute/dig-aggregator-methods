@@ -24,7 +24,7 @@ def get_clump_df(spark, clumpdir):
     clump_df = spark.read.json(clumpdir)
     # limit the data being written
     clump_df = clump_df \
-        .withColumn('clump', clump_df.credibleSetId)\
+        .withColumn('clump', clump_df.credibleSetId) \
         .filter(clump_df.source != 'credible_set')
     clump_df = clump_df.select(
             clump_df.varId,

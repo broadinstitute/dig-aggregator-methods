@@ -26,7 +26,8 @@ def main():
         .withColumn('ancestry', lit(args.ancestry))
     df = df \
         .withColumn('clump', df.credibleSetId) \
-        .filter(df.source != 'credible_set')
+        .filter(df.source != 'credible_set') \
+        .drop('credibleSetId')
 
     # common vep data
     common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'

@@ -28,14 +28,13 @@ def convert_credible_set(df):
         df = df.withColumn('gwas_dataset', df.dataset)
     df = df.select(
         ['varId', 'chromosome', 'position', 'reference', 'alt',
-         'beta', 'stdErr', 'pValue',
+         'beta', 'stdErr', 'pValue', 'n',
          'phenotype', 'ancestry', 'gwas_dataset', 'dataset', 'credibleSetId', 'posteriorProbability']
     ).filter(df.varId.isNotNull()) \
         .dropDuplicates(['credibleSetId', 'varId'])
     df = df.withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
         .drop('gwas_dataset') \
         .withColumn('source', lit('credible_set')) \
-        .withColumn('analysis', lit('credible_set')) \
         .withColumn('chromosome', df.chromosome.cast("string"))
 
     # TODO: This shouldn't be necessary, but we need external credible sets and out credible sets on an equal footing
@@ -78,11 +77,6 @@ def credible_set_id_from_clump(clump, meta_type, param_type, freq_type):
 
 
 @udf(returnType=StringType())
-def get_analysis(meta_type, param_type):
-    return f'{meta_type}_{param_type}'
-
-
-@udf(returnType=StringType())
 def get_source(meta_type, param_type, freq_type):
     return f'{meta_type}_{param_type}_{freq_type}'
 
@@ -119,13 +113,12 @@ def convert_clump_file(ancestry, df):
     df = df.select(
         ['varId', 'chromosome', 'position', 'reference', 'alt',
          'metaType', 'paramType', 'freqType',
-         'beta', 'stdErr', 'pValue',
+         'beta', 'stdErr', 'pValue', 'n',
          'phenotype', 'clump', 'clumpStart', 'clumpEnd', 'leadSNP', 'alignment']
     ) \
         .withColumn('ancestry', lit(ancestry))
     df = df \
         .withColumn('credibleSetId', credible_set_id_from_clump(df.clump, df.metaType, df.paramType, df.freqType)) \
-        .withColumn('analysis', get_analysis(df.metaType, df.paramType)) \
         .withColumn('dataset', get_dataset(df.metaType, df.paramType, df.phenotype, df.ancestry)) \
         .withColumn('source', get_source(df.metaType, df.paramType, df.freqType)) \
         .drop('clump', 'metaType', 'paramType', 'freqType')
@@ -135,13 +128,12 @@ def convert_clump_file(ancestry, df):
     return df
 
 
-def get_out_dir(df):
+def get_out_dir(df, meta_param):
     df_first = df.first()
     ancestry = df_first['ancestry']
-    analysis = df_first['analysis']
     dataset = df_first['dataset']
     phenotype = df_first['phenotype']
-    return f'{s3_out}/out/credible_sets/intake/{phenotype}/{ancestry}/{analysis}/{dataset}/'
+    return f'{s3_out}/out/credible_sets/intake/{phenotype}/{ancestry}/{meta_param}/{dataset}/'
 
 
 def save_df(df, out_dir):
@@ -167,7 +159,9 @@ def main():
         df = convert_credible_set(df)
     else:
         df = convert_clump_file(args.ancestry, df)
-    out_dir = get_out_dir(df)
+    # TODO: To use alternative meta/param types, pass through as arguments
+    meta_param = 'credible_set' if args.source == 'credible-set' else 'bottom-line_portal'
+    out_dir = get_out_dir(df, meta_param)
 
     save_df(df, out_dir)
     spark.stop()

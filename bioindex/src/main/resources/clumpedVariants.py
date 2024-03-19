@@ -26,7 +26,8 @@ def main():
         .withColumn('ancestry', lit(args.ancestry))
     clumps = clumps \
         .withColumn('clump', clumps.credibleSetId) \
-        .filter(clumps.source != 'credible_set')
+        .filter(clumps.source != 'credible_set') \
+        .drop('credibleSetId')
 
     common_dir = 's3://dig-analysis-data/out/varianteffect/common'
     common = spark.read.json(f'{common_dir}/part-*')
