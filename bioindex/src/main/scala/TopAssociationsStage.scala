@@ -20,6 +20,6 @@ class TopAssociationsStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    Job(Job.PySpark(resourceUri("topAssociations.py"), s"--ancestry=$output"))
+    new Job(Job.PySpark(resourceUri("topAssociations.py"), s"--ancestry=$output"))
   }
 }
