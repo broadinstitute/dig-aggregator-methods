@@ -26,7 +26,7 @@ class ClumpedVariantsStage(implicit context: Context) extends Stage {
     slaveInstanceType = Ec2.Strategy.generalPurpose(mem = 64.gb),
     masterVolumeSizeInGB = 100,
     slaveVolumeSizeInGB = 100,
-    instances = 5,
+    instances = 6,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
