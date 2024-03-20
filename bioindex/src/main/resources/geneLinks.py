@@ -10,8 +10,10 @@ def main():
     srcdir = 's3://dig-analysis-data/annotated_regions/target_gene_links/*'
     outdir = 's3://dig-bio-index/regions/gene_links'
 
-    # load all gene prediciton regions
-    df = spark.read.json(f'{srcdir}/part-*')
+    tissue = udf(lambda s: s.replace('_', ' '))
+
+    df = spark.read.json(f'{srcdir}/part-*') \
+        .withColumn('tissue', tissue('tissue'))
 
     # sort and write
     df.orderBy(['tissue', 'chromosome', 'start']) \

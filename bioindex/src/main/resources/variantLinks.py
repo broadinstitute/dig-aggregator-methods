@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import udf
 
 
 def main():
@@ -10,8 +11,10 @@ def main():
     srcdir = 's3://dig-analysis-data/annotated_regions/genetic_variant_effects/*'
     outdir = 's3://dig-bio-index/regions/variant_links'
 
-    # load all variant prediciton regions
-    df = spark.read.json(f'{srcdir}/part-*')
+    tissue = udf(lambda s: s.replace('_', ' '))
+
+    df = spark.read.json(f'{srcdir}/part-*') \
+        .withColumn('tissue', tissue('tissue'))
 
     # sort and write
     df.orderBy(['chromosome', 'start']) \
