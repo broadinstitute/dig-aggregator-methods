@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, udf
 
 
 def main():
@@ -11,8 +11,11 @@ def main():
     srcdir = 's3://dig-analysis-data/annotated_regions/gene_expression_levels/*'
     outdir = 's3://dig-bio-index/regions/gene_expression'
 
+    tissue = udf(lambda s: s.replace('_', ' '))
+
     # load all variant prediciton regions
-    df = spark.read.json(f'{srcdir}/part-*')
+    df = spark.read.json(f'{srcdir}/part-*') \
+        .withColumn('tissue', tissue('tissue'))
 
     # Need to make sure these values are floats/ints and filter out if not
     df = df.withColumn('minTpm', col('minTpm').cast('float')) \

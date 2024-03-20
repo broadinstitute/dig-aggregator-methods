@@ -53,7 +53,7 @@ def main():
     else:
         srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
         outdir = f's3://{s3_bucket}/ancestry-associations/phewas/{args.ancestry}'
-    clumpdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/clumped/*/{args.ancestry}/part-*'
+    clumpdir = f's3://dig-analysis-data/out/credible_sets/merges/*/{args.ancestry}/part-*'
 
     df = get_src_df(spark, srcdir) \
         .withColumn('ancestry', lit(args.ancestry))
