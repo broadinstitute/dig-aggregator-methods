@@ -1,5 +1,6 @@
 {
     "aws": {
+        "project": "portal",
         "input": {
             "bucket": "dig-analysis-data"
         },
