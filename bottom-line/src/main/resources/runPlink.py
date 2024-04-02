@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import argparse
 import glob
+import json
+from multiprocessing import Pool
 import numpy as np
 import os
 import os.path
@@ -13,6 +15,8 @@ from scipy.sparse.csgraph import connected_components
 
 S3DIR = 's3://dig-analysis-data'
 CLUMPING_ROOT = f'/mnt/var/clumping'
+
+import_threads = 8
 
 params_by_type = {
     'portal': {'p1': 5E-8, 'p2': 1E-2, 'r2': 0.2, 'kb': 250},
@@ -50,7 +54,6 @@ def download(s3_file):
     for fn in glob.glob('part-*'):
         subprocess.check_call(['zstd', '-d', '--rm', fn])
 
-
 def upload(local_file, s3_dir):
     """
     Copy a local file to S3.
@@ -58,12 +61,15 @@ def upload(local_file, s3_dir):
     subprocess.check_call(['aws', 's3', 'cp', local_file, f'{s3_dir}/{local_file}'])
 
 
-def load_bottom_line(s3_dir, params):
-
-    # load the dataframe, ensure p-values are high-precision
-    download(s3_dir)
-    df = pd.concat([pd.read_json(fn, dtype={'pValue': np.float64}, lines=True) for fn in glob.glob('part-*')])
-    df = df[['varId', 'pValue']]
+def load_individual_bottom_line(data):
+    file, params = data
+    lines = []
+    cols = ['varId', 'pValue']
+    with open(file, 'r') as f:
+        for line in f:
+            json_line = json.loads(line, parse_float=np.float64)
+            lines.append([json_line[col] for col in cols])
+    df = pd.DataFrame(data=lines, columns=['varId', 'pValue'])
 
     # explode varId to get chrom, pos, ref, and alt (alt will be catch all for everything else in the string)
     df[['chromosome', 'position', 'reference', 'alt']] = df['varId'].str.split(':', n=3, expand=True)
@@ -77,6 +83,15 @@ def load_bottom_line(s3_dir, params):
 
     # filter variants within absolute limit, and drop p=0 associations
     return df[df['pValue'] <= params['p2']]
+
+
+def load_bottom_line(s3_dir, params):
+    # load the dataframe, ensure p-values are high-precision
+    download(s3_dir)
+    inputs = [(fn, params) for fn in glob.glob('part-*')]
+    with Pool(import_threads) as p:
+        dfs = p.map(load_individual_bottom_line, inputs)
+    return pd.concat(dfs)
 
 
 def update_plink_args(df, params, expected_clumps=50):
@@ -274,6 +289,8 @@ def concat_rare(clumped, rare):
     # add clump id starting from clumped['clump'].max() + 1
     outside['clump'] = list(range(rare_clump_id, last_clump_id))
 
+    outside['freqType'] = 'rare'
+
     # only concat if there is something to append
     if not outside.empty:
         return pd.concat([clumped, outside])
@@ -360,17 +377,22 @@ def main():
     clumped['clumpStart'] = clumped['clump'].apply(lambda i: ranges[i][0])
     clumped['clumpEnd'] = clumped['clump'].apply(lambda i: ranges[i][1])
 
+    # frequency type
+    clumped['freqType'] = 'common'
+
     # add rare variants that do not overlap a clumped range
     clumped = concat_rare(clumped, rare)
 
     # make sure the clump ID is an integer
     clumped = clumped.astype({'clump': np.int32})
 
-    # finally, append the phenotype to the data
+    # finally, append the phenotype, meta type, and param type to data
     clumped['phenotype'] = args.phenotype
+    clumped['metaType'] = args.meta_type
+    clumped['paramType'] = args.param_type
 
     # filter out only the data needed for later joins
-    clumped = clumped[['varId', 'phenotype', 'clump', 'clumpStart', 'clumpEnd']]
+    clumped = clumped[['varId', 'phenotype', 'metaType', 'paramType', 'freqType', 'clump', 'clumpStart', 'clumpEnd']]
 
     # sort by clump for easy debugging in S3
     clumped = clumped.sort_values('clump')

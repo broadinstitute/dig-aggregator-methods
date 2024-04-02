@@ -6,13 +6,13 @@ import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
 /** After meta-analysis, this stage finds the most significant variant
-  * every 50 kb across the entire genome.
-  */
-class ClumpedAssociationsStage(implicit context: Context) extends Stage {
+ * every 50 kb across the entire genome.
+ */
+class ClumpedPlinkStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/*/variants.json")
-  val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/ancestry-clumped/*/*/variants.json")
+  val transEthnic: Input.Source = Input.Source.Success("out/metaanalysis/*/trans-ethnic/*/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/*/ancestry-specific/*/*/")
 
   val paramTypes: Map[String, Seq[String]] = Map(
     "bottom-line" -> Seq("portal", "analysis"),
@@ -39,7 +39,9 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
-    instances = 1
+    instances = 1,
+    masterVolumeSizeInGB = 100,
+    bootstrapSteps = Seq(Job.Script(resourceUri("install-plink.sh")))
   )
 
   /** Build the job. */
@@ -53,7 +55,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
     }
 
     val steps = Seq(
-      Job.PySpark(resourceUri("clumpedAssociations.py"), flags:_*)
+      Job.Script(resourceUri("runPlink.py"), flags:_*)
     )
     new Job(steps)
   }
