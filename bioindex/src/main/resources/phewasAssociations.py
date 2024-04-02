@@ -23,11 +23,14 @@ def get_src_df(spark, srcdir):
 def get_clump_df(spark, clumpdir):
     clump_df = spark.read.json(clumpdir)
     # limit the data being written
+    clump_df = clump_df \
+        .withColumn('clump', clump_df.credibleSetId) \
+        .filter(clump_df.source != 'credible_set')
     clump_df = clump_df.select(
-        clump_df.varId,
-        clump_df.phenotype,
-        clump_df.clump
-    )
+            clump_df.varId,
+            clump_df.phenotype,
+            clump_df.clump
+        )
     return clump_df
 
 
@@ -46,12 +49,11 @@ def main():
     s3_bucket = 'dig-bio-index'
     if args.ancestry == 'Mixed':
         srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/trans-ethnic/*/part-*'
-        clumpdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/clumped/*/part-*'
         outdir = f's3://{s3_bucket}/associations/phewas'
     else:
         srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
-        clumpdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
         outdir = f's3://{s3_bucket}/ancestry-associations/phewas/{args.ancestry}'
+    clumpdir = f's3://dig-analysis-data/out/credible_sets/merged/*/{args.ancestry}/part-*'
 
     df = get_src_df(spark, srcdir) \
         .withColumn('ancestry', lit(args.ancestry))

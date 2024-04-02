@@ -6,6 +6,9 @@ from pyspark.sql.functions import lit
 
 def get_clump_df(spark, clumpdir):
     clump_df = spark.read.json(clumpdir)
+    clump_df = clump_df \
+        .withColumn('clump', clump_df.credibleSetId) \
+        .filter(clump_df.source != 'credible_set')
     # limit the data being written
     clump_df = clump_df.select(
         clump_df.phenotype.alias('leadPhenotype'),
@@ -34,12 +37,11 @@ def main():
 
     # source and output locations
     s3_bucket = 'dig-bio-index'
+    clumpdir = f's3://dig-analysis-data/out/credible_sets/merged/*/{args.ancestry}/part-*'
     if args.ancestry == 'Mixed':
-        clumpdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/clumped/*/part-*'
         assocsdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/trans-ethnic/*/part-*'
         outdir = f's3://{s3_bucket}/associations/matrix'
     else:
-        clumpdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry={args.ancestry}/part-*'
         assocsdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
         outdir = f's3://{s3_bucket}/ancestry-associations/matrix/{args.ancestry}'
 

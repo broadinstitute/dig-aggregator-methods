@@ -12,18 +12,16 @@ class PhewasAssociationsStage(implicit context: Context) extends Stage {
 
   val transEthnic: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
   val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/*/")
-  val clumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/clumped/*/")
-  val ancestryClumped: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/*/")
+  val clumped: Input.Source = Input.Source.Success("out/credible_sets/merged/*/*/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific, clumped, ancestryClumped)
+  override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific, clumped)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case transEthnic(_) => Outputs.Named("phewas")
-    case clumped(_) => Outputs.Named("phewas")
+    case transEthnic(_) => Outputs.Named("Mixed")
     case ancestrySpecific(_, ancestry) => Outputs.Named(ancestry.split("=").last)
-    case ancestryClumped(_, ancestry) => Outputs.Named(ancestry.split("=").last)
+    case clumped(_, ancestry) => Outputs.Named(ancestry)
   }
 
   /** Cluster with a lots of memory to prevent shuffling. */
@@ -38,10 +36,6 @@ class PhewasAssociationsStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    val flag = output match {
-      case "phewas" => "--ancestry=Mixed"
-      case ancestry => s"--ancestry=$ancestry"
-    }
-    new Job(Job.PySpark(resourceUri("phewasAssociations.py"), flag))
+    new Job(Job.PySpark(resourceUri("phewasAssociations.py"), s"--ancestry=$output"))
   }
 }

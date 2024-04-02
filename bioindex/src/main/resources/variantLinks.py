@@ -10,7 +10,6 @@ def main():
     srcdir = 's3://dig-analysis-data/annotated_regions/genetic_variant_effects/*'
     outdir = 's3://dig-bio-index/regions/variant_links'
 
-    # load all variant prediciton regions
     df = spark.read.json(f'{srcdir}/part-*')
 
     # sort and write
