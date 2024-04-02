@@ -39,7 +39,7 @@ def translate(file):
         header = [a.strip() for a in f.readline().strip().split('\t')]
         # Read up to lines with entries ending in '_1'
         split_line = [a.strip() for a in f.readline().strip().split('\t')]
-        while split_line[0][-2:] != '_1':
+        while int(split_line[0].rsplit('_', 1)[-1]) == 0:
             split_line = [a.strip() for a in f.readline().strip().split('\t')]
         # don't need first line, that is always the annotation confounder line
         line = f.readline()
@@ -47,7 +47,7 @@ def translate(file):
             split_line = [a.strip() for a in line.strip().split('\t')]
             data_dict = dict(zip(header, split_line))
             if float(data_dict['Prop._h2_std_error']) > 0.0:
-                out[split_line[0][:-2]] = {
+                out[split_line[0].rsplit('_', 1)[0]] = {
                     'snps': float(data_dict['Prop._SNPs']),
                     'h2': {'beta': float(data_dict['Prop._h2']), 'stdErr': float(data_dict['Prop._h2_std_error'])},
                     'enrichment': {'beta': float(data_dict['Enrichment']), 'stdErr': float(data_dict['Enrichment_std_error'])},
