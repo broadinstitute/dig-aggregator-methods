@@ -35,6 +35,7 @@ def convert_credible_set(df):
     df = df.withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
         .drop('gwas_dataset') \
         .withColumn('source', lit('credible_set')) \
+        .withColumn('analysis', lit('credible_set')) \
         .withColumn('chromosome', df.chromosome.cast("string"))
 
     # TODO: This shouldn't be necessary, but we need external credible sets and out credible sets on an equal footing
@@ -77,6 +78,11 @@ def credible_set_id_from_clump(clump, meta_type, param_type, freq_type):
 
 
 @udf(returnType=StringType())
+def get_analysis(meta_type, param_type):
+    return f'{meta_type}_{param_type}'
+
+
+@udf(returnType=StringType())
 def get_source(meta_type, param_type, freq_type):
     return f'{meta_type}_{param_type}_{freq_type}'
 
@@ -109,17 +115,20 @@ def bayes_pp(df):
         .drop('z', 'abf', 'abfSum')
 
 
-def convert_clump_file(phenotype, ancestry, df):
+def convert_clump_file(ancestry, df):
     df = df.select(
         ['varId', 'chromosome', 'position', 'reference', 'alt',
+         'metaType', 'paramType', 'freqType',
          'beta', 'stdErr', 'pValue',
          'phenotype', 'clump', 'clumpStart', 'clumpEnd', 'leadSNP', 'alignment']
     ) \
-        .withColumn('ancestry', lit(ancestry)) \
+        .withColumn('ancestry', lit(ancestry))
+    df = df \
         .withColumn('credibleSetId', credible_set_id_from_clump(df.clump, df.metaType, df.paramType, df.freqType)) \
-        .withColumn('dataset', get_dataset(df.metaType, df.paramType, phenotype, ancestry)) \
+        .withColumn('analysis', get_analysis(df.metaType, df.paramType)) \
+        .withColumn('dataset', get_dataset(df.metaType, df.paramType, df.phenotype, df.ancestry)) \
         .withColumn('source', get_source(df.metaType, df.paramType, df.freqType)) \
-        .drop('clump')
+        .drop('clump', 'metaType', 'paramType', 'freqType')
 
     df = bayes_pp(df)
 
@@ -129,10 +138,10 @@ def convert_clump_file(phenotype, ancestry, df):
 def get_out_dir(df):
     df_first = df.first()
     ancestry = df_first['ancestry']
-    source = df_first['source']
+    analysis = df_first['analysis']
     dataset = df_first['dataset']
     phenotype = df_first['phenotype']
-    return f'{s3_out}/out/credible_sets/intake/{phenotype}/{ancestry}/{source}/{dataset}/'
+    return f'{s3_out}/out/credible_sets/intake/{phenotype}/{ancestry}/{analysis}/{dataset}/'
 
 
 def save_df(df, out_dir):
@@ -157,7 +166,7 @@ def main():
     if args.source == 'credible-set':
         df = convert_credible_set(df)
     else:
-        df = convert_clump_file(args.phenotype, args.ancestry, df)
+        df = convert_clump_file(args.ancestry, df)
     out_dir = get_out_dir(df)
 
     save_df(df, out_dir)
