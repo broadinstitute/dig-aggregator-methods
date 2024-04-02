@@ -23,8 +23,12 @@ def main():
         'tissue',
         col('SNPs').alias('expectedSNPs'),
         col('h2_beta').alias('SNPs'),
+        col('enrichment_beta').alias('enrichment'),
         'pValue'
     ])
+
+    df_top = df.sort(['phenotype', 'ancestry', 'annotation', 'tissue', 'pValue']) \
+        .dropDuplicates(['phenotype', 'ancestry', 'annotation', 'tissue'])
 
     df_null = df.filter(df.biosample.isNull())
     mixed_df = df.filter(df.ancestry == 'Mixed')
@@ -36,7 +40,12 @@ def main():
         .mode('overwrite') \
         .json(f'{outdir}/annotation-tissue')
 
-    df.orderBy(['ancestry', 'tissue', 'pValue']) \
+    df_top.orderBy(['ancestry', 'tissue', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{outdir}/top-tissue')
+
+    df.orderBy(['phenotype', 'ancestry', 'annotation', 'tissue', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(f'{outdir}/tissue')
