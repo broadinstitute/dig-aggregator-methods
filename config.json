@@ -1,14 +1,15 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "sleep",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-sleep-private"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-sleep-private"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-sleep-private",
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [
