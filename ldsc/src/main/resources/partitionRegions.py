@@ -1,11 +1,9 @@
 #!/usr/bin/python3
 import argparse
 import platform
-import re
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
-from pyspark.sql.functions import concat_ws, lower, regexp_replace, udf, when
-from pyspark.sql.functions import lit
+from pyspark.sql.functions import col, concat_ws, lit, lower, regexp_replace, udf, when
 
 S3DIR = 's3://dig-analysis-data'
 # BED files need to be sorted by chrom/start, this orders the chromosomes
@@ -85,6 +83,7 @@ def main():
     df = get_optional_column(df, 'biosample')
     df = get_optional_column(df, 'method')
     df = get_optional_column(df, 'source')
+    df = get_optional_column(df, 'diseaseTermName')
     df = get_optional_column(df, 'dataset')
 
     # rename enhancer, other and promoter states, if not, make null
@@ -117,6 +116,7 @@ def main():
         df.biosample,
         df.method,
         df.source,
+        col('diseaseTermName').alias('disease'),
         df.dataset
     )
 
