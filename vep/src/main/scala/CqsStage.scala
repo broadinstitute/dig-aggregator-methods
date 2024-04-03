@@ -22,7 +22,7 @@ import org.broadinstitute.dig.aws.emr.configurations.{MapReduce, Spark}
 class CqsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val effects: Input.Source = Input.Source.Success("out/varianteffect/effects/")
+  val effects: Input.Source = Input.Source.Success("out/varianteffect/cqs-effects/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(effects)
@@ -45,7 +45,7 @@ class CqsStage(implicit context: Context) extends Stage {
     val runScript = resourceUri("cqs.py")
 
     // get all the variant part files to process, use only the part filename
-    val objects = context.s3.ls(s"out/varianteffect/effects/")
+    val objects = context.s3.ls(s"out/varianteffect/cqs-effects/")
     val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
 
     // add a step for each part file
