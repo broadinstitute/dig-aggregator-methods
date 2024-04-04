@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import os
 import re
 import subprocess
 
@@ -7,7 +8,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
 from pyspark.sql.functions import lit, col
 
-s3dir = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 variants_schema = StructType(
     [
@@ -55,8 +57,8 @@ def main():
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = f'{s3dir}/out/metaanalysis/variants/{args.phenotype}/*/ancestry={args.ancestry}/*/part-*'
-    outdir = f'{s3dir}/out/metaanalysis/min_p/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
+    srcdir = f'{s3_in}/out/metaanalysis/variants/{args.phenotype}/*/ancestry={args.ancestry}/*/part-*'
+    outdir = f'{s3_out}/out/metaanalysis/min_p/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
 
     # create a spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()

@@ -14,22 +14,18 @@ sudo mkdir -p /home/hadoop/bin
 sudo mkdir -p /home/hadoop/scripts
 
 # get a pre-built version of metal from S3
-sudo aws s3 cp s3://dig-analysis-data/bin/metal/metal-2022-09-16.tgz /home/hadoop
+sudo aws s3 cp s3://dig-analysis-bin/metaanalysis/metal-2022-09-16.tgz /home/hadoop
 sudo tar zxf /home/hadoop/metal-2022-09-16.tgz -C /home/hadoop
 
 # install it to the bin folder for use and make it executable
 sudo ln -s /home/hadoop/metal/build/metal/metal /home/hadoop/bin/metal
 
 # copy the getmerge-strip-headers shell script from S3
-sudo aws s3 cp "s3://dig-analysis-data/resources/scripts/getmerge-strip-headers.sh" /home/hadoop/bin
+sudo aws s3 cp "s3://dig-analysis-bin/metaanalysis/getmerge-strip-headers.sh" /home/hadoop/bin
 sudo chmod +x /home/hadoop/bin/getmerge-strip-headers.sh
 
-# copy the getmerge-strip-headers-zstd shell script from S3
-sudo aws s3 cp "s3://dig-analysis-data/resources/scripts/getmerge-strip-headers-zstd.sh" /home/hadoop/bin
-sudo chmod +x /home/hadoop/bin/getmerge-strip-headers-zstd.sh
-
 # copy the runMETAL script from S3
-sudo aws s3 cp "s3://dig-analysis-data/resources/pipeline/metaanalysis/runMETAL.sh" /home/hadoop/bin
+sudo aws s3 cp "s3://dig-analysis-bin/metaanalysis/runMETAL.sh" /home/hadoop/bin
 sudo chmod +x /home/hadoop/bin/runMETAL.sh
 
 # install jq to convert from json to tsv

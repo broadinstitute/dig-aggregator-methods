@@ -2,15 +2,15 @@
 import argparse
 from boto3 import session
 import json
-import re
+import os
 import sqlalchemy
-import subprocess
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
 from pyspark.sql.functions import lit, col
 
-s3dir = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 variants_schema = StructType(
     [
@@ -90,8 +90,8 @@ def main():
     dataset = get_dataset(args.phenotype, args.ancestry)
     print(f'Largest GWAS dataset for phenotype {args.phenotype}, ancestry {args.ancestry}: {dataset}')
     if dataset is not None:
-        srcdir = f'{s3dir}/out/metaanalysis/variants/{args.phenotype}/dataset={dataset}/ancestry={args.ancestry}/*/part-*'
-        outdir = f'{s3dir}/out/metaanalysis/largest/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
+        srcdir = f'{s3_in}/out/metaanalysis/variants/{args.phenotype}/dataset={dataset}/ancestry={args.ancestry}/*/part-*'
+        outdir = f'{s3_out}/out/metaanalysis/largest/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
 
         columns = [col(field.name) for field in variants_schema]
 
