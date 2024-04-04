@@ -31,7 +31,7 @@ perl "$VEPDIR/ensembl-vep/vep" \
     --no_stats \
     --nearest symbol \
     --af_1kg \
-    --most_severe \
+    --pick \
     -i "$PART.sorted" \
     -o "$OUTFILE" \
     --force_overwrite
