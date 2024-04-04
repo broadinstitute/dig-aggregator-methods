@@ -2,12 +2,13 @@
 
 import argparse
 import json
-import os.path
+import os
 import re
 import subprocess
 import tempfile
 
-S3DIR = 's3://dig-analysis-data/out/varianteffect'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def rename_cqs_field(s):
@@ -90,8 +91,8 @@ def main():
     args = opts.parse_args()
 
     # s3 locations
-    srcdir = f'{S3DIR}/effects'
-    outdir = f'{S3DIR}/cqs'
+    srcdir = f'{s3_in}/out/varianteffect/effects'
+    outdir = f'{s3_out}/out/varianteffect/cqs'
 
     # run
     process_part(srcdir, outdir, args.part)

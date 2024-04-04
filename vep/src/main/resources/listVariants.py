@@ -1,10 +1,12 @@
 #!/usr/bin/python3
+import os
 import platform
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import concat_ws, length, lit, when  # pylint: disable=E0611
 
-S3DIR = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_df(spark, srcdir):
@@ -25,9 +27,9 @@ def main():
     print('Python version: %s' % platform.python_version())
 
     # get the source and output directories
-    dataset_srcdir = f'{S3DIR}/variants/*/*/*'
-    ld_server_srcdir = f'{S3DIR}/ld_server/variants/*'
-    outdir = f'{S3DIR}/out/varianteffect/variants'
+    dataset_srcdir = f'{s3_in}/variants/*/*/*'
+    ld_server_srcdir = f'{s3_in}/ld_server/variants/*'
+    outdir = f'{s3_out}/out/varianteffect/variants'
 
     # create a spark session
     spark = SparkSession.builder.appName('vep').getOrCreate()
