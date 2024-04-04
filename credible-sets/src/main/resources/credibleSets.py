@@ -1,14 +1,15 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, exp, lit, min, max, signum, sum, udf, when
+from pyspark.sql.functions import col, exp, lit, min, max, signum, sum, udf, when, concat_ws
 from pyspark.sql.types import StringType, DoubleType
 
 import numpy as np
+import os
 from scipy.stats import norm
 
-s3_in = 's3://dig-analysis-data'
-s3_out = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_src_dir(args):
@@ -27,12 +28,14 @@ def convert_credible_set(df):
     if 'gwas_dataset' not in df.columns:
         df = df.withColumn('gwas_dataset', df.dataset)
     df = df.select(
-        ['varId', 'chromosome', 'position', 'reference', 'alt',
+        ['chromosome', 'position', 'reference', 'alt',
          'beta', 'stdErr', 'pValue', 'n',
          'phenotype', 'ancestry', 'gwas_dataset', 'dataset', 'credibleSetId', 'posteriorProbability']
-    ).filter(df.varId.isNotNull()) \
-        .dropDuplicates(['credibleSetId', 'varId'])
-    df = df.withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
+    )
+    df = df.withColumn('varId', concat_ws(':', df.chromosome, df.posisition, df.reference, df.alt))
+    df = df.filter(df.varId.isNotNull()) \
+        .dropDuplicates(['credibleSetId', 'varId']) \
+        .withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
         .drop('gwas_dataset') \
         .withColumn('source', lit('credible_set')) \
         .withColumn('chromosome', df.chromosome.cast("string"))
