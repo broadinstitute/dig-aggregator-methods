@@ -12,7 +12,9 @@ import shutil
 import subprocess
 
 files_location = '/mnt/var/magma'
-output_s3 = 's3://dig-analysis-data/out/magma/gene-associations'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
+output_s3 = f'{s3_out}/out/magma/gene-associations'
 
 
 def get_gene_map():
@@ -29,13 +31,14 @@ def get_gene_map():
 
 
 def download_ancestry_gene_associations(phenotype):
+    s3_bucket, s3_prefix = re.findall('s3://([^/]*)/(.*)', f'{s3_in}/out/magma/staging/genes/{phenotype}/')[0]
     s3 = boto3.resource('s3')
-    my_bucket = s3.Bucket('dig-analysis-data')
-    for file in my_bucket.objects.filter(Prefix=f'out/magma/staging/genes/{phenotype}/').all():
+    my_bucket = s3.Bucket(s3_bucket)
+    for file in my_bucket.objects.filter(Prefix=s3_prefix).all():
         if re.fullmatch(f'.*/associations\.genes\.out$', file.key):
             ancestry = re.findall(f'.*/ancestry=(\w+)/associations\.genes\.out$', file.key)[0]
             subprocess.check_call([
-                'aws', 's3', 'cp', f's3://dig-analysis-data/{file.key}', f'./{phenotype}/{ancestry}/'
+                'aws', 's3', 'cp', f's3://{s3_bucket}/{file.key}', f'./{phenotype}/{ancestry}/'
             ])
 
 

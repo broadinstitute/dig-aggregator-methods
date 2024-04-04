@@ -4,25 +4,11 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
-/** This is a stage in your method.
-  *
-  * Stages take one or more inputs and generate one or more outputs. Each
-  * stage consists of a...
-  *
-  *   - list of input sources;
-  *   - rules mapping inputs to outputs;
-  *   - make function that returns a job used to produce a given output
-  *
-  * Optionally, a stage can also override...
-  *
-  *   - its name, which defaults to its class name
-  *   - the cluster definition used to provision EC2 instances
-  */
+
 class GatherVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
-  val dbSNPs: Input.Source   = Input.Source.Success("out/varianteffect/snp/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(variants)

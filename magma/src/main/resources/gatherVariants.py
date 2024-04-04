@@ -1,11 +1,11 @@
-# imports
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
-
-# EC2 development localhost directories
-SRCDIR = 's3://dig-analysis-data/out/varianteffect'
-OUTDIR = 's3://dig-analysis-data/out/magma'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
+SRCDIR = f'{s3_in}/out/varianteffect'
+OUTDIR = f'{s3_out}/out/magma'
 
 
 # CSV schema of the variants input to VEP
@@ -25,9 +25,11 @@ def main():
     """
     spark = SparkSession.builder.appName('magma').getOrCreate()
 
-    # load all unique variants and snps in the site
+    # load all unique variants in the site
     variants = spark.read.csv(f'{SRCDIR}/variants/part-*', sep='\t', schema=VARIANTS_SCHEMA)
-    snps = spark.read.csv(f'{SRCDIR}/snp/part-*', sep='\t', header=True)
+
+    # load all common variants with rsIDs
+    snps = spark.read.csv(f's3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv', sep='\t', header=True)
 
     # keep only the columns we care about
     variants = variants.select(

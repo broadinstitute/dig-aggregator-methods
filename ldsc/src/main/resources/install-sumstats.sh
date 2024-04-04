@@ -42,9 +42,4 @@ pip3 install -U scipy
 pip3 install -U pandas
 
 # fetch snps for mapping
-sudo aws s3 cp s3://dig-analysis-data/out/varianteffect/snp/ ./ --recursive --exclude="_SUCCESS"
-sudo touch ./snp.csv
-sudo chmod 777 ./snp.csv
-sudo cat ./part-* | head -n 1 >> ./snp.csv
-sudo tail -q -n +2 ./part-*.csv >> ./snp.csv
-sudo rm ./part-*.csv
+sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv

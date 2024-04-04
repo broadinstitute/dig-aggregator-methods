@@ -12,4 +12,4 @@ pip3 install -U scipy
 MAGMA_DIR="/mnt/var/magma"
 sudo mkdir -p "${MAGMA_DIR}"
 cd "${MAGMA_DIR}"
-sudo aws s3 cp s3://dig-analysis-data/bin/magma/NCBI37.3.gene.loc .
+sudo aws s3 cp s3://dig-analysis-bin/magma/NCBI37.3.gene.loc .

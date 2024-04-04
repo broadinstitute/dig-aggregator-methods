@@ -5,19 +5,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
 import org.broadinstitute.dig.aws.emr._
 
-/**
-  * Once all the distinct bi-allelic variants across all datasets have been
-  * identified (VariantListProcessor) then they can be run through VEP in
-  * parallel across multiple VMs.
-  *
-  * VEP TSV input files located at:
-  *
-  *  s3://dig-analysis-data/out/varianteffect/variants
-  *
-  * VEP output JSON written to:
-  *
-  *  s3://dig-analysis-data/out/varianteffect/effects
-  */
+
 class AssignGenesStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
