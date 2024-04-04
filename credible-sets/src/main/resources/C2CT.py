@@ -140,7 +140,7 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
     subprocess.check_call(['aws', 's3', 'cp', tmp_file, f'{path_out}/part-00000.json'])
     subprocess.check_call(['aws', 's3', 'cp', f'_SUCCESS', f'{path_out}/_SUCCESS'])
     os.remove('_SUCCESS')
-    os.remove('part-00000.json')
+    os.remove(tmp_file)
     shutil.rmtree('data')
 
 
