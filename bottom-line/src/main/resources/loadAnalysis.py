@@ -2,9 +2,8 @@
 
 import argparse
 import numpy as np
-import os.path
+import os
 import platform
-import re
 import subprocess
 
 from pyspark.sql import SparkSession, Row
@@ -12,10 +11,11 @@ from pyspark.sql.types import StructType, StructField, StringType, DoubleType, I
 from pyspark.sql.functions import col, isnan, lit, when  # pylint: disable=E0611
 
 # where in S3 meta-analysis data is
-s3_bucket = 's3://dig-analysis-data'
-s3_path = f'{s3_bucket}/out/metaanalysis'
-s3_bottom_line = f'{s3_path}/bottom-line'
-s3_staging = f'{s3_bottom_line}/staging'
+input_path = os.environ['INPUT_PATH']
+output_path = os.environ['OUTPUT_PATH']
+s3_in = f'{input_path}/out/metaanalysis/bottom-line/staging'
+s3_out = f'{input_path}/out/metaanalysis/bottom-line'
+
 
 # this is the schema written out by the variant partition process
 variants_schema = StructType(
@@ -188,8 +188,8 @@ def load_ancestry_specific_analysis(phenotype, ancestry):
     """
     Load the METAL results for each ancestry into a single DataFrame.
     """
-    srcdir = f'{s3_staging}/ancestry-specific/{phenotype}/ancestry={ancestry}'
-    outdir = f'{s3_bottom_line}/ancestry-specific/{phenotype}/ancestry={ancestry}'
+    srcdir = f'{s3_in}/ancestry-specific/{phenotype}/ancestry={ancestry}'
+    outdir = f'{s3_out}/ancestry-specific/{phenotype}/ancestry={ancestry}'
 
     print(f'Loading ancestry {ancestry}...')
 
@@ -209,7 +209,7 @@ def load_ancestry_specific_analysis(phenotype, ancestry):
         .select(*columns)
 
     # rare variants across all datasets for this phenotype and ancestry
-    rare_path = f'{s3_path}/variants/{phenotype}/*/ancestry={ancestry}/rare=true'
+    rare_path = f'{s3_in}/variants/{phenotype}/*/ancestry={ancestry}/rare=true'
 
     # are there rare variants to merge with the analysis?
     if hadoop_test(rare_path):
@@ -242,8 +242,8 @@ def load_trans_ethnic_analysis(phenotype):
     processed with OVERLAP OFF. Once done, the results are uploaded back to
     HDFS (S3) where they can be kept and uploaded to a database.
     """
-    srcdir = f'{s3_staging}/trans-ethnic/{phenotype}'
-    outdir = f'{s3_bottom_line}/trans-ethnic/{phenotype}'
+    srcdir = f'{s3_in}/trans-ethnic/{phenotype}'
+    outdir = f'{s3_out}/trans-ethnic/{phenotype}'
 
     print("Loading from {} to {}".format(srcdir, outdir))
 
@@ -255,7 +255,7 @@ def load_trans_ethnic_analysis(phenotype):
     print(f'Fetch Mixed variants for bottom-line results for {phenotype}')
 
     # load all the mixed ancestry-variants across the datasets
-    mixed = spark.read.json(f'{s3_bucket}/variants/*/*/{phenotype}/part-*')
+    mixed = spark.read.json(f'{input_path}/variants/*/*/{phenotype}/part-*')
     mixed = mixed.filter((mixed.ancestry == 'Mixed')) \
         .filter(mixed.multiAllelic == False) \
         .filter(mixed.pValue.isNotNull() & ~isnan(mixed.pValue)) \

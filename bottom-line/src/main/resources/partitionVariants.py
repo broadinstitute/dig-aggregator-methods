@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 
 import argparse
+import os
 import platform
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import isnan, lit, when  # pylint: disable=E0611
 
-s3dir = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
+
 
 # entry point
 if __name__ == '__main__':
@@ -23,8 +26,8 @@ if __name__ == '__main__':
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = f'{s3dir}/variants/*/{args.dataset}/{args.phenotype}'
-    outdir = f'{s3dir}/out/metaanalysis/variants/{args.phenotype}/dataset={args.dataset}'
+    srcdir = f'{s3_in}/variants/*/{args.dataset}/{args.phenotype}'
+    outdir = f'{s3_out}/out/metaanalysis/variants/{args.phenotype}/dataset={args.dataset}'
 
     # create a spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()

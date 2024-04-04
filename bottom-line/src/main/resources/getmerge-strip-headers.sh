@@ -8,14 +8,11 @@ fi
 glob=$1
 outfile=$2
 
-# merge all the data files together
-hadoop fs -getmerge -nl -skip-empty-file "$glob" "$outfile"
+# download files
+mkdir -p tmp_files
+aws s3 cp $glob ./tmp_files/ --recursive
+zstd -d --rm ./tmp_files/part-*
 
-# discover the header to skip it later
-header=$(head -n 1 "$outfile")
-
-# where to do temporary file processing
-tmp="$(dirname "$outfile")/tmp.csv"
-
-# run awk to remove extra CSV headers
-awk -v h="$header" 'NR>1 && $0~h {next} {print}' "$outfile" > "$tmp" && mv "$tmp" "$outfile"
+# merge files
+awk '(NR == 1) || (FNR > 1)' ./tmp_files/part-* > "$outfile"
+rm -r tmp_files

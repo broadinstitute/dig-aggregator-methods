@@ -1,10 +1,13 @@
 import argparse
+import os
 import subprocess
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, signum
 
-S3_BUCKET = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
+
 
 def check_clump_error(clump_path):
     return subprocess.call(['aws', 's3', 'ls', clump_path, '--recursive'])
@@ -27,15 +30,15 @@ def main():
 
     # source data and output location
     if args.ancestry == 'TE':
-        srcdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}/part-*'
-        clumpdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.phenotype}'
-        outdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/clumped/{args.phenotype}'
+        srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}/part-*'
+        clumpdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.phenotype}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/clumped/{args.phenotype}'
     else:
         param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
         ancestry_path = f'{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
-        srcdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
-        clumpdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{ancestry_path}'
-        outdir = f'{S3_BUCKET}/out/metaanalysis/{args.meta_type}/ancestry-clumped{ancestry_path}'
+        srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
+        clumpdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{ancestry_path}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/ancestry-clumped{ancestry_path}'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()

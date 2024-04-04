@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 import argparse
+import os
 import re
 import subprocess
 
 from pyspark.sql import SparkSession
 
-s3dir = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 # update the analysis and keep variants with the smallest pValue
@@ -19,7 +21,7 @@ def min_p(df):
 
 
 def num_ancestries(phenotype):
-    path = f'{s3dir}/out/metaanalysis/min_p/ancestry-specific/{phenotype}/'
+    path = f'{s3_in}/out/metaanalysis/min_p/ancestry-specific/{phenotype}/'
     files = subprocess.check_output(['aws', 's3', 'ls', path, '--recursive']).decode().strip().split('\n')
     ancestries = set()
     for file in files:
@@ -37,8 +39,8 @@ def main():
     args = opts.parse_args()
 
     # get the source and output directories
-    srcdir = f'{s3dir}/out/metaanalysis/min_p/ancestry-specific/{args.phenotype}/*/part-*'
-    outdir = f'{s3dir}/out/metaanalysis/min_p/trans-ethnic/{args.phenotype}/'
+    srcdir = f'{s3_in}/out/metaanalysis/min_p/ancestry-specific/{args.phenotype}/*/part-*'
+    outdir = f'{s3_out}/out/metaanalysis/min_p/trans-ethnic/{args.phenotype}/'
 
     # create a spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()

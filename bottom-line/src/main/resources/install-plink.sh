@@ -10,8 +10,8 @@ sudo chmod 775 "${CLUMPING_ROOT}"
 cd "${CLUMPING_ROOT}"
 
 # download the 1000g BED/BIM/FAM data and PLINK 1.9
-sudo aws s3 cp s3://dig-analysis-data/bin/clumping/ . --recursive
-sudo aws s3 cp s3://dig-analysis-data/bin/plink/plink_linux_x86_64_20201019.zip .
+sudo aws s3 cp s3://dig-analysis-bin/clumping/ . --recursive
+sudo aws s3 cp s3://dig-analysis-bin/plink/plink_linux_x86_64_20201019.zip .
 
 # unzip each ancestry file into its own directory
 for f in *.zip; do sudo unzip -d "${f%*.zip}" "$f"; done
@@ -19,12 +19,8 @@ for f in *.zip; do sudo unzip -d "${f%*.zip}" "$f"; done
 # unzip the plink executable
 sudo unzip plink_linux_x86_64_20201019.zip
 
-# download the getmerge-strip-headers script
-sudo aws s3 cp s3://dig-analysis-data/resources/scripts/getmerge-strip-headers.sh .
-sudo chmod +x getmerge-strip-headers.sh
-
 # download the dbSNP mapping file
-sudo ./getmerge-strip-headers.sh s3://dig-analysis-data/out/varianteffect/snp/part-*.csv ./snps.csv
+sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
 
 # install packages
 sudo yum -y install python3-devel
