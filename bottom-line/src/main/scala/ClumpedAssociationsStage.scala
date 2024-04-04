@@ -15,10 +15,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/ancestry-clumped/*/*/variants.json")
 
   val paramTypes: Map[String, Seq[String]] = Map(
-    "bottom-line" -> Seq("portal", "analysis"),
-    "naive" -> Seq("analysis"),
-    "min_p" -> Seq("analysis"),
-    "largest" -> Seq("analysis")
+    "bottom-line" -> Seq("portal")
   )
 
   /** The output of meta-analysis is the input for top associations. */
