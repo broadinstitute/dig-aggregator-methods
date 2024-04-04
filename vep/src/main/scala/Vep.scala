@@ -27,6 +27,5 @@ object Vep extends Method {
     addStage(new CQSVepStage)
     addStage(new CommonStage)
     addStage(new CqsStage)
-    addStage(new SnpStage)
   }
 }

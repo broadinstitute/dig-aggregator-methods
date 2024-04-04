@@ -55,20 +55,6 @@ perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
     -o "$OUTFILE" \
     --force_overwrite
 
-#perl "$VEPDIR/ensembl-vep/vep" \
-#    --dir "$VEPDIR" \
-#    --fork "$CPUS" \
-#    --ASSEMBLY GRCh37 \
-#    --json \
-#    --offline \
-#    --no_stats \
-#    --nearest symbol \
-#    --af_1kg \
-#    --most_severe \
-#    -i "$PART.sorted" \
-#    -o "$OUTFILE" \
-#    --force_overwrite
-
 # copy the output of VEP back to S3
 aws s3 cp "$OUTFILE" "$S3_OUT/effects/$OUTFILE"
 

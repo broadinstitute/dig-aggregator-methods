@@ -48,11 +48,11 @@ class CommonVepStage(implicit context: Context) extends Stage {
    * needs to be run through VEP again.
    */
   override def make(output: String): Job = {
-    val runScript = resourceUri("runVEP.sh")
+    val runScript = resourceUri("runCommonVEP.sh")
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
-    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-0000"))
 
     // add a step for each part file
     new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
