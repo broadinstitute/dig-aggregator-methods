@@ -2,12 +2,12 @@
 
 import argparse
 import json
-import os.path
-import re
+import os
 import subprocess
 import tempfile
 
-S3DIR = 's3://dig-analysis-data/out/varianteffect'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def colocated_variant(row, ref, alt):
@@ -168,8 +168,8 @@ def main():
     args = opts.parse_args()
 
     # s3 locations
-    srcdir = f'{S3DIR}/effects'
-    outdir = f'{S3DIR}/common'
+    srcdir = f'{s3_in}/out/varianteffect/effects'
+    outdir = f'{s3_out}/out/varianteffect/common'
 
     # run
     process_part(srcdir, outdir, args.part)
