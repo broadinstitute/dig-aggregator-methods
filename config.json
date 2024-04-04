@@ -1,14 +1,14 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "giant",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-giant-sandbox"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-giant-sandbox"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-giant-sandbox/bioindex"
         },
         "emr": {
             "subnetIds": [
