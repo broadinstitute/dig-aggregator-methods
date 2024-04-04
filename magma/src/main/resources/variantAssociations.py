@@ -2,11 +2,13 @@
 import argparse
 from boto3 import session
 import json
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType
 import sqlalchemy
 
-s3dir = f's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 class BioIndexDB:
@@ -56,9 +58,9 @@ def get_s3_dir(phenotype, ancestry):
         db = BioIndexDB()
         tech_dataset = db.get_largest_mixed_dataset(phenotype)
         if tech_dataset is not None:
-            return f'{s3dir}/variants/{tech_dataset}/{phenotype}/'
+            return f'{s3_in}/variants/{tech_dataset}/{phenotype}/'
     else:
-        return f'{s3dir}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/'
+        return f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/'
 
 
 def main():
@@ -77,15 +79,14 @@ def main():
     spark = SparkSession.builder.appName('magma').getOrCreate()
 
     # input and output directories
-    snpdir = f'{s3dir}/out/varianteffect/snp'
-    outdir = f'{s3dir}/out/magma/variant-associations/{args.phenotype}/ancestry={args.ancestry}'
+    outdir = f'{s3_out}/out/magma/variant-associations/{args.phenotype}/ancestry={args.ancestry}'
     srcdir = get_s3_dir(args.phenotype, args.ancestry)
     if srcdir is not None:
         print(f'Using directory: {srcdir}')
 
         # load variants and phenotype associations
         df = spark.read.json(f'{srcdir}/part-*')
-        snps = spark.read.csv(f'{snpdir}/part-*', sep='\t', header=True)
+        snps = spark.read.csv(f's3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv', sep='\t', header=True)
 
         # drop variants with no dbSNP and join
         snps = snps.filter(snps.dbSNP.isNotNull())

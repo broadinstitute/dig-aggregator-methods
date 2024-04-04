@@ -13,7 +13,6 @@ class VariantAssociationsStage(implicit context: Context) extends Stage {
 
   val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/*/")
   val mixedDatasets: Input.Source = Input.Source.Success("variants/*/*/*/")
-  val snps: Input.Source = Input.Source.Success("out/varianteffect/snp/")
 
   /** Ouputs to watch. */
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific, mixedDatasets)
