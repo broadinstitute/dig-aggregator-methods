@@ -5,19 +5,6 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
 import org.broadinstitute.dig.aws.emr._
 
-/**
-  * Once all the distinct bi-allelic variants across all datasets have been
-  * identified (VariantListProcessor) then they can be run through VEP in
-  * parallel across multiple VMs.
-  *
-  * VEP TSV input files located at:
-  *
-  *  s3://dig-analysis-data/out/varianteffect/variants
-  *
-  * VEP output JSON written to:
-  *
-  *  s3://dig-analysis-data/out/varianteffect/effects
-  */
 class CQSVepStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
@@ -27,18 +14,20 @@ class CQSVepStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(variants)
 
   private lazy val clusterBootstrap = resourceUri("cluster-bootstrap.sh")
-  private lazy val installScript    = resourceUri("installVEP.sh")
+  private lazy val installScript    = resourceUri("installCQSVEP.sh")
 
   /** Definition of each VM "cluster" of 1 machine that will run VEP.
     */
   override def cluster: ClusterDef = super.cluster.copy(
+    masterInstanceType = Strategy.generalPurpose(vCPUs=16),
     instances = 1,
     masterVolumeSizeInGB = 100,
     applications = Seq.empty,
     bootstrapScripts = Seq(
       new BootstrapScript(clusterBootstrap),
       new BootstrapScript(installScript)
-    )
+    ),
+    stepConcurrency = 4
   )
 
   /** Map inputs to outputs. */

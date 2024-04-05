@@ -5,20 +5,9 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
 import org.broadinstitute.dig.aws.emr._
 
-/**
- * Once all the distinct bi-allelic variants across all datasets have been
- * identified (VariantListProcessor) then they can be run through VEP in
- * parallel across multiple VMs.
- *
- * VEP TSV input files located at:
- *
- *  s3://dig-analysis-data/out/varianteffect/variants
- *
- * VEP output JSON written to:
- *
- *  s3://dig-analysis-data/out/varianteffect/effects
- */
+
 class CommonVepStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
   val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
 
   /** Input sources. */
@@ -30,13 +19,15 @@ class CommonVepStage(implicit context: Context) extends Stage {
   /** Definition of each VM "cluster" of 1 machine that will run VEP.
    */
   override def cluster: ClusterDef = super.cluster.copy(
+    masterInstanceType = Strategy.generalPurpose(vCPUs=16),
     instances = 1,
     masterVolumeSizeInGB = 100,
     applications = Seq.empty,
     bootstrapScripts = Seq(
       new BootstrapScript(clusterBootstrap),
       new BootstrapScript(installScript)
-    )
+    ),
+    stepConcurrency = 4
   )
 
   /** Map inputs to outputs. */
@@ -52,7 +43,7 @@ class CommonVepStage(implicit context: Context) extends Stage {
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
-    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-0000"))
+    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
 
     // add a step for each part file
     new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
