@@ -30,6 +30,7 @@ perl "$VEPDIR/ensembl-vep/vep" \
     --offline \
     --no_stats \
     --nearest symbol \
+    --symbol \
     --af_1kg \
     --pick_allele \
     --exclude_null_alleles \

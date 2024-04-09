@@ -13,5 +13,5 @@ sudo chmod 775 $VEP_ROOT
 cd $VEP_ROOT
 
 # download the VEP program + data and extract it
-sudo aws s3 cp s3://dig-analysis-bin/vep/vep-97.tar.gz .
-sudo tar zxf vep-97.tar.gz
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-97-common.zip .
+sudo unzip vep-97-common.zip
