@@ -1,7 +1,11 @@
 import argparse
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def get_src_df(spark, srcdir):
@@ -46,14 +50,13 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output locations
-    s3_bucket = 'dig-bio-index'
     if args.ancestry == 'Mixed':
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/trans-ethnic/*/part-*'
-        outdir = f's3://{s3_bucket}/associations/phewas'
+        srcdir = f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/*/part-*'
+        outdir = f'{s3_bioindex}/associations/phewas'
     else:
-        srcdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
-        outdir = f's3://{s3_bucket}/ancestry-associations/phewas/{args.ancestry}'
-    clumpdir = f's3://dig-analysis-data/out/credible_sets/merged/*/{args.ancestry}/part-*'
+        srcdir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
+        outdir = f'{s3_bioindex}/ancestry-associations/phewas/{args.ancestry}'
+    clumpdir = f'{s3_in}/out/credible_sets/merged/*/{args.ancestry}/part-*'
 
     df = get_src_df(spark, srcdir) \
         .withColumn('ancestry', lit(args.ancestry))

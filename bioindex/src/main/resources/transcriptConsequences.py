@@ -1,4 +1,8 @@
+import os
 from pyspark.sql import SparkSession
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
@@ -8,8 +12,8 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = f's3://dig-analysis-data/out/varianteffect/cqs/*.json'
-    outdir = f's3://dig-bio-index/transcript_consequences'
+    srcdir = f'{s3_in}/out/varianteffect/cqs/*.json'
+    outdir = f'{s3_bioindex}/transcript_consequences'
 
     # load the common effect data
     df = spark.read.json(srcdir)

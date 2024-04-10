@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-
-s3_bucket = 'dig-bio-index'
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 # color map
 COLORS = ['#08306b', '#41ab5d', '#000000', '#f16913', '#3f007d', '#cb181d']
@@ -78,14 +78,14 @@ def check_args(args):
 
 def get_input_output(args):
     if args.dataset is not None:
-        return f's3://dig-analysis-data/variants/{args.dataset}',\
-               f's3://{s3_bucket}/plot/dataset/{args.dataset}'
+        return f'{s3_in}/variants/{args.dataset}',\
+               f'{s3_bioindex}/plot/dataset/{args.dataset}'
     elif args.ancestry == 'Mixed':
-        return f's3://dig-analysis-data/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}',\
-               f's3://{s3_bucket}/plot/phenotype/{args.phenotype}'
+        return f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}',\
+               f'{s3_bioindex}/plot/phenotype/{args.phenotype}'
     else:
-        return f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}', \
-               f's3://{s3_bucket}/plot/phenotype/{args.phenotype}/{args.ancestry}'
+        return f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}', \
+               f'{s3_bioindex}/plot/phenotype/{args.phenotype}/{args.ancestry}'
 
 
 def get_and_uncompress_parts_if_needed(srcdir, parts_dir):

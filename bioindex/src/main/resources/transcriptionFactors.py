@@ -1,6 +1,10 @@
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import split
 from pyspark.sql.types import IntegerType
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
@@ -10,8 +14,8 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = 's3://dig-analysis-data/transcription_factors/*/part-*'
-    outdir = 's3://dig-bio-index/transcription_factors'
+    srcdir = f'{s3_in}/transcription_factors/*/part-*'
+    outdir = f'{s3_bioindex}/transcription_factors'
 
     # load all the unique variants
     df = spark.read.json(srcdir)

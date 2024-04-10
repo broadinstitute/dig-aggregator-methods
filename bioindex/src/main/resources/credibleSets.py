@@ -1,6 +1,10 @@
 import argparse
+import os
 
 from pyspark.sql import SparkSession, Row
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
@@ -14,8 +18,8 @@ def main():
     args = opts.parse_args()
 
     # read all
-    srcdir = f's3://dig-analysis-data/credible_sets/*/{args.phenotype}/part-*'
-    outdir = f's3://dig-bio-index/credible_sets'
+    srcdir = f'{s3_in}/credible_sets/*/{args.phenotype}/part-*'
+    outdir = f'{s3_bioindex}/credible_sets'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()

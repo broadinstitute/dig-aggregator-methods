@@ -1,19 +1,21 @@
+import os
 import re
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, input_file_name, udf
 
-OUT_BUCKET = f'dig-bio-index'
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
     """
     Arguments: none
     """
-    common_dir = f's3://dig-analysis-data/out/huge/common/*/part-*'
-    rare_dir = f's3://dig-analysis-data/out/huge/rare/*/part-*'
-    gene_outdir = f's3://{OUT_BUCKET}/huge/gene'
-    phenotype_outdir = f's3://{OUT_BUCKET}/huge/phenotype'
+    common_dir = f'{s3_in}/out/huge/common/*/part-*'
+    rare_dir = f'{s3_in}/out/huge/rare/*/part-*'
+    gene_outdir = f'{s3_bioindex}/huge/gene'
+    phenotype_outdir = f'{s3_bioindex}/huge/phenotype'
 
     # pull out phenotype from input file name (for either common or rare)
     phenotype_of_source = udf(lambda s: s and re.search(src_re, s).group(2))
