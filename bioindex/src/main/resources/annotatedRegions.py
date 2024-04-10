@@ -1,15 +1,20 @@
 import re
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 from pyspark.sql.functions import input_file_name, udf
 
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
+
+
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = f's3://dig-analysis-data/out/ldsc/regions/merged/annotation-tissue/*/*.csv'
-    outdir = 's3://dig-bio-index/regions'
+    srcdir = f'{s3_in}/out/ldsc/regions/merged/annotation-tissue/*/*.csv'
+    outdir = f'{s3_bioindex}/regions'
 
     # input summary stats schema
     schema = StructType([

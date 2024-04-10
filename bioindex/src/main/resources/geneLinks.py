@@ -1,4 +1,8 @@
+import os
 from pyspark.sql import SparkSession
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
@@ -7,8 +11,8 @@ def main():
     """
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = 's3://dig-analysis-data/annotated_regions/target_gene_links/*'
-    outdir = 's3://dig-bio-index/regions/gene_links'
+    srcdir = f'{s3_in}/annotated_regions/target_gene_links/*'
+    outdir = f'{s3_bioindex}/regions/gene_links'
 
     df = spark.read.json(f'{srcdir}/part-*')
 

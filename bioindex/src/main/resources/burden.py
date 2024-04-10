@@ -1,5 +1,9 @@
 import argparse
+import os
 from pyspark.sql import SparkSession
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 key_map = {
@@ -19,8 +23,8 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    srcdir = f's3://dig-analysis-data/out/burdenbinning/{args.run_type}/*'
-    outdir = f's3://dig-bio-index/burden'
+    srcdir = f'{s3_in}/out/burdenbinning/{args.run_type}/*'
+    outdir = f'{s3_bioindex}/burden'
     key = key_map[args.run_type]
 
     df = spark.read.json(f'{srcdir}/part-*')

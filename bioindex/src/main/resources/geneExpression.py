@@ -1,5 +1,9 @@
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
@@ -8,8 +12,8 @@ def main():
     """
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = 's3://dig-analysis-data/annotated_regions/gene_expression_levels/*'
-    outdir = 's3://dig-bio-index/regions/gene_expression'
+    srcdir = f'{s3_in}/annotated_regions/gene_expression_levels/*'
+    outdir = f'{s3_bioindex}/regions/gene_expression'
 
     # load all variant prediciton regions
     df = spark.read.json(f'{srcdir}/part-*')

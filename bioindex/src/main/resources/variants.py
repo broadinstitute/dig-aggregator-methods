@@ -1,6 +1,10 @@
+import os
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, concat_ws, explode, regexp_replace, row_number, split
 from pyspark.sql.types import IntegerType
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
@@ -9,8 +13,8 @@ def main():
     """
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
-    outdir = 's3://dig-bio-index/variants/common/'
+    srcdir = f'{s3_in}/out/varianteffect/common/part-*'
+    outdir = f'{s3_bioindex}/variants/common/'
 
     df = spark.read.json(srcdir)
 

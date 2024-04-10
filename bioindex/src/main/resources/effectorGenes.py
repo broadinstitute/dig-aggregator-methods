@@ -1,25 +1,17 @@
-from os import getenv
-from platform import python_version
+import os
 from pyspark.sql import SparkSession
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
-    """
-    Arguments: none
-    """
-    print(f'PYTHON VERSION = {python_version()}')
-    print(f'USER           = {getenv("USER")}')
-
-    # load environment variables
-    bucket = getenv('JOB_BUCKET')  # e.g. s3://dig-analysis-data
-    method = getenv('JOB_METHOD')  # e.g. Test
-
     # PySpark steps need to create a spark session
-    spark = SparkSession.builder.appName(method).getOrCreate()
+    spark = SparkSession.builder.appName('Bioindex').getOrCreate()
 
     # src and output
-    srcdir = f'{bucket}/effector_genes/*/part-*'
-    outdir = f'dig-bio-{"test" if getenv("JOB_DRYRUN") else "index"}/effector_genes'
+    srcdir = f'{s3_in}/effector_genes/*/part-*'
+    outdir = f'{s3_bioindex}/effector_genes'
 
     # load all the effector gene datasets
     df = spark.read.json(srcdir)

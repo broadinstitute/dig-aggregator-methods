@@ -1,7 +1,9 @@
 import os
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
@@ -11,12 +13,12 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # where to read input from
-    variants_dir = 's3://dig-analysis-data/variant_counts/*/*/*/part-*'
-    genes_dir = 's3://dig-analysis-data/genes/GRCh37/part-*'
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common/part-*'
+    variants_dir = f'{s3_in}/variant_counts/*/*/*/part-*'
+    genes_dir = f'{s3_in}/genes/GRCh37/part-*'
+    common_dir = f'{s3_in}/out/varianteffect/common/part-*'
 
     # where to write the output to
-    outdir = f's3://dig-bio-index/variants/gene'
+    outdir = f'{s3_bioindex}/variants/gene'
 
     # load all the variant counts
     variants = spark.read.json(variants_dir)
@@ -39,7 +41,8 @@ def main():
         .drop(genes.chromosome)
 
     # join with common data per variant
-    df = df.join(common, on='varId', how='left_outer')
+    df = df.join(common, on='varId', how='left_outer') \
+        .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
 
     # index by position
     df.orderBy(['gene']) \

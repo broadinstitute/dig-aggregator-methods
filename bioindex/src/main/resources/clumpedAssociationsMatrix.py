@@ -1,7 +1,11 @@
 import argparse
+import os
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import lit
+
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def get_clump_df(spark, clumpdir):
@@ -36,21 +40,20 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output locations
-    s3_bucket = 'dig-bio-index'
-    clumpdir = f's3://dig-analysis-data/out/credible_sets/merged/*/{args.ancestry}/part-*'
+    common_dir = f'{s3_in}/out/varianteffect/common'
+    clumpdir = f'{s3_in}/out/credible_sets/merged/*/{args.ancestry}/part-*'
     if args.ancestry == 'Mixed':
-        assocsdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/trans-ethnic/*/part-*'
-        outdir = f's3://{s3_bucket}/associations/matrix'
+        assocsdir = f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/*/part-*'
+        outdir = f'{s3_bioindex}/associations/matrix'
     else:
-        assocsdir = f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
-        outdir = f's3://{s3_bucket}/ancestry-associations/matrix/{args.ancestry}'
+        assocsdir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
+        outdir = f'{s3_bioindex}/ancestry-associations/matrix/{args.ancestry}'
 
     clumps = get_clump_df(spark, clumpdir) \
         .withColumn('ancestry', lit(args.ancestry))
     assocs = get_assocs_df(spark, assocsdir)
-
-    common_dir = 's3://dig-analysis-data/out/varianteffect/common'
-    common = spark.read.json(f'{common_dir}/part-*')
+    common = spark.read.json(f'{common_dir}/part-*') \
+        .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
 
     # join to build the associations matrix
     df = clumps.join(assocs, on='varId', how='inner')

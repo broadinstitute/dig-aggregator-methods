@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 import gzip
 import json
+import os
 import subprocess
 
-
-outdir = 's3://dig-bio-index/gene_to_transcript/'
+s3_in = os.environ['INPUT_PATH']
+s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def get_info(line):
@@ -29,11 +30,11 @@ def write_to_bioindex(out):
             for (transcript_id, ccds) in transcript_ids:
                 line_str = json.dumps({'gene_name': gene_name, 'transcript_id': transcript_id, 'CCDS': ccds})
                 f.write(f'{line_str}\n')
-    subprocess.check_call(['aws', 's3', 'cp', 'part-00000.json', outdir])
+    subprocess.check_call(['aws', 's3', 'cp', 'part-00000.json', f'{s3_bioindex}/gene_to_transcript/'])
 
 
 def main():
-    subprocess.check_call(['aws', 's3', 'cp', 's3://dig-analysis-data/raw/gencode.v36lift37.annotation.gtf.gz', './'])
+    subprocess.check_call(['aws', 's3', 'cp', 's3://dig-analysis-bin/bioindex/gencode.v36lift37.annotation.gtf.gz', './'])
     out = {}
     with gzip.open('gencode.v36lift37.annotation.gtf.gz', 'r') as f:
         line = f.readline().decode()
