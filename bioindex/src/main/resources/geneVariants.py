@@ -42,7 +42,7 @@ def main():
 
     # join with common data per variant
     df = df.join(common, on='varId', how='left_outer') \
-        .select('varId', 'dbSNP', 'consequence', 'nearest')
+        .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
 
     # index by position
     df.orderBy(['gene']) \

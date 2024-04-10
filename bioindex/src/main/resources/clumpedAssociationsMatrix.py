@@ -53,7 +53,7 @@ def main():
         .withColumn('ancestry', lit(args.ancestry))
     assocs = get_assocs_df(spark, assocsdir)
     common = spark.read.json(f'{common_dir}/part-*') \
-        .select('varId', 'dbSNP', 'consequence', 'nearest')
+        .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
 
     # join to build the associations matrix
     df = clumps.join(assocs, on='varId', how='inner')

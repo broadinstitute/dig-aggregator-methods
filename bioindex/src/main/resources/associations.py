@@ -36,7 +36,7 @@ def main():
 
     # common vep data (can we cache this?)
     common = spark.read.json(common_dir) \
-        .select('varId', 'dbSNP', 'consequence', 'nearest')
+        .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
 
     # join the common data
     df = df.join(common, 'varId', how='left_outer')

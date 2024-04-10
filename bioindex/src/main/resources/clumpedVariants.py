@@ -33,7 +33,7 @@ def main():
         .filter(clumps.source != 'credible_set') \
         .drop('credibleSetId')
     common = spark.read.json(f'{common_dir}/part-*') \
-        .select('varId', 'dbSNP', 'consequence', 'nearest')
+        .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
 
     # join to get and common fields
     clumps = clumps.join(common, on='varId', how='left_outer')

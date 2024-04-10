@@ -38,7 +38,7 @@ def main():
 
     # load common data for variants and join
     common = spark.read.json(common_dir) \
-        .select('varId', 'dbSNP', 'consequence', 'nearest')
+        .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
     df = df.join(common, on='varId', how='left')
 
     # sort all by clump range
