@@ -5,10 +5,11 @@ from pyspark.sql.functions import col, exp, lit, min, max, signum, sum, udf, whe
 from pyspark.sql.types import StringType, DoubleType
 
 import numpy as np
+import os
 from scipy.stats import norm
 
-s3_in = 's3://dig-analysis-data'
-s3_out = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_src_dir(args):
