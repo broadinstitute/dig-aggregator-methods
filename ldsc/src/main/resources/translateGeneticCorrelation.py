@@ -9,7 +9,8 @@ from scipy.stats import norm
 import subprocess
 
 downloaded_files = '/mnt/var/ldsc'
-s3_path = 's3://dig-analysis-data/out/ldsc/genetic_correlation'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_phenotype_ancestries():
@@ -89,7 +90,7 @@ def upload_data(phenotype, data):
                 output_data['other_phenotype'] = other_phenotype
                 output_data['ancestry'] = ancestry
                 f.write(json.dumps(output_data) + '\n')
-    subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_path}/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_out}/out/ldsc/genetic_correlation/{phenotype}/'])
     os.remove(file)
 
 

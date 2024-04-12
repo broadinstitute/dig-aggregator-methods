@@ -1,11 +1,14 @@
 #!/usr/bin/python3
 import argparse
+import os
 import platform
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
 from pyspark.sql.functions import col, concat_ws, lit, lower, regexp_replace, udf, when
 
-S3DIR = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
+
 # BED files need to be sorted by chrom/start, this orders the chromosomes
 CHROMOSOMES = list(map(lambda c: str(c + 1), range(22))) + ['X', 'Y', 'MT']
 
@@ -70,8 +73,8 @@ def main():
     partitions = ['annotation', 'tissue', 'biosample', 'dataset']
 
     # get the source and output directories
-    srcdir = f'{S3DIR}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
-    outdir = f'{S3DIR}/out/ldsc/regions/partitioned/{args.dataset}'
+    srcdir = f'{s3_in}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
+    outdir = f'{s3_out}/out/ldsc/regions/partitioned/{args.dataset}'
 
     # create a spark session
     spark = SparkSession.builder.appName('ldsc').getOrCreate()

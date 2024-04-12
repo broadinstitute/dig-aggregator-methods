@@ -21,7 +21,8 @@ ldsc_files = f'{downloaded_files}/ldsc'
 sumstat_files = f'{downloaded_files}/sumstats'
 ldscore_files = f'{downloaded_files}/ldscore'
 
-s3_path = 's3://dig-analysis-data/out/ldsc/staging/genetic_correlation'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def run_all(ancestry, phenotype, all_files):
@@ -36,7 +37,7 @@ def run_all(ancestry, phenotype, all_files):
 
 def upload_and_remove_output(ancestry, phenotype):
     file = f'./{phenotype}_{ancestry}.log'
-    subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_path}/ancestry={ancestry}/'])
+    subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_out}/out/ldsc/staging/genetic_correlation/ancestry={ancestry}/'])
     os.remove(file)
 
 

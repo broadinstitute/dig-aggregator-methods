@@ -22,8 +22,8 @@ baseline_files = f'{downloaded_files}/baseline'
 weight_files = f'{downloaded_files}/weights'
 frq_files = f'{downloaded_files}/frq'
 
-s3_in = 's3://dig-analysis-data'
-s3_out = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_regions(ancestry, sub_region, regions):

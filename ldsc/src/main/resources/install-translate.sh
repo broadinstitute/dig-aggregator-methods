@@ -6,7 +6,7 @@ LDSC_ROOT=/mnt/var/ldsc
 sudo mkdir -p "$LDSC_ROOT"
 cd "$LDSC_ROOT"
 
-# Download all logs to be translated
+# Download all logs to be translated TODO: fix
 sudo aws s3 cp s3://dig-analysis-data/out/ldsc/staging/genetic_correlation/ ./ --recursive
 sudo rm ./*/_SUCCESS
 

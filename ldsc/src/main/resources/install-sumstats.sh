@@ -10,12 +10,12 @@ sudo mkdir -p "$LDSC_ROOT"
 cd "$LDSC_ROOT"
 
 # Download zipped version of python 3 ldsc codebase
-sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/ldsc-python-3-2023-03-09.zip ./
-sudo unzip ldsc-python-3-2023-03-09.zip -d ./ldsc/
+sudo aws s3 cp s3://dig-analysis-bin/ldsc/ldsc-python-3-2024-03-27.zip ./ldsc.zip
+sudo unzip ldsc.zip -d ./ldsc/
 
 ## Download hapmap3 snps (full)
 # From https://data.broadinstitute.org/alkesgroup/LDSCORE/w_hm3.snplist.bz2 downloaded September 9, 2022
-sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/w_hm3.snplist.bz2 ./
+sudo aws s3 cp s3://dig-analysis-bin/ldsc/w_hm3.snplist.bz2 ./
 sudo bunzip2 w_hm3.snplist.bz2
 sudo mkdir ./snps
 sudo mv w_hm3.snplist ./snps/
@@ -42,4 +42,4 @@ pip3 install -U scipy
 pip3 install -U pandas
 
 # fetch snps for mapping
-sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
+sudo aws s3 cp s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv ./snps.csv
