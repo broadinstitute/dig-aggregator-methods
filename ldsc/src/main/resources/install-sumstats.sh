@@ -42,4 +42,4 @@ pip3 install -U scipy
 pip3 install -U pandas
 
 # fetch snps for mapping
-sudo aws s3 cp s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv ./snps.csv
+sudo aws s3 cp s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv ./snp.csv
