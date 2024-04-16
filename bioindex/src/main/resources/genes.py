@@ -11,7 +11,7 @@ def main():
     """
     Arguments: none
     """
-    srcdir = f'{s3_in}/genes/GRCh37/part-*'
+    srcdir = f's3://dig-analysis-bin/genes/GRCh37/part-*'
     outdir = f'{s3_bioindex}/genes'
 
     # all valid chromosomes

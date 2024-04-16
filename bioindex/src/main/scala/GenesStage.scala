@@ -8,7 +8,8 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class GenesStage(implicit context: Context) extends Stage {
-  val genes = Input.Source.Dataset("genes/")
+  val binBucket: S3.Bucket = new S3.Bucket("dig-analysis-bin", None)
+  val genes: Input.Source = Input.Source.Raw("genes/GRCh37/part-00000.json", s3BucketOverride=Some(binBucket))
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(genes)
