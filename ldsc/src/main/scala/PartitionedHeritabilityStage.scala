@@ -10,10 +10,10 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val sumstats: Input.Source = Input.Source.Raw("out/ldsc/sumstats/*/*/*.sumstats.gz")
-  val portalBucket: S3.Bucket = S3.Bucket("dig-analysis-data", None)
+  val portalBucket: S3.Bucket = new S3.Bucket("dig-analysis-data", None)
   val annotations: Input.Source = Input.Source.Success(
     s"out/ldsc/regions/combined_ld/*/*/*/",
-    s3BucketOverride = portalBucket
+    s3BucketOverride = Some(portalBucket)
   )
 
   /** Source inputs. */
