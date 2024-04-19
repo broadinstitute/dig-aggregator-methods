@@ -9,12 +9,15 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class GeneVariantsStage(implicit context: Context) extends Stage {
-  val genes  = Input.Source.Dataset("genes/GRCh37/")
-  val counts = Input.Source.Dataset("variant_counts/*/*/*/")
-  val vep    = Input.Source.Success("out/varianteffect/effects/")
+  import MemorySize.Implicits._
+
+  val genes: Input.Source = Input.Source.Dataset("genes/GRCh37/")
+  val counts: Input.Source = Input.Source.Dataset("variant_counts/*/*/*/")
+  val cqs: Input.Source = Input.Source.Success("out/varianteffect/cqs/")
+  val common: Input.Source = Input.Source.Success("out/varianteffect/common/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(genes, counts, vep)
+  override val sources: Seq[Input.Source] = Seq(genes, counts, cqs, common)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
@@ -23,7 +26,9 @@ class GeneVariantsStage(implicit context: Context) extends Stage {
 
   /** Use latest EMR release. */
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 5
+    masterVolumeSizeInGB = 100,
+    slaveVolumeSizeInGB = 100,
+    instances = 6
   )
 
   /** Output to Job steps. */

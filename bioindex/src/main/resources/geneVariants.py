@@ -1,9 +1,12 @@
 import os
-
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, Row
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
+
+
+def to_dict(row, cols):
+    return {k: row[k] for k in cols if k in row and row[k] is not None}
 
 
 def main():
@@ -15,6 +18,7 @@ def main():
     # where to read input from
     variants_dir = f'{s3_in}/variant_counts/*/*/*/part-*'
     genes_dir = f'{s3_in}/genes/GRCh37/part-*'
+    cqs_dir = f'{s3_in}/out/varianteffect/cqs/part-*'
     common_dir = f'{s3_in}/out/varianteffect/common/part-*'
 
     # where to write the output to
@@ -28,9 +32,6 @@ def main():
     genes = genes.filter(genes.source == 'symbol') \
         .withColumnRenamed('name', 'gene')
 
-    # load variant effects, keep only the pick=1 consequence
-    common = spark.read.json(common_dir)
-
     # keep only variants overlapping genes
     overlap = (variants.chromosome == genes.chromosome) & \
         (variants.position >= genes.start) & \
@@ -41,8 +42,31 @@ def main():
         .drop(genes.chromosome)
 
     # join with common data per variant
-    df = df.join(common, on='varId', how='left_outer') \
+    common = spark.read.json(common_dir)
+    df = df.join(common, on='varId', how='left') \
         .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
+
+    # join with cqs data per variant (as list)
+    cqs = spark.read.json(cqs_dir)
+    cqs = cqs.drop('chromosome', 'position')
+
+    cols = [c for c in cqs.columns if c not in ['varId']]
+    flat_df = variants.join(cqs, on='varId', how='left')
+    vep_records = flat_df.rdd \
+        .keyBy(lambda r: r.varId) \
+        .combineByKey(
+            lambda row: [to_dict(row, cols)],
+            lambda rows, row: rows + [to_dict(row, cols)],
+            lambda rows1, rows2: rows1 + rows2
+        ) \
+        .map(lambda r: Row(
+            varId=r[0],
+            vepRecords=r[1]
+        )) \
+        .repartition(500) \
+        .toDF()
+
+    df = df.join(vep_records, on='varId', how='left')
 
     # index by position
     df.orderBy(['gene']) \
