@@ -8,8 +8,12 @@ import org.broadinstitute.dig.aws.MemorySize
 class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val sumstats: Input.Source = Input.Source.Success("out/ldsc/sumstats/*/*/")
-  val annotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/combined_ld/*/*/*/")
+  val sumstats: Input.Source = Input.Source.Raw("out/ldsc/sumstats/*/*/*.sumstats.gz")
+  val portalBucket: S3.Bucket = S3.Bucket("dig-analysis-data", None)
+  val annotations: Input.Source = Input.Source.Success(
+    s"out/ldsc/regions/combined_ld/*/*/*/",
+    s3BucketOverride = portalBucket
+  )
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(sumstats, annotations)
