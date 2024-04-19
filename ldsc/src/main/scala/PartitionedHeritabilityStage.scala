@@ -1,6 +1,7 @@
 package org.broadinstitute.dig.aggregator.methods.ldsc
 
 import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
