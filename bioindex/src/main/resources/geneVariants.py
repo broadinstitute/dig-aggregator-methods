@@ -42,9 +42,9 @@ def main():
         .drop(genes.chromosome)
 
     # join with common data per variant
-    common = spark.read.json(common_dir)
-    df = df.join(common, on='varId', how='left') \
+    common = spark.read.json(common_dir) \
         .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
+    df = df.join(common, on='varId', how='left')
 
     # join with cqs data per variant (as list)
     cqs = spark.read.json(cqs_dir)
