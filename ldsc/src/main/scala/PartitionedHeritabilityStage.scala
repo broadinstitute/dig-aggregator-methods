@@ -30,7 +30,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
 
   // TODO: At the moment this will always rerun everything which isn't ideal
   override val rules: PartialFunction[Input, Outputs] = {
-    case sumstats(phenotype, ancestry) =>
+    case sumstats(phenotype, ancestry, _) =>
       allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
       Outputs.Named(ancestry.split('=').last)
     case annotations(_, subRegion, region) =>
