@@ -13,15 +13,17 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def get_phenotype_ancestries():
+def get_phenotype_project_ancestries():
     out = {}
-    for file in glob.glob(f'{downloaded_files}/*/*'):
-        filename_parts = re.findall('.*/(.+).log', file)[0].split('_')
-        phenotype = '_'.join(filename_parts[:-1])
-        ancestry = filename_parts[-1]
+    for file in glob.glob(f'{downloaded_files}/*/*/*.log'):
+        ancestry, project, phenotype_ancestry = \
+            re.findall(f'{downloaded_files}/ancestry=([^/]*)/([^/]*)/([^/]*).log', file)[0]
+        phenotype = re.findall(f'(.*)_{ancestry}', phenotype_ancestry)[0]
         if phenotype not in out:
-            out[phenotype] = []
-        out[phenotype].append(ancestry)
+            out[phenotype] = {}
+        if project not in out[phenotype]:
+            out[phenotype][project] = []
+        out[phenotype][project].append(ancestry)
     return out
 
 
@@ -48,10 +50,10 @@ def translate(ancestry, file):
     return out
 
 
-def get_data(phenotype, ancestries):
+def get_data(phenotype, project, ancestries):
     out = {}
     for ancestry in ancestries:
-        file = f'{downloaded_files}/ancestry={ancestry}/{phenotype}_{ancestry}.log'
+        file = f'{downloaded_files}/ancestry={ancestry}/{project}/{phenotype}_{ancestry}.log'
         data = translate(ancestry, file)
         for other_phenotype in data:
             if other_phenotype not in out:
@@ -84,21 +86,25 @@ def meta_analyze(data):
 def upload_data(phenotype, data):
     file = f'./{phenotype}.json'
     with open(file, 'w') as f:
-        for other_phenotype, ancestry_data in data.items():
-            for ancestry, output_data in ancestry_data.items():
-                output_data['phenotype'] = phenotype
-                output_data['other_phenotype'] = other_phenotype
-                output_data['ancestry'] = ancestry
-                f.write(json.dumps(output_data) + '\n')
+        for project, project_data in data.items():
+            for other_phenotype, ancestry_data in project_data.items():
+                for ancestry, output_data in ancestry_data.items():
+                    output_data['phenotype'] = phenotype
+                    output_data['other_phenotype'] = other_phenotype
+                    output_data['ancestry'] = ancestry
+                    output_data['project'] = project
+                    f.write(json.dumps(output_data) + '\n')
     subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_out}/out/ldsc/genetic_correlation/{phenotype}/'])
     os.remove(file)
 
 
 def main():
-    phenotype_ancestries = get_phenotype_ancestries()
-    for phenotype, ancestries in phenotype_ancestries.items():
-        data = get_data(phenotype, ancestries)
-        data = meta_analyze(data)
+    phenotype_ancestries = get_phenotype_project_ancestries()
+    for phenotype, project_ancestries in phenotype_ancestries.items():
+        data = {}
+        for project, ancestries in project_ancestries.items():
+            project_data = get_data(phenotype, project, ancestries)
+            data[project] = meta_analyze(project_data)
         upload_data(phenotype, data)
 
 
