@@ -4,23 +4,24 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
-class IntakeStage(implicit context: Context) extends Stage {
+class CombineStage(implicit context: Context) extends Stage {
+
   override val cluster: ClusterDef = super.cluster.copy(
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("intake_bootstrap.sh"))),
     instances = 1,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("intake_bootstrap.sh"))),
     stepConcurrency = 5
   )
 
-  val raw: Input.Source = Input.Source.Dataset("gene_associations_raw/*/*/*/")
+  val intake = Input.Source.Success("gene_associations/intake/*/*/*/")
 
-  override val sources: Seq[Input.Source] = Seq(raw)
+  override val sources: Seq[Input.Source] = Seq(intake)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case raw(testType, dataset, phenotype)  => Outputs.Named(s"$testType/$dataset/$phenotype")
+    case intake(phenotype, _, _) => Outputs.Named(phenotype)
   }
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("intake.py"), s"--path=$output"))
+    new Job(Job.Script(resourceUri("combine.py"), s"--phenotype=$output"))
   }
 }

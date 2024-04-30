@@ -17,7 +17,7 @@ def download_phenotype_file(path):
 def get_metadata(path):
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/gene_associations_raw/{path}/metadata', '.'])
     with open('metadata', 'r') as f:
-        data = json.loads(f)
+        data = json.load(f)
     os.remove('metadata')
     return data
 
@@ -37,18 +37,20 @@ def add_optional_field(mask, field, field_out, typ, default=None):
     return mask
 
 
-def get_converted_mask_output(dataset, phenotype, mask_col_map, default_n):
+def get_converted_mask_output(test_type, dataset, phenotype, mask_col_map, default_n):
     output = {}
     with gzip.open('mask_results.tsv.gz', 'r') as f:
         header = f.readline().decode().strip()
         line = f.readline().decode().strip()
         while len(line) > 0:
             line_dict = dict(zip(header.split('\t'), line.split('\t')))
-            if line_dict['gene'] not in output:
-                output[line_dict['gene']] = {
+            gene = line_dict[mask_col_map['gene']]
+            if gene not in output:
+                output[gene] = {
+                    'test_type': test_type,
                     'dataset': dataset,
                     'phenotype': phenotype,
-                    'gene': line_dict[mask_col_map['gene']],
+                    'gene': gene,
                     'masks': []
                 }
             mask = {'mask': line_dict[mask_col_map['mask']]}
@@ -60,8 +62,9 @@ def get_converted_mask_output(dataset, phenotype, mask_col_map, default_n):
             mask = add_optional_field(mask, line_dict.get(mask_col_map['singleVariants'], ''), 'singleVariants', int)
             mask = add_optional_field(mask, line_dict.get(mask_col_map['passingVariants'], ''), 'passingVariants', int)
 
-            output[line_dict['gene']]['masks'].append(mask)
+            output[gene]['masks'].append(mask)
             line = f.readline().decode().strip()
+    os.remove('mask_results.tsv.gz')
     return output
 
 
@@ -69,9 +72,13 @@ def upload_output(path, output):
     with open(f'part-00000.json', 'w') as f:
         for line in output.values():
             f.write(f'{json.dumps(line)}\n')
-    subprocess.check_call(['aws', 's3', 'cp', f'part-00000.json', f'{s3_out}/gene_associations/{path}/part-00000.json'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/gene_associations_raw/{path}/metadata', f'{s3_out}/gene_associations/{path}/metadata'])
-    os.remove(f'part-00000.json')
+    test_type, dataset, phenotype = path.split('/')
+    path_out = f'{s3_out}/gene_associations/intake/{phenotype}/{test_type}/{dataset}'
+    subprocess.check_call(['aws', 's3', 'cp', f'part-00000.json', f'{path_out}/part-00000.json'])
+    subprocess.check_call(['touch', '_SUCCESS'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{path_out}/_SUCCESS'])
+    os.remove('part-00000.json')
+    os.remove('_SUCCESS')
 
 
 def main():
@@ -84,12 +91,11 @@ def main():
     # parse command line
     args = opts.parse_args()
     path = args.path
-    cohort, dataset, phenotype = args.path.split('/')
+    test_type, dataset, phenotype = args.path.split('/')
     download_phenotype_file(path)
     metadata = get_metadata(path)
-    converted_output = get_converted_mask_output(dataset, phenotype, metadata['column_map_mask'], eff_n(metadata))
+    converted_output = get_converted_mask_output(test_type, dataset, phenotype, metadata['column_map_mask'], eff_n(metadata))
     upload_output(path, converted_output)
-    os.remove(path)
 
 
 if __name__ == '__main__':

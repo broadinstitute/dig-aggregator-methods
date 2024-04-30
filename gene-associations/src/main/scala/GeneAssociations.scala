@@ -14,5 +14,7 @@ object GeneAssociations extends Method {
     addStage(new IntakeGenebassStage)
     addStage(new Combine600TraitStage)
     addStage(new CombineAssociationsStage)
+    addStage(new IntakeStage)
+    addStage(new CombineStage)
   }
 }
