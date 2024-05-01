@@ -1,61 +1,27 @@
-package org.broadinstitute.dig.aggregator.methods.hugecache
+package org.broadinstitute.dig.aggregator.methods.huge
 
-import org.broadinstitute.dig.aggregator.core.{Context, Input, Outputs, Stage}
-import org.broadinstitute.dig.aws.emr.{ClusterDef, Job}
+import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws._
+import org.broadinstitute.dig.aws.emr._
 
-/** This is a stage in your method.
-  *
-  * Stages take one or more inputs and generate one or more outputs. Each
-  * stage consists of a...
-  *
-  *   - list of input sources;
-  *   - rules mapping inputs to outputs;
-  *   - make function that returns a job used to produce a given output
-  *
-  * Optionally, a stage can also override...
-  *
-  *   - its name, which defaults to its class name
-  *   - the cluster definition used to provision EC2 instances
-  */
 class HugeCacheStage(implicit context: Context) extends Stage {
 
-  val variantCqsDir: String   = "out/varianteffect/cqs/"
-  val nearestGenesDir: String = "out/huge/nearestgenes/"
-  val cacheDir                = "out/huge/cache/"
+  val variantCommon: Input.Source = Input.Source.Success("out/varianteffect/common/")
+  val nearestGenes: Input.Source = Input.Source.Success("out/huge/nearestgenes/")
 
-  val variantCqs: Input.Source   = Input.Source.Success(variantCqsDir)
-  val nearestGenes: Input.Source = Input.Source.Success(nearestGenesDir)
+  override val sources: Seq[Input.Source] = Seq(variantCommon, nearestGenes)
 
-  /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(variantCqs, nearestGenes)
-
-  /* Define settings for the cluster to run the job.
-   */
   override val cluster: ClusterDef = {
-    super.cluster.copy(instances = 3)
+    super.cluster.copy(
+      instances = 3
+    )
   }
 
-  /** Map inputs to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
     case _ => Outputs.Named("HugeCache")
   }
 
-  /** One job per phenotype (e.g. T2D)
-    */
   override def make(output: String): Job = {
-    val script = resourceUri("huge-cache.py")
-    println(s"Making job with script $script, ignoring parameter $output.")
-    val bucket = context.s3
-    new Job(
-      Job.PySpark(
-        script,
-        "--cqs",
-        bucket.s3UriOf(variantCqsDir).toString,
-        "--nearest-genes",
-        bucket.s3UriOf(nearestGenesDir).toString,
-        "--cache-dir",
-        bucket.s3UriOf(cacheDir).toString
-      )
-    )
+    new Job(Job.PySpark(resourceUri("huge-cache.py")))
   }
 }

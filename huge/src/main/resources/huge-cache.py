@@ -1,27 +1,27 @@
-import argparse
+import os
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import col
-from datetime import datetime
+
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def main():
-    """
-    Arguments: none
-    """
-    arg_parser = argparse.ArgumentParser(prog='huge-cache.py')
-    arg_parser.add_argument("--cqs", help="Variant CQS data", required=True)
-    arg_parser.add_argument("--nearest-genes", help="Variant effect data", required=True)
-    arg_parser.add_argument("--cache-dir", help="The cache directory to write to", required=True)
-    cli_args = arg_parser.parse_args()
-    files_glob = 'part-*'
-    variant_cqs_glob = cli_args.cqs + files_glob
-    nearest_genes_glob = cli_args.nearest_genes + files_glob
-    cache_dir = cli_args.cache_dir
+    variants_common_dir = f'{s3_in}/out/varianteffect/common'
+    nearest_gene_dir = f'{s3_in}/out/huge/nearestgenes'
+    out_dir = f'{s3_out}/out/huge/cache'
+
     spark = SparkSession.builder.appName('huge-cache').getOrCreate()
-    cqs_cache = spark.read.json(variant_cqs_glob).select('varId', 'impact', 'geneId').filter(col("pick") == 1)
-    nearest_genes_cache = spark.read.json(nearest_genes_glob).select("varId", "nearest_gene")
-    cache = cqs_cache.join(nearest_genes_cache, ["varId"], "outer")
-    cache.write.mode('overwrite').json(cache_dir)
+
+    common_cache = spark.read \
+        .json(f'{variants_common_dir}/part-*') \
+        .select('varId', 'consequenceImpact', 'consequenceGeneId')
+    nearest_genes_cache = spark.read.json(f'{nearest_gene_dir}/part-*') \
+        .select("varId", "nearestGene")
+
+    cache = common_cache.join(nearest_genes_cache, ["varId"], "outer")
+    cache.write \
+        .mode('overwrite') \
+        .json(out_dir)
     spark.stop()
 
 
