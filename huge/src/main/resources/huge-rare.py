@@ -1,9 +1,13 @@
 import argparse
 import math
+import os
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import sqrt, exp, udf, when
+from pyspark.sql.functions import sqrt, exp, udf, when, lit, isnan
 from pyspark.sql.types import DoubleType
 from scipy.stats import norm
+
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 @udf(returnType=DoubleType())
@@ -29,20 +33,28 @@ def calculate_bf_rare(df: DataFrame):
 
 
 def main():
-    """
-    Arguments: none
-    """
+
     arg_parser = argparse.ArgumentParser(prog='huge-rare.py')
-    arg_parser.add_argument("--gene-associations", help="Gene data with p-values", required=True)
-    arg_parser.add_argument("--out-dir", help="Output directory", required=True)
-    cli_args = arg_parser.parse_args()
-    files_glob = 'part-*'
-    genes_assoc_glob = cli_args.gene_associations + files_glob
-    out_dir = cli_args.out_dir
+    arg_parser.add_argument("--phenotype", help="Phenotype (e.g. T2D) for rare data", required=True)
+    args = arg_parser.parse_args()
+
+    genes_assoc_dir = f'{s3_in}/gene_associations/combined/{args.phenotype}'
+    out_dir = f'{s3_out}/out/huge/rare/{args.phenotype}'
+
     spark = SparkSession.builder.appName('huge-rare').getOrCreate()
-    gene_assoc = spark.read.json(genes_assoc_glob).select('gene', 'pValue', 'beta')
-    gene_bf = calculate_bf_rare(gene_assoc)
-    gene_bf.write.mode('overwrite').json(out_dir)
+
+    gene_assoc = spark.read.json(f'{genes_assoc_dir}/part-*') \
+        .select('gene', 'pValue', 'beta')
+    gene_assoc = gene_assoc \
+        .filter(gene_assoc.pValue.isNotNull() & ~isnan(gene_assoc.pValue)) \
+        .filter(gene_assoc.beta.isNotNull() & ~isnan(gene_assoc.beta))
+
+    gene_bf = calculate_bf_rare(gene_assoc) \
+        .withColumn('phenotype', lit(args.phenotype))
+
+    gene_bf.write \
+        .mode('overwrite') \
+        .json(out_dir)
     spark.stop()
 
 

@@ -1,9 +1,8 @@
 package org.broadinstitute.dig.aggregator.methods.huge
 
-import org.broadinstitute.dig.aggregator.core.{Context, Method}
-import org.broadinstitute.dig.aggregator.methods.geneidmap.GeneIdMapStage
-import org.broadinstitute.dig.aggregator.methods.hugecache.HugeCacheStage
-import org.broadinstitute.dig.aggregator.methods.nearestgene.NearestGeneStage
+import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws._
+import org.broadinstitute.dig.aws.emr._
 
 /** This is your aggregator method.
   *
