@@ -22,14 +22,15 @@ baseline_files = f'{downloaded_files}/baseline'
 weight_files = f'{downloaded_files}/weights'
 frq_files = f'{downloaded_files}/frq'
 
-s3_in = 's3://dig-analysis-data'
-s3_out = 's3://dig-analysis-data'
+cmdga_in = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_regions(ancestry, sub_region, regions):
     g1000_ancestry = ancestry_map[ancestry]
     for region in regions:
-        file = f'{s3_in}/out/ldsc/regions/combined_ld/ancestry={g1000_ancestry}/{sub_region}/{region}/'
+        file = f'{cmdga_in}/out/ldsc/regions/combined_ld/ancestry={g1000_ancestry}/{sub_region}/{region}/'
         path_out = f'./data/annot/ancestry={g1000_ancestry}/{sub_region}/{region}/'
         subprocess.check_call(['aws', 's3', 'cp', file, path_out, '--recursive', '--exclude=_SUCCESS'])
 

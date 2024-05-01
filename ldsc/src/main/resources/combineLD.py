@@ -5,8 +5,8 @@ import os
 import shutil
 import subprocess
 
-s3_in = 's3://dig-analysis-data/out/ldsc/regions/ld_score'
-s3_out = 's3://dig-analysis-data/out/ldsc/regions/combined_ld'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 # Cannot include a biosample with 0 SNPs
@@ -20,19 +20,19 @@ def check_biosample(annotation, tissue, biosample):
 
 def download_files(ancestry, annotation, tissue):
     subprocess.check_call(['aws', 's3', 'cp',
-                           f'{s3_in}/ancestry={ancestry}/annotation/{annotation}/',
+                           f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation/{annotation}/',
                            f'ld_files/annotation/{annotation}/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'cp',
-                           f'{s3_in}/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/',
+                           f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/',
                            f'ld_files/annotation-tissue/{annotation}___{tissue}/', '--recursive'])
     biosamples = []
-    s3_ls = subprocess.check_output(['aws', 's3', 'ls', f'{s3_in}/ancestry={ancestry}/annotation-tissue-biosample/']).decode()
+    s3_ls = subprocess.check_output(['aws', 's3', 'ls', f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue-biosample/']).decode()
     for line in s3_ls.strip().split('\n'):
         s3_folder = line.split(' ')[-1].split('/')[0]
         s3_annotation, s3_tissue, s3_biosample = s3_folder.split('___')
         if s3_annotation == annotation and s3_tissue == tissue:
             subprocess.check_call(['aws', 's3', 'cp',
-                                   f'{s3_in}/ancestry={ancestry}/annotation-tissue-biosample/{s3_folder}/',
+                                   f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue-biosample/{s3_folder}/',
                                    f'ld_files/annotation-tissue-biosample/{s3_folder}/', '--recursive'])
             if check_biosample(annotation, tissue, s3_biosample):
                 biosamples.append(s3_biosample)
@@ -121,11 +121,11 @@ def upload_and_remove(ancestry, annotation, tissue):
     subprocess.check_call(['touch', 'ld_files/combined/annotation-tissue/_SUCCESS'])
     subprocess.check_call(['aws', 's3', 'cp',
                            'ld_files/combined/annotation-tissue/',
-                           f'{s3_out}/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/', '--recursive'])
+                           f'{s3_out}/out/ldsc/regions/combined_ld/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/', '--recursive'])
     subprocess.check_call(['touch', 'ld_files/combined/annotation-tissue-biosample/_SUCCESS'])
     subprocess.check_call(['aws', 's3', 'cp',
                            'ld_files/combined/annotation-tissue-biosample/',
-                           f'{s3_out}/ancestry={ancestry}/annotation-tissue-biosample/{annotation}___{tissue}/', '--recursive'])
+                           f'{s3_out}/out/ldsc/regions/combined_ld/ancestry={ancestry}/annotation-tissue-biosample/{annotation}___{tissue}/', '--recursive'])
     shutil.rmtree('ld_files')
 
 

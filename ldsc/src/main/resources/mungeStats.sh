@@ -1,12 +1,13 @@
 #!/bin/bash -xe
 
 LDSC_ROOT=/mnt/var/ldsc
-S3DIR=$JOB_BUCKET
+S3IN=$INPUT_PATH
+S3OUT=$OUTPUT_PATH
 PHENOTYPE=$1
 
 # input and output
-SRCDIR="${S3DIR}/out/metaanalysis/bottom-line/staging/trans-ethnic/${PHENOTYPE}"
-OUTDIR="${S3DIR}/out/ldsc/sumstats/${PHENOTYPE}"
+SRCDIR="${S3IN}/out/metaanalysis/bottom-line/staging/trans-ethnic/${PHENOTYPE}"
+OUTDIR="${S3OUT}/out/ldsc/sumstats/${PHENOTYPE}"
 
 # TODO: Remove references to staging data. Use trans-ethnic results instead
 # download the METAL results for this phenotype

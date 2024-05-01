@@ -22,7 +22,10 @@ class TranslateGeneticCorrelationStage(implicit context: Context) extends Stage 
     instances = 1,
     applications = Seq.empty,
     bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("install-translate.sh"))
+      new BootstrapScript(resourceUri("install-translate.sh")),
+      new BootstrapScript(
+        resourceUri("downloadGCFiles.py"), s"--input-path=s3://${context.s3.path}"
+      )
     )
   )
 

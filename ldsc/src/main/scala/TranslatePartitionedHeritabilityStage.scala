@@ -22,7 +22,7 @@ class TranslatePartitionedHeritabilityStage(implicit context: Context) extends S
     instances = 1,
     applications = Seq.empty,
     bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("install-translate-ph.sh"))
+      new BootstrapScript(resourceUri("install-translate.sh"))
     ),
     stepConcurrency = 5
   )

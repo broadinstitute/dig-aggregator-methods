@@ -10,8 +10,8 @@ sudo mkdir -p "$LDSC_ROOT"
 cd "$LDSC_ROOT"
 
 # clone the git repository (
-sudo aws s3 cp s3://dig-analysis-data/bin/ldsc/ldsc-python-3-2023-03-09.zip ./
-sudo unzip ldsc-python-3-2023-03-09.zip -d ./ldsc/
+sudo aws s3 cp s3://dig-analysis-bin/ldsc/ldsc-python-3-2024-03-27.zip ./ldsc.zip
+sudo unzip ldsc.zip -d ./ldsc/
 
 # Download all ancestry specific ldscores into the proper location
 for ANCESTRY in AFR AMR EAS EUR SAS

@@ -1,22 +1,31 @@
 #!/usr/bin/python3
-import boto3
-import re
+import argparse
 import subprocess
 
 downloaded_files = '/mnt/var/ldsc'
-sumstat_files = f'{downloaded_files}/sumstats'
+sumstats_files = f'{downloaded_files}/sumstats'
 
 
-def download_ancestry_sumstats():
-    s3 = boto3.resource('s3')
-    my_bucket = s3.Bucket('dig-analysis-data')
-    for file in my_bucket.objects.filter(Prefix='out/ldsc/sumstats/').all():
-        if re.fullmatch(f'.*\.sumstats\.gz$', file.key):
-            ancestry = re.findall(f'.*_(\w+).sumstats.gz', file.key)[0]
-            subprocess.check_call([
-                'sudo', 'aws', 's3', 'cp', f's3://dig-analysis-data/{file.key}', f'{sumstat_files}/{ancestry}/'
-            ])
+def download_sumstats(project, path):
+    f_in = f'{path}/out/ldsc/sumstats/'
+    f_out = f'{sumstats_files}/{project}/'
+    subprocess.check_call(
+        ['sudo', 'aws', 's3', 'cp', f_in, f_out, '--recursive', '--exclude="*"', '--include="*.sumstats.gz*"']
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input-path', default=None, required=True, type=str)
+    parser.add_argument('--project', default=None, required=True, type=str)
+    args = parser.parse_args()
+    s3_in = args.input_path
+    project = args.project
+
+    download_sumstats(project, s3_in)
+    if project != 'portal':
+        download_sumstats('portal', 's3://dig-analysis-data')
 
 
 if __name__ == '__main__':
-    download_ancestry_sumstats()
+    main()

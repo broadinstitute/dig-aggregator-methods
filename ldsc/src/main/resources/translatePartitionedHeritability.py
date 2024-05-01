@@ -10,13 +10,13 @@ from scipy.stats import t as tdist
 import shutil
 import subprocess
 
-s3_in = 's3://dig-analysis-data/out/ldsc/staging/partitioned_heritability'
-s3_path = 's3://dig-analysis-data/out/ldsc/partitioned_heritability'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_annot_map(phenotype):
     subprocess.check_call(['aws', 's3', 'cp',
-                           f'{s3_in}/{phenotype}/', f'./{phenotype}',
+                           f'{s3_in}/out/ldsc/staging/partitioned_heritability/{phenotype}/', f'./{phenotype}',
                            '--recursive', '--exclude=_SUCCESS'])
     out = {}
     for file in glob.glob(f'./{phenotype}/*/*/*/*'):
@@ -136,9 +136,9 @@ def upload_data(phenotype, data):
                             'pValue': output_data['pValue']
                         }
                         f.write(json.dumps(formatted_data) + '\n')
-    subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_path}/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_out}/out/ldsc/partitioned_heritability/{phenotype}/'])
     subprocess.check_call(['touch', '_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_path}/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/out/ldsc/partitioned_heritability/{phenotype}/'])
     os.remove(file)
     os.remove('_SUCCESS')
     shutil.rmtree(f'./{phenotype}')

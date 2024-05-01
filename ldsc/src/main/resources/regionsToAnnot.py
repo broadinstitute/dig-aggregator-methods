@@ -10,8 +10,8 @@ downloaded_files = '/mnt/var/ldsc'
 g1000_files = f'{downloaded_files}/g1000'
 snp_files = f'{downloaded_files}/snps'
 
-s3_in = 's3://dig-analysis-data'
-s3_out = 's3://dig-analysis-data'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_region_file(sub_region, region_name):
