@@ -23,12 +23,13 @@ class PortalDB:
     def __init__(self):
         self.secret_id = os.environ['PORTAL_SECRET']
         self.db_name = os.environ['PORTAL_DB']
+        self.region = 'us-east-1'
         self.config = None
         self.engine = None
 
     def get_config(self):
         if self.config is None:
-            client = Session().client('secretsmanager')
+            client = Session().client('secretsmanager', region_name=self.region)
             self.config = json.loads(client.get_secret_value(SecretId=self.secret_id)['SecretString'])
         return self.config
 
