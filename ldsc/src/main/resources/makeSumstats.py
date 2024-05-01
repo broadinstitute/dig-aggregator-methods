@@ -27,6 +27,9 @@ ldsc_files = f'{downloaded_files}/ldsc'
 phenotype_files = '.'
 snp_file = f'{downloaded_files}/snps'
 
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
+
 
 class BioIndexDB:
     def __init__(self):
@@ -73,9 +76,9 @@ def get_s3_dir(phenotype, ancestry):
         db = BioIndexDB()
         tech_dataset = db.get_largest_mixed_dataset(phenotype)
         if tech_dataset is not None:
-            return f's3://dig-analysis-data/variants/{tech_dataset}/{phenotype}/'
+            return f'{s3_in}/variants/{tech_dataset}/{phenotype}/'
     else:
-        return f's3://dig-analysis-data/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/'
+        return f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/'
 
 
 def get_single_json_file(s3_dir, phenotype, ancestry):
@@ -92,7 +95,7 @@ def get_single_json_file(s3_dir, phenotype, ancestry):
 
 
 def upload_and_remove_files(phenotype, ancestry):
-    s3_dir = f's3://dig-analysis-data/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/'
+    s3_dir = f'{s3_out}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/'
     subprocess.check_call(['aws', 's3', 'cp', f'{phenotype_files}/{phenotype}_{ancestry}.log', s3_dir])
     subprocess.check_call(['aws', 's3', 'cp', f'{phenotype_files}/{phenotype}_{ancestry}.sumstats.gz', s3_dir])
     for file in glob.glob(f'{phenotype_files}/{phenotype}_{ancestry}.*'):

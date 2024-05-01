@@ -1,6 +1,7 @@
 package org.broadinstitute.dig.aggregator.methods.ldsc
 
 import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
@@ -8,8 +9,12 @@ import org.broadinstitute.dig.aws.MemorySize
 class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val sumstats: Input.Source = Input.Source.Success("out/ldsc/sumstats/*/*/")
-  val annotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/combined_ld/*/*/*/")
+  val sumstats: Input.Source = Input.Source.Raw("out/ldsc/sumstats/*/*/*.sumstats.gz")
+  val portalBucket: S3.Bucket = new S3.Bucket("dig-analysis-data", None)
+  val annotations: Input.Source = Input.Source.Success(
+    s"out/ldsc/regions/combined_ld/*/*/*/",
+    s3BucketOverride = Some(portalBucket)
+  )
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(sumstats, annotations)
@@ -25,7 +30,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
 
   // TODO: At the moment this will always rerun everything which isn't ideal
   override val rules: PartialFunction[Input, Outputs] = {
-    case sumstats(phenotype, ancestry) =>
+    case sumstats(phenotype, ancestry, _) =>
       allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
       Outputs.Named(ancestry.split('=').last)
     case annotations(_, subRegion, region) =>
