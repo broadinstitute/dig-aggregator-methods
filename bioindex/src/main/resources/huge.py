@@ -1,8 +1,7 @@
 import os
-import re
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, input_file_name, udf
+from pyspark.sql.functions import col
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
@@ -17,32 +16,15 @@ def main():
     gene_outdir = f'{s3_bioindex}/huge/gene'
     phenotype_outdir = f'{s3_bioindex}/huge/phenotype'
 
-    # pull out phenotype from input file name (for either common or rare)
-    phenotype_of_source = udf(lambda s: s and re.search(src_re, s).group(2))
-    src_re = r'/out/huge/([^/]+)/([^/]+)/'
-
     # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load the common data
     common_df = spark.read.json(common_dir) \
-        .withColumn('source', input_file_name()) \
-        .select(
-            col('gene'),
-            phenotype_of_source('source').alias('phenotype'),
-            col('chromosome_gene').alias('chromosome'),
-            col('start'),
-            col('end'),
-            col('bf_common')
-        )
+        .select('gene', 'phenotype', 'chromosome', 'start', 'end', 'bf_common')
 
     rare_df = spark.read.json(rare_dir) \
-        .withColumn('source', input_file_name()) \
-        .select(
-            col('gene'),
-            phenotype_of_source('source').alias('phenotype'),
-            col('bf_rare')
-        )
+        .select('gene', 'phenotype', 'bf_rare')
 
     df = common_df.join(rare_df, on=['gene', 'phenotype'], how='left')
 

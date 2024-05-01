@@ -14,7 +14,7 @@ def main():
 
     # where to read input from
     variants_dir = f'{s3_in}/variant_counts/*/*/*/part-*'
-    genes_dir = f'{s3_in}/genes/GRCh37/part-*'
+    genes_dir = f's3://dig-analysis-bin/genes/GRCh37/part-*'
     common_dir = f'{s3_in}/out/varianteffect/common/part-*'
 
     # where to write the output to
