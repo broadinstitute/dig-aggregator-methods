@@ -13,29 +13,15 @@ cd "$SuSiE_ROOT"
 sudo yum install -y python3-devel
 sudo yum install -y R
 
-# Install R-4.1.0
-# sudo wget https://cdn.rstudio.com/r/centos-7/pkgs/R-4.1.0-1-1.x86_64.rpm
-# sudo yum install -y R-4.1.0-1-1.x86_64.rpm
-# sudo rm R-4.1.0-1-1.x86_64.rpm
-
-# # find R directory 
-# for cmd in $(ls /usr/bin); do
-#     if echo "$cmd" | grep -qi "R"; then
-#         whereis $cmd
-#     fi
-# done
-
 
 # install R dependencies
 sudo R -e "install.packages('dplyr', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('tidyr', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('base', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('stats', repos='http://cran.rstudio.com/')"
-# sudo R -e "install.packages('https://cran.r-project.org/src/contrib/Archive/coloc/coloc_5.1.0.tar.gz', repos = NULL, type = 'source')"
 sudo R -e "install.packages('coloc', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('sjmisc', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('susieR', repos='http://cran.rstudio.com/')"
-# sudo R -e "install.packages('https://cran.hafro.is/contrib/main/00Archive/susieR/susieR_0.11.42.tar.gz', repos = NULL, type = 'source')"
 sudo R -e "install.packages('stringr', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('Matrix', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('jsonlite', repos='http://cran.rstudio.com/')"
