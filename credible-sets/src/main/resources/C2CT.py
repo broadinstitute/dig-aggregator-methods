@@ -56,7 +56,7 @@ def get_credible_sets(phenotype, ancestry):
                 json_line['position'],
                 json_line['posteriorProbability'],
                 json_line['credibleSetId'],
-                json_line['pValue'],
+                json_line.get('pValue'),
                 json_line['varId']
             ))
             if json_line['credibleSetId'] not in cs_data:
