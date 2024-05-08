@@ -17,19 +17,12 @@ def get_annotation_tissue_biosamples():
     for folder in glob.glob(f'{ldsc_data}/annotation-tissue-biosample/*'):
         match = re.findall('.*/(.*)___(.*)___(.*)', folder)
         annotation_tissue_biosamples.append((match[0][0], match[0][1], match[0][2]))
-    for folder in glob.glob(f'{ldsc_data}/annotation-tissue/*'):
-        match = re.findall('.*/(.*)___(.*)', folder)
-        annotation_tissue_biosamples.append((match[0][0], match[0][1], None))
     return annotation_tissue_biosamples
 
 
 def get_path(annotation, tissue, biosample):
-    if biosample is not None:
-        key = f'{annotation}___{tissue}___{biosample}'
-        return f'{ldsc_data}/annotation-tissue-biosample/{key}/{key}.csv'
-    else:
-        key = f'{annotation}___{tissue}'
-        return f'{ldsc_data}/annotation-tissue/{key}/{key}.csv'
+    key = f'{annotation}___{tissue}___{biosample}'
+    return f'{ldsc_data}/annotation-tissue-biosample/{key}/{key}.csv'
 
 
 def get_annotation_tissue_biosample_regions(annotation, tissue, biosample):
@@ -62,17 +55,22 @@ def get_credible_sets(phenotype, ancestry):
             out[chromosome].append((
                 json_line['position'],
                 json_line['posteriorProbability'],
-                json_line['credibleSetId']
+                json_line['credibleSetId'],
+                json_line['pValue'],
+                json_line['varId']
             ))
+            if json_line['credibleSetId'] not in cs_data:
+                cs_data[json_line['credibleSetId']] = {
+                    'source': json_line['source'],
+                    'dataset': json_line['dataset'],
+                    'chromosome': json_line['chromosome'],
+                    'clumpStart': json_line['clumpStart'],
+                    'clumpEnd': json_line['clumpEnd'],
+                    'varTotal': 0
+                }
+            cs_data[json_line['credibleSetId']]['varTotal'] += 1
             if bool(json_line['leadSNP']):
-                cs_data[json_line['credibleSetId']] = (
-                    json_line['source'],
-                    json_line['dataset'],
-                    json_line['chromosome'],
-                    json_line['clumpStart'],
-                    json_line['clumpEnd'],
-                    json_line['varId']
-                )
+                cs_data[json_line['credibleSetId']]['leadSNP'] = json_line['varId']
     for chromosome, data in out.items():
         out[chromosome] = sorted(data, key=lambda d: (d[0], d[1]))
     return out, cs_data
@@ -90,11 +88,14 @@ def get_chromosome_overlap(credible_set_data, region_data):
         elif cs[0] < region[0]:
             curr_cs += 1
         else:
-            pos, pp, cs_id = cs
+            pos, pp, cs_id, p_value, var_id = cs
             if cs_id not in overlap:
-                overlap[cs_id] = (0.0, 0)
-            curr_pp, curr_count = overlap[cs_id]
-            overlap[cs_id] = (curr_pp + pp, curr_count + 1)
+                overlap[cs_id] = (0.0, 0, p_value, var_id)
+            curr_pp, curr_count, min_p_value, min_var_id = overlap[cs_id]
+            if p_value < min_p_value:
+                overlap[cs_id] = (curr_pp + pp, curr_count + 1, p_value, var_id)
+            else:
+                overlap[cs_id] = (curr_pp + pp, curr_count + 1, min_p_value, min_var_id)
             curr_cs += 1
     return overlap
 
@@ -124,16 +125,18 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
     with open(tmp_file, 'w') as f:
         for (annotation, tissue, biosample), data in overlap.items():
             annot_size = annotation_sizes[(annotation, tissue, biosample)]
-            for credible_set_id, (pp, count) in data.items():
-                source, dataset, chromosome, clump_start, clump_end, lead_snp = credible_set_data[credible_set_id]
+            for credible_set_id, (pp, count, min_p_value, min_var_id) in data.items():
+                cs_data = credible_set_data[credible_set_id]
                 biosample_str = 'null' if biosample is None else f'"{biosample}"'
                 pp = max(min(pp, 1.0), 0.0)
                 f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": {biosample_str}, '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
-                        f'"source": "{source}", "dataset": "{dataset}", "credibleSetId": "{credible_set_id}", '
-                        f'"chromosome": "{chromosome}", "clumpStart": {clump_start}, "clumpEnd": {clump_end}, '
-                        f'"leadSNP": "{lead_snp}", "posteriorProbability": {pp}, '
-                        f'"varCount": {count}, "annot_bp": {annot_size}}}\n')
+                        f'"source": "{ cs_data["source"]}", "dataset": "{cs_data["dataset"]}", '
+                        f'"credibleSetId": "{credible_set_id}", "chromosome": "{cs_data["chromosome"]}", '
+                        f'"clumpStart": {cs_data["clumpStart"]}, "clumpEnd": {cs_data["clumpEnd"]}, '
+                        f'"leadSNP": "{cs_data["leadSNP"]}", "overlapLeadSNP": "{min_var_id}",'
+                        f'"posteriorProbability": {pp}, "minOverlapPValue": {min_p_value}, '
+                        f'"varOverlap": {count}, "varTotal": {cs_data["varTotal"]}, "annot_bp": {annot_size}}}\n')
     subprocess.check_call(['touch', '_SUCCESS'])
 
     # Copy and then remove all data generated in this step
