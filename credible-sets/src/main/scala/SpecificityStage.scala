@@ -5,8 +5,10 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
 class SpecificityStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
 
   override val cluster: ClusterDef = super.cluster.copy(
+    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
     instances = 1
   )
 
