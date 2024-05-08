@@ -30,53 +30,50 @@ def calculate_hp(values, p_func, key):
     return h, p_norm
 
 
-def get_cred_groups(tissue_data):
+def get_cred_group_idxs(tissue_data):
     cred_groups = {}
-    for d in tissue_data:
+    for idx, d in enumerate(tissue_data):
         key = d['credibleSetId']
         if key not in cred_groups:
             cred_groups[key] = []
-        cred_groups[key].append(d)
+        cred_groups[key].append(idx)
     return cred_groups
 
 
-def apply_adjustment(cred_groups):
-    for key in cred_groups:
-        for i in range(len(cred_groups[key])):
-            cred_groups[key][i]['adjustedPP'] = cred_groups[key][i]['posteriorProbability'] / cred_groups[key][i]['annot_bp']
-    return cred_groups
+def apply_adjustment(cred_group):
+    for i in range(len(cred_group)):
+        cred_group[i]['adjustedPP'] = cred_group[i]['posteriorProbability'] / cred_group[i]['annot_bp']
+    return cred_group
 
 
-def add_h(cred_groups, p_func):
-    for key in cred_groups:
-        h, p = calculate_hp(cred_groups[key], p_func, 'posteriorProbability')
-        h_adjust, p_adjust = calculate_hp(cred_groups[key], p_func, 'adjustedPP')
-        for i in range(len(cred_groups[key])):
-            cred_groups[key][i]['entPP'] = p[i]
-            cred_groups[key][i]['adjustedEntPP'] = p_adjust[i]
-            cred_groups[key][i]['entropy'] = h[i]
-            cred_groups[key][i]['adjustedEntropy'] = h_adjust[i]
-            cred_groups[key][i]['totalEntropy'] = h[i] - math.log(p[i], 2)
-            cred_groups[key][i]['adjustedEntropy'] = h_adjust[i] - math.log(p_adjust[i], 2)
-    return cred_groups
+def add_hq(cred_group, p_func, entropy_key):
+    h, p = calculate_hp(cred_group, p_func, 'posteriorProbability')
+    h_adjust, p_adjust = calculate_hp(cred_group, p_func, 'adjustedPP')
+    for i in range(len(cred_group)):
+        cred_group[i]['entPP'] = p[i]
+        cred_group[i]['adjustedEntPP'] = p_adjust[i]
+        cred_group[i]['entropy'] = h[i]
+        cred_group[i]['adjustedEntropy'] = h_adjust[i]
+        cred_group[i]['totalEntropy'] = h[i] - math.log(p[i], 2)
+        cred_group[i]['adjustedEntropy'] = h_adjust[i] - math.log(p_adjust[i], 2)
+        cred_group[i]['Q'] = 1 - cred_group[i]['totalEntropy'] / 10
+        cred_group[i]['Q_adj'] = 1 - cred_group[i]['adjustedEntropy'] / 10
+        cred_group[i]['entropyType'] = entropy_key
+    return cred_group
 
 
-def add_q(cred_groups, entropy_key):
-    for key in cred_groups:
-        for i in range(len(cred_groups[key])):
-            cred_groups[key][i]['Q'] = 1 - cred_groups[key][i]['totalEntropy'] / 10
-            cred_groups[key][i]['Q_adj'] = 1 - cred_groups[key][i]['adjustedEntropy'] / 10
-            cred_groups[key][i]['entropyType'] = entropy_key
-    return cred_groups
+def filter_cred_group(cred_group):
+    return [d for d in cred_group if d['Q'] > 0 or d['Q_adj'] > 0]
 
 
 def calculate(tissue_data, entropy_key, p_func):
-    cred_groups = get_cred_groups(tissue_data)
-
-    cred_groups = apply_adjustment(cred_groups)
-    cred_groups = add_h(cred_groups, p_func)
-
-    cred_groups = add_q(cred_groups, entropy_key)
+    cred_groups = {}
+    cred_group_idxs = get_cred_group_idxs(tissue_data)
+    for key, cred_group_idx in cred_group_idxs.items():
+        cred_group = [tissue_data[idx] for idx in cred_group_idx]
+        cred_group = apply_adjustment(cred_group)
+        cred_group = add_hq(cred_group, p_func, entropy_key)
+        cred_groups[key] = filter_cred_group(cred_group)
     return [value for values in cred_groups.values() for value in values]
 
 
@@ -91,8 +88,7 @@ def upload_data(phenotype, ancestry, entropy_key, data):
     path_out = f'{s3_out}/out/credible_sets/specificity/{phenotype}/{ancestry}/{entropy_key}/'
     with open(file_out, 'w') as f:
         for d in data:
-            if d['Q'] > 0 or d['Q_adj'] > 0:
-                f.write(f'{json.dumps(d)}\n')
+            f.write(f'{json.dumps(d)}\n')
     subprocess.check_call(['aws', 's3', 'cp', file_out, path_out])
     os.remove(file_out)
     success(path_out)
