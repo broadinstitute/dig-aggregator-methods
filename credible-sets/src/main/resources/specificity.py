@@ -18,8 +18,10 @@ def p_out(values, key):
 
 
 def download_data(phenotype, ancestry):
+    filename = f'{phenotype}_{ancestry}.json'
     file = f'{s3_in}/out/credible_sets/c2ct/{phenotype}/{ancestry}/part-00000.json'
-    subprocess.check_call(['aws', 's3', 'cp', file, f'{phenotype}_{ancestry}.json'])
+    subprocess.check_call(['aws', 's3', 'cp', file, filename])
+    return filename
 
 
 def calculate_hp(values, p_func, key):
@@ -30,14 +32,21 @@ def calculate_hp(values, p_func, key):
     return h, p_norm
 
 
-def get_cred_group_idxs(tissue_data):
-    cred_groups = {}
-    for idx, d in enumerate(tissue_data):
-        key = d['credibleSetId']
-        if key not in cred_groups:
-            cred_groups[key] = []
-        cred_groups[key].append(idx)
-    return cred_groups
+def get_cred_groups(filename):
+    with open(filename, 'r') as f:
+        json_line = json.loads(f.readline().strip())
+        cred_set_id = json_line['credibleSetId']
+        data = [json_line]
+        for line in f:
+            json_line = json.loads(line.strip())
+            new_cred_id = json_line['credibleSetId']
+            if new_cred_id != cred_set_id:
+                yield cred_set_id, data
+                data = [json_line]
+                cred_set_id = new_cred_id
+            else:
+                data.append(json_line)
+    yield cred_set_id, data
 
 
 def apply_adjustment(cred_group):
@@ -66,15 +75,14 @@ def filter_cred_group(cred_group):
     return [d for d in cred_group if d['Q'] > 0 or d['Q_adj'] > 0]
 
 
-def calculate(tissue_data, entropy_key, p_func):
-    cred_groups = {}
-    cred_group_idxs = get_cred_group_idxs(tissue_data)
-    for key, cred_group_idx in cred_group_idxs.items():
-        cred_group = [tissue_data[idx] for idx in cred_group_idx]
+def calculate(filename, file_out, entropy_key, p_func):
+    for cred_set_id, cred_group in get_cred_groups(filename):
         cred_group = apply_adjustment(cred_group)
         cred_group = add_hq(cred_group, p_func, entropy_key)
-        cred_groups[key] = filter_cred_group(cred_group)
-    return [value for values in cred_groups.values() for value in values]
+        cred_group = filter_cred_group(cred_group)
+        with open(file_out, 'w') as f:
+            for d in cred_group:
+                f.write(f'{json.dumps(d)}\n')
 
 
 def success(path_out):
@@ -83,12 +91,8 @@ def success(path_out):
     os.remove('_SUCCESS')
 
 
-def upload_data(phenotype, ancestry, entropy_key, data):
-    file_out = f'{phenotype}_{ancestry}_{entropy_key}.json'
+def upload_data(phenotype, ancestry, entropy_key, file_out):
     path_out = f'{s3_out}/out/credible_sets/specificity/{phenotype}/{ancestry}/{entropy_key}/'
-    with open(file_out, 'w') as f:
-        for d in data:
-            f.write(f'{json.dumps(d)}\n')
     subprocess.check_call(['aws', 's3', 'cp', file_out, path_out])
     os.remove(file_out)
     success(path_out)
@@ -107,16 +111,10 @@ def main():
     parser.add_argument('--entropy-type', type=str, required=True)
     args = parser.parse_args()
 
-    download_data(args.phenotype, args.ancestry)
-    data = []
-    with open(f'{args.phenotype}_{args.ancestry}.json', 'r') as f:
-        for line in f:
-            json_line = json.loads(line.strip())
-            if float(json_line['posteriorProbability']) > 0.001:
-                data.append(json_line)
-
-    data_out = calculate(data, args.entropy_type, p_funcs[args.entropy_type])
-    upload_data(args.phenotype, args.ancestry, args.entropy_type, data_out)
+    filename = download_data(args.phenotype, args.ancestry)
+    file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_key}.json'
+    calculate(filename, file_out, args.entropy_type, p_funcs[args.entropy_type])
+    upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
 
 
 if __name__ == '__main__':

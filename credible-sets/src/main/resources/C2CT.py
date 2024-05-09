@@ -56,7 +56,7 @@ def get_credible_sets(phenotype, ancestry):
                 json_line['position'],
                 json_line['posteriorProbability'],
                 json_line['credibleSetId'],
-                json_line['pValue'],
+                json_line.get('pValue'),
                 json_line['varId']
             ))
             if json_line['credibleSetId'] not in cs_data:
@@ -115,7 +115,11 @@ def get_output(annotation_tissue_biosamples, credible_set_map):
         print(i, annotation, tissue, biosample)
         region_map, annotation_size = get_annotation_tissue_biosample_regions(annotation, tissue, biosample)
         annotation_sizes[(annotation, tissue, biosample)] = annotation_size
-        overlap[(annotation, tissue, biosample)] = get_overlap(credible_set_map, region_map)
+        cs_overlap_data = get_overlap(credible_set_map, region_map)
+        for cs_id, cs_id_data in cs_overlap_data.items():
+            if cs_id not in overlap:
+                overlap[cs_id] = {}
+            overlap[cs_id][(annotation, tissue, biosample)] = cs_id_data
     return overlap, annotation_sizes
 
 
@@ -123,10 +127,10 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
     path_out = f'{s3_out}/out/credible_sets/c2ct/{phenotype}/{ancestry}'
     tmp_file = f'part-00000.json'
     with open(tmp_file, 'w') as f:
-        for (annotation, tissue, biosample), data in overlap.items():
-            annot_size = annotation_sizes[(annotation, tissue, biosample)]
-            for credible_set_id, (pp, count, min_p_value, min_var_id) in data.items():
-                cs_data = credible_set_data[credible_set_id]
+        for credible_set_id, data in overlap.items():
+            cs_data = credible_set_data[credible_set_id]
+            for (annotation, tissue, biosample), (pp, count, min_p_value, min_var_id) in data.items():
+                annot_size = annotation_sizes[(annotation, tissue, biosample)]
                 biosample_str = 'null' if biosample is None else f'"{biosample}"'
                 pp = max(min(pp, 1.0), 0.0)
                 f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": {biosample_str}, '
