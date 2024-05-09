@@ -76,11 +76,11 @@ def filter_cred_group(cred_group):
 
 
 def calculate(filename, file_out, entropy_key, p_func):
-    for cred_set_id, cred_group in get_cred_groups(filename):
-        cred_group = apply_adjustment(cred_group)
-        cred_group = add_hq(cred_group, p_func, entropy_key)
-        cred_group = filter_cred_group(cred_group)
-        with open(file_out, 'w') as f:
+    with open(file_out, 'w') as f:
+        for cred_set_id, cred_group in get_cred_groups(filename):
+            cred_group = apply_adjustment(cred_group)
+            cred_group = add_hq(cred_group, p_func, entropy_key)
+            cred_group = filter_cred_group(cred_group)
             for d in cred_group:
                 f.write(f'{json.dumps(d)}\n')
 
@@ -112,7 +112,7 @@ def main():
     args = parser.parse_args()
 
     filename = download_data(args.phenotype, args.ancestry)
-    file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_key}.json'
+    file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_type}.json'
     calculate(filename, file_out, args.entropy_type, p_funcs[args.entropy_type])
     upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
 
