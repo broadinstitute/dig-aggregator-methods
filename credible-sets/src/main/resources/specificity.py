@@ -2,11 +2,14 @@
 import argparse
 import json
 import math
+import multiprocessing
 import os
 import subprocess
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
+
+cpus = 8
 
 
 def p_all(values, key):
@@ -32,8 +35,9 @@ def calculate_hp(values, p_func, key):
     return h, p_norm
 
 
-def get_cred_groups(filename):
+def get_cred_groups(filename, chunk_size):
     with open(filename, 'r') as f:
+        chunk = []
         json_line = json.loads(f.readline().strip())
         cred_set_id = json_line['credibleSetId']
         data = [json_line]
@@ -41,48 +45,39 @@ def get_cred_groups(filename):
             json_line = json.loads(line.strip())
             new_cred_id = json_line['credibleSetId']
             if new_cred_id != cred_set_id:
-                yield cred_set_id, data
+                chunk.append(data)
+                if len(chunk) == chunk_size:
+                    yield chunk
+                    chunk = []
                 data = [json_line]
                 cred_set_id = new_cred_id
             else:
                 data.append(json_line)
-    yield cred_set_id, data
+    chunk.append(data)
+    yield chunk
 
 
-def apply_adjustment(cred_group):
-    for i in range(len(cred_group)):
-        cred_group[i]['adjustedPP'] = cred_group[i]['posteriorProbability'] / cred_group[i]['annot_bp']
-    return cred_group
-
-
-def add_hq(cred_group, p_func, entropy_key):
-    h, p = calculate_hp(cred_group, p_func, 'posteriorProbability')
-    h_adjust, p_adjust = calculate_hp(cred_group, p_func, 'adjustedPP')
+def add_hq(args):
+    entropy_key, cred_group = args
+    print(cred_group[0]['credibleSetId'])
+    h, p = calculate_hp(cred_group, p_funcs[entropy_key], 'posteriorProbability')
     for i in range(len(cred_group)):
         cred_group[i]['entPP'] = p[i]
-        cred_group[i]['adjustedEntPP'] = p_adjust[i]
         cred_group[i]['entropy'] = h[i]
-        cred_group[i]['adjustedEntropy'] = h_adjust[i]
-        cred_group[i]['totalEntropy'] = h[i] - math.log(p[i], 2)
-        cred_group[i]['adjustedEntropy'] = h_adjust[i] - math.log(p_adjust[i], 2)
-        cred_group[i]['Q'] = 1 - cred_group[i]['totalEntropy'] / 10
-        cred_group[i]['Q_adj'] = 1 - cred_group[i]['adjustedEntropy'] / 10
+        cred_group[i]['totalEntropy'] = h[i] - math.log(cred_group[i]['posteriorProbability'], 2)
+        cred_group[i]['Q'] = 1 - cred_group[i]['totalEntropy'] / 5
         cred_group[i]['entropyType'] = entropy_key
     return cred_group
 
 
-def filter_cred_group(cred_group):
-    return [d for d in cred_group if d['Q'] > 0 or d['Q_adj'] > 0]
-
-
-def calculate(filename, file_out, entropy_key, p_func):
+def calculate(filename, file_out, entropy_key):
     with open(file_out, 'w') as f:
-        for cred_set_id, cred_group in get_cred_groups(filename):
-            cred_group = apply_adjustment(cred_group)
-            cred_group = add_hq(cred_group, p_func, entropy_key)
-            cred_group = filter_cred_group(cred_group)
-            for d in cred_group:
-                f.write(f'{json.dumps(d)}\n')
+        for cred_groups in get_cred_groups(filename, chunk_size=cpus):
+            with multiprocessing.Pool(cpus) as p:
+                for cred_group in p.map(add_hq, [(entropy_key, cred_group) for cred_group in cred_groups]):
+                    for d in cred_group:
+                        if d['Q'] > 0:
+                            f.write(f'{json.dumps(d)}\n')
 
 
 def success(path_out):
