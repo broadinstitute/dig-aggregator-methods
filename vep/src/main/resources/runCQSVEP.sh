@@ -20,7 +20,7 @@ aws s3 cp "$S3_IN/variants/$PART" .
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"
 
 # count the number of processors (used for forking)
-CPUS=8
+CPUS=4
 
 # run VEP
 perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
@@ -56,7 +56,7 @@ perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
     --force_overwrite
 
 # copy the output of VEP back to S3
-aws s3 cp "$OUTFILE" "$S3_OUT/effects/$OUTFILE"
+aws s3 cp "$OUTFILE" "$S3_OUT/cqs-effects/$OUTFILE"
 
 # delete the input and output files; keep the cluster clean
 rm "$PART"
@@ -65,6 +65,6 @@ rm "$OUTFILE"
 
 # check for a warnings file, upload that, too and then delete it
 if [ -e "$WARNINGS" ]; then
-    aws s3 cp "$WARNINGS" "$S3_OUT/warnings/$WARNINGS"
+    aws s3 cp "$WARNINGS" "$S3_OUT/cqs-warnings/$WARNINGS"
     rm "$WARNINGS"
 fi

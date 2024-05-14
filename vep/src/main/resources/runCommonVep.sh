@@ -20,7 +20,7 @@ aws s3 cp "$S3_IN/variants/$PART" .
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"
 
 # count the number of processors (used for forking)
-CPUS=8
+CPUS=4
 
 perl "$VEPDIR/ensembl-vep/vep" \
     --dir "$VEPDIR" \
@@ -30,8 +30,11 @@ perl "$VEPDIR/ensembl-vep/vep" \
     --offline \
     --no_stats \
     --nearest symbol \
+    --symbol \
     --af_1kg \
-    --pick \
+    --pick_allele \
+    --exclude_null_alleles \
+    --pick_order tsl,biotype,appris,rank,ccds,canonical,length \
     -i "$PART.sorted" \
     -o "$OUTFILE" \
     --force_overwrite

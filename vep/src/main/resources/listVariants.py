@@ -89,9 +89,15 @@ def main():
     )
 
     # output the variants as CSV part files
-    df.write \
-        .mode('overwrite') \
-        .csv(outdir, sep='\t')
+    files = df.count() // 100000
+    if files < 1000:
+        df.repartition(files).write \
+            .mode('overwrite') \
+            .csv(outdir, sep='\t')
+    else:
+        df.write \
+            .mode('overwrite') \
+            .csv(outdir, sep='\t')
 
     # done
     spark.stop()

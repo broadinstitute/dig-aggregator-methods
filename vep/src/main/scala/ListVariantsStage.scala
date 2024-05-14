@@ -24,11 +24,9 @@ class ListVariantsStage(implicit context: Context) extends Stage {
   /* Define settings for the cluster to run the job.
    */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 128.gb),
-    slaveInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
-    masterVolumeSizeInGB = 400,
-    slaveVolumeSizeInGB = 400,
-    instances = 8,
+    masterVolumeSizeInGB = 100,
+    slaveVolumeSizeInGB = 100,
+    instances = 4,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("list-variant-bootstrap.sh")))
   )
 
