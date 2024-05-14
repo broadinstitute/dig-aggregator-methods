@@ -13,10 +13,9 @@ class GeneVariantsStage(implicit context: Context) extends Stage {
   val binBucket: S3.Bucket = new S3.Bucket("dig-analysis-bin", None)
   val genes: Input.Source = Input.Source.Raw("genes/GRCh37/part-00000.json", s3BucketOverride=Some(binBucket))
   val counts: Input.Source = Input.Source.Dataset("variant_counts/*/*/*/")
-  val cqs: Input.Source = Input.Source.Success("out/varianteffect/cqs/")
-  val common: Input.Source = Input.Source.Success("out/varianteffect/common/")
+  // No need for common / cqs as they will only change when variant_counts change
 
-  override val sources: Seq[Input.Source] = Seq(genes, counts, cqs, common)
+  override val sources: Seq[Input.Source] = Seq(genes, counts)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
