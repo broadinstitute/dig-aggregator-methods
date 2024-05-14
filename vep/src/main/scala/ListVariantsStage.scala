@@ -26,7 +26,7 @@ class ListVariantsStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterVolumeSizeInGB = 100,
     slaveVolumeSizeInGB = 100,
-    instances = 4,
+    instances = 8,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("list-variant-bootstrap.sh")))
   )
 
