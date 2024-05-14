@@ -168,7 +168,7 @@ def main():
     args = opts.parse_args()
 
     # s3 locations
-    srcdir = f'{s3_in}/out/varianteffect/effects'
+    srcdir = f'{s3_in}/out/varianteffect/common-effects'
     outdir = f'{s3_out}/out/varianteffect/common'
 
     # run

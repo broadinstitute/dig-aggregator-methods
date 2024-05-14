@@ -20,7 +20,7 @@ aws s3 cp "$S3_IN/variants/$PART" .
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"
 
 # count the number of processors (used for forking)
-CPUS=$(cat /proc/cpuinfo | grep processor | wc | awk '{print $1}')
+CPUS=8
 
 # run VEP
 perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
