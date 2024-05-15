@@ -14,7 +14,7 @@ class CommonVepStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(variants)
 
   private lazy val clusterBootstrap = resourceUri("cluster-bootstrap.sh")
-  private lazy val installScript    = resourceUri("installCommonVEP.sh")
+  private lazy val installScript    = resourceUri("installCommonVep.sh")
 
   /** Definition of each VM "cluster" of 1 machine that will run VEP.
    */

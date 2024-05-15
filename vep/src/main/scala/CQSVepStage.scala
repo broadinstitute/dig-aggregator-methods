@@ -14,7 +14,7 @@ class CQSVepStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(variants)
 
   private lazy val clusterBootstrap = resourceUri("cluster-bootstrap.sh")
-  private lazy val installScript    = resourceUri("installCQSVEP.sh")
+  private lazy val installScript    = resourceUri("installCQSVep.sh")
 
   /** Definition of each VM "cluster" of 1 machine that will run VEP.
     */
@@ -39,7 +39,7 @@ class CQSVepStage(implicit context: Context) extends Stage {
     * needs to be run through VEP again.
     */
   override def make(output: String): Job = {
-    val runScript = resourceUri("runCQSVEP.sh")
+    val runScript = resourceUri("runCQSVep.sh")
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
