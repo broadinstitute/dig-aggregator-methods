@@ -39,7 +39,7 @@ class CommonVepStage(implicit context: Context) extends Stage {
    * needs to be run through VEP again.
    */
   override def make(output: String): Job = {
-    val runScript = resourceUri("runCommonVEP.sh")
+    val runScript = resourceUri("runCommonVep.sh")
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
