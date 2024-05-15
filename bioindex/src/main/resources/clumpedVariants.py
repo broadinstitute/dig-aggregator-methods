@@ -22,16 +22,13 @@ def main():
     common_dir = f'{s3_in}/out/varianteffect/common'
     srcdir = f'{s3_in}/out/credible_sets/merged/*/{args.ancestry}/part-*'
     if args.ancestry == 'Mixed':
-        outdir = f'{s3_bioindex}/associations/clump'
+        outdir = f'{s3_bioindex}/associations/clump/trans-ethnic/'
     else:
-        outdir = f'{s3_bioindex}/ancestry-associations/clump/{args.ancestry}'
+        outdir = f'{s3_bioindex}/associations/clump/ancestry/{args.ancestry}'
 
     clumps = spark.read.json(srcdir)\
-        .withColumn('ancestry', lit(args.ancestry))
-    clumps = clumps \
-        .withColumn('clump', clumps.credibleSetId) \
-        .filter(clumps.source != 'credible_set') \
-        .drop('credibleSetId')
+        .withColumn('ancestry', lit(args.ancestry)) \
+        .withColumnRenamed('credibleSetId', 'clump')
     common = spark.read.json(f'{common_dir}/part-*') \
         .select('varId', 'dbSNP', 'consequence', 'nearest', 'minorAllele', 'maf', 'af')
 

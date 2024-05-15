@@ -108,7 +108,7 @@ def main():
 
     filename = download_data(args.phenotype, args.ancestry)
     file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_type}.json'
-    calculate(filename, file_out, args.entropy_type, p_funcs[args.entropy_type])
+    calculate(filename, file_out, args.entropy_type)
     upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
 
 

@@ -22,16 +22,13 @@ def main():
     common_dir = f'{s3_in}/out/varianteffect/common/part-*'
     srcdir = f'{s3_in}/out/credible_sets/merged/*/{args.ancestry}/part-*'
     if args.ancestry == 'Mixed':
-        outdir = f'{s3_bioindex}/associations/{{}}'
+        outdir = f'{s3_bioindex}/associations/{{}}/trans-ethnic/'
     else:
-        outdir = f'{s3_bioindex}/ancestry-associations/{{}}/{args.ancestry}'
+        outdir = f'{s3_bioindex}/associations/{{}}/ancestry/{args.ancestry}/'
 
     df = spark.read.json(srcdir) \
-        .withColumn('ancestry', lit(args.ancestry))
-    df = df \
-        .withColumn('clump', df.credibleSetId) \
-        .filter(df.source != 'credible_set') \
-        .drop('credibleSetId')
+        .withColumn('ancestry', lit(args.ancestry)) \
+        .withColumnRenamed('credibleSetId', 'clump')
 
     # load the top-association, lead SNPs for every phenotype
     df = df.filter(df.leadSNP)

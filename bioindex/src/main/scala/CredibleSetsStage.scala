@@ -10,26 +10,23 @@ import org.broadinstitute.dig.aws.emr._
 class CredibleSetsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants = Input.Source.Dataset("credible_sets/*/*/")
+  val credibleSets = Input.Source.Dataset("out/credible_sets/merged/*/*/")
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(variants)
+  override val sources: Seq[Input.Source] = Seq(credibleSets)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variants(_, phenotype) => Outputs.Named(phenotype)
+    case credibleSets(_, _) => Outputs.Named("credible-sets")
   }
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 3
   )
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    val script    = resourceUri("credibleSets.py")
-    val phenotype = output
-
-    new Job(Job.PySpark(script, phenotype))
+    new Job(Job.PySpark(resourceUri("credibleSets.py")))
   }
 }

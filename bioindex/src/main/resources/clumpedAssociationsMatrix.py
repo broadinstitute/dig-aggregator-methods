@@ -9,10 +9,8 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def get_clump_df(spark, clumpdir):
-    clump_df = spark.read.json(clumpdir)
-    clump_df = clump_df \
-        .withColumn('clump', clump_df.credibleSetId) \
-        .filter(clump_df.source != 'credible_set')
+    clump_df = spark.read.json(clumpdir) \
+        .withColumnRenamed('credibleSetId', 'clump')
     # limit the data being written
     clump_df = clump_df.select(
         clump_df.phenotype.alias('leadPhenotype'),
@@ -44,10 +42,10 @@ def main():
     clumpdir = f'{s3_in}/out/credible_sets/merged/*/{args.ancestry}/part-*'
     if args.ancestry == 'Mixed':
         assocsdir = f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/*/part-*'
-        outdir = f'{s3_bioindex}/associations/matrix'
+        outdir = f'{s3_bioindex}/associations/matrix/trans-ethnic/'
     else:
         assocsdir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
-        outdir = f'{s3_bioindex}/ancestry-associations/matrix/{args.ancestry}'
+        outdir = f'{s3_bioindex}/associations/matrix/ancestry/{args.ancestry}'
 
     clumps = get_clump_df(spark, clumpdir) \
         .withColumn('ancestry', lit(args.ancestry))
