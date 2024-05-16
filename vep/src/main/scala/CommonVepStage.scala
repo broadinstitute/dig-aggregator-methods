@@ -43,7 +43,7 @@ class CommonVepStage(implicit context: Context) extends Stage {
 
     // get all the variant part files to process, use only the part filename
     val objects = context.s3.ls(s"out/varianteffect/variants/")
-    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-00601"))
 
     // add a step for each part file
     new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
