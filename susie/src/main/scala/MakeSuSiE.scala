@@ -15,7 +15,8 @@ class MakeSuSiE(implicit context: Context) extends Stage {
 
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case ancestrySpecific(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split('=').last}")
+    case ancestrySpecific(phenotype) => Outputs.Named(s"$phenotype/EU")
+    // case ancestrySpecific(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split('=').last}")
     // case mixedDatasets(_, _, phenotype) => Outputs.Named(s"$phenotype/Mixed")
   }
 
