@@ -8,8 +8,7 @@ import org.broadinstitute.dig.aws.MemorySize
 class MakeSuSiE(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/*/")
-  // val mixedDatasets: Input.Source = Input.Source.Success("variants/*/*/*/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry=EU/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific)
