@@ -21,7 +21,7 @@ def main():
 	parser.add_option("", "--phenotype", default=None)
 	parser.add_option("", "--ancestry", default=None)
 
-	args = parser.parse_args()
+	(args,_) = parser.parse_args()
 
 	clump_path = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}'
 	var2rs_path = '/mnt/var/susie/snps.csv'
