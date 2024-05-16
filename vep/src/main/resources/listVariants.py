@@ -5,7 +5,7 @@ import platform
 import re
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import concat_ws, length, lit, when  # pylint: disable=E0611
+from pyspark.sql.functions import col, concat_ws, length, lit, when  # pylint: disable=E0611
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
@@ -55,6 +55,7 @@ def main():
         variant_counts_df = get_df(spark, f'{variant_counts_srcdir}/*/*/*')
         df = df.union(variant_counts_df)
     df = df.dropDuplicates(['varId'])
+    df = df.filter(col('varId').isNotNull())
 
     # get the length of the reference and alternate alleles
     ref_len = length(df.reference)
