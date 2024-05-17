@@ -15,6 +15,17 @@ def make_json_files(directory):
 	subprocess.run('cat input/*.json > input.json', shell=True)
 	shutil.rmtree('input')
 
+def safe_remove(file_path):
+    try:
+        os.remove(file_path)
+        print(f"File {file_path} successfully removed.")
+    except FileNotFoundError:
+        print(f"File {file_path} does not exist.")
+    except PermissionError:
+        print(f"Permission denied: cannot remove {file_path}.")
+    except Exception as e:
+        print(f"An error occurred while trying to remove {file_path}: {e}")
+
 def main():
 	usage = "usage: %prog [options]"
 	parser = OptionParser(usage)
@@ -75,15 +86,15 @@ def main():
 		argument3_out  = out_directory
 		subprocess.call(['Rscript', '/mnt/var/susie/SuSiE.r', '--gwas', gwas_susie_file_name, 
 						'--ld', argument2_ld, '--out', argument3_out])
-		os.remove(argument1_gwas)
+		safe_remove(argument1_gwas)
 
-	os.remove(f'{out_directory}/snps.txt')
-	os.remove(f'{out_directory}/snps_ld.ld')
-	os.remove(f'{out_directory}/snps_ld.log')
-	os.remove(f'{out_directory}/snps_ld.nosex')
+	safe_remove(f'{out_directory}/snps.txt')
+	safe_remove(f'{out_directory}/snps_ld.ld')
+	safe_remove(f'{out_directory}/snps_ld.log')
+	safe_remove(f'{out_directory}/snps_ld.nosex')
 	subprocess.check_call(['touch', f'{out_directory}/_SUCCESS'])	
 	subprocess.check_call(['aws', 's3', 'cp', f'{out_directory}/', out_path, '--recursive'])
-	os.remove('input.json')
+	safe_remove('input.json')
 	shutil.rmtree(out_directory)
 
 if __name__ == '__main__':
