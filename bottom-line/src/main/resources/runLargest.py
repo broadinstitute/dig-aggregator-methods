@@ -4,6 +4,7 @@ from boto3 import session
 import json
 import os
 import sqlalchemy
+import subprocess
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
@@ -62,12 +63,17 @@ class BioIndexDB:
                 f'SELECT name FROM Datasets '
                 f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
                 f'AND ancestry="{ancestry}" AND tech="GWAS" '
-                f'ORDER BY subjects DESC LIMIT 1'
+                f'ORDER BY subjects'
             )
             rows = connection.execute(query).all()
-        print(f'Returned {len(rows)} rows for largest mixed dataset')
+        print(f'Returned {len(rows)} rows for largest dataset')
         if len(rows) == 1:
-            return rows[0][0]
+            return [row[0] for row in rows]
+
+
+def check_existence(phenotype, ancestry, dataset):
+    path = f'{s3_in}/out/metaanalysis/variants/{phenotype}/dataset={dataset}/ancestry={ancestry}/'
+    return subprocess.call(['aws', 's3', 'ls', path, '--recursive'])
 
 
 def get_dataset(phenotype, ancestry):
