@@ -11,17 +11,15 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/*/variants.json")
-  val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/ancestry-clumped/*/*/variants.json")
+  val portalPlink: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/portal/*/*/variants.json")
 
   /** The output of meta-analysis is the input for top associations. */
-  override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific)
+  override val sources: Seq[Input.Source] = Seq(portalPlink)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case transEthnic(metaType, phenotype) => s"$metaType/portal/$phenotype"
-    case ancestrySpecific(metaType, phenotype, ancestry) =>
-      s"$metaType/portal/$phenotype/${ancestry.split("ancestry=").last}"
+    case portalPlink(metaType, phenotype, ancestry) =>
+      Outputs.Named(s"$metaType/$phenotype/${ancestry.split("ancestry=").last}")
   }
 
   /** Simple cluster with more memory. */
@@ -34,10 +32,8 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   override def make(output: String): Job = {
     // run clumping and then join with bottom line
     val flags = output.split("/").toSeq match {
-      case Seq(metaType, paramType, phenotype) =>
-        Seq(s"--phenotype=$phenotype", s"--ancestry=TE", s"--meta-type=$metaType", s"--param-type=$paramType")
-      case Seq(metaType, paramType, phenotype, ancestry) =>
-        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry", s"--meta-type=$metaType", s"--param-type=$paramType")
+      case Seq(metaType, phenotype, ancestry) =>
+        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry", s"--meta-type=$metaType", s"--param-type=portal")
     }
 
     val steps = Seq(

@@ -33,7 +33,7 @@ TRANS_ETHNIC_ANCESTRIES = {
 }
 
 # ancestry mapping portal -> g1000 for all possible ancestries
-ANCESTRY_SPECIFIC_ANCESTRIES = {
+G1000_ANCESTRIES_BY_PORTAL_ANCESTRIES = {
     'AA': {'AA': 'afr'},
     'AF': {'AF': 'afr'},
     'SSAF': {'SSAF': 'afr'},
@@ -42,7 +42,8 @@ ANCESTRY_SPECIFIC_ANCESTRIES = {
     'EA': {'EA': 'eas'},
     'SA': {'SA': 'sas'},
     'GME': {'GME': 'sas'},
-    'Mixed': TRANS_ETHNIC_ANCESTRIES
+    'Mixed': TRANS_ETHNIC_ANCESTRIES,
+    'TE': TRANS_ETHNIC_ANCESTRIES
 }
 
 
@@ -154,14 +155,12 @@ def run_plink(assoc_file, outdir, ancestries, params):
 
         # upload the log if it exists
         if os.path.isfile('plink.log'):
-            upload('plink.log', f'{outdir}/ancestry={ancestry}')
+            upload('plink.log', f'{outdir}/plink.{ancestry}.log')
 
         # upload and rename the clumped file if it exists
         if os.path.isfile('plink.clumped'):
-            upload('plink.clumped', f'{outdir}/ancestry={ancestry}')
-
-            # rename the file with ancestry so it isn't overwritten
-            os.rename('plink.clumped', f'plink.clumped.{ancestry}')
+            os.rename('plink.clumped', f'plink.{ancestry}.clumped')
+            upload(f'plink.{ancestry}.clumped', f'{outdir}/plink.{ancestry}.clumped')
 
 
 def fix_clump(sp2):
@@ -236,8 +235,8 @@ def merge_results():
     """
     Load all the clumped results together and merge them.
     """
-    plink_files = glob.glob('plink.clumped.*')
-    if not plink_files:
+    plink_files = glob.glob('plink.*.clumped')
+    if len(plink_files) == 0:
         return pd.DataFrame()
 
     # join all the ancestries together
@@ -298,25 +297,6 @@ def concat_rare(clumped, rare):
     return clumped
 
 
-def get_trans_ethnic_paths(args):
-    param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
-    srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
-    plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/plink{param_type_suffix}/{args.phenotype}'
-    outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/clumped{param_type_suffix}/{args.phenotype}'
-    return srcdir, plinkdir, outdir
-
-
-def get_ancestry_specific_paths(args):
-    param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
-    srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
-    if args.ancestry == 'Mixed':
-        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
-    else:
-        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}'
-    outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
-    return srcdir, plinkdir, outdir
-
-
 def main():
     opts = argparse.ArgumentParser()
     opts.add_argument('--phenotype', type=str, required=True)
@@ -330,11 +310,12 @@ def main():
 
     # source data and output location
     if args.ancestry == 'TE':
-        srcdir, plinkdir, outdir = get_trans_ethnic_paths(args)
-        ancestries = TRANS_ETHNIC_ANCESTRIES
+        srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
     else:
-        srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
-        ancestries = ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]
+        srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
+    plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/plink/{args.param_type}/{args.phenotype}/{args.ancestry}'
+    outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.param_type}/{args.phenotype}/ancestry={args.ancestry}'
+    ancestries = G1000_ANCESTRIES_BY_PORTAL_ANCESTRIES[args.ancestry]
 
     # download and read the meta-analysis results
     df = load_bottom_line(f'{srcdir}/', params)

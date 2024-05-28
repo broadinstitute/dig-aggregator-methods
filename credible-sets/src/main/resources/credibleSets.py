@@ -17,9 +17,9 @@ def get_src_dir(args):
         src_dir = f'{s3_in}/credible_sets/{args.dataset}/{args.phenotype}/part-*'
     else:
         if args.ancestry != 'Mixed':
-            src_dir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}/part-*'
+            src_dir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-clumped/portal/{args.phenotype}/ancestry={args.ancestry}/part-*'
         else:
-            src_dir = f'{s3_in}/out/metaanalysis/bottom-line/clumped/{args.phenotype}/part-*'
+            src_dir = f'{s3_in}/out/metaanalysis/bottom-line/clumped/portal/{args.phenotype}/part-*'
     return src_dir
 
 
