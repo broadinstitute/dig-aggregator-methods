@@ -20,7 +20,7 @@ aws s3 cp "$S3_IN/variants/$PART" .
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"
 
 # count the number of processors (used for forking)
-CPUS=4
+CPUS=7
 
 perl "$VEPDIR/ensembl-vep/vep" \
     --dir "$VEPDIR" \
