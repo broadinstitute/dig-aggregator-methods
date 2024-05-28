@@ -14,26 +14,14 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/*/variants.json")
   val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/ancestry-clumped/*/*/variants.json")
 
-  val paramTypes: Map[String, Seq[String]] = Map(
-    "bottom-line" -> Seq("portal", "analysis"),
-    "naive" -> Seq("analysis"),
-    "min_p" -> Seq("analysis"),
-    "largest" -> Seq("analysis")
-  )
-
   /** The output of meta-analysis is the input for top associations. */
   override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case transEthnic(metaType, phenotype) =>
-      Outputs.Named(paramTypes(metaType).map { paramType =>
-        s"$metaType/$paramType/$phenotype"
-      }: _*)
+    case transEthnic(metaType, phenotype) => s"$metaType/portal/$phenotype"
     case ancestrySpecific(metaType, phenotype, ancestry) =>
-      Outputs.Named(paramTypes(metaType).map { paramType =>
-        s"$metaType/$paramType/$phenotype/${ancestry.split("ancestry=").last}"
-      }: _*)
+      s"$metaType/portal/$phenotype/${ancestry.split("ancestry=").last}"
   }
 
   /** Simple cluster with more memory. */
