@@ -311,10 +311,12 @@ def main():
     # source data and output location
     if args.ancestry == 'TE':
         srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
+        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/plink/{args.param_type}/{args.phenotype}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.param_type}/{args.phenotype}'
     else:
         srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
-    plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/plink/{args.param_type}/{args.phenotype}/{args.ancestry}'
-    outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.param_type}/{args.phenotype}/ancestry={args.ancestry}'
+        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink/{args.param_type}/{args.phenotype}/{args.ancestry}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped/{args.param_type}/{args.phenotype}/ancestry={args.ancestry}'
     ancestries = G1000_ANCESTRIES_BY_PORTAL_ANCESTRIES[args.ancestry]
 
     # download and read the meta-analysis results
