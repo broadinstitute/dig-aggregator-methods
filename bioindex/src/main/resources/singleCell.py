@@ -130,8 +130,6 @@ def fetch_and_output_expression(dataset, cell_indexes, infile, outfile, number_m
 def upload(dataset):
     subprocess.check_call(['aws', 's3', 'cp', 'processed/fields.json.gz', f'{s3_bioindex}/raw/single_cell/{dataset}/'])
     subprocess.check_call(['aws', 's3', 'cp', 'processed/coordinates.tsv.gz', f'{s3_bioindex}/raw/single_cell/{dataset}/'])
-    subprocess.check_call(['aws', 's3', 'rm', f'{s3_bioindex}/single_cell/gene/{dataset}/', '--recursive'])
-    subprocess.check_call(['aws', 's3', 'cp', 'processed/gene/', f'{s3_bioindex}/single_cell/gene/{dataset}/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'rm', f'{s3_bioindex}/single_cell/gene_lognorm/{dataset}/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'cp', 'processed/gene_lognorm/', f'{s3_bioindex}/single_cell/gene_lognorm/{dataset}/', '--recursive'])
     shutil.rmtree('raw')
