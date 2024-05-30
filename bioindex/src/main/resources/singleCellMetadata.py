@@ -1,26 +1,40 @@
+#!/usr/bin/python3
 import os
+import glob
+import gzip
+import json
+import shutil
+import subprocess
 
-from pyspark.sql import SparkSession
+s3_in = 's3://dig-analysis-data'
+s3_bioindex = 's3://dig-bio-index'
 
-s3_in = os.environ['INPUT_PATH']
-s3_bioindex = os.environ['BIOINDEX_PATH']
+
+def download_data():
+    out = []
+    cmd = 'aws s3 cp s3://dig-analysis-data/single_cell/ ./data/ ' \
+          '--recursive --exclude="*" --include="*dataset_metadata"'
+    subprocess.check_call(cmd, shell=True)
+    for file in glob.glob('data/*/dataset_metadata'):
+        with open(file, 'r') as f:
+            out.append(json.load(f))
+    return out
+
+
+def upload_file(data):
+    file = 'dataset_metadata.json.gz'
+    path = f'{s3_bioindex}/raw/single_cell_metadata/'
+    with gzip.open(file, 'wt') as f:
+        for d in data:
+            f.write(f'{json.dumps(d)}\n')
+    subprocess.check_call(['aws', 's3', 'cp', file, path])
+    os.remove(file)
 
 
 def main():
-
-    spark = SparkSession.builder.appName('bioindex').getOrCreate()
-
-    # source and output locations
-    srcdir = f'{s3_in}/single_cell/*/dataset_metadata'
-    outdir = f'{s3_bioindex}/single_cell/metadata'
-    spark.read.json(srcdir) \
-        .orderBy(['datasetId']) \
-        .write \
-        .mode('overwrite') \
-        .json(outdir)
-
-    # done
-    spark.stop()
+    data = download_data()
+    upload_file(data)
+    shutil.rmtree('data')
 
 
 if __name__ == '__main__':

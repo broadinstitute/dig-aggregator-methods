@@ -10,7 +10,8 @@ class SingleCellMetadataStage(implicit context: Context) extends Stage {
   val metadata: Input.Source = Input.Source.Raw("single_cell/*/dataset_metadata")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 1,
+    applications = Seq.empty,
   )
 
   /** Input sources. */
@@ -23,6 +24,6 @@ class SingleCellMetadataStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(dataset: String): Job = {
-    new Job(Job.PySpark(resourceUri("singleCellMetadata.py")))
+    new Job(Job.Script(resourceUri("singleCellMetadata.py")))
   }
 }
