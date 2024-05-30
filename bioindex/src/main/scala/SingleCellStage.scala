@@ -12,7 +12,6 @@ class SingleCellStage(implicit context: Context) extends Stage {
 
   val fields: Input.Source = Input.Source.Raw("single_cell/*/metadata.tsv")
   val coordinates: Input.Source = Input.Source.Raw("single_cell/*/coordinates.tsv")
-  val gene: Input.Source = Input.Source.Raw("single_cell/*/raw_counts.tsv.gz")
   val geneLogNorm: Input.Source = Input.Source.Raw("single_cell/*/lognorm_counts.tsv.gz")
 
   override val cluster: ClusterDef = super.cluster.copy(
@@ -21,13 +20,12 @@ class SingleCellStage(implicit context: Context) extends Stage {
   )
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(fields, coordinates, gene, geneLogNorm)
+  override val sources: Seq[Input.Source] = Seq(fields, coordinates, geneLogNorm)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
     case fields(dataset) => Outputs.Named(dataset)
     case coordinates(dataset) => Outputs.Named(dataset)
-    case gene(dataset) => Outputs.Named(dataset)
     case geneLogNorm(dataset) => Outputs.Named(dataset)
   }
 
