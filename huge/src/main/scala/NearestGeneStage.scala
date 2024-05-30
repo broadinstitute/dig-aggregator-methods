@@ -13,7 +13,7 @@ class NearestGeneStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = {
     super.cluster.copy(
-      instances = 7
+      instances = 10
     )
   }
 
