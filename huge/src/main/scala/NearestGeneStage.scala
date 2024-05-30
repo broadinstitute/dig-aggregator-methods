@@ -13,7 +13,11 @@ class NearestGeneStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = {
     super.cluster.copy(
-      instances = 10
+      masterInstanceType = Ec2.Strategy.memoryOptimized(),
+      slaveInstanceType = Ec2.Strategy.memoryOptimized(),
+      masterVolumeSizeInGB = 200,
+      slaveVolumeSizeInGB = 200,
+      instances = 7
     )
   }
 
