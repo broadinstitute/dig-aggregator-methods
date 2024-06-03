@@ -78,8 +78,8 @@ class BioIndexDB:
         return [(row[0], row[1]) for row in rows]
 
 
-def check_existence(phenotype, dataset):
-    path = f'{s3_in}/out/metaanalysis/variants/{phenotype}/dataset={dataset}/ancestry={ancestry}/'
+def check_existence(phenotype, dataset_ancestry):
+    path = f'{s3_in}/out/metaanalysis/variants/{phenotype}/dataset={dataset_ancestry[0]}/ancestry={dataset_ancestry[1]}/'
     return subprocess.call(['aws', 's3', 'ls', path, '--recursive'])
 
 
