@@ -67,8 +67,7 @@ class BioIndexDB:
             )
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest dataset')
-        if len(rows) == 1:
-            return [row[0] for row in rows]
+        return [row[0] for row in rows]
 
 
 def check_existence(phenotype, ancestry, dataset):
