@@ -59,12 +59,20 @@ class BioIndexDB:
     def get_sorted_datasets(self, phenotype, ancestry):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
-            query = sqlalchemy.text(
-                f'SELECT name FROM Datasets '
-                f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
-                f'AND ancestry="{ancestry}" AND tech="GWAS" '
-                f'ORDER BY subjects'
-            )
+            if ancestry == 'TE':
+                query = sqlalchemy.text(
+                    f'SELECT name FROM Datasets '
+                    f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
+                    f'AND tech="GWAS" '
+                    f'ORDER BY subjects'
+                )
+            else:
+                query = sqlalchemy.text(
+                    f'SELECT name FROM Datasets '
+                    f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
+                    f'AND ancestry="{ancestry}" AND tech="GWAS" '
+                    f'ORDER BY subjects'
+                )
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest dataset')
         return [row[0] for row in rows]
@@ -99,9 +107,14 @@ def main():
     print(f'Largest GWAS dataset for phenotype {args.phenotype}, ancestry {args.ancestry}: {dataset}')
     if dataset is not None:
         srcdir = f'{s3_in}/out/metaanalysis/variants/{args.phenotype}/dataset={dataset}/ancestry={args.ancestry}/*/part-*'
-        outdir = f'{s3_out}/out/metaanalysis/largest/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
+        if args.ancestry == 'TE':
+            outdir = f'{s3_out}/out/metaanalysis/largest/trans-ethnic/{args.phenotype}/'
+        else:
+            outdir = f'{s3_out}/out/metaanalysis/largest/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
 
         columns = [col(field.name) for field in variants_schema]
+
+        output_ancestry = args.ancestry if args.ancestry != 'TE' else 'Mixed'
 
         df = spark.read \
             .csv(
@@ -111,7 +124,7 @@ def main():
             schema=variants_schema,
         ) \
             .select(*columns) \
-            .withColumn('ancestry', lit(args.ancestry))
+            .withColumn('ancestry', lit(output_ancestry))
 
         df.write \
             .mode('overwrite') \
