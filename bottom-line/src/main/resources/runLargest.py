@@ -59,20 +59,13 @@ class BioIndexDB:
     def get_sorted_datasets(self, phenotype, ancestry):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
-            if ancestry == 'TE':
-                query = sqlalchemy.text(
-                    f'SELECT name FROM Datasets '
-                    f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
-                    f'AND tech="GWAS" '
-                    f'ORDER BY subjects'
-                )
-            else:
-                query = sqlalchemy.text(
-                    f'SELECT name, ancestry FROM Datasets '
-                    f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
-                    f'AND ancestry="{ancestry}" AND tech="GWAS" '
-                    f'ORDER BY subjects'
-                )
+            ancestry_addendum = f'AND ancestry="{ancestry}" ' if ancestry != 'TE' else ''
+            query = sqlalchemy.text(
+                f'SELECT name, ancestry FROM Datasets '
+                f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
+                f'{ancestry_addendum}AND tech="GWAS" '
+                f'ORDER BY subjects'
+            )
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest dataset')
         return [(row[0], row[1]) for row in rows]
