@@ -64,7 +64,7 @@ class BioIndexDB:
                 f'SELECT name, ancestry FROM Datasets '
                 f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
                 f'{ancestry_addendum}AND tech="GWAS" '
-                f'ORDER BY subjects'
+                f'ORDER BY subjects DESC'
             )
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest dataset')
