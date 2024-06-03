@@ -68,27 +68,27 @@ class BioIndexDB:
                 )
             else:
                 query = sqlalchemy.text(
-                    f'SELECT name FROM Datasets '
+                    f'SELECT name, ancestry FROM Datasets '
                     f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
                     f'AND ancestry="{ancestry}" AND tech="GWAS" '
                     f'ORDER BY subjects'
                 )
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest dataset')
-        return [row[0] for row in rows]
+        return [(row[0], row[1]) for row in rows]
 
 
-def check_existence(phenotype, ancestry, dataset):
+def check_existence(phenotype, dataset):
     path = f'{s3_in}/out/metaanalysis/variants/{phenotype}/dataset={dataset}/ancestry={ancestry}/'
     return subprocess.call(['aws', 's3', 'ls', path, '--recursive'])
 
 
-def get_dataset(phenotype, ancestry):
+def get_dataset_ancestry(phenotype, ancestry):
     db = BioIndexDB()
-    datasets = db.get_sorted_datasets(phenotype, ancestry)
-    for dataset in datasets:
-        if not check_existence(phenotype, ancestry, dataset):
-            return dataset
+    dataset_ancestries = db.get_sorted_datasets(phenotype, ancestry)
+    for dataset_ancestry in dataset_ancestries:
+        if not check_existence(phenotype, dataset_ancestry):
+            return dataset_ancestry
 
 
 def main():
@@ -103,10 +103,11 @@ def main():
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
 
     # get the source and output directories
-    dataset = get_dataset(args.phenotype, args.ancestry)
-    print(f'Largest GWAS dataset for phenotype {args.phenotype}, ancestry {args.ancestry}: {dataset}')
-    if dataset is not None:
-        srcdir = f'{s3_in}/out/metaanalysis/variants/{args.phenotype}/dataset={dataset}/ancestry={args.ancestry}/*/part-*'
+    dataset_ancestry = get_dataset_ancestry(args.phenotype, args.ancestry)
+    print(f'Largest GWAS dataset for phenotype {args.phenotype}, ancestry {args.ancestry}: {dataset_ancestry}')
+    if dataset_ancestry is not None:
+        dataset, ancestry = dataset_ancestry
+        srcdir = f'{s3_in}/out/metaanalysis/variants/{args.phenotype}/dataset={dataset}/ancestry={ancestry}/*/part-*'
         if args.ancestry == 'TE':
             outdir = f'{s3_out}/out/metaanalysis/largest/trans-ethnic/{args.phenotype}/'
         else:
