@@ -11,7 +11,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val portalPlink: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/portal/*/*/variants.json")
+  val plink: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/analysis/*/*/variants.json")
 
   /** The output of meta-analysis is the input for top associations. */
   override val sources: Seq[Input.Source] = Seq(portalPlink)
@@ -33,7 +33,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
     // run clumping and then join with bottom line
     val flags = output.split("/").toSeq match {
       case Seq(metaType, phenotype, ancestry) =>
-        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry", s"--meta-type=$metaType", s"--param-type=portal")
+        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry", s"--meta-type=$metaType")
     }
 
     val steps = Seq(

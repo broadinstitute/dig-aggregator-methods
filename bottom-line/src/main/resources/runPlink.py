@@ -19,7 +19,6 @@ CLUMPING_ROOT = f'/mnt/var/clumping'
 import_threads = 8
 
 params_by_type = {
-    'portal': {'p1': 5E-8, 'p2': 1E-2, 'r2': 0.2, 'kb': 250},
     'analysis': {'p1': 5E-8, 'p2': 5E-6, 'r2': 0.01, 'kb': 5000}
 }
 
@@ -54,6 +53,7 @@ def download(s3_file):
     subprocess.check_call(['aws', 's3', 'cp', '--recursive', s3_file, '.'])
     for fn in glob.glob('part-*'):
         subprocess.check_call(['zstd', '-d', '--rm', fn])
+
 
 def upload(local_file, s3_dir):
     """
@@ -93,25 +93,6 @@ def load_bottom_line(s3_dir, params):
     with Pool(import_threads) as p:
         dfs = p.map(load_individual_bottom_line, inputs)
     return pd.concat(dfs)
-
-
-def update_plink_args(df, params, expected_clumps=50):
-    """
-    Modify the plink P1 and P2 arguments if there aren't enough associations
-    in the dataframe that will generate clumps.
-    """
-
-    while params['p1'] < params['p2']:
-        n = (df['pValue'] <= params['p1']).value_counts().get(True, 0)
-
-        # if there are enough associations, these are good values
-        if n >= expected_clumps:
-            return params
-
-        # increase P1 by a factor of 10
-        params['p1'] *= 10
-    params['p1'] = params['p2']
-    return params
 
 
 def build_assoc_file(assoc_file, df):
@@ -325,10 +306,6 @@ def main():
     # if there are no associations, just stop
     if df.empty:
         return
-
-    # For portal make sure P1 and P2 are good for this data
-    if args.param_type == 'portal':
-        params = update_plink_args(df, params)
 
     # load the SNPs file
     snps = pd.read_csv(f'{CLUMPING_ROOT}/snps.csv', sep='\t', header=0)
