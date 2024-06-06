@@ -2,10 +2,10 @@
     "aws": {
         "project": "portal",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-data-registry"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-data-registry"
         },
         "bioindex": {
             "bucket": "dig-bio-index"
