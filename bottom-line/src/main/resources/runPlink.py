@@ -278,6 +278,14 @@ def concat_rare(clumped, rare):
     return clumped
 
 
+def cleanup():
+    for fn in glob.glob('plink.*'):
+        os.remove(fn)
+    for fn in glob.glob('part-*'):
+        os.remove(fn)
+    os.remove('snps.assoc')
+
+
 def main():
     opts = argparse.ArgumentParser()
     opts.add_argument('--phenotype', type=str, required=True)
@@ -324,6 +332,7 @@ def main():
     # get the final output of top and clumped SNPs (clump ID, SNP)
     clumped = merge_results()
     if clumped.empty:
+        cleanup()
         return
 
     # get the variant ID and bottom-line columns back
@@ -364,14 +373,7 @@ def main():
     clumped.to_json('variants.json', orient='records', lines=True)
     upload('variants.json', outdir)
 
-    # cleanup
-    for fn in glob.glob('plink.*'):
-        os.remove(fn)
-
-    # source and associations files
-    for fn in glob.glob('part-*'):
-        os.remove(fn)
-    os.remove('snps.assoc')
+    cleanup()
     os.remove('variants.json')
 
 

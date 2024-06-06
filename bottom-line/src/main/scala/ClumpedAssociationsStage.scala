@@ -11,15 +11,16 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val plink: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/analysis/*/*/variants.json")
+  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/merged/analysis/*/variants.json")
+  val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/ancestry-merged/analysis/*/*/variants.json")
 
   /** The output of meta-analysis is the input for top associations. */
-  override val sources: Seq[Input.Source] = Seq(portalPlink)
+  override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case portalPlink(metaType, phenotype, ancestry) =>
-      Outputs.Named(s"$metaType/$phenotype/${ancestry.split("ancestry=").last}")
+    case transEthnic(phenotype) => Outputs.Named(s"$phenotype/TE")
+    case ancestrySpecific(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("ancestry=").last}")
   }
 
   /** Simple cluster with more memory. */
@@ -33,7 +34,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
     // run clumping and then join with bottom line
     val flags = output.split("/").toSeq match {
       case Seq(metaType, phenotype, ancestry) =>
-        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry", s"--meta-type=$metaType")
+        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
     }
 
     val steps = Seq(
