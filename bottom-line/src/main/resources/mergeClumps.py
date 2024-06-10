@@ -92,16 +92,17 @@ def get_clump_to_metas(variants_dict, var_id_to_clump):
                 if clump not in clump_to_metas:
                     clump_to_metas[clump] = {meta_type: False for meta_type in meta_types}
                 clump_to_metas[clump][meta_type] = True
+    for clump, metas in clump_to_metas.items():
+        clump_to_metas[clump] = ';'.join([meta_type for meta_type in meta_types if metas[meta_type]])
     return clump_to_metas
 
 
 def get_overview(clump_to_meta):
     output = {}
     for clump, metas in clump_to_meta.items():
-        key = '_'.join([meta_type for meta_type in meta_types if metas[meta_type]])
-        if key not in output:
-            output[key] = 0
-        output[key] += 1
+        if metas not in output:
+            output[metas] = 0
+        output[metas] += 1
     return output
 
 
@@ -123,7 +124,7 @@ def output_and_upload_variants(path_out, variants_dict, var_id_to_clump, clump_t
         with open(file, 'w') as f:
             for variants in variants_list:
                 for variant in variants:
-                    variant['in_metas'] = clump_to_metas[var_id_to_clump[variant['varId']]]
+                    variant['inMetaTypes'] = clump_to_metas[var_id_to_clump[variant['varId']]]
                     f.write('{}\n'.format(json.dumps(variant)))
         subprocess.check_call(['aws', 's3', 'cp', file, path_out])
 
