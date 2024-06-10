@@ -33,8 +33,7 @@ def convert_credible_set(df):
          'phenotype', 'ancestry', 'gwas_dataset', 'dataset', 'credibleSetId', 'posteriorProbability']
     )
     df = df.withColumn('varId', concat_ws(':', df.chromosome, df.position, df.reference, df.alt))
-    df = df.filter(df.varId.isNotNull()) \
-        .dropDuplicates(['credibleSetId', 'varId']) \
+    df = df.dropDuplicates(['credibleSetId', 'varId']) \
         .withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
         .drop('gwas_dataset') \
         .withColumn('source', lit('credible_set')) \
