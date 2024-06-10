@@ -33,7 +33,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   override def make(output: String): Job = {
     // run clumping and then join with bottom line
     val flags = output.split("/").toSeq match {
-      case Seq(metaType, phenotype, ancestry) =>
+      case Seq(phenotype, ancestry) =>
         Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
     }
 
