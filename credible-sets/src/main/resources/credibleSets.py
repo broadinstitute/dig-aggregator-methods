@@ -17,9 +17,9 @@ def get_src_dir(args):
         src_dir = f'{s3_in}/credible_sets/{args.dataset}/{args.phenotype}/part-*'
     else:
         if args.ancestry != 'Mixed':
-            src_dir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-clumped/portal/{args.phenotype}/ancestry={args.ancestry}/part-*'
+            src_dir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}/part-*'
         else:
-            src_dir = f'{s3_in}/out/metaanalysis/bottom-line/clumped/portal/{args.phenotype}/part-*'
+            src_dir = f'{s3_in}/out/metaanalysis/bottom-line/clumped/{args.phenotype}/part-*'
     return src_dir
 
 
@@ -33,6 +33,7 @@ def convert_credible_set(df):
          'phenotype', 'ancestry', 'gwas_dataset', 'dataset', 'pmid', 'method',
          'credibleSetId', 'posteriorProbability']
     )
+    df = df.filter(df.posteriorProbability.isNotNull())
     df = df.withColumn('varId', concat_ws(':', df.chromosome, df.position, df.reference, df.alt))
     df = df.dropDuplicates(['credibleSetId', 'varId']) \
         .withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
@@ -115,7 +116,7 @@ def bayes_pp(df):
 def convert_clump_file(ancestry, df):
     df = df.select(
         ['varId', 'chromosome', 'position', 'reference', 'alt',
-         'metaType', 'paramType', 'freqType', 'inMetaType',
+         'metaType', 'paramType', 'freqType', 'inMetaTypes',
          'beta', 'stdErr', 'pValue', 'n',
          'phenotype', 'clump', 'clumpStart', 'clumpEnd', 'leadSNP', 'alignment']
     ) \
@@ -163,7 +164,7 @@ def main():
     else:
         df = convert_clump_file(args.ancestry, df)
     # TODO: To use alternative meta/param types, pass through as arguments
-    meta_param = 'credible_set' if args.source == 'credible-set' else 'bottom-line_portal'
+    meta_param = 'credible_set' if args.source == 'credible-set' else 'bottom-line'
     out_dir = get_out_dir(df, meta_param)
 
     save_df(df, out_dir)

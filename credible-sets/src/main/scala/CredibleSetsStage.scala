@@ -12,8 +12,8 @@ class CredibleSetsStage(implicit context: Context) extends Stage {
   )
 
   val credibleSets: Input.Source = Input.Source.Dataset("credible_sets/*/*/")
-  val ancestryBottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/portal/*/*/")
-  val transEthnicBottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/clumped/portal/*/")
+  val ancestryBottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/*/")
+  val transEthnicBottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/clumped/*/")
 
   override val sources: Seq[Input.Source] = Seq(credibleSets, ancestryBottomLine, transEthnicBottomLine)
 

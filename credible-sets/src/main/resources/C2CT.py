@@ -66,7 +66,7 @@ def get_credible_sets(phenotype, ancestry):
                     'chromosome': json_line['chromosome'],
                     'clumpStart': json_line['clumpStart'],
                     'clumpEnd': json_line['clumpEnd'],
-                    'inMetaType': json_line['inMetaType'],
+                    'inMetaTypes': json_line.get('inMetaTypes', 'credible-set'),
                     'varTotal': 0
                 }
             cs_data[json_line['credibleSetId']]['varTotal'] += 1
@@ -136,7 +136,7 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
                 pp = max(min(pp, 1.0), 0.0)
                 f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": {biosample_str}, '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
-                        f'"source": "{cs_data["source"]}", "inMetaType": "{cs_data["inMetaType"]}", '
+                        f'"source": "{cs_data["source"]}", "inMetaTypes": "{cs_data["inMetaTypes"]}", '
                         f'"dataset": "{cs_data["dataset"]}", '
                         f'"credibleSetId": "{credible_set_id}", "chromosome": "{cs_data["chromosome"]}", '
                         f'"clumpStart": {cs_data["clumpStart"]}, "clumpEnd": {cs_data["clumpEnd"]}, '
