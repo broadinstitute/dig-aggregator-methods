@@ -27,6 +27,11 @@ def download_data(phenotype, ancestry):
     return filename
 
 
+def checkfile(filename):
+    with open(filename, 'r') as f:
+        return len(f.readlines()) > 0
+
+
 def calculate_hp(values, p_func, key):
     p = p_func(values, key)
     z = list(map(sum, p))
@@ -107,9 +112,10 @@ def main():
     args = parser.parse_args()
 
     filename = download_data(args.phenotype, args.ancestry)
-    file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_type}.json'
-    calculate(filename, file_out, args.entropy_type)
-    upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
+    if checkfile(filename):
+        file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_type}.json'
+        calculate(filename, file_out, args.entropy_type)
+        upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
 
 
 if __name__ == '__main__':
