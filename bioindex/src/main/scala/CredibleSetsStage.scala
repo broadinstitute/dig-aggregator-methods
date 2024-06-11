@@ -10,7 +10,7 @@ import org.broadinstitute.dig.aws.emr._
 class CredibleSetsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants = Input.Source.Dataset("out/credible_sets/merged/*/*/")
+  val variants = Input.Source.Success("out/credible_sets/merged/*/*/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(variants)

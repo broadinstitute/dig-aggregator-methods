@@ -1,3 +1,4 @@
+import os
 from pyspark.sql import SparkSession
 
 s3_in = os.environ['INPUT_PATH']
@@ -5,17 +6,19 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def write(df, name):
-    df.orderBy(['credibleSetId', 'chromosome', 'position']) \
+    df.orderBy(['phenotype', 'ancestry', 'credibleSetId', 'chromosome', 'position']) \
         .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/credible_sets/{name}/variants/')
+        .json(f'{s3_bioindex}/credible_sets/variants/{name}/')
 
     df.withColumnRenamed('clumpStart', 'start') \
         .withColumnRenamed('clumpEnd', 'end') \
-        .select('phenotype', 'dataset', 'method', 'pmid', 'credibleSetId', 'chromosome', 'start', 'end') \
-        .orderBy(['chromosome', 'start']) \
+        .select('phenotype', 'ancestry', 'dataset', 'method', 'pmid', 'credibleSetId', 'chromosome', 'start', 'end') \
+        .drop_duplicates() \
+        .orderBy(['phenotype', 'ancestry', 'chromosome', 'start']) \
+        .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/credible_sets/{name}/locus/')
+        .json(f'{s3_bioindex}/credible_sets/locus/{name}/')
 
 
 def main():
