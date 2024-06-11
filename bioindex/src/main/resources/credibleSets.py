@@ -1,6 +1,4 @@
-import os
-
-from pyspark.sql import SparkSession, Row
+from pyspark.sql import SparkSession
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
