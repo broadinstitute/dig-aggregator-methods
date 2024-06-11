@@ -56,7 +56,7 @@ def get_credible_sets(phenotype, ancestry):
                 json_line['position'],
                 json_line['posteriorProbability'],
                 json_line['credibleSetId'],
-                json_line.get('pValue'),
+                json_line.get('pValue', 1.0),
                 json_line['varId']
             ))
             if json_line['credibleSetId'] not in cs_data:
@@ -93,7 +93,7 @@ def get_chromosome_overlap(credible_set_data, region_data):
             if cs_id not in overlap:
                 overlap[cs_id] = (0.0, 0, p_value, var_id)
             curr_pp, curr_count, min_p_value, min_var_id = overlap[cs_id]
-            if p_value is not None and p_value < min_p_value:
+            if p_value < min_p_value:
                 overlap[cs_id] = (curr_pp + pp, curr_count + 1, p_value, var_id)
             else:
                 overlap[cs_id] = (curr_pp + pp, curr_count + 1, min_p_value, min_var_id)
