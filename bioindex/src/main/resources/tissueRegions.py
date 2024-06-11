@@ -13,7 +13,7 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = f'{s3_in}/out/ldsc/regions/merged/annotation-tissue/*/*.csv'
+    srcdir = f'{s3_in}/out/ldsc/regions/merged/annotation-tissue-biosample/*/*.csv'
     outdir = f'{s3_bioindex}/regions'
 
     # input summary stats schema
@@ -30,7 +30,7 @@ def main():
     ])
 
     # input pathname -> partition
-    src_re = r'/out/ldsc/regions/merged/annotation-tissue/([^/]+)/'
+    src_re = r'/out/ldsc/regions/merged/annotation-tissue-biosample/([^/]+)/'
 
     # udf functions (NOTE: tissue needs to remove underscores used!)
     annotation = udf(lambda s: re.search(src_re, s).group(1).split('___')[0])
@@ -42,17 +42,11 @@ def main():
         .withColumn('tissue', tissue('file_name'))
     df = df.drop('file_name')
 
-    # sort by annotation and then position
-    df.orderBy(['annotation', 'chromosome', 'start']) \
+    # sort by tissue and then position
+    df.orderBy(['tissue', 'chromosome', 'start']) \
         .write \
         .mode('overwrite') \
-        .json(f'{outdir}/annotation')
-
-    # sort by locus
-    df.orderBy(['chromosome', 'start']) \
-        .write \
-        .mode('overwrite') \
-        .json(f'{outdir}/position')
+        .json(f'{outdir}/tissue')
 
     # done
     spark.stop()
