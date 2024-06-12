@@ -2,7 +2,8 @@
     "aws": {
         "project": "portal",
         "input": {
-            "bucket": "dig-data-registry"
+            "bucket": "dig-data-registry",
+            "subdir": "hermes"
         },
         "output": {
             "bucket": "dig-data-registry"
