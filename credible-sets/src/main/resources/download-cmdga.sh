@@ -10,4 +10,3 @@ sudo chmod 775 "${C2CT_ROOT}"
 cd "${C2CT_ROOT}"
 
 sudo aws s3 cp s3://dig-analysis-data/out/ldsc/regions/merged/annotation-tissue-biosample/ ./annotation-tissue-biosample/ --recursive
-sudo aws s3 cp s3://dig-analysis-data/out/ldsc/regions/merged/annotation-tissue/ ./annotation-tissue/ --recursive
