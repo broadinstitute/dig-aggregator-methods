@@ -14,8 +14,9 @@ class ClumpedPlinkStage(implicit context: Context) extends Stage {
   val transEthnic: Input.Source = Input.Source.Success("out/metaanalysis/*/trans-ethnic/*/")
   val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/*/ancestry-specific/*/*/")
 
+  // Only running analysis, but can allow testing on alternative plink params when necessary
   val paramTypes: Map[String, Seq[String]] = Map(
-    "bottom-line" -> Seq("portal", "analysis"),
+    "bottom-line" -> Seq("analysis"),
     "naive" -> Seq("analysis"),
     "min_p" -> Seq("analysis"),
     "largest" -> Seq("analysis")

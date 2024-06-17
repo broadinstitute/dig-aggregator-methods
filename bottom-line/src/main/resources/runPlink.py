@@ -19,7 +19,6 @@ CLUMPING_ROOT = f'/mnt/var/clumping'
 import_threads = 8
 
 params_by_type = {
-    'portal': {'p1': 5E-8, 'p2': 1E-2, 'r2': 0.2, 'kb': 250},
     'analysis': {'p1': 5E-8, 'p2': 5E-6, 'r2': 0.01, 'kb': 5000}
 }
 
@@ -33,7 +32,7 @@ TRANS_ETHNIC_ANCESTRIES = {
 }
 
 # ancestry mapping portal -> g1000 for all possible ancestries
-ANCESTRY_SPECIFIC_ANCESTRIES = {
+G1000_ANCESTRIES_BY_PORTAL_ANCESTRIES = {
     'AA': {'AA': 'afr'},
     'AF': {'AF': 'afr'},
     'SSAF': {'SSAF': 'afr'},
@@ -42,7 +41,8 @@ ANCESTRY_SPECIFIC_ANCESTRIES = {
     'EA': {'EA': 'eas'},
     'SA': {'SA': 'sas'},
     'GME': {'GME': 'sas'},
-    'Mixed': TRANS_ETHNIC_ANCESTRIES
+    'Mixed': TRANS_ETHNIC_ANCESTRIES,
+    'TE': TRANS_ETHNIC_ANCESTRIES
 }
 
 
@@ -53,6 +53,7 @@ def download(s3_file):
     subprocess.check_call(['aws', 's3', 'cp', '--recursive', s3_file, '.'])
     for fn in glob.glob('part-*'):
         subprocess.check_call(['zstd', '-d', '--rm', fn])
+
 
 def upload(local_file, s3_dir):
     """
@@ -92,25 +93,6 @@ def load_bottom_line(s3_dir, params):
     with Pool(import_threads) as p:
         dfs = p.map(load_individual_bottom_line, inputs)
     return pd.concat(dfs)
-
-
-def update_plink_args(df, params, expected_clumps=50):
-    """
-    Modify the plink P1 and P2 arguments if there aren't enough associations
-    in the dataframe that will generate clumps.
-    """
-
-    while params['p1'] < params['p2']:
-        n = (df['pValue'] <= params['p1']).value_counts().get(True, 0)
-
-        # if there are enough associations, these are good values
-        if n >= expected_clumps:
-            return params
-
-        # increase P1 by a factor of 10
-        params['p1'] *= 10
-    params['p1'] = params['p2']
-    return params
 
 
 def build_assoc_file(assoc_file, df):
@@ -154,14 +136,12 @@ def run_plink(assoc_file, outdir, ancestries, params):
 
         # upload the log if it exists
         if os.path.isfile('plink.log'):
-            upload('plink.log', f'{outdir}/ancestry={ancestry}')
+            upload('plink.log', f'{outdir}/plink.{ancestry}.log')
 
         # upload and rename the clumped file if it exists
         if os.path.isfile('plink.clumped'):
-            upload('plink.clumped', f'{outdir}/ancestry={ancestry}')
-
-            # rename the file with ancestry so it isn't overwritten
-            os.rename('plink.clumped', f'plink.clumped.{ancestry}')
+            os.rename('plink.clumped', f'plink.{ancestry}.clumped')
+            upload(f'plink.{ancestry}.clumped', f'{outdir}/plink.{ancestry}.clumped')
 
 
 def fix_clump(sp2):
@@ -236,8 +216,8 @@ def merge_results():
     """
     Load all the clumped results together and merge them.
     """
-    plink_files = glob.glob('plink.clumped.*')
-    if not plink_files:
+    plink_files = glob.glob('plink.*.clumped')
+    if len(plink_files) == 0:
         return pd.DataFrame()
 
     # join all the ancestries together
@@ -298,23 +278,12 @@ def concat_rare(clumped, rare):
     return clumped
 
 
-def get_trans_ethnic_paths(args):
-    param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
-    srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
-    plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/plink{param_type_suffix}/{args.phenotype}'
-    outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/clumped{param_type_suffix}/{args.phenotype}'
-    return srcdir, plinkdir, outdir
-
-
-def get_ancestry_specific_paths(args):
-    param_type_suffix = '-analysis' if args.param_type == 'analysis' else ''
-    srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
-    if args.ancestry == 'Mixed':
-        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
-    else:
-        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink{param_type_suffix}/{args.phenotype}'
-    outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped{param_type_suffix}/{args.phenotype}/ancestry={args.ancestry}'
-    return srcdir, plinkdir, outdir
+def cleanup():
+    for fn in glob.glob('plink.*'):
+        os.remove(fn)
+    for fn in glob.glob('part-*'):
+        os.remove(fn)
+    os.remove('snps.assoc')
 
 
 def main():
@@ -330,11 +299,14 @@ def main():
 
     # source data and output location
     if args.ancestry == 'TE':
-        srcdir, plinkdir, outdir = get_trans_ethnic_paths(args)
-        ancestries = TRANS_ETHNIC_ANCESTRIES
+        srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
+        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/plink/{args.param_type}/{args.phenotype}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.param_type}/{args.phenotype}'
     else:
-        srcdir, plinkdir, outdir = get_ancestry_specific_paths(args)
-        ancestries = ANCESTRY_SPECIFIC_ANCESTRIES[args.ancestry]
+        srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
+        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink/{args.param_type}/{args.phenotype}/{args.ancestry}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-clumped/{args.param_type}/{args.phenotype}/ancestry={args.ancestry}'
+    ancestries = G1000_ANCESTRIES_BY_PORTAL_ANCESTRIES[args.ancestry]
 
     # download and read the meta-analysis results
     df = load_bottom_line(f'{srcdir}/', params)
@@ -342,10 +314,6 @@ def main():
     # if there are no associations, just stop
     if df.empty:
         return
-
-    # For portal make sure P1 and P2 are good for this data
-    if args.param_type == 'portal':
-        params = update_plink_args(df, params)
 
     # load the SNPs file
     snps = pd.read_csv(f'{CLUMPING_ROOT}/snps.csv', sep='\t', header=0)
@@ -364,6 +332,7 @@ def main():
     # get the final output of top and clumped SNPs (clump ID, SNP)
     clumped = merge_results()
     if clumped.empty:
+        cleanup()
         return
 
     # get the variant ID and bottom-line columns back
@@ -404,14 +373,7 @@ def main():
     clumped.to_json('variants.json', orient='records', lines=True)
     upload('variants.json', outdir)
 
-    # cleanup
-    for fn in glob.glob('plink.*'):
-        os.remove(fn)
-
-    # source and associations files
-    for fn in glob.glob('part-*'):
-        os.remove(fn)
-    os.remove('snps.assoc')
+    cleanup()
     os.remove('variants.json')
 
 
