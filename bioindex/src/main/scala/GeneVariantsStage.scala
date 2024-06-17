@@ -19,7 +19,7 @@ class GeneVariantsStage(implicit context: Context) extends Stage {
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case counts(_) => Outputs.Named("variants")
+    case counts(_, _, _) => Outputs.Named("variants")
     case genes() => Outputs.All
   }
 

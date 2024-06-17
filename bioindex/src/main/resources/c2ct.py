@@ -13,16 +13,12 @@ def main():
     # source and output locations
     srcdir = f'{s3_in}/out/credible_sets/specificity/*/*/*/*.json'
     outdir = f'{s3_bioindex}/credible_sets/c2ct/{{}}'
-    print(outdir)
 
     df = spark.read.json(srcdir)
 
     # partition dataframe
     mixed_df = df[df['ancestry'] == 'Mixed']
     non_mixed_df = df[df['ancestry'] != 'Mixed']
-
-    print(mixed_df.count())
-    print(non_mixed_df.count())
 
     mixed_df.orderBy([col('phenotype'), col('Q').desc()]) \
         .write \
