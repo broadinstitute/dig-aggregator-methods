@@ -27,6 +27,11 @@ def download_data(phenotype, ancestry):
     return filename
 
 
+def checkfile(filename):
+    with open(filename, 'r') as f:
+        return len(f.readlines()) > 0
+
+
 def calculate_hp(values, p_func, key):
     p = p_func(values, key)
     z = list(map(sum, p))
@@ -71,13 +76,28 @@ def add_hq(args):
 
 
 def calculate(filename, file_out, entropy_key):
-    with open(file_out, 'w') as f:
+    q = []
+    with open(f'unfiltered.{file_out}', 'w') as f:
         for cred_groups in get_cred_groups(filename, chunk_size=cpus):
             with multiprocessing.Pool(cpus) as p:
                 for cred_group in p.map(add_hq, [(entropy_key, cred_group) for cred_group in cred_groups]):
                     for d in cred_group:
-                        if d['Q'] > 0:
-                            f.write(f'{json.dumps(d)}\n')
+                        q.append(d['Q'])
+                        f.write(f'{json.dumps(d)}\n')
+    return q
+
+
+def filter_by_q(file_out, q):
+    # takes all positive q lines, but all lines if there is less than 1000 lines, or the top 1000 else
+    q_threshold = min(0.0, sorted(q)[-min(1000, len(q))])
+    print(q_threshold)
+    with open(f'unfiltered.{file_out}', 'r') as f_in:
+        with open(file_out, 'w') as f_out:
+            for line in f_in:
+                d = json.loads(line.strip())
+                if d['Q'] >= q_threshold:
+                    f_out.write(line)
+    os.remove(f'unfiltered.{file_out}')
 
 
 def success(path_out):
@@ -107,9 +127,11 @@ def main():
     args = parser.parse_args()
 
     filename = download_data(args.phenotype, args.ancestry)
-    file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_type}.json'
-    calculate(filename, file_out, args.entropy_type, p_funcs[args.entropy_type])
-    upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
+    if checkfile(filename):
+        file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_type}.json'
+        q = calculate(filename, file_out, args.entropy_type)
+        filter_by_q(file_out, q)
+        upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
 
 
 if __name__ == '__main__':
