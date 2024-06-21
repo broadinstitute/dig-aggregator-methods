@@ -54,7 +54,9 @@ def main():
     if check_path(variant_counts_srcdir):
         variant_counts_df = get_df(spark, f'{variant_counts_srcdir}/*/*/*')
         df = df.union(variant_counts_df)
-    df = df.dropDuplicates(['varId'])
+    # varIds with length > 1000 causes VEP to hang
+    df = df.dropDuplicates(['varId']) \
+        .filter(length(df.varId) < 1000)
 
     # get the length of the reference and alternate alleles
     ref_len = length(df.reference)
