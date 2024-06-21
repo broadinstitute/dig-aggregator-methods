@@ -20,11 +20,6 @@ sudo aws s3 cp s3://dig-analysis-bin/pigean/gene_set_list_mesh_processed.txt .
 sudo aws s3 cp s3://dig-analysis-bin/pigean/priors.py .
 sudo aws s3 cp s3://dig-analysis-bin/pigean/refGene_hg19_TSS.subset.loc .
 
-## reinstall numpy with openblas for multithreading
-#sudo yum -y install openblas-devel
-#sudo pip3 uninstall -y numpy
-#pip3 install numpy
-
 # install dependencies
 sudo yum install -y python3-devel
 sudo pip3 install -U Cython
