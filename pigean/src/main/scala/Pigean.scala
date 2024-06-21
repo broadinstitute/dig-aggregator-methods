@@ -25,5 +25,6 @@ object Pigean extends Method {
     addStage(new MakeSumstatsStage)
     addStage(new PigeanStage)
     addStage(new TranslatePigeanStage)
+    addStage(new FactorPigeanStage)
   }
 }

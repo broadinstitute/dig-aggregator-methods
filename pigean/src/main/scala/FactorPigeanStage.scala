@@ -11,7 +11,7 @@ class FactorPigeanStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh")))
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/")
+  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 

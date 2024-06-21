@@ -37,7 +37,7 @@ class OpenAPIKey:
 
 
 def download_data(phenotype, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/pigean/{phenotype}/sigma={sigma}/size={gene_set_size}/'
+    file_path = f'{s3_in}/out/pigean/staging/pigean/{phenotype}/sigma={sigma}/size={gene_set_size}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gs.out', '.'])
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', '.'])
 
@@ -66,7 +66,7 @@ def run_factor(gene_set_size, openapi_key):
               '--gene-set-clusters-out', 'gsc.out',
               '--hide-opts'
           ] + get_gene_sets(gene_set_size) + \
-          ['--lmm-auth-key', openapi_key] if openapi_key is not None else []
+          (['--lmm-auth-key', openapi_key] if openapi_key is not None else [])
     print(' '.join(cmd))
     subprocess.check_call(cmd)
 
@@ -97,13 +97,10 @@ def main():
 
     open_api_key = None#OpenAPIKey().get_key()
     download_data(args.phenotype, args.sigma, args.gene_set_size)
-    try:
-        run_factor(args.gene_set_size, open_api_key)
-        upload_data(args.phenotype, args.sigma, args.gene_set_size)
-        os.remove('gs.out')
-        os.remove('gss.out')
-    except:
-        print('ERROR')
+    run_factor(args.gene_set_size, open_api_key)
+    upload_data(args.phenotype, args.sigma, args.gene_set_size)
+    os.remove('gs.out')
+    os.remove('gss.out')
 
 
 if __name__ == '__main__':
