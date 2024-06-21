@@ -1,8 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "4DN",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "4DN"
+        },
+        "output": {
+            "bucket": "dig-analysis-cfde",
+            "subdir": "4DN"
+        },
+        "bioindex": {
+            "bucket": "dig-analysis-cfde",
+            "subdir": "bioindex"
         },
         "output": {
             "bucket": "dig-analysis-data"

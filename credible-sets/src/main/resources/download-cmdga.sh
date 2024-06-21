@@ -9,4 +9,4 @@ sudo chmod 775 "${C2CT_ROOT}"
 # install to the metal directory
 cd "${C2CT_ROOT}"
 
-sudo aws s3 cp s3://dig-analysis-data/out/ldsc/regions/merged/annotation-tissue-biosample/ ./annotation-tissue-biosample/ --recursive
+sudo aws s3 cp s3://dig-analysis-cfde/4DN/out/ldsc/regions/merged/annotation-tissue-biosample/ ./annotation-tissue-biosample/ --recursive
