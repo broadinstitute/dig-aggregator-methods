@@ -58,7 +58,6 @@ def run_factor(gene_set_size, openapi_key):
               '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
               '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
               '--debug-level', '3',
-              '--lmm-auth-key', openapi_key,
               '--factors-out', 'f.out',
               '--marker-factors-out', 'mf.out',
               '--gene-factors-out', 'gf.out',
@@ -66,7 +65,9 @@ def run_factor(gene_set_size, openapi_key):
               '--gene-clusters-out', 'gc.out',
               '--gene-set-clusters-out', 'gsc.out',
               '--hide-opts'
-          ] + get_gene_sets(gene_set_size)
+          ] + get_gene_sets(gene_set_size) + \
+          ['--lmm-auth-key', openapi_key] if openapi_key is not None else []
+    print(' '.join(cmd))
     subprocess.check_call(cmd)
 
 
@@ -94,7 +95,7 @@ def main():
                         help="gene-set-size (small, medium, or large).")
     args = parser.parse_args()
 
-    open_api_key = OpenAPIKey().get_key()
+    open_api_key = None#OpenAPIKey().get_key()
     download_data(args.phenotype, args.sigma, args.gene_set_size)
     try:
         run_factor(args.gene_set_size, open_api_key)
