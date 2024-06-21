@@ -32,8 +32,9 @@ def get_q(df):
         .withColumn('mESI', 1 - df_joined.Q / max_Q)
     df_joined = df_joined \
         .groupBy(['gene', 'tissue']) \
-        .agg({'mESI': 'max'}) \
-        .withColumnRenamed('max(mESI)', 'Q')
+        .agg({'mESI': 'max', 'H': 'min'}) \
+        .withColumnRenamed('max(mESI)', 'Q') \
+        .withColumnRenamed('min(H)', 'H')
     return df_joined
 
 
