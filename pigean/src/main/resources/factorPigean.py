@@ -67,7 +67,6 @@ def run_factor(gene_set_size, openapi_key):
               '--hide-opts'
           ] + get_gene_sets(gene_set_size) + \
           (['--lmm-auth-key', openapi_key] if openapi_key is not None else [])
-    print(' '.join(cmd))
     subprocess.check_call(cmd)
 
 
@@ -97,8 +96,12 @@ def main():
 
     open_api_key = None#OpenAPIKey().get_key()
     download_data(args.phenotype, args.sigma, args.gene_set_size)
-    run_factor(args.gene_set_size, open_api_key)
-    upload_data(args.phenotype, args.sigma, args.gene_set_size)
+    try:
+        run_factor(args.gene_set_size, open_api_key)
+        upload_data(args.phenotype, args.sigma, args.gene_set_size)
+    except Exception as e:
+        print(e)
+        print('Error')
     os.remove('gs.out')
     os.remove('gss.out')
 
