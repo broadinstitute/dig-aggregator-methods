@@ -30,8 +30,10 @@ def convert_credible_set(df):
     df = df.select(
         ['chromosome', 'position', 'reference', 'alt',
          'beta', 'stdErr', 'pValue', 'n',
-         'phenotype', 'ancestry', 'gwas_dataset', 'dataset', 'credibleSetId', 'posteriorProbability']
+         'phenotype', 'ancestry', 'gwas_dataset', 'dataset', 'pmid', 'method',
+         'credibleSetId', 'posteriorProbability']
     )
+    df = df.filter((df.posteriorProbability.isNotNull()) & (df.posteriorProbability > 0.0))
     df = df.withColumn('varId', concat_ws(':', df.chromosome, df.position, df.reference, df.alt))
     df = df.dropDuplicates(['credibleSetId', 'varId']) \
         .withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
@@ -114,7 +116,7 @@ def bayes_pp(df):
 def convert_clump_file(ancestry, df):
     df = df.select(
         ['varId', 'chromosome', 'position', 'reference', 'alt',
-         'metaType', 'paramType', 'freqType',
+         'metaType', 'paramType', 'freqType', 'inMetaTypes',
          'beta', 'stdErr', 'pValue', 'n',
          'phenotype', 'clump', 'clumpStart', 'clumpEnd', 'leadSNP', 'alignment']
     ) \
@@ -162,7 +164,7 @@ def main():
     else:
         df = convert_clump_file(args.ancestry, df)
     # TODO: To use alternative meta/param types, pass through as arguments
-    meta_param = 'credible_set' if args.source == 'credible-set' else 'bottom-line_portal'
+    meta_param = 'credible_set' if args.source == 'credible-set' else 'bottom-line'
     out_dir = get_out_dir(df, meta_param)
 
     save_df(df, out_dir)

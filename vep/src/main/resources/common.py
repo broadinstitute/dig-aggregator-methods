@@ -10,6 +10,18 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
+def pick_transcript_consequence(row):
+    tc = row.get('transcript_consequences', [])
+    if len(tc) == 1:
+        return {
+            'consequenceGeneId': tc[0].get('gene_id'),
+            'consequenceGeneSymbol': tc[0].get('gene_symbol'),
+            'consequenceImpact': tc[0].get('impact')
+        }
+    else:
+        return {}
+
+
 def colocated_variant(row, ref, alt):
     """
     Find the first colocated variant with a matching allele string or None.
@@ -89,33 +101,26 @@ def common_fields(row):
     # find the correct colocated variant for this allele
     variant = colocated_variant(row, ref, alt)
 
-    # no colocated variant found, just return the common data
-    if not variant:
-        return {
-            'varId': row['id'],
-            'consequence': row['most_severe_consequence'],
-            'nearest': row['nearest'],
-            'dbSNP': None,
-            'minorAllele': None,
-            'maf': None,
-            'af': {
-                'EU': None,
-                'HS': None,
-                'AA': None,
-                'EA': None,
-                'SA': None,
-            },
-        }
-
-    return {
+    out = {
         'varId': row['id'],
         'consequence': row['most_severe_consequence'],
         'nearest': row['nearest'],
-        'dbSNP': dbSNP(variant),
-        'minorAllele': variant.get('minor_allele'),
-        'maf': variant.get('minor_allele_freq'),
-        'af': allele_frequencies(variant, ref, alt),
+        'chromosome': row['seq_region_name'],
+        'position': int(row['start'])
     }
+    for k, v in pick_transcript_consequence(row).items():
+        out[k] = v
+
+    # no colocated variant found, just return the common data
+    if not variant:
+        return out
+
+    out['dbSNP'] = dbSNP(variant)
+    out['minorAllele'] = variant.get('minor_allele')
+    out['maf'] = variant.get('minor_allele_freq')
+    out['af'] = allele_frequencies(variant, ref, alt)
+
+    return out
 
 
 def process_part(srcdir, outdir, part):
@@ -168,7 +173,7 @@ def main():
     args = opts.parse_args()
 
     # s3 locations
-    srcdir = f'{s3_in}/out/varianteffect/effects'
+    srcdir = f'{s3_in}/out/varianteffect/common-effects'
     outdir = f'{s3_out}/out/varianteffect/common'
 
     # run

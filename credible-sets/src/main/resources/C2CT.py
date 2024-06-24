@@ -56,7 +56,7 @@ def get_credible_sets(phenotype, ancestry):
                 json_line['position'],
                 json_line['posteriorProbability'],
                 json_line['credibleSetId'],
-                json_line.get('pValue'),
+                json_line.get('pValue', 1.0),
                 json_line['varId']
             ))
             if json_line['credibleSetId'] not in cs_data:
@@ -66,6 +66,7 @@ def get_credible_sets(phenotype, ancestry):
                     'chromosome': json_line['chromosome'],
                     'clumpStart': json_line['clumpStart'],
                     'clumpEnd': json_line['clumpEnd'],
+                    'inMetaTypes': json_line.get('inMetaTypes', 'credible-set'),
                     'varTotal': 0
                 }
             cs_data[json_line['credibleSetId']]['varTotal'] += 1
@@ -92,7 +93,7 @@ def get_chromosome_overlap(credible_set_data, region_data):
             if cs_id not in overlap:
                 overlap[cs_id] = (0.0, 0, p_value, var_id)
             curr_pp, curr_count, min_p_value, min_var_id = overlap[cs_id]
-            if p_value is not None and p_value < min_p_value:
+            if p_value < min_p_value:
                 overlap[cs_id] = (curr_pp + pp, curr_count + 1, p_value, var_id)
             else:
                 overlap[cs_id] = (curr_pp + pp, curr_count + 1, min_p_value, min_var_id)
@@ -135,7 +136,8 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
                 pp = max(min(pp, 1.0), 0.0)
                 f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": {biosample_str}, '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
-                        f'"source": "{ cs_data["source"]}", "dataset": "{cs_data["dataset"]}", '
+                        f'"source": "{cs_data["source"]}", "inMetaTypes": "{cs_data["inMetaTypes"]}", '
+                        f'"dataset": "{cs_data["dataset"]}", '
                         f'"credibleSetId": "{credible_set_id}", "chromosome": "{cs_data["chromosome"]}", '
                         f'"clumpStart": {cs_data["clumpStart"]}, "clumpEnd": {cs_data["clumpEnd"]}, '
                         f'"leadSNP": "{cs_data["leadSNP"]}", "overlapLeadSNP": "{min_var_id}",' 
