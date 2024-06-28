@@ -1,0 +1,34 @@
+{
+  "aws": {
+    "project": "ryank_LABS_hypoglycemia_2024_0604",
+    "input": {
+      "bucket": "dig-analysis-private",
+      "subdir": "ryank_LABS_hypoglycemia_2024_0604"
+    },
+    "output": {
+      "bucket": "dig-analysis-private",
+      "subdir": "ryank_LABS_hypoglycemia_2024_0604"
+    },
+    "bioindex": {
+      "bucket": "dig-analysis-private",
+      "subdir": "ryank_LABS_hypoglycemia_2024_0604/bioindex"
+    },
+    "emr": {
+      "subnetIds": [
+        "subnet-ab89bbf3",
+        "subnet-798ebc21",
+        "subnet-dc89bb84"
+      ],
+      "sshKeyName": "GenomeStore REST",
+      "jobFlowRoleId": "dig-aggregator-role",
+      "securityGroupIds": []
+    },
+    "runs": {
+      "instance": "dig-analysis-state"
+    },
+    "portal": {
+      "instance": "dig-bio-portal",
+      "dbOverride": "portal_satoshi_20240202"
+    }
+  }
+}
