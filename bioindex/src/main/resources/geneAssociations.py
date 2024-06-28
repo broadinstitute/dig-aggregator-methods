@@ -17,7 +17,7 @@ def process_gene_datasets(spark):
     df = spark.read.json(f'{s3_in}/gene_associations/combined/*/part-*')
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
-    genes = spark.read.json(f'{s3_in}/genes/GRCh37/part-*')
+    genes = spark.read.json('s3://dig-analysis-bin/genes/GRCh37/part-*')
 
     # fix for join
     genes = genes.select(
@@ -51,7 +51,7 @@ def process_600trait_datasets(spark):
     df = spark.read.json(f'{s3_in}/gene_associations/600k_600traits/*/*/part-*')
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
-    genes = spark.read.json(f'{s3_in}/genes/GRCh37/part-*')
+    genes = spark.read.json('s3://dig-analysis-bin/genes/GRCh37/part-*')
 
     # fix for join
     genes = genes \
@@ -100,7 +100,7 @@ def process_magma(spark):
     phenotype, so they may be queried either way.
     """
     df = spark.read.json(f'{s3_in}/out/magma/gene-associations/*/*/')
-    genes = spark.read.json(f'{s3_in}/genes/GRCh37/part-*')
+    genes = spark.read.json('s3://dig-analysis-bin/genes/GRCh37/part-*')
 
     # fix for join
     genes = genes.select(
