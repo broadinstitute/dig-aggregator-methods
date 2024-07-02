@@ -108,7 +108,8 @@ def upload_data(phenotype, ancestry, entropy_key, file_out):
     path_out = f'{s3_out}/out/credible_sets/specificity/{phenotype}/{ancestry}/{entropy_key}/'
     subprocess.check_call(['aws', 's3', 'cp', f'filtered.{file_out}', path_out])
     subprocess.check_call(['aws', 's3', 'cp', f'unfiltered.{file_out}', path_out])
-    os.remove(file_out)
+    os.remove(f'filtered.{file_out}')
+    os.remove(f'unfiltered.{file_out}')
     success(path_out)
 
 
