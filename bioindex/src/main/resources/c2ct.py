@@ -12,41 +12,46 @@ def main():
 
     # filtered (phenotype)
     filtered_srcdir = f'{s3_in}/out/credible_sets/specificity/*/*/*/filtered.*.json'
-    filtered_outdir = f'{s3_bioindex}/credible_sets/c2ct/{{}}'
+    unfiltered_srcdir = f'{s3_in}/out/credible_sets/specificity/*/*/*/unfiltered.*.json'
+    outdir = f'{s3_bioindex}/credible_sets/c2ct/{{}}'
 
     filtered_df = spark.read.json(filtered_srcdir)
-
-    filtered_df[filtered_df['ancestry'] == 'Mixed'] \
-        .orderBy([col('phenotype'), col('Q').desc()]) \
-        .write \
-        .mode('overwrite') \
-        .json(filtered_outdir.format('trans-ethnic'))
-
-    # sort by phenotype then p-value for global associations
-    filtered_df[filtered_df['ancestry'] != 'Mixed'] \
-        .orderBy([col('phenotype'), col('ancestry'), col('Q').desc()]) \
-        .write \
-        .mode('overwrite') \
-        .json(filtered_outdir.format('ancestry'))
-
-    # tissue
-    unfiltered_srcdir = f'{s3_in}/out/credible_sets/specificity/*/*/*/unfiltered.*.json'
-    unfiltered_outdir = f'{s3_bioindex}/credible_sets/c2ct-unfiltered/{{}}'
-
+    filtered_mixed_df = filtered_df[filtered_df['ancestry'] == 'Mixed']
+    filtered_non_mixed_df = filtered_df[filtered_df['ancestry'] != 'Mixed']
     unfiltered_df = spark.read.json(unfiltered_srcdir)
+    unfiltered_mixed_df = unfiltered_df[unfiltered_df['ancestry'] == 'Mixed']
+    unfiltered_non_mixed_df = unfiltered_df[unfiltered_df['ancestry'] != 'Mixed']
 
-    unfiltered_df[unfiltered_df['ancestry'] == 'Mixed'] \
-        .orderBy([col('phenotype'), col('annotation'), col('tissue'), col('Q').desc()]) \
+    filtered_mixed_df.orderBy([col('phenotype'), col('Q').desc()]) \
         .write \
         .mode('overwrite') \
-        .json(unfiltered_outdir.format('trans-ethnic'))
+        .json(outdir.format('trans-ethnic'))
 
     # sort by phenotype then p-value for global associations
-    unfiltered_df[unfiltered_df['ancestry'] != 'Mixed'] \
-        .orderBy([col('phenotype'), col('ancestry'), col('annotation'), col('tissue'), col('Q').desc()]) \
+    filtered_non_mixed_df.orderBy([col('phenotype'), col('ancestry'), col('Q').desc()]) \
         .write \
         .mode('overwrite') \
-        .json(unfiltered_outdir.format('ancestry'))
+        .json(outdir.format('ancestry'))
+
+    unfiltered_mixed_df.orderBy([col('phenotype'), col('annotation'), col('tissue'), col('Q').desc()]) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('tissue/trans-ethnic'))
+
+    unfiltered_non_mixed_df.orderBy([col('phenotype'), col('ancestry'), col('annotation'), col('tissue'), col('Q').desc()]) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('tissue/ancestry'))
+
+    unfiltered_mixed_df.orderBy([col('phenotype'), col('credibleSetId'), col('Q').desc()]) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('credible-set/trans-ethnic'))
+
+    unfiltered_non_mixed_df.orderBy([col('phenotype'), col('credibleSetId'), col('Q').desc()]) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('credible-set/ancestry'))
 
     # done
     spark.stop()
