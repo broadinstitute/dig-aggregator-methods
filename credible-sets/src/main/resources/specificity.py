@@ -90,14 +90,12 @@ def calculate(filename, file_out, entropy_key):
 def filter_by_q(file_out, q):
     # takes all positive q lines, but all lines if there is less than 1000 lines, or the top 1000 else
     q_threshold = min(0.0, sorted(q)[-min(1000, len(q))])
-    print(q_threshold)
     with open(f'unfiltered.{file_out}', 'r') as f_in:
         with open(file_out, 'w') as f_out:
             for line in f_in:
                 d = json.loads(line.strip())
                 if d['Q'] >= q_threshold:
                     f_out.write(line)
-    os.remove(f'unfiltered.{file_out}')
 
 
 def success(path_out):
@@ -109,6 +107,7 @@ def success(path_out):
 def upload_data(phenotype, ancestry, entropy_key, file_out):
     path_out = f'{s3_out}/out/credible_sets/specificity/{phenotype}/{ancestry}/{entropy_key}/'
     subprocess.check_call(['aws', 's3', 'cp', file_out, path_out])
+    subprocess.check_call(['aws', 's3', 'cp', f'unfiltered.{file_out}', path_out])
     os.remove(file_out)
     success(path_out)
 
