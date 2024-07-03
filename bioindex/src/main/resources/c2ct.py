@@ -48,7 +48,7 @@ def main():
         .mode('overwrite') \
         .json(outdir.format('credible-set/trans-ethnic'))
 
-    unfiltered_non_mixed_df.orderBy([col('phenotype'), col('credibleSetId'), col('Q').desc()]) \
+    unfiltered_non_mixed_df.orderBy([col('phenotype'), col('ancestry'), col('credibleSetId'), col('Q').desc()]) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('credible-set/ancestry'))
