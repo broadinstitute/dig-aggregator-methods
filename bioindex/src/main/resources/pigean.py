@@ -6,9 +6,6 @@ from pyspark.sql.functions import col
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
-
-DEFAULT_SIGMA = 2
-DEFAULT_GENE_SET_SIZE = 'small'
 outdir = f'{s3_bioindex}/pigean/{{}}/{{}}/{{}}/'
 
 
