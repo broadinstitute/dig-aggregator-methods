@@ -22,7 +22,7 @@ class PigeanFactorStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterVolumeSizeInGB = 100,
     slaveVolumeSizeInGB = 100,
-    instances = 1
+    instances = 6
   )
 
   /** Output to Job steps. */
