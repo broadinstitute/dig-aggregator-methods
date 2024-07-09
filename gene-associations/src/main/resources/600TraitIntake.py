@@ -28,13 +28,14 @@ def convert_phenotype(raw_phenotype):
 
 expected_95th_percentile = scipy.stats.chi2.ppf(0.95, 1)
 def to_stat(value):
-    if value['pValue_rare'] is not None:
-        n = scipy.stats.norm.ppf(1 - value['pValue_rare'] / 2)
+    if value is not None:
+        n = scipy.stats.norm.ppf(1 - value / 2)
         return n * n
 
 
-def get_lambda(output):
-    return np.percentile([v for v in map(to_stat, output.values()) if v is not None], 95) / expected_95th_percentile
+def get_lambda(output, key):
+    stats = list(map(lambda value: to_stat(value[key]), output.values()))
+    return np.percentile([v for v in stats if v is not None], 95) / expected_95th_percentile
 
 
 def optional_float(line_dict, key):
@@ -95,9 +96,11 @@ def get_full_phenotype_output(all_file, cauchy_output):
 
 
 def get_output_with_lambda(output):
-    lambda_value = get_lambda(output)
+    lambda_rare = get_lambda(output, 'pValue_rare')
+    lambda_low_freq = get_lambda(output, 'pValue_low_freq')
     for key in output:
-        output[key]['lambda'] = lambda_value
+        output[key]['lambda_rare'] = lambda_rare
+        output[key]['lambda_low_freq'] = lambda_low_freq
     return output
 
 
