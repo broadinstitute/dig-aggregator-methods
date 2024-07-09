@@ -33,12 +33,12 @@ def main():
         .mode('overwrite') \
         .json(outdir.format('ancestry'))
 
-    unfiltered_mixed_df.orderBy([col('phenotype'), col('annotation'), col('tissue'), col('Q').desc()]) \
+    unfiltered_mixed_df.orderBy([col('phenotype'), col('annotation'), col('tissue'), col('biosample'), col('Q').desc()]) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('tissue/trans-ethnic'))
 
-    unfiltered_non_mixed_df.orderBy([col('phenotype'), col('ancestry'), col('annotation'), col('tissue'), col('Q').desc()]) \
+    unfiltered_non_mixed_df.orderBy([col('phenotype'), col('ancestry'), col('annotation'), col('tissue'), col('biosample'), col('Q').desc()]) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('tissue/ancestry'))
