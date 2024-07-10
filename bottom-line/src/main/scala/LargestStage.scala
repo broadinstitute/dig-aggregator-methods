@@ -10,7 +10,6 @@ class LargestStage(implicit context: Context) extends Stage {
   val variants: Input.Source = Input.Source.Success("out/metaanalysis/variants/*/*/")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 6,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("largest-bootstrap.sh")))
   )
 
