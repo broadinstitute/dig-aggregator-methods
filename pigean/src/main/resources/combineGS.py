@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import glob
+from multiprocessing import Pool
 import os
 import re
 import shutil
@@ -7,6 +8,7 @@ import subprocess
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
+cpus = 8
 
 
 def download_all_data():
@@ -32,8 +34,8 @@ def convert(file):
 
 
 def convert_all_data():
-    for file in glob.glob('data/*/*/*/gs.out'):
-        convert(file)
+    with Pool(cpus) as p:
+        p.map(convert, glob.glob('data/*/*/*/gs.out'))
 
 
 def combine(sigma, gene_set_size):
