@@ -135,13 +135,13 @@ def process_magma(spark):
     non_mixed_df.orderBy(['gene', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/gene_associations/gene/ancestry-specific')
+        .json(f'{s3_bioindex}/gene_associations/gene/ancestry')
 
     # sort by phenotype, ancestry, then by p-value for the gene finder
     non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/finder/gene/ancestry-specific')
+        .json(f'{s3_bioindex}/finder/gene/ancestry')
 
 
 def main():
