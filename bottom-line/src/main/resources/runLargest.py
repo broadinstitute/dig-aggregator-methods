@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import argparse
-from boto3 import session
+from boto3.session import Session
 import json
 import os
 import sqlalchemy
@@ -30,28 +30,28 @@ variants_schema = StructType(
 
 class BioIndexDB:
     def __init__(self):
-        self.secret_id = 'dig-bio-portal'
+        self.secret_id = os.environ['PORTAL_SECRET']
+        self.db_name = os.environ['PORTAL_DB']
         self.region = 'us-east-1'
         self.config = None
         self.engine = None
 
     def get_config(self):
         if self.config is None:
-            client = session.Session(region_name=self.region).client('secretsmanager')
+            client = Session().client('secretsmanager', region_name=self.region)
             self.config = json.loads(client.get_secret_value(SecretId=self.secret_id)['SecretString'])
         return self.config
 
     def get_engine(self):
         if self.engine is None:
             self.config = self.get_config()
-            print(f'creating engine for {self.config["host"]}:{self.config["port"]}/{self.config["dbname"]}')
             self.engine = sqlalchemy.create_engine('{engine}://{username}:{password}@{host}:{port}/{db}'.format(
                 engine=self.config['engine'] + ('+pymysql' if self.config['engine'] == 'mysql' else ''),
                 username=self.config['username'],
                 password=self.config['password'],
                 host=self.config['host'],
                 port=self.config['port'],
-                db=self.config['dbname']
+                db=self.db_name
             ))
         return self.engine
 
