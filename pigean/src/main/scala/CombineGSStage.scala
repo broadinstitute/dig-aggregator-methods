@@ -7,6 +7,7 @@ import org.broadinstitute.dig.aws.emr._
 class CombineGSStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
+    masterVolumeSizeInGB = 100,
     instances = 1
   )
 
