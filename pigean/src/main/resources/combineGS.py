@@ -56,7 +56,7 @@ def combine_all():
 
 
 def upload_data():
-    subprocess.check_call(['aws', 's3', 'cp', 'out/', f'{s3_out}/out/pigean/staging/combined_gs/'])
+    subprocess.check_call(['aws', 's3', 'cp', 'out/', f'{s3_out}/out/pigean/staging/combined_gs/', '--recursive'])
     shutil.rmtree('out')
 
 
