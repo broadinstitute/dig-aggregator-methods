@@ -29,7 +29,7 @@ def main():
         outdir = f'{s3_bioindex}/associations/phenotype/trans-ethnic/{args.phenotype}'
     else:
         srcdir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
-        outdir = f'{s3_bioindex}/ancestry-associations/phenotype/{args.phenotype}/{args.ancestry}'
+        outdir = f'{s3_bioindex}/associations/phenotype/ancestry/{args.phenotype}/{args.ancestry}'
 
     df = spark.read.json(srcdir) \
         .withColumn('ancestry', lit(args.ancestry))

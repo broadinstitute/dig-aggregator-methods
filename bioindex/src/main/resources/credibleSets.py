@@ -31,7 +31,7 @@ def main():
     # load all the credible sets for the phenotype
     df = spark.read.json(srcdir)
     write(df[df.ancestry == 'Mixed'], 'trans-ethnic')
-    write(df[df.ancestry != 'Mixed'], 'ancestry-specific')
+    write(df[df.ancestry != 'Mixed'], 'ancestry')
 
     # done
     spark.stop()
