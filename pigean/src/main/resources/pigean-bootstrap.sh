@@ -18,6 +18,7 @@ sudo aws s3 cp s3://dig-analysis-bin/pigean/gene_set_list_string_notext_medium_p
 sudo aws s3 cp s3://dig-analysis-bin/pigean/gene_set_list_pops_sparse_small.txt .
 sudo aws s3 cp s3://dig-analysis-bin/pigean/gene_set_list_mesh_processed.txt .
 sudo aws s3 cp s3://dig-analysis-bin/pigean/priors.py .
+sudo aws s3 cp s3://dig-analysis-bin/pigean/factor_phewas.py .
 sudo aws s3 cp s3://dig-analysis-bin/pigean/refGene_hg19_TSS.subset.loc .
 
 # install dependencies
