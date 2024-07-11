@@ -13,17 +13,13 @@ def download_data(phenotype, sigma, gene_set_size):
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gc.out', '.'])
 
 
-def download_gs(sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/combined_gs'
-    gs_file = f'gs_{sigma}_{gene_set_size}.tsv'
-    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/{gs_file}', '.'])
-    return gs_file
-
-
 def get_factor_cols():
     with open('gc.out', 'r') as f:
         headers = f.readline().strip().split('\t')
-        return headers[6:]
+        factors_with_genes = set()
+        for line in f:
+            factors_with_genes |= {line.strip().split('\t')[4]}
+        return [header for header in headers[6:] if header in factors_with_genes]
 
 
 def run_phewas(gs_file):
@@ -33,7 +29,7 @@ def run_phewas(gs_file):
         '--factors-gene-id-col', 'Gene',
         '--factors-gene-factor-cols', ','.join(get_factor_cols()),
         '--filter-to-factor-genes',
-        '--gene-stats-in', gs_file,
+        '--gene-stats-in', f'{downloaded_files}/{gs_file}',
         '--gene-stats-id-col', 'gene',
         '--gene-stats-pheno-col', 'trait',
         '--gene-stats-assoc-stat-col', 'huge',
@@ -69,7 +65,7 @@ def main():
     args = parser.parse_args()
 
     download_data(args.phenotype, args.sigma, args.gene_set_size)
-    gs_file = download_gs(args.sigma, args.gene_set_size)
+    gs_file = f'gs_{args.sigma}_{args.gene_set_size}.tsv'
     try:
         run_phewas(gs_file)
         upload_data(args.phenotype, args.sigma, args.gene_set_size)
@@ -77,7 +73,6 @@ def main():
         print(e)
         print('Error')
     os.remove('gc.out')
-    os.remove(gs_file)
 
 
 if __name__ == '__main__':
