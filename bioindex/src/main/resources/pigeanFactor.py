@@ -19,7 +19,7 @@ def bioindex(spark, srcdir, bioindex_name, bioindex_order):
 
 def factor(spark):
     srcdir = f'{s3_in}/out/pigean/factor/*/*/*/*.json'
-    bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('gene_score').desc()]
+    bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('gene_set_score').desc()]
     bioindex(spark, srcdir, 'factor', bioindex_order)
 
 
