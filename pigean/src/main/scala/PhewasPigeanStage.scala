@@ -21,9 +21,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
 
   override val rules: PartialFunction[Input, Outputs] = {
     case pigean(phenotype, sigmaPower, geneSetSize) =>
-      if (phenotype == "T2D") {
-        outputSet += s"$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
-      }
+      outputSet += s"$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
       Outputs.Null
     case gsCombined(_) => Outputs.Named("phewas")
   }
