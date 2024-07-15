@@ -20,6 +20,10 @@ def p_out(values, key):
     return [[a[key] for a in values if a['tissue'] != b['tissue']] + [b[key]] for b in values]
 
 
+def p_in(values, key):
+    return [[a[key] for a in values if a['tissue'] == b['tissue']] for b in values]
+
+
 def download_data(phenotype, ancestry):
     filename = f'{phenotype}_{ancestry}.json'
     file = f'{s3_in}/out/credible_sets/c2ct/{phenotype}/{ancestry}/part-00000.json'
@@ -62,40 +66,96 @@ def get_cred_groups(filename, chunk_size):
     yield chunk
 
 
-def add_hq(args):
-    entropy_key, cred_group = args
+p_funcs = {
+    'all': p_all,
+    'out': p_out,
+    'in': p_in
+}
+def add_hq(cred_group):
     print(cred_group[0]['credibleSetId'])
-    h, p = calculate_hp(cred_group, p_funcs[entropy_key], 'posteriorProbability')
-    for i in range(len(cred_group)):
-        cred_group[i]['entPP'] = p[i]
-        cred_group[i]['entropy'] = h[i]
-        cred_group[i]['totalEntropy'] = h[i] - math.log(cred_group[i]['posteriorProbability'], 2)
-        cred_group[i]['Q'] = 1 - cred_group[i]['totalEntropy'] / 5
-        cred_group[i]['entropyType'] = entropy_key
+    for entropy_key, p_func in p_funcs.items():
+        h, p = calculate_hp(cred_group, p_func, 'posteriorProbability')
+        for i in range(len(cred_group)):
+            cred_group[i][f'entPP_{entropy_key}'] = p[i]
+            cred_group[i][f'entropy_{entropy_key}'] = h[i]
+            cred_group[i][f'totalEntropy_{entropy_key}'] = h[i] - math.log(cred_group[i]['posteriorProbability'], 2)
+            cred_group[i][f'Q_{entropy_key}'] = 1 - cred_group[i][f'totalEntropy_{entropy_key}'] / 5
     return cred_group
 
 
-def calculate(filename, file_out, entropy_key):
-    q = []
+def to_min_data(d):
+    min_data = {
+        'annotation': d['annotation'],
+        'tissue': d['tissue'],
+        'biosample': d['biosample'],
+        'credibleSetId': d['credibleSetId'],
+    }
+    for entropy_key in p_funcs:
+        min_data[f'Q_{entropy_key}'] = d[f'Q_{entropy_key}']
+    return min_data
+
+
+def calculate(filename, file_out):
+    min_data = []
     with open(f'unfiltered.{file_out}', 'w') as f:
         for cred_groups in get_cred_groups(filename, chunk_size=cpus):
             with multiprocessing.Pool(cpus) as p:
-                for cred_group in p.map(add_hq, [(entropy_key, cred_group) for cred_group in cred_groups]):
+                for cred_group in p.map(add_hq, cred_groups):
                     for d in cred_group:
-                        q.append(d['Q'])
+                        min_data.append(to_min_data(d))
                         f.write(f'{json.dumps(d)}\n')
+    return min_data
+
+
+def get_q_threshold(q):
+    return min(0.0, sorted(q)[-min(1000, len(q))])
+
+
+filters = {
+    'all': lambda data: 'all',
+    'annotation': lambda data: data['annotation'],
+    'tissue': lambda data: (data['annotation'], data['tissue']),
+    'biosample': lambda data: (data['annotation'], data['tissue'], data['biosample']),
+    'credible_set_id': lambda data: data['credibleSetId']
+}
+def group_by(min_data, filter_fnc):
+    q = {}
+    for data in min_data:
+        key = filter_fnc(data)
+        if key not in q:
+            q[key] = {entropy_key: [] for entropy_key in p_funcs}
+        for entropy_key in p_funcs:
+            q[key][entropy_key].append(data[f'Q_{entropy_key}'])
     return q
 
 
-def filter_by_q(file_out, q):
-    # takes all positive q lines, but all lines if there is less than 1000 lines, or the top 1000 else
-    q_threshold = min(0.0, sorted(q)[-min(1000, len(q))])
+def get_threshold(min_data, filter_fnc):
+    out = {}
+    for key, qs in group_by(min_data, filter_fnc).items():
+        out[key] = {}
+        for entropy_key, q in qs.items():
+            out[key][entropy_key] = get_q_threshold(q)
+    return out
+
+
+def get_thresholds(min_data):
+    thresholds = {}
+    for name, filter_fnc in filters.items():
+        thresholds[name] = get_threshold(min_data, filter_fnc)
+    return thresholds
+
+
+def filter_by_q(file_out, min_data):
+    all_thresholds = get_thresholds(min_data)
     with open(f'unfiltered.{file_out}', 'r') as f_in:
-        with open(f'filtered.{file_out}', 'w') as f_out:
-            for line in f_in:
-                d = json.loads(line.strip())
-                if d['Q'] >= q_threshold:
-                    f_out.write(line)
+        f_outs = {key: open(f'{key}.{file_out}', 'w') for key in filters}
+        for line in f_in:
+            line_min_data = to_min_data(json.loads(line.strip()))
+            for key, filter_fnc in filters.items():
+                thresholds = all_thresholds[key][filter_fnc[line_min_data]]
+                if any([line_min_data[f'Q_{entropy_key}'] >= thresholds[entropy_key] for entropy_key in p_funcs]):
+                    f_outs[key].write(line)
+        [f_out.close() for f_out in f_outs]
 
 
 def success(path_out):
@@ -106,31 +166,25 @@ def success(path_out):
 
 def upload_data(phenotype, ancestry, entropy_key, file_out):
     path_out = f'{s3_out}/out/credible_sets/specificity/{phenotype}/{ancestry}/{entropy_key}/'
-    subprocess.check_call(['aws', 's3', 'cp', f'filtered.{file_out}', path_out])
+    for key in filters:
+        subprocess.check_call(['aws', 's3', 'cp', f'{key}.{file_out}', path_out])
+        os.remove(f'{key}.{file_out}')
     subprocess.check_call(['aws', 's3', 'cp', f'unfiltered.{file_out}', path_out])
-    os.remove(f'filtered.{file_out}')
     os.remove(f'unfiltered.{file_out}')
     success(path_out)
-
-
-p_funcs = {
-    'all': p_all,
-    'out': p_out
-}
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--phenotype', type=str, required=True)
     parser.add_argument('--ancestry', type=str, required=True)
-    parser.add_argument('--entropy-type', type=str, required=True)
     args = parser.parse_args()
 
     filename = download_data(args.phenotype, args.ancestry)
     if checkfile(filename):
-        file_out = f'{args.phenotype}_{args.ancestry}_{args.entropy_type}.json'
-        q = calculate(filename, file_out, args.entropy_type)
-        filter_by_q(file_out, q)
+        file_out = f'{args.phenotype}_{args.ancestry}.json'
+        min_data = calculate(filename, file_out)
+        filter_by_q(file_out, min_data)
         upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
 
 
