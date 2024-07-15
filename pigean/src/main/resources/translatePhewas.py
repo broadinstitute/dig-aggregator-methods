@@ -8,7 +8,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download_data(phenotype, file_name, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{phenotype}/sigma={sigma}/size={gene_set_size}/{file_name}'
+    file_path = f'{s3_in}/out/pigean/staging/phewas/{phenotype}/sigma={sigma}/size={gene_set_size}/{file_name}'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
 
@@ -20,38 +20,18 @@ def upload_data(phenotype, data_type, sigma, gene_set_size):
     os.remove(file_out)
 
 
-def translate_f(json_line, phenotype, sigma, gene_set_size):
-    return f'{{"cluster": "{json_line["Factor"]}", ' \
-           f'"label": "{json_line["label"]}", ' \
-           f'"top_genes": "{json_line["top_genes"].replace(",", ";")}", ' \
-           f'"top_gene_sets": "{json_line["top_gene_sets"].replace(",", ";")}", ' \
-           f'"gene_score": {json_line["gene_score"]}, ' \
-           f'"gene_set_score": {json_line["gene_set_score"]}, ' \
-           f'"phenotype": "{phenotype}", ' \
-           f'"sigma": {sigma}, ' \
-           f'"gene_set_size": "{gene_set_size}"}}\n'
+def get_pz(json_line):
+    binary_vals = (float(json_line['P_binary']), float(json_line['Z_binary']))
+    robust_vals = (float(json_line['P_robust']), float(json_line['Z_robust']))
+    return max([binary_vals, robust_vals])
 
 
-def translate_gc(json_line, phenotype, sigma, gene_set_size):
-    return f'{{"gene": "{json_line["Gene"]}", ' \
-           f'"label": "{json_line["label"]}", ' \
-           f'"factor": "{json_line["cluster"]}", ' \
-           f'"factor_value": {json_line[json_line["cluster"]]}, ' \
-           f'"prior": {json_line["prior"]}, ' \
-           f'"combined": {json_line["combined"]}, ' \
-           f'"log_bf": {json_line["log_bf"]}, ' \
-           f'"phenotype": "{phenotype}", ' \
-           f'"sigma": {sigma}, ' \
-           f'"gene_set_size": "{gene_set_size}"}}\n'
-
-
-def translate_gsc(json_line, phenotype, sigma, gene_set_size):
-    return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
-           f'"label": "{json_line["label"]}", ' \
-           f'"factor": "{json_line["cluster"]}", ' \
-           f'"factor_value": {json_line[json_line["cluster"]]}, ' \
-           f'"beta": {json_line["beta"]}, ' \
-           f'"beta_uncorrected": {json_line["beta_uncorrected"]}, ' \
+def translate_phewas(json_line, phenotype, sigma, gene_set_size):
+    p, z = get_pz(json_line)
+    return f'{{"factor": "{json_line["Factor"]}", ' \
+           f'"other_phenotype": "{json_line["Pheno"]}", ' \
+           f'"pValue": {p}, ' \
+           f'"Z": {z}, ' \
            f'"phenotype": "{phenotype}", ' \
            f'"sigma": {sigma}, ' \
            f'"gene_set_size": "{gene_set_size}"}}\n'
@@ -87,9 +67,7 @@ def main():
                         help="Gene Set Size (small, medium, large)")
     args = parser.parse_args()
 
-    translate(args.phenotype, args.sigma, args.gene_set_size, 'factor', 'f.out', translate_f)
-    translate(args.phenotype, args.sigma, args.gene_set_size, 'gene_factor', 'gc.out', translate_gc)
-    translate(args.phenotype, args.sigma, args.gene_set_size, 'gene_set_factor', 'gsc.out', translate_gsc)
+    translate(args.phenotype, args.sigma, args.gene_set_size, 'phewas', 'phewas.out', translate_phewas)
 
 
 if __name__ == '__main__':

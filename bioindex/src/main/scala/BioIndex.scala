@@ -51,6 +51,7 @@ object BioIndex extends Method {
     addStage(new HugeStage)
     addStage(new PigeanStage)
     addStage(new PigeanFactorStage)
+    addStage(new PigeanPhewasStage)
     addStage(new SingleCellStage)
     addStage(new SingleCellMetadataStage)
   }
