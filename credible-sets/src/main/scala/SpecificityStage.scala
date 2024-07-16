@@ -15,7 +15,7 @@ class SpecificityStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(c2ct)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case c2ct(phenotype, ancestry) => s"$phenotype/$ancestry"
+    case c2ct(phenotype, ancestry) => Outputs.Named(s"$phenotype/$ancestry")
   }
 
   override def make(output: String): Job = {
