@@ -27,14 +27,15 @@ def get_pz(json_line):
 
 
 def translate_phewas(json_line, phenotype, sigma, gene_set_size):
-    p, z = get_pz(json_line)
-    return f'{{"factor": "{json_line["Factor"]}", ' \
-           f'"other_phenotype": "{json_line["Pheno"]}", ' \
-           f'"pValue": {p}, ' \
-           f'"Z": {z}, ' \
-           f'"phenotype": "{phenotype}", ' \
-           f'"sigma": {sigma}, ' \
-           f'"gene_set_size": "{gene_set_size}"}}\n'
+    if json_line["Pheno"] != phenotype:
+        p, z = get_pz(json_line)
+        return f'{{"factor": "{json_line["Factor"]}", ' \
+               f'"other_phenotype": "{json_line["Pheno"]}", ' \
+               f'"pValue": {p}, ' \
+               f'"Z": {z}, ' \
+               f'"phenotype": "{phenotype}", ' \
+               f'"sigma": {sigma}, ' \
+               f'"gene_set_size": "{gene_set_size}"}}\n'
 
 
 def translate(phenotype, sigma, gene_set_size, data_type, file_name, line_fnc):
