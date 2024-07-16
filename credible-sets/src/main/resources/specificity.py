@@ -169,8 +169,8 @@ def success(path_out):
     os.remove('_SUCCESS')
 
 
-def upload_data(phenotype, ancestry, entropy_key, file_out):
-    path_out = f'{s3_out}/out/credible_sets/specificity/{phenotype}/{ancestry}/{entropy_key}/'
+def upload_data(phenotype, ancestry, file_out):
+    path_out = f'{s3_out}/out/credible_sets/specificity/{phenotype}/{ancestry}/'
     for key in filters:
         subprocess.check_call(['aws', 's3', 'cp', f'{key}.{file_out}', path_out])
         os.remove(f'{key}.{file_out}')
@@ -190,7 +190,7 @@ def main():
         file_out = f'{args.phenotype}_{args.ancestry}.json'
         min_data = calculate(filename, file_out)
         filter_by_q(file_out, min_data)
-        upload_data(args.phenotype, args.ancestry, args.entropy_type, file_out)
+        upload_data(args.phenotype, args.ancestry, file_out)
 
 
 if __name__ == '__main__':
