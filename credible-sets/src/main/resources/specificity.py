@@ -108,7 +108,12 @@ def calculate(filename, file_out):
 
 
 def get_q_threshold(q):
-    return min(0.0, sorted(q)[-min(1000, len(q))])
+    q_sorted = sorted(q)
+    min_idx = -min(1000, len(q))  # at minimum return 1000 (or all) for each filter
+    min_threshold = q_sorted[min_idx]
+    max_idx = -min(10000 // 3, len(q))  # at maximum return 10K across all three filters
+    max_threshold = q_sorted[max_idx]
+    return max(max_threshold, min(min_threshold, 0.0))  # Return all positive if min/max crosses 0.0
 
 
 filters = {
@@ -152,10 +157,10 @@ def filter_by_q(file_out, min_data):
         for line in f_in:
             line_min_data = to_min_data(json.loads(line.strip()))
             for key, filter_fnc in filters.items():
-                thresholds = all_thresholds[key][filter_fnc[line_min_data]]
+                thresholds = all_thresholds[key][filter_fnc(line_min_data)]
                 if any([line_min_data[f'Q_{entropy_key}'] >= thresholds[entropy_key] for entropy_key in p_funcs]):
                     f_outs[key].write(line)
-        [f_out.close() for f_out in f_outs]
+        [f_out.close() for f_out in f_outs.values()]
 
 
 def success(path_out):
