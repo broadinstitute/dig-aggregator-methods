@@ -72,6 +72,7 @@ def get_credible_sets(phenotype, ancestry):
             cs_data[json_line['credibleSetId']]['varTotal'] += 1
             if bool(json_line['leadSNP']):
                 cs_data[json_line['credibleSetId']]['leadSNP'] = json_line['varId']
+                cs_data[json_line['credibleSetId']]['leadSNPPValue'] = json_line.get('pValue', 1.0)
     for chromosome, data in out.items():
         out[chromosome] = sorted(data, key=lambda d: (d[0], d[1]))
     return out, cs_data
@@ -143,6 +144,7 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
                         f'"leadSNP": "{cs_data["leadSNP"]}", "overlapLeadSNP": "{min_var_id}",' 
                         f'"posteriorProbability": {pp}, '
                         f'"minOverlapPValue": {min_p_value if min_p_value is not None else "null"}, '
+                        f'"leadSNPPValue": {cs_data["leadSNPPValue"]}, '
                         f'"varOverlap": {count}, "varTotal": {cs_data["varTotal"]}, "annot_bp": {annot_size}}}\n')
     subprocess.check_call(['touch', '_SUCCESS'])
 
