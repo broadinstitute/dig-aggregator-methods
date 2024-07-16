@@ -191,6 +191,7 @@ def main():
         min_data = calculate(filename, file_out)
         filter_by_q(file_out, min_data)
         upload_data(args.phenotype, args.ancestry, file_out)
+        os.remove(filename)
 
 
 if __name__ == '__main__':
