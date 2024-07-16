@@ -27,10 +27,10 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     build_bioindex(spark, 'all', [col('Q').desc()])
-    build_bioindex(spark, 'annotation', [col('annotation'), col('Q').desc()])
-    build_bioindex(spark, 'tissue', [col('annotation'), col('tissue'), col('Q').desc()])
-    build_bioindex(spark, 'biosample', [col('annotation'), col('tissue'), col('biosample'), col('Q').desc()])
-    build_bioindex(spark, 'credible_set_id', [col('credibleSetId'), col('Q').desc()])
+    build_bioindex(spark, 'annotation', [col('annotation'), col('Q_all').desc()])
+    build_bioindex(spark, 'tissue', [col('annotation'), col('tissue'), col('Q_all').desc()])
+    build_bioindex(spark, 'biosample', [col('annotation'), col('tissue'), col('biosample'), col('Q_all').desc()])
+    build_bioindex(spark, 'credible_set_id', [col('credibleSetId'), col('Q_all').desc()])
 
     # done
     spark.stop()
