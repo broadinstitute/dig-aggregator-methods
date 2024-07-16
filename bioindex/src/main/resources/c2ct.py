@@ -9,7 +9,7 @@ outdir = f'{s3_bioindex}/credible_sets/c2ct/{{}}/{{}}'
 
 
 def build_bioindex(spark, key, bioindex_order):
-    srcdir = f'{s3_in}/out/credible_sets/specificity/*/*/*/{key}.*.json'
+    srcdir = f'{s3_in}/out/credible_sets/specificity/*/*/{key}.*.json'
     df = spark.read.json(srcdir)
     mixed_df = df[df['ancestry'] == 'Mixed']
     non_mixed_df = df[df['ancestry'] != 'Mixed']
