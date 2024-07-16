@@ -29,9 +29,10 @@ def get_pz(json_line):
 def translate_phewas(json_line, phenotype, sigma, gene_set_size):
     if json_line["Pheno"] != phenotype:
         p, z = get_pz(json_line)
+        # convert p to one-sided p
         return f'{{"factor": "{json_line["Factor"]}", ' \
                f'"other_phenotype": "{json_line["Pheno"]}", ' \
-               f'"pValue": {p}, ' \
+               f'"pValue": {p / 2 if z > 0 else 1 - p / 2}, ' \
                f'"Z": {z}, ' \
                f'"phenotype": "{phenotype}", ' \
                f'"sigma": {sigma}, ' \
