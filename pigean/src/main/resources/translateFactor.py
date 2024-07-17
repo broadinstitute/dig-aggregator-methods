@@ -30,42 +30,50 @@ def upload_data(phenotype, data_type, sigma, gene_set_size):
 
 
 def translate_f(json_line, phenotype, sigma, gene_set_size, factors):
-    return f'{{"cluster": "{json_line["Factor"]}", ' \
-           f'"label": "{json_line["label"]}", ' \
-           f'"top_genes": "{json_line["top_genes"].replace(",", ";")}", ' \
-           f'"top_gene_sets": "{json_line["top_gene_sets"].replace(",", ";")}", ' \
-           f'"gene_score": {json_line["gene_score"]}, ' \
-           f'"gene_set_score": {json_line["gene_set_score"]}, ' \
-           f'"phenotype": "{phenotype}", ' \
-           f'"sigma": {sigma}, ' \
-           f'"gene_set_size": "{gene_set_size}"}}\n'
+    return [
+        f'{{"cluster": "{json_line["Factor"]}", '
+        f'"label": "{json_line["label"]}", '
+        f'"top_genes": "{json_line["top_genes"].replace(",", ";")}", '
+        f'"top_gene_sets": "{json_line["top_gene_sets"].replace(",", ";")}", '
+        f'"gene_score": {json_line["gene_score"]}, '
+        f'"gene_set_score": {json_line["gene_set_score"]}, '
+        f'"phenotype": "{phenotype}", '
+        f'"sigma": {sigma}, '
+        f'"gene_set_size": "{gene_set_size}"}}\n'
+    ]
 
 
 def translate_gc(json_line, phenotype, sigma, gene_set_size, factors):
+    out = []
     for factor in factors:
-        return f'{{"gene": "{json_line["Gene"]}", ' \
-               f'"label": "{json_line["label"]}", ' \
-               f'"factor": "{factor}", ' \
-               f'"factor_value": {json_line[factor]}, ' \
-               f'"prior": {json_line["prior"]}, ' \
-               f'"combined": {json_line["combined"]}, ' \
-               f'"log_bf": {json_line["log_bf"]}, ' \
-               f'"phenotype": "{phenotype}", ' \
-               f'"sigma": {sigma}, ' \
-               f'"gene_set_size": "{gene_set_size}"}}\n'
+        if float(json_line[factor]) > 0:
+            out.append(f'{{"gene": "{json_line["Gene"]}", '
+                       f'"label": "{json_line["label"]}", '
+                       f'"factor": "{factor}", '
+                       f'"factor_value": {json_line[factor]}, '
+                       f'"prior": {json_line["prior"]}, '
+                       f'"combined": {json_line["combined"]}, '
+                       f'"log_bf": {json_line["log_bf"]}, '
+                       f'"phenotype": "{phenotype}", '
+                       f'"sigma": {sigma}, '
+                       f'"gene_set_size": "{gene_set_size}"}}\n')
+    return out
 
 
 def translate_gsc(json_line, phenotype, sigma, gene_set_size, factors):
+    out = []
     for factor in factors:
-        return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
-               f'"label": "{json_line["label"]}", ' \
-               f'"factor": "{factor}", ' \
-               f'"factor_value": {json_line[factor]}, ' \
-               f'"beta": {json_line["beta"]}, ' \
-               f'"beta_uncorrected": {json_line["beta_uncorrected"]}, ' \
-               f'"phenotype": "{phenotype}", ' \
-               f'"sigma": {sigma}, ' \
-               f'"gene_set_size": "{gene_set_size}"}}\n'
+        if float(json_line[factor]) > 0:
+            out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
+                       f'"label": "{json_line["label"]}", '
+                       f'"factor": "{factor}", '
+                       f'"factor_value": {json_line[factor]}, '
+                       f'"beta": {json_line["beta"]}, '
+                       f'"beta_uncorrected": {json_line["beta_uncorrected"]}, '
+                       f'"phenotype": "{phenotype}", '
+                       f'"sigma": {sigma}, '
+                       f'"gene_set_size": "{gene_set_size}"}}\n')
+    return out
 
 
 def translate(phenotype, sigma, gene_set_size, data_type, file_name, line_fnc):
@@ -76,8 +84,8 @@ def translate(phenotype, sigma, gene_set_size, data_type, file_name, line_fnc):
             header = f_in.readline().strip().split('\t')
             for line in f_in:
                 json_line = dict(zip(header, line.strip().split('\t')))
-                str_line = line_fnc(json_line, phenotype, sigma, gene_set_size, factors)
-                if str_line is not None:
+                str_lines = line_fnc(json_line, phenotype, sigma, gene_set_size, factors)
+                for str_line in str_lines:
                     f_out.write(str_line)
     upload_data(phenotype, data_type, sigma, gene_set_size)
     os.remove(file_name)
