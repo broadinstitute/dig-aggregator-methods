@@ -21,7 +21,7 @@ def upload_data(phenotype, data_type, sigma, gene_set_size):
 
 
 def get_pz(json_line):
-    binary_vals = (float(json_line['P_binary']), float(json_line['Z_binary']))
+    binary_vals = (float(json_line['P']), float(json_line['Z']))
     robust_vals = (float(json_line['P_robust']), float(json_line['Z_robust']))
     return max([binary_vals, robust_vals])
 
@@ -33,6 +33,9 @@ def translate_phewas(json_line, phenotype, sigma, gene_set_size):
         return f'{{"factor": "{json_line["Factor"]}", ' \
                f'"other_phenotype": "{json_line["Pheno"]}", ' \
                f'"pValue": {p / 2 if z > 0 else 1 - p / 2}, ' \
+               f'"pValue_orig": {json_line["P"]}, ' \
+               f'"pValue_marginal": {json_line["P_marg"]}, ' \
+               f'"pValue_robust": {json_line["P_robust"]}, ' \
                f'"Z": {z}, ' \
                f'"phenotype": "{phenotype}", ' \
                f'"sigma": {sigma}, ' \
