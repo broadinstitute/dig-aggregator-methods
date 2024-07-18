@@ -31,7 +31,7 @@ def upload_data(phenotype, data_type, sigma, gene_set_size):
 
 def translate_f(json_line, phenotype, sigma, gene_set_size, factors):
     return [
-        f'{{"cluster": "{json_line["Factor"]}", '
+        f'{{"factor": "{json_line["Factor"]}", '
         f'"label": "{json_line["label"]}", '
         f'"top_genes": "{json_line["top_genes"].replace(",", ";")}", '
         f'"top_gene_sets": "{json_line["top_gene_sets"].replace(",", ";")}", '
@@ -48,6 +48,7 @@ def translate_gc(json_line, phenotype, sigma, gene_set_size, factors):
     for factor in factors:
         if float(json_line[factor]) > 0:
             out.append(f'{{"gene": "{json_line["Gene"]}", '
+                       f'"label_factor": "{json_line["cluster"]}", '
                        f'"label": "{json_line["label"]}", '
                        f'"factor": "{factor}", '
                        f'"factor_value": {json_line[factor]}, '
@@ -65,6 +66,7 @@ def translate_gsc(json_line, phenotype, sigma, gene_set_size, factors):
     for factor in factors:
         if float(json_line[factor]) > 0:
             out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
+                       f'"label_factor": "{json_line["cluster"]}", '
                        f'"label": "{json_line["label"]}", '
                        f'"factor": "{factor}", '
                        f'"factor_value": {json_line[factor]}, '

@@ -27,6 +27,7 @@ object Pigean extends Method {
     addStage(new TranslatePigeanStage)
     addStage(new FactorPigeanStage)
     addStage(new TranslateFactorStage)
+    addStage(new CombinePigeanFactorStage)
     addStage(new CombineGSStage)
     addStage(new PhewasPigeanStage)
     addStage(new TranslatePhewasStage)

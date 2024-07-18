@@ -7,8 +7,8 @@ import org.broadinstitute.dig.aws.emr._
 class PigeanStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val gene: Input.Source = Input.Source.Success("out/pigean/gene_stats/*/")
-  val geneset: Input.Source = Input.Source.Success("out/pigean/gene_set_stats/*/")
+  val gene: Input.Source = Input.Source.Success("out/pigean/combined_gene_stats/*/")
+  val geneset: Input.Source = Input.Source.Success("out/pigean/combined_gene_set_stats/*/")
   val genegeneset: Input.Source = Input.Source.Success("out/pigean/gene_gene_set_stats/*/")
 
   override val sources: Seq[Input.Source] = Seq(gene, geneset, genegeneset)
