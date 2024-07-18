@@ -2,13 +2,16 @@
     "aws": {
         "project": "hermes",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-data-registry-qa",
+            "subdir": "hermes"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-data-registry-qa",
+            "subdir": "hermes"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-data-registry-qa",
+            "subdir": "hermes/bioindex"
         },
         "emr": {
             "subnetIds": [
@@ -24,7 +27,8 @@
             "instance": "dig-analysis-state"
         },
         "portal": {
-            "instance": "dig-bio-portal"
+            "instance": "dig-bio-portal",
+            "dbOverride":  "dataregistry"
         }
     }
 }
