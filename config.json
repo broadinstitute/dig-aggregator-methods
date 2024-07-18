@@ -1,6 +1,6 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "hermes",
         "input": {
             "bucket": "dig-analysis-data"
         },
