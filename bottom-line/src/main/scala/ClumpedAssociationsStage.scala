@@ -11,16 +11,16 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/merged/analysis/*/variants.json")
-  val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/ancestry-merged/analysis/*/*/variants.json")
+  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/merged/analysis/*/variants.json")
+  val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/ancestry-merged/analysis/*/*/variants.json")
 
   /** The output of meta-analysis is the input for top associations. */
   override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case transEthnic(phenotype) => Outputs.Named(s"$phenotype/TE")
-    case ancestrySpecific(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("ancestry=").last}")
+    case transEthnic(metaType, phenotype) => Outputs.Named(s"$metaType/$phenotype/TE")
+    case ancestrySpecific(metaType, phenotype, ancestry) => Outputs.Named(s"$metaType/$phenotype/${ancestry.split("ancestry=").last}")
   }
 
   /** Simple cluster with more memory. */
@@ -33,8 +33,8 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   override def make(output: String): Job = {
     // run clumping and then join with bottom line
     val flags = output.split("/").toSeq match {
-      case Seq(phenotype, ancestry) =>
-        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
+      case Seq(metaType, phenotype, ancestry) =>
+        Seq(s"--meta-type=$metaType", s"--phenotype=$phenotype", s"--ancestry=$ancestry")
     }
 
     val steps = Seq(

@@ -20,6 +20,7 @@ def main():
                 ancestry - str indicating which ancestry to run the analysis against
     """
     opts = argparse.ArgumentParser()
+    opts.add_argument('--meta-type', type=str, required=True)
     opts.add_argument('--phenotype', type=str, required=True)
     opts.add_argument('--ancestry', type=str, required=True)
 
@@ -28,13 +29,13 @@ def main():
 
     # source data and output location
     if args.ancestry == 'TE':
-        srcdir = f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}/part-*'
-        clumpdir = f'{s3_in}/out/metaanalysis/bottom-line/staging/merged/analysis/{args.phenotype}'
-        outdir = f'{s3_out}/out/metaanalysis/bottom-line/clumped/{args.phenotype}'
+        srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}/part-*'
+        clumpdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/staging/merged/analysis/{args.phenotype}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/clumped/{args.phenotype}'
     else:
-        srcdir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
-        clumpdir = f'{s3_in}/out/metaanalysis/bottom-line/staging/ancestry-merged/analysis/{args.phenotype}/ancestry={args.ancestry}'
-        outdir = f'{s3_out}/out/metaanalysis/bottom-line/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}'
+        srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/part-*'
+        clumpdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/staging/ancestry-merged/analysis/{args.phenotype}/ancestry={args.ancestry}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/ancestry-clumped/{args.phenotype}/ancestry={args.ancestry}'
 
     # initialize spark session
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
