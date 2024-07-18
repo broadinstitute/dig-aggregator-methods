@@ -8,7 +8,7 @@ import shutil
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-meta_types = ['bottom-line', 'min_p', 'largest']
+meta_types = ['bottom-line', 'naive', 'min_p', 'largest']
 
 
 def check_file(path):
@@ -106,19 +106,19 @@ def get_overview(clump_to_meta):
     return output
 
 
-def output_and_upload(phenotype, ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview):
+def output_and_upload(meta_type, phenotype, ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview):
     if ancestry == 'TE':
-        path_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/merged/analysis/{phenotype}/'
+        path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/merged/analysis/{phenotype}/'
     else:
-        path_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/ancestry-merged/analysis/{phenotype}/ancestry={ancestry}/'
+        path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/ancestry-merged/analysis/{phenotype}/ancestry={ancestry}/'
     os.mkdir('output')
-    output_and_upload_variants(path_out, variants_dict, var_id_to_clump, clump_to_metas)
+    output_and_upload_variants(path_out, meta_type, variants_dict, var_id_to_clump, clump_to_metas)
     output_and_upload_overview(path_out, overview)
-    cleanup()
+    shutil.rmtree('output')
 
 
-def output_and_upload_variants(path_out, variants_dict, var_id_to_clump, clump_to_metas):
-    variants_list = variants_dict['bottom-line']
+def output_and_upload_variants(path_out, meta_type, variants_dict, var_id_to_clump, clump_to_metas):
+    variants_list = variants_dict[meta_type]
     if sum([len(variants) for variants in variants_list]) > 0:
         file = f'output/variants.json'
         with open(file, 'w') as f:
@@ -138,13 +138,6 @@ def output_and_upload_overview(path_out, overview):
         subprocess.check_call(['aws', 's3', 'cp', file, path_out])
 
 
-def cleanup():
-    if os.path.exists('data'):
-        shutil.rmtree('data')
-    if os.path.exists('output'):
-        shutil.rmtree('output')
-
-
 def main():
     arg_parser = argparse.ArgumentParser(prog='huge-common.py')
     arg_parser.add_argument("--phenotype", help="Phenotype (e.g. T2D) to run", required=True)
@@ -158,7 +151,10 @@ def main():
         var_id_to_clump = get_components(all_variants)
         clump_to_metas = get_clump_to_metas(variants_dict, var_id_to_clump)
         overview = get_overview(clump_to_metas)
-        output_and_upload(args.phenotype, args.ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview)
+        for meta_type in meta_types:
+            output_and_upload(meta_type, args.phenotype, args.ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview)
+    if os.path.exists('data'):
+        shutil.rmtree('data')
 
 
 if __name__ == '__main__':
