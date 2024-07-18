@@ -57,6 +57,18 @@ def run_factor(gene_set_size, openapi_key):
               '--gene-set-stats-in', 'gss.out',
               '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
               '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
+              '--gene-bfs-id-col', 'Gene',
+              '--gene-bfs-log-bf-col', 'log_bf',
+              '--gene-bfs-combined-col', 'combined',
+              '--gene-bfs-prior-col', 'prior',
+              '--gene-set-stats-id-col', 'Gene_Set',
+              '--gene-set-stats-beta-uncorrected-col', 'beta_uncorrected',
+              '--gene-set-stats-beta-col', 'beta',
+              '--min-gene-set-beta-uncorrected', '1e-20',
+              '--gene-set-filter-type', 'beta_uncorrected',
+              '--gene-set-filter-value', '0.01',
+              '--gene-filter-type', 'combined',
+              '--gene-filter-value', '1',
               '--debug-level', '3',
               '--factors-out', 'f.out',
               '--marker-factors-out', 'mf.out',
@@ -94,13 +106,12 @@ def main():
                         help="gene-set-size (small, medium, or large).")
     args = parser.parse_args()
 
-    open_api_key = None#OpenAPIKey().get_key()
+    open_api_key = OpenAPIKey().get_key()
     download_data(args.phenotype, args.sigma, args.gene_set_size)
     try:
         run_factor(args.gene_set_size, open_api_key)
         upload_data(args.phenotype, args.sigma, args.gene_set_size)
-    except Exception as e:
-        print(e)
+    except Exception:
         print('Error')
     os.remove('gs.out')
     os.remove('gss.out')
