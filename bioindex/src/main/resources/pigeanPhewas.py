@@ -7,26 +7,34 @@ s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
 outdir = f'{s3_bioindex}/pigean/{{}}/'
+PVALUE_THRESHOLD = 0.05
 
 
-def bioindex(spark, srcdir, bioindex_name, bioindex_order):
-    df = spark.read.json(srcdir)
+def bioindex(df, bioindex_name, bioindex_order):
     df.orderBy(bioindex_order) \
         .write \
         .mode('overwrite') \
         .json(outdir.format(bioindex_name))
 
 
-def phewas(spark):
-    srcdir = f'{s3_in}/out/pigean/phewas/*/*/*/*.json'
+def top_phewas(df):
+    filtered_df = df[df.pValue < PVALUE_THRESHOLD]
+    bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('pValue').asc()]
+    bioindex(filtered_df, 'top_phewas', bioindex_order)
+
+
+def phewas(df):
     bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('factor'), col('pValue').asc()]
-    bioindex(spark, srcdir, 'phewas', bioindex_order)
+    bioindex(df, 'phewas', bioindex_order)
 
 
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    phewas(spark)
+    srcdir = f'{s3_in}/out/pigean/phewas/*/*/*/*.json'
+    df = spark.read.json(srcdir)
+    top_phewas(df)
+    phewas(df)
 
     spark.stop()
 
