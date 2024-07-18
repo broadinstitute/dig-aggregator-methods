@@ -32,7 +32,7 @@ def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields):
 
 
 def gene(spark):
-    srcdir = f'{s3_in}/out/pigean/gene_stats/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/combined_gene_stats/*/*/*/*.json'
     bioindices = {
         'gene': [col('gene'), col('sigma'), col('gene_set_size'), col('combined').desc()],
         'phenotype': [col('phenotype'), col('sigma'), col('gene_set_size'), col('combined').desc()]
@@ -41,7 +41,7 @@ def gene(spark):
 
 
 def gene_set(spark):
-    srcdir = f'{s3_in}/out/pigean/gene_set_stats/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/combined_gene_set_stats/*/*/*/*.json'
     bioindices = {
         'gene_set': [col('gene_set'), col('sigma'), col('gene_set_size'), col('beta').desc()],
         'phenotype': [col('phenotype'), col('sigma'), col('gene_set_size'), col('beta').desc()]
