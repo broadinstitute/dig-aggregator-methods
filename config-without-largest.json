@@ -1,0 +1,31 @@
+{
+    "aws": {
+        "project": "bottom-line-paper-wol",
+        "input": {
+            "bucket": "bottom-line-paper-wol"
+        },
+        "output": {
+            "bucket": "bottom-line-paper-wol"
+        },
+        "bioindex": {
+            "bucket": "bottom-line-paper-wol",
+            "subdir": "bioindex"
+        },
+        "emr": {
+            "subnetIds": [
+                "subnet-ab89bbf3",
+                "subnet-798ebc21",
+                "subnet-dc89bb84"
+            ],
+            "sshKeyName": "GenomeStore REST",
+            "jobFlowRoleId": "dig-aggregator-role",
+            "securityGroupIds": []
+        },
+        "runs": {
+            "instance": "dig-analysis-state"
+        },
+        "portal": {
+            "instance": "dig-bio-portal"
+        }
+    }
+}
