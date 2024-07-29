@@ -9,8 +9,7 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 outdir = f'{s3_bioindex}/pigean/{{}}/'
 
 
-def bioindex(spark, srcdir, bioindex_name, bioindex_order):
-    df = spark.read.json(srcdir)
+def bioindex(df, bioindex_name, bioindex_order):
     df.orderBy(bioindex_order) \
         .write \
         .mode('overwrite') \
@@ -19,20 +18,24 @@ def bioindex(spark, srcdir, bioindex_name, bioindex_order):
 
 def factor(spark):
     srcdir = f'{s3_in}/out/pigean/factor/*/*/*/*.json'
+    df = spark.read.json(srcdir)
+    df = df.withColumn('cluster', df.factor)
     bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('gene_set_score').desc()]
-    bioindex(spark, srcdir, 'factor', bioindex_order)
+    bioindex(df, 'factor', bioindex_order)
 
 
 def gene_factor(spark):
     srcdir = f'{s3_in}/out/pigean/gene_factor/*/*/*/*.json'
+    df = spark.read.json(srcdir)
     bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('factor'), col('factor_value').desc()]
-    bioindex(spark, srcdir, 'gene_factor', bioindex_order)
+    bioindex(df, 'gene_factor', bioindex_order)
 
 
 def gene_set_factor(spark):
     srcdir = f'{s3_in}/out/pigean/gene_set_factor/*/*/*/*.json'
+    df = spark.read.json(srcdir)
     bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('factor'), col('factor_value').desc()]
-    bioindex(spark, srcdir, 'gene_set_factor', bioindex_order)
+    bioindex(df, 'gene_set_factor', bioindex_order)
 
 
 def main():
