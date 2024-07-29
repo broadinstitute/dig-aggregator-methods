@@ -63,7 +63,7 @@ def main():
 
     gene(spark)
     gene_set(spark)
-    gene_gene_set(spark)
+    #gene_gene_set(spark)
 
     spark.stop()
 
