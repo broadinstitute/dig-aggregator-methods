@@ -28,7 +28,7 @@
         },
         "portal": {
             "instance": "dig-bio-portal",
-            "dbOverride":  "dataregistry"
+            "dbOverride":  "dataregistry_qa"
         }
     }
 }
