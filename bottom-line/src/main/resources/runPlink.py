@@ -256,8 +256,8 @@ def concat_rare(clumped, rare):
     def is_clumped(chromosome, position):
         return any(map(lambda r: r[0] == chromosome and r[1] <= position < r[2], ranges))
 
-    # TODO: For this method we are not eliminating any rare values
-    outside = rare
+    # find all rare variants not within any range
+    outside = rare[rare.apply(lambda row: not is_clumped(row.chromosome, row.position), axis=1)]
 
     # for the 'outside' variants, set their range to 1 bp
     outside['clumpStart'] = outside['position'].copy()
