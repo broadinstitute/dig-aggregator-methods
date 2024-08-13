@@ -33,7 +33,7 @@ object BioIndex extends Method {
 //    addStage(new TissueRegionsStage)
     addStage(new GlobalEnrichmentStage)
 //    addStage(new TranscriptionsStage)
-//    addStage(new CredibleSetsStage)
+    addStage(new CredibleSetsStage)
     addStage(new C2CTStage)
     addStage(new ClumpedVariantsStage)
     addStage(new AssociationsStage)

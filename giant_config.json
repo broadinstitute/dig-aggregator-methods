@@ -1,0 +1,31 @@
+{
+  "aws": {
+    "project": "giant",
+    "input": {
+      "bucket": "dig-giant-sandbox"
+    },
+    "output": {
+      "bucket": "dig-giant-sandbox"
+    },
+    "bioindex": {
+      "bucket": "dig-giant-sandbox",
+      "subdir": "bioindex"
+    },
+    "emr": {
+      "subnetIds": [
+        "subnet-ab89bbf3",
+        "subnet-798ebc21",
+        "subnet-dc89bb84"
+      ],
+      "sshKeyName": "GenomeStore REST",
+      "jobFlowRoleId": "dig-aggregator-role",
+      "securityGroupIds": []
+    },
+    "runs": {
+      "instance": "dig-analysis-state"
+    },
+    "portal": {
+      "instance": "dig-bio-portal"
+    }
+  }
+}
