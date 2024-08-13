@@ -1,14 +1,14 @@
 {
   "aws": {
-    "project": "giant",
+    "project": "igvf",
     "input": {
-      "bucket": "dig-giant-sandbox"
+      "bucket": "dig-analysis-igvf"
     },
     "output": {
-      "bucket": "dig-giant-sandbox"
+      "bucket": "dig-analysis-igvf"
     },
     "bioindex": {
-      "bucket": "dig-giant-sandbox",
+      "bucket": "dig-analysis-igvf",
       "subdir": "bioindex"
     },
     "emr": {

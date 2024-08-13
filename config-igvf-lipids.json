@@ -1,14 +1,14 @@
 {
   "aws": {
-    "project": "giant",
+    "project": "igvf-lipids",
     "input": {
-      "bucket": "dig-giant-sandbox"
+      "bucket": "dig-igvf-lipids"
     },
     "output": {
-      "bucket": "dig-giant-sandbox"
+      "bucket": "dig-igvf-lipids"
     },
     "bioindex": {
-      "bucket": "dig-giant-sandbox",
+      "bucket": "dig-igvf-lipids",
       "subdir": "bioindex"
     },
     "emr": {

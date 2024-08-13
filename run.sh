@@ -2,5 +2,5 @@
 METHOD="$1"
 shift
 pushd "$METHOD"
-sbt "run -c ../giant_config.json $*"
+sbt "run -c ../config.json $*"
 popd
