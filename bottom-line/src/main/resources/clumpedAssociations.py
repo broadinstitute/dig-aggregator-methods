@@ -42,7 +42,7 @@ def main():
 
     # load the clumped plink output and all association data
     if not check_clump_error(clumpdir):
-        clumps = spark.read.json(f'{clumpdir}/*.json')
+        clumps = spark.read.json(f'{clumpdir}/variants.json')
         assocs = spark.read.json(srcdir)
 
         # merge with trans-ethnic, association data and sort
