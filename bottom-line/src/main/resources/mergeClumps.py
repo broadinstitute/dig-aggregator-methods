@@ -45,7 +45,8 @@ def get_variants_dict():
                         variants = []
                         curr_clump = json_line['clump']
                     variants.append(json_line)
-        variants_dict[meta_type].append(variants)
+        if len(variants) > 0:
+            variants_dict[meta_type].append(variants)
     return variants_dict
 
 
