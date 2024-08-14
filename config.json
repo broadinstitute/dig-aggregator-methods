@@ -1,14 +1,14 @@
 {
     "aws": {
-        "project": "bottom-line-paper",
+        "project": "bottom-line-paper-wol",
         "input": {
-            "bucket": "bottom-line-paper"
+            "bucket": "bottom-line-paper-wol"
         },
         "output": {
-            "bucket": "bottom-line-paper"
+            "bucket": "bottom-line-paper-wol"
         },
         "bioindex": {
-            "bucket": "bottom-line-paper",
+            "bucket": "bottom-line-paper-wol",
             "subdir": "bioindex"
         },
         "emr": {
