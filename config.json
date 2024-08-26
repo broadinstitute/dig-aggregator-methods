@@ -1,14 +1,14 @@
 {
   "aws": {
-    "project": "igvf-lipids",
+    "project": "skin",
     "input": {
-      "bucket": "dig-igvf-lipids"
+      "bucket": "dig-skin-kp"
     },
     "output": {
-      "bucket": "dig-igvf-lipids"
+      "bucket": "dig-skin-kp"
     },
     "bioindex": {
-      "bucket": "dig-igvf-lipids",
+      "bucket": "dig-skin-kp",
       "subdir": "bioindex"
     },
     "emr": {
