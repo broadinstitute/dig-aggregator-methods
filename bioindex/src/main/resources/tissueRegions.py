@@ -34,7 +34,7 @@ def main():
 
     # udf functions (NOTE: tissue needs to remove underscores used!)
     annotation = udf(lambda s: re.search(src_re, s).group(1).split('___')[0])
-    tissue = udf(lambda s: re.search(src_re, s).group(1).split('___')[1].replace('_', ' '))
+    tissue = udf(lambda s: re.search(src_re, s).group(1).split('___')[1])
 
     df = spark.read.csv(srcdir, sep='\t', header=False, schema=schema) \
         .withColumn('file_name', input_file_name()) \

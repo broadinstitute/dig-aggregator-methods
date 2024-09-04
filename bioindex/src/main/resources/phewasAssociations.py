@@ -52,10 +52,10 @@ def main():
     # source and output locations
     if args.ancestry == 'Mixed':
         srcdir = f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/*/part-*'
-        outdir = f'{s3_bioindex}/associations/phewas'
+        outdir = f'{s3_bioindex}/associations/phewas/trans-ethnic'
     else:
         srcdir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
-        outdir = f'{s3_bioindex}/ancestry-associations/phewas/{args.ancestry}'
+        outdir = f'{s3_bioindex}/ancestry-associations/phewas/ancestry/{args.ancestry}'
     clumpdir = f'{s3_in}/out/credible_sets/merged/*/{args.ancestry}/part-*'
 
     df = get_src_df(spark, srcdir) \

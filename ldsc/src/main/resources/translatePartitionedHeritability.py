@@ -121,7 +121,7 @@ def upload_data(phenotype, data):
                         formatted_data = {
                             'phenotype': phenotype,
                             'annotation': annotation,
-                            'tissue': tissue.replace('_', ' '),
+                            'tissue': tissue,
                             'biosample': write_biosample,
                             'ancestry': ancestry,
                             'SNPs': output_data['snps'],
