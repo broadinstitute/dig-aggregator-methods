@@ -4,6 +4,7 @@ from boto3.session import Session
 import json
 import os
 import sqlalchemy
+import subprocess
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
@@ -55,24 +56,30 @@ class BioIndexDB:
             ))
         return self.engine
 
-    def get_largest_dataset(self, phenotype, ancestry):
+    def get_sorted_datasets(self, phenotype, ancestry):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
             query = sqlalchemy.text(
                 f'SELECT name FROM Datasets '
                 f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
                 f'AND ancestry="{ancestry}" AND tech="GWAS" '
-                f'ORDER BY subjects DESC LIMIT 1'
+                f'ORDER BY subjects DESC'
             )
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest mixed dataset')
-        if len(rows) == 1:
-            return rows[0][0]
+        return [row[0] for row in rows]
+
+def check_existence(phenotype, ancestry, dataset):
+    path = f'{s3_in}/out/metaanalysis/variants/{phenotype}/dataset={dataset}/ancestry={ancestry}/'
+    return subprocess.call(['aws', 's3', 'ls', path, '--recursive'])
 
 
 def get_dataset(phenotype, ancestry):
     db = BioIndexDB()
-    return db.get_largest_dataset(phenotype, ancestry)
+    datasets = db.get_sorted_datasets(phenotype, ancestry)
+    for dataset in datasets:
+        if not check_existence(phenotype, ancestry, dataset):
+            return dataset
 
 
 def main():
