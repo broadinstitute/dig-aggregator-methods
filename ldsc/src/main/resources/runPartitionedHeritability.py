@@ -21,18 +21,11 @@ ldsc_files = f'{downloaded_files}/ldsc'
 baseline_files = f'{downloaded_files}/baseline'
 weight_files = f'{downloaded_files}/weights'
 frq_files = f'{downloaded_files}/frq'
+annot_files = f'{downloaded_files}/annot'
 
-cmdga_in = 's3://dig-analysis-data'
+this_project = os.environ['PROJECT']
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-
-
-def get_regions(ancestry, sub_region, regions):
-    g1000_ancestry = ancestry_map[ancestry]
-    for region in regions:
-        file = f'{cmdga_in}/out/ldsc/regions/combined_ld/ancestry={g1000_ancestry}/{sub_region}/{region}/'
-        path_out = f'./data/annot/ancestry={g1000_ancestry}/{sub_region}/{region}/'
-        subprocess.check_call(['aws', 's3', 'cp', file, path_out, '--recursive', '--exclude=_SUCCESS'])
 
 
 def get_sumstats(ancestry, phenotypes):
@@ -45,23 +38,24 @@ def get_sumstats(ancestry, phenotypes):
     return gathered_phenotypes
 
 
-def partitioned_heritability(ancestry, phenotypes, sub_region, regions):
+def partitioned_heritability(ancestry, phenotypes, sub_region, regions, project):
     print(f'Partitioned heritability for ancestry: {ancestry} for {len(phenotypes)} phenotypes, '
           f'sub_region: {sub_region}, for {len(regions)}')
     g1000_ancestry = ancestry_map[ancestry]
     annot_strs = []
     for region in regions:
         annotation, tissue = region.split('___')
-        annot_strs.append(f'./data/annot/ancestry={g1000_ancestry}/{sub_region}/{region}/{annotation}.{tissue}.')
+        annot_strs.append(f'{annot_files}/{project}/ancestry={g1000_ancestry}/{sub_region}/{region}/{annotation}.{tissue}.')
     annot_str = ','.join(annot_strs)
     phenotype_str = ','.join([
         f'./data/sumstats/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz' for phenotype in phenotypes
     ])
     phenotype_out_str = ','.join([
-        f'./{ancestry}_{phenotype}/{ancestry}.{phenotype}' for phenotype in phenotypes
+        f'./{project}/{ancestry}_{phenotype}/{ancestry}.{phenotype}' for phenotype in phenotypes
     ])
+    os.mkdir(project)
     for phenotype in phenotypes:
-        os.mkdir(f'{ancestry}_{phenotype}')
+        os.mkdir(f'{project}/{ancestry}_{phenotype}')
     subprocess.check_call([
         'python3', f'{ldsc_files}/ldsc.py',
         '--h2', phenotype_str,
@@ -81,29 +75,29 @@ def make_path(split_path):
             os.mkdir(path)
 
 
-def upload_and_remove_files(ancestry, phenotypes, sub_region, regions):
+def upload_and_remove_files(ancestry, phenotypes, sub_region, regions, project):
     for phenotype in phenotypes:
         for region in regions:
             annotation, tissue = region.split('___')
             file = f'{ancestry}.{phenotype}.{annotation}.{tissue}.results'
             make_path(['data', 'out', phenotype, f'ancestry={ancestry}', sub_region, region])
             out_path = f'data/out/{phenotype}/ancestry={ancestry}/{sub_region}/{region}'
-            os.rename(f'./{ancestry}_{phenotype}/{file}', f'{out_path}/{file}')
-        shutil.rmtree(f'./{ancestry}_{phenotype}')
+            os.rename(f'./{project}/{ancestry}_{phenotype}/{file}', f'{out_path}/{file}')
         subprocess.check_call(['touch', f'data/out/{phenotype}/_SUCCESS'])
 
-    s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/'
+    s3_dir = f'{s3_out}/out/ldsc/staging/partitioned_heritability/{project}/'
     subprocess.check_call(['aws', 's3', 'cp', 'data/out/', s3_dir, '--recursive'])
-    shutil.rmtree('./data')
+    shutil.rmtree(f'./{project}')
 
 
 # Need to check on sumstats existence for Mixed ancestry datasets
 def run(ancestry, phenotypes, sub_region, regions):
-    get_regions(ancestry, sub_region, regions)
     gathered_phenotypes = get_sumstats(ancestry, phenotypes)
     if len(gathered_phenotypes) > 0:
-        partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions)
-        upload_and_remove_files(ancestry, gathered_phenotypes, sub_region, regions)
+        for project in set(['portal', this_project]):
+            partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions, project)
+            upload_and_remove_files(ancestry, gathered_phenotypes, sub_region, regions, project)
+    shutil.rmtree('./data')
 
 
 def main():

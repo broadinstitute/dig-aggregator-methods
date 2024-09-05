@@ -7,12 +7,9 @@ sumstats_files = f'{downloaded_files}/sumstats'
 
 
 def download_sumstats(project, path):
-    f_in = f'{path}/out/ldsc/sumstats/'
+    f_in = f'{path}/out/ldsc/regions/combined_ld'
     f_out = f'{sumstats_files}/{project}/'
-    subprocess.check_call(
-        f'sudo aws s3 cp {f_in} {f_out} --recursive --exclude="*" --include="*.sumstats.gz*"',
-        shell=True
-    )
+    subprocess.check_call(f'sudo aws s3 cp {f_in} {f_out} --recursive --exclude="*_SUCCESS"', shell=True)
 
 
 def main():

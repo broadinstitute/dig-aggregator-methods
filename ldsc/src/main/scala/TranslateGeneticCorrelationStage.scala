@@ -7,14 +7,14 @@ import org.broadinstitute.dig.aws.MemorySize
 
 class TranslateGeneticCorrelationStage(implicit context: Context) extends Stage {
 
-  val correlations: Input.Source = Input.Source.Success("out/ldsc/staging/genetic_correlation/*/")
+  val correlations: Input.Source = Input.Source.Success("out/ldsc/staging/genetic_correlation/*/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(correlations)
 
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case correlations(_) => Outputs.Named("translate")
+    case correlations(_, _) => Outputs.Named("translate")
   }
 
   /** Just need a single machine with no applications, but a good drive. */
