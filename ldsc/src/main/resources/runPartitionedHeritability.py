@@ -94,7 +94,7 @@ def upload_and_remove_files(ancestry, phenotypes, sub_region, regions, project):
 def run(ancestry, phenotypes, sub_region, regions):
     gathered_phenotypes = get_sumstats(ancestry, phenotypes)
     if len(gathered_phenotypes) > 0:
-        for project in set(['portal', this_project]):
+        for project in {this_project}:
             partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions, project)
             upload_and_remove_files(ancestry, gathered_phenotypes, sub_region, regions, project)
     shutil.rmtree('./data')

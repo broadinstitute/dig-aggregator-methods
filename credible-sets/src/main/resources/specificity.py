@@ -24,9 +24,9 @@ def p_in(values, key):
     return [[a[key] for a in values if a['tissue'] == b['tissue']] for b in values]
 
 
-def download_data(phenotype, ancestry):
+def download_data(project, phenotype, ancestry):
     filename = f'{phenotype}_{ancestry}.json'
-    file = f'{s3_in}/out/credible_sets/c2ct/{phenotype}/{ancestry}/part-00000.json'
+    file = f'{s3_in}/out/credible_sets/c2ct/{project}/{phenotype}/{ancestry}/part-00000.json'
     subprocess.check_call(['aws', 's3', 'cp', file, filename])
     return filename
 
@@ -169,8 +169,8 @@ def success(path_out):
     os.remove('_SUCCESS')
 
 
-def upload_data(phenotype, ancestry, file_out):
-    path_out = f'{s3_out}/out/credible_sets/specificity/{phenotype}/{ancestry}/'
+def upload_data(project, phenotype, ancestry, file_out):
+    path_out = f'{s3_out}/out/credible_sets/specificity/{project}/{phenotype}/{ancestry}/'
     for key in filters:
         subprocess.check_call(['aws', 's3', 'cp', f'{key}.{file_out}', path_out])
         os.remove(f'{key}.{file_out}')
@@ -181,16 +181,17 @@ def upload_data(phenotype, ancestry, file_out):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--project', type=str, required=True)
     parser.add_argument('--phenotype', type=str, required=True)
     parser.add_argument('--ancestry', type=str, required=True)
     args = parser.parse_args()
 
-    filename = download_data(args.phenotype, args.ancestry)
+    filename = download_data(args.project, args.phenotype, args.ancestry)
     if checkfile(filename):
         file_out = f'{args.phenotype}_{args.ancestry}.json'
         min_data = calculate(filename, file_out)
         filter_by_q(file_out, min_data)
-        upload_data(args.phenotype, args.ancestry, file_out)
+        upload_data(args.project, args.phenotype, args.ancestry, file_out)
         os.remove(filename)
 
 

@@ -56,7 +56,7 @@ def run_project(ancestry, phenotype, main_file, other_project):
 def run(ancestry, phenotype):
     main_file = f'{sumstat_files}/{project}/{phenotype}/ancestry={ancestry}/{phenotype}_{ancestry}.sumstats.gz'
     if os.path.exists(main_file):
-        for other_project in set(['portal', project]):
+        for other_project in {'portal', project}:
             run_project(ancestry, phenotype, main_file, other_project)
 
 

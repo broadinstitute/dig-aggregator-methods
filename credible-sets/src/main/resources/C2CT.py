@@ -7,22 +7,23 @@ import re
 import shutil
 import subprocess
 
+this_project = os.environ['PROJECT']
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-ldsc_data = '/mnt/var/c2ct'
+ldsc_data = '/mnt/var/c2ct/annot'
 
 
-def get_annotation_tissue_biosamples():
+def get_annotation_tissue_biosamples(project):
     annotation_tissue_biosamples = []
-    for folder in glob.glob(f'{ldsc_data}/annotation-tissue-biosample/*'):
-        match = re.findall('.*/(.*)___(.*)___(.*)', folder)
+    for folder in glob.glob(f'{ldsc_data}/{project}/*'):
+        match = re.findall('.*/.*/(.*)___(.*)___(.*)', folder)
         annotation_tissue_biosamples.append((match[0][0], match[0][1], match[0][2]))
     return annotation_tissue_biosamples
 
 
-def get_path(annotation, tissue, biosample):
+def get_path(project, annotation, tissue, biosample):
     key = f'{annotation}___{tissue}___{biosample}'
-    return f'{ldsc_data}/annotation-tissue-biosample/{key}/{key}.csv'
+    return f'{ldsc_data}/{project}/{key}/{key}.csv'
 
 
 def get_annotation_tissue_biosample_regions(annotation, tissue, biosample):
@@ -125,8 +126,8 @@ def get_output(annotation_tissue_biosamples, credible_set_map):
     return overlap, annotation_sizes
 
 
-def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_sizes):
-    path_out = f'{s3_out}/out/credible_sets/c2ct/{phenotype}/{ancestry}'
+def write_output(project, phenotype, ancestry, overlap, credible_set_data, annotation_sizes):
+    path_out = f'{s3_out}/out/credible_sets/c2ct/{project}/{phenotype}/{ancestry}'
     tmp_file = f'part-00000.json'
     with open(tmp_file, 'w') as f:
         for credible_set_id, data in overlap.items():
@@ -135,7 +136,8 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
                 annot_size = annotation_sizes[(annotation, tissue, biosample)]
                 biosample_str = 'null' if biosample is None else f'"{biosample}"'
                 pp = max(min(pp, 1.0), 0.0)
-                f.write(f'{{"annotation": "{annotation}", "tissue": "{tissue}", "biosample": {biosample_str}, '
+                f.write(f'{{"project": "{project}", '
+                        f'"annotation": "{annotation}", "tissue": "{tissue}", "biosample": {biosample_str}, '
                         f'"phenotype": "{phenotype}", "ancestry": "{ancestry}", '
                         f'"source": "{cs_data["source"]}", "inMetaTypes": "{cs_data["inMetaTypes"]}", '
                         f'"dataset": "{cs_data["dataset"]}", '
@@ -164,10 +166,11 @@ def main():
 
     credible_set_map, credible_set_data = get_credible_sets(args.phenotype, args.ancestry)
 
-    annotation_tissue_biosamples = get_annotation_tissue_biosamples()
-    overlap, annotation_sizes = get_output(annotation_tissue_biosamples, credible_set_map)
+    for project in {this_project}:
+        annotation_tissue_biosamples = get_annotation_tissue_biosamples(project)
+        overlap, annotation_sizes = get_output(annotation_tissue_biosamples, credible_set_map)
 
-    write_output(args.phenotype, args.ancestry, overlap, credible_set_data, annotation_sizes)
+        write_output(project, args.phenotype, args.ancestry, overlap, credible_set_data, annotation_sizes)
 
 
 # entry point

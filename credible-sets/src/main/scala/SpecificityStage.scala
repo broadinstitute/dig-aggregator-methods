@@ -10,17 +10,17 @@ class SpecificityStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val c2ct: Input.Source = Input.Source.Success("out/credible_sets/c2ct/*/*/")
+  val c2ct: Input.Source = Input.Source.Success("out/credible_sets/c2ct/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(c2ct)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case c2ct(phenotype, ancestry) => Outputs.Named(s"$phenotype/$ancestry")
+    case c2ct(project, phenotype, ancestry) => Outputs.Named(s"$project/$phenotype/$ancestry")
   }
 
   override def make(output: String): Job = {
     val flags = output.split("/").toSeq match {
-      case Seq(phenotype, ancestry) => Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
+      case Seq(project, phenotype, ancestry) => Seq(s"--project=$project", s"--phenotype=$phenotype", s"--ancestry=$ancestry")
       case _ => throw new Exception(s"invalid Input $output, must be of the form <phenotype>/<ancestry>")
     }
 

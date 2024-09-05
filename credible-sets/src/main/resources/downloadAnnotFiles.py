@@ -2,12 +2,12 @@
 import argparse
 import subprocess
 
-downloaded_files = '/mnt/var/ldsc'
+downloaded_files = '/mnt/var/c2ct'
 annot_files = f'{downloaded_files}/annot'
 
 
 def download_annot(project, path):
-    f_in = f'{path}/out/ldsc/regions/combined_ld'
+    f_in = f'{path}/out/ldsc/regions/merged/annotation-tissue-biosample/'
     f_out = f'{annot_files}/{project}/'
     subprocess.check_call(f'sudo aws s3 cp {f_in} {f_out} --recursive --exclude="*_SUCCESS"', shell=True)
 
