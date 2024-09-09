@@ -50,5 +50,6 @@ object BioIndex extends Method {
     addStage(new GeneToTranscriptStage)
     addStage(new HugeStage)
     addStage(new SingleCellStage)
+    addStage(new SingleCellMetadataStage)
   }
 }
