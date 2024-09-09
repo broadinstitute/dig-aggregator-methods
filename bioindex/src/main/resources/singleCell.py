@@ -13,8 +13,6 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 cpus = 8
 
 metadata_cell_key = 'NAME'
-output_metadata_labels = ['cell_subtype__custom', 'cell_type__custom', 'bmi__group', 'disease__ontology_label', 'sex']
-metadata_labels = [metadata_cell_key] + output_metadata_labels
 coordinate_cell_key = 'NAME'
 coordinate_labels = ['X', 'Y']
 
@@ -27,19 +25,30 @@ number_maps = {
 def fetch_metadata():
     with open('raw/metadata.tsv', 'r') as f:
         header = f.readline().strip().split('\t')
-        label_to_header_idx = {label: header.index(label) for label in metadata_labels}
-        index_lists = {label: [] for label in metadata_labels}
-        set_lists = {label: [] for label in metadata_labels}
-        index_dict = {label: dict() for label in metadata_labels}
+        possible_label_dict = {label: idx for idx, label in enumerate(header)}
+        index_lists = {label: [] for label in possible_label_dict}
+        set_lists = {label: [] for label in possible_label_dict}
+        index_dict = {label: dict() for label in possible_label_dict}
         for line in f:
-            split_line = line.strip().split('\t')
-            for label in metadata_labels:
-                label_value = split_line[label_to_header_idx[label]]
+            split_line = [a.strip() for a in line.split('\t')]  # can have empty cells at the end of the line
+            for label in possible_label_dict:
+                label_value = split_line[possible_label_dict[label]]
                 if label_value not in index_dict[label]:
                     index_dict[label][label_value] = len(set_lists[label])
                     set_lists[label].append(label_value)
                 index_lists[label].append(index_dict[label][label_value])
         return index_lists, set_lists, index_dict
+
+
+def filter_metadata(index_lists, set_lists, index_dict):
+    max_numb = 100
+    for label in list(index_lists.keys()):
+        if (len(set_lists[label]) >= max_numb and label != metadata_cell_key) or \
+                (len(set_lists[label]) <= 1 and ''.join(set_lists[label]) == ''):
+            index_lists.pop(label)
+            set_lists.pop(label)
+            index_dict.pop(label)
+    return index_lists, set_lists, index_dict
 
 
 def fetch_coordinates(cell_indexes):
@@ -60,12 +69,8 @@ def fetch_coordinates(cell_indexes):
 def output_metadata(set_lists, index_lists):
     fields = {
         metadata_cell_key: set_lists[metadata_cell_key],
-        'metadata_labels': {
-            output_metadata_label: set_lists[output_metadata_label] for output_metadata_label in output_metadata_labels
-        },
-        'metadata': {
-            output_metadata_label: index_lists[output_metadata_label] for output_metadata_label in output_metadata_labels
-        }
+        'metadata_labels': {label: data for label, data in set_lists.items() if label != metadata_cell_key},
+        'metadata': {label: data for label, data in index_lists.items() if label != metadata_cell_key},
     }
     with gzip.open('processed/fields.json.gz', 'wt') as f:
         json.dump(fields, f)
@@ -125,8 +130,6 @@ def fetch_and_output_expression(dataset, cell_indexes, infile, outfile, number_m
 def upload(dataset):
     subprocess.check_call(['aws', 's3', 'cp', 'processed/fields.json.gz', f'{s3_bioindex}/raw/single_cell/{dataset}/'])
     subprocess.check_call(['aws', 's3', 'cp', 'processed/coordinates.tsv.gz', f'{s3_bioindex}/raw/single_cell/{dataset}/'])
-    subprocess.check_call(['aws', 's3', 'rm', f'{s3_bioindex}/single_cell/gene/{dataset}/', '--recursive'])
-    subprocess.check_call(['aws', 's3', 'cp', 'processed/gene/', f'{s3_bioindex}/single_cell/gene/{dataset}/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'rm', f'{s3_bioindex}/single_cell/gene_lognorm/{dataset}/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'cp', 'processed/gene_lognorm/', f'{s3_bioindex}/single_cell/gene_lognorm/{dataset}/', '--recursive'])
     shutil.rmtree('raw')
@@ -143,14 +146,13 @@ def main():
 
     os.mkdir('processed')
     index_lists, set_lists, index_dict = fetch_metadata()
+    index_lists, set_lists, index_dict = filter_metadata(index_lists, set_lists, index_dict)
+
     coordinates = fetch_coordinates(index_dict[metadata_cell_key])
     output_metadata(set_lists, index_lists)
     output_coordinates(index_lists, coordinates)
 
     cells = index_dict[metadata_cell_key]
-    os.mkdir('processed/gene')
-    gene_out = f'processed/gene/part-{{}}.json'
-    fetch_and_output_expression(args.dataset, cells, 'raw/raw_counts.tsv.gz', gene_out, 'int')
     os.mkdir('processed/gene_lognorm')
     gene_lognorm_out = f'processed/gene_lognorm/part-{{}}.json'
     fetch_and_output_expression(args.dataset, cells, 'raw/lognorm_counts.tsv.gz', gene_lognorm_out, 'float')
