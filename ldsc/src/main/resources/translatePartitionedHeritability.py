@@ -16,8 +16,13 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_annot_map(project, phenotype):
+    path_in = f'{s3_in}/out/ldsc/staging/partitioned_heritability/{project}/{phenotype}/'
+    subprocess.check_call(
+        f'aws s3 cp {path_in} ./{phenotype}/{project}/--recursive --exclude="*_SUCCESS"',
+        shell=True
+    )
     out = {}
-    for file in glob.glob(f'./{project}/{phenotype}/*/*/*/*'):
+    for file in glob.glob(f'./{phenotype}/{project}/*/*/*/*'):
         results_search = re.findall('./[^/]+/[^/]+/[^/]+/(.+)/[^/]+/(.+).results', file)
         if len(results_search) > 0:
             sub_region, result = results_search[0]
@@ -65,7 +70,7 @@ def get_data(project, phenotype, full_map):
             annotation, tissue = annot.split('.')
             out[sub_region][annot] = {}
             for ancestry in ancestries:
-                file = f'{project}/{phenotype}/ancestry={ancestry}/{sub_region}/{annotation}___{tissue}/{ancestry}.{phenotype}.{annot}.results'
+                file = f'{phenotype}/{project}/ancestry={ancestry}/{sub_region}/{annotation}___{tissue}/{ancestry}.{phenotype}.{annot}.results'
                 translated_file = translate(file)
                 for biosample, biosample_data in translated_file.items():
                     if biosample not in out[sub_region][annot]:
@@ -152,7 +157,7 @@ def main():
     phenotype = args.phenotype
 
     data = {}
-    for project in set(['portal', this_project]):
+    for project in {'portal', this_project}:
         annot_map = get_annot_map(project, phenotype)
         data[project] = get_data(project, phenotype, annot_map)
         data[project] = meta_analyze(data[project])

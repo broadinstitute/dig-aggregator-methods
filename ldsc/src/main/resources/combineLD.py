@@ -64,7 +64,7 @@ def get_biosample_files(annotation, tissue, biosamples):
 
 
 def get_tissue_files(annotation, tissue):
-    return [tissue_to_file(annotation, tissue)] + [tissue.encode()]
+    return [tissue_to_file(annotation, tissue)], [tissue.encode()]
 
 
 def combine_annot(files, header, sub_region, annotation, tissue, CHR):
@@ -107,7 +107,7 @@ def check_files(annotation_filename, tissue_filename):
         with gzip.open(f'{annotation_filename}.{CHR}.annot.gz', 'rt') as annotation_file, \
             gzip.open(f'{tissue_filename}.{CHR}.annot.gz', 'rt') as tissue_file:
             _, _ = annotation_file.readline(), tissue_file.readline()
-            for annotation_line, tissue_line in annotation_file, tissue_file:
+            for annotation_line, tissue_line in zip(annotation_file, tissue_file):
                 if annotation_line.strip() != tissue_line.strip():
                     return True
     return False

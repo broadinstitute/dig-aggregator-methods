@@ -11,30 +11,43 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
 
   val sumstats: Input.Source = Input.Source.Raw("out/ldsc/sumstats/*/*/*.sumstats.gz")
   val portalBucket: S3.Bucket = new S3.Bucket("dig-analysis-data", None)
-  val annotations: Input.Source = Input.Source.Success(
+  val portalAnnotations: Input.Source = Input.Source.Success(
     s"out/ldsc/regions/combined_ld/*/*/*/",
     s3BucketOverride = Some(portalBucket)
   )
+  val projectAnnotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/combined_ld/*/*/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(sumstats, annotations)
+  override val sources: Seq[Input.Source] = Seq(sumstats, portalAnnotations, projectAnnotations)
 
   var allPhenotypeAncestries: Set[PartitionedHeritabilityPhenotype] = Set()
   lazy val phenotypeMap: Map[String, Set[String]] = allPhenotypeAncestries.groupBy(_.ancestry).map {
     case (ancestry, phenotypes) => ancestry -> phenotypes.map(_.phenotype)
   }
-  var allAnnotations: Set[PartitionedHeritabilityRegion] = Set()
-  lazy val annotationMap: Map[String, Set[String]] = allAnnotations.groupBy(_.subRegion).map {
+  var allProjectAnnotations: Set[PartitionedHeritabilityRegion] = Set()
+  lazy val allProjectAnnotationMap: Map[String, Set[String]] = allProjectAnnotations.groupBy(_.subRegion).map {
     case (subRegion, regions) => subRegion -> regions.map(_.region)
   }
+  var allPortalAnnotations: Set[PartitionedHeritabilityRegion] = Set()
+  lazy val allPortalAnnotationMap: Map[String, Set[String]] = allPortalAnnotations.groupBy(_.subRegion).map {
+    case (subRegion, regions) => subRegion -> regions.map(_.region)
+  }
+  lazy val annotationMap: Map[String, Map[String, Set[String]]] = Map(
+    "portal" -> allPortalAnnotationMap,
+    context.project -> allProjectAnnotationMap
+  )
 
   // TODO: At the moment this will always rerun everything which isn't ideal
   override val rules: PartialFunction[Input, Outputs] = {
     case sumstats(phenotype, ancestry, _) =>
       allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
       Outputs.Named(ancestry.split('=').last)
-    case annotations(_, subRegion, region) =>
-      allAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
+    case projectAnnotations(_, subRegion, region) => if (context.project != "portal") {
+      allProjectAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
+      Outputs.All
+    } else Outputs.Null
+    case portalAnnotations(_, subRegion, region) =>
+      allPortalAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
       Outputs.All
   }
 
@@ -43,24 +56,30 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     bootstrapScripts = Seq(
-      new BootstrapScript(resourceUri("install-ldscore.sh"))
+      new BootstrapScript(resourceUri("install-ldscore.sh")),
+      new BootstrapScript(
+        resourceUri("downloadAnnotFiles.py"), s"--input-path=s3://${context.s3.path}", s"--project=${context.project}"
+      )
     ),
     masterInstanceType = Strategy.generalPurpose(vCPUs = 16)
   )
 
   override def make(ancestry: String): Job = {
     val jobs = phenotypeMap.getOrElse(ancestry, Set()).grouped(100).flatMap { groupedPhenotypes =>
-      annotationMap.flatMap { case (subRegion, regions) =>
-        regions.grouped(40).map { groupedRegion =>
-          println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
-            s"and region ${groupedRegion.size} in sub-region $subRegion")
-          Job.Script(
-            resourceUri("runPartitionedHeritability.py"),
-            s"--ancestry=${ancestry}",
-            s"--phenotypes=${groupedPhenotypes.mkString(",")}",
-            s"--sub-region=$subRegion",
-            s"--region=${groupedRegion.mkString(",")}"
-          )
+      annotationMap.flatMap { case (project, projectRegions) =>
+        projectRegions.flatMap { case (subRegion, regions) =>
+          regions.grouped(40).map { groupedRegion =>
+            println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
+              s"and region ${groupedRegion.size} in sub-region $subRegion")
+            Job.Script(
+              resourceUri("runPartitionedHeritability.py"),
+              s"--ancestry=${ancestry}",
+              s"--phenotypes=${groupedPhenotypes.mkString(",")}",
+              s"--sub-region=$subRegion",
+              s"--region=${groupedRegion.mkString(",")}",
+              s"--project=$project"
+            )
+          }
         }
       }
     }.toSeq

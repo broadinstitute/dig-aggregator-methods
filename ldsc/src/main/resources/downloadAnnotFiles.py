@@ -21,8 +21,8 @@ def main():
     project = args.project
 
     download_annot(project, s3_in)
-    if project != 'portal':
-        download_annot('portal', 's3://dig-analysis-data')
+    # if project != 'portal':
+    #     download_annot('portal', 's3://dig-analysis-data')
 
 
 if __name__ == '__main__':
