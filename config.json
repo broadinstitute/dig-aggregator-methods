@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "satoshi_2024_09_10",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_2024_09_10"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_2024_09_10"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_2024_09_10/bioindex"
         },
         "emr": {
             "subnetIds": [
@@ -24,7 +27,8 @@
             "instance": "dig-analysis-state"
         },
         "portal": {
-            "instance": "dig-bio-portal"
+            "instance": "dig-bio-portal",
+            "dbOverride": "portal_satoshi_20240202"
         }
     }
 }
