@@ -14,12 +14,6 @@
             "subdir": "pigean/bioindex"
 
         },
-        "output": {
-            "bucket": "dig-analysis-data"
-        },
-        "bioindex": {
-            "bucket": "dig-bio-index"
-        },
         "emr": {
             "subnetIds": [
                 "subnet-ab89bbf3",

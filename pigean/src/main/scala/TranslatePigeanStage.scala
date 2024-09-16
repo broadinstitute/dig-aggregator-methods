@@ -10,21 +10,15 @@ class TranslatePigeanStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(phenotype, sigma, geneSetSize) =>
-      Outputs.Named(s"$phenotype/${sigma.split("=").last}/${geneSetSize.split("=").last}")
+    case pigean(phenotype) => Outputs.Named(phenotype)
   }
 
   override def make(output: String): Job = {
-    val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(phenotype, sigma, geneSetSize) => Seq(s"--phenotype=$phenotype", s"--sigma=$sigma", s"--gene-set-size=$geneSetSize")
-      case _ => throw new Exception("output must take form <phenotype>/<sigma>")
-    }
-
-    new Job(Job.Script(resourceUri("translatePigean.py"), flags:_*))
+    new Job(Job.Script(resourceUri("translatePigean.py"), s"--phenotype=$output"))
   }
 }
