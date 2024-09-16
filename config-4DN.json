@@ -1,18 +1,17 @@
 {
     "aws": {
-        "project": "cfde-pigean",
+        "project": "4DN",
         "input": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "pigean"
+            "subdir": "4DN"
         },
         "output": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "pigean"
+            "subdir": "4DN"
         },
         "bioindex": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "pigean/bioindex"
-
+            "subdir": "bioindex"
         },
         "output": {
             "bucket": "dig-analysis-data"
