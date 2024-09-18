@@ -18,7 +18,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   val projectAnnotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/combined_ld/*/*/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(sumstats, portalAnnotations, projectAnnotations)
+  override val sources: Seq[Input.Source] = Seq(sumstats, projectAnnotations)
 
   var allPhenotypeAncestries: Set[PartitionedHeritabilityPhenotype] = Set()
   lazy val phenotypeMap: Map[String, Set[String]] = allPhenotypeAncestries.groupBy(_.ancestry).map {
