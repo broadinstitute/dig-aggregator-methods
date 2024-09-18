@@ -23,7 +23,6 @@ weight_files = f'{downloaded_files}/weights'
 frq_files = f'{downloaded_files}/frq'
 annot_files = f'{downloaded_files}/annot'
 
-this_project = os.environ['PROJECT']
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
@@ -91,12 +90,11 @@ def upload_and_remove_files(ancestry, phenotypes, sub_region, regions, project):
 
 
 # Need to check on sumstats existence for Mixed ancestry datasets
-def run(ancestry, phenotypes, sub_region, regions):
+def run(project, ancestry, phenotypes, sub_region, regions):
     gathered_phenotypes = get_sumstats(ancestry, phenotypes)
     if len(gathered_phenotypes) > 0:
-        for project in {this_project}:
-            partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions, project)
-            upload_and_remove_files(ancestry, gathered_phenotypes, sub_region, regions, project)
+        partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions, project)
+        upload_and_remove_files(ancestry, gathered_phenotypes, sub_region, regions, project)
     shutil.rmtree('./data')
 
 
@@ -110,17 +108,20 @@ def main():
                         help="sub region for list of regions (e.g. annotation-tissue)")
     parser.add_argument('--regions', type=str, required=True,
                         help="Region to be run (e.g. accessible_chromatin___pancreas)")
+    parser.add_argument('--project', type=str, required=True,
+                        help="Project (e.g. portal)")
     args = parser.parse_args()
 
     phenotypes = args.phenotypes.split(',')
     ancestry = args.ancestry
     sub_region = args.sub_region
     regions = args.regions.split(',')
+    project = args.project
 
     if ancestry not in ancestry_map:
         raise Exception(f'Invalid ancestry ({ancestry}), must be one of {", ".join(ancestry_map.keys())}')
 
-    run(ancestry, phenotypes, sub_region, regions)
+    run(project, ancestry, phenotypes, sub_region, regions)
 
 
 if __name__ == '__main__':
