@@ -1,23 +1,17 @@
 {
     "aws": {
-        "project": "4DN",
+        "project": "GTEx",
         "input": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "4DN"
+            "subdir": "GTEx"
         },
         "output": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "4DN"
+            "subdir": "GTEx"
         },
         "bioindex": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "bioindex"
-        },
-        "output": {
-            "bucket": "dig-analysis-data"
-        },
-        "bioindex": {
-            "bucket": "dig-bio-index"
+            "subdir": "GTEx/bioindex"
         },
         "emr": {
             "subnetIds": [
