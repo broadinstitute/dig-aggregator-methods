@@ -11,7 +11,7 @@
         },
         "bioindex": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "GTEx/bioindex"
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [

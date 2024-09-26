@@ -3,7 +3,7 @@ import re
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, StructType, StringType, DoubleType, BooleanType
-from pyspark.sql.functions import input_file_name, udf
+from pyspark.sql.functions import input_file_name, udf, lit
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
@@ -61,9 +61,10 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     srcdir = f'{s3_in}/tissue-sumstats/*.out'
-    outdir = f'{s3_bioindex}/diff_exp/'
+    outdir = f'{s3_bioindex}/diff_exp/gtex/'
 
-    df = spark.read.csv(srcdir, header=False, sep='\t', schema=SCHEMA)
+    df = spark.read.csv(srcdir, header=False, sep='\t', schema=SCHEMA) \
+        .withColumn('source', lit('GTEx'))
 
     tissue_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(1))
     phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2).lower())
