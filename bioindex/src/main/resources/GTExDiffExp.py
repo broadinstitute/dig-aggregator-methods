@@ -61,10 +61,11 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     srcdir = f'{s3_in}/tissue-sumstats/*.out'
-    outdir = f'{s3_bioindex}/diff_exp/gtex/'
+    outdir = f'{s3_bioindex}/diff_exp/{{}}/gtex/'
 
     df = spark.read.csv(srcdir, header=False, sep='\t', schema=SCHEMA) \
         .withColumn('source', lit('GTEx'))
+    df = df.filter(df.pValue < 0.05)
 
     tissue_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(1))
     phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2).lower())
@@ -93,7 +94,17 @@ def main():
     df.orderBy(['geneName', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(outdir)
+        .json(outdir.format('gene'))
+
+    df.orderBy(['phenotype', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('phenotype'))
+
+    df.orderBy(['tissue', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('tissue'))
 
     # done
     spark.stop()
