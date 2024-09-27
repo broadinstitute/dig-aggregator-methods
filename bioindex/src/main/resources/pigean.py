@@ -2,6 +2,7 @@ import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, udf
+from pyspark.sql.types import BooleanType
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
@@ -29,9 +30,13 @@ def attach_max_values(df, fields):
 
 
 def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields, phenotype_map):
+    study_filter = udf(lambda s: s in phenotype_map, BooleanType())
     study_to_phenotype = udf(lambda study: phenotype_map[study])
+
     df = spark.read.json(srcdir)
-    df = df.withColumn('phenotype', study_to_phenotype(df.phenotype))
+    df = df.filter(study_filter(df.phenotype)) \
+        .withColumn('phenotype', study_to_phenotype(df.phenotype))
+
     for name, order in bioindices.items():
         if len(max_fields) > 0 and name != 'phenotype':
             df_out = attach_max_values(df, max_fields)
