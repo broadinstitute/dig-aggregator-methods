@@ -34,14 +34,16 @@ def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields, phenotype_map
     study_to_phenotype = udf(lambda study: phenotype_map[study])
 
     df = spark.read.json(srcdir)
-    df = df.filter(study_filter(df.phenotype)) \
-        .withColumn('phenotype', study_to_phenotype(df.phenotype))
 
     for name, order in bioindices.items():
         if len(max_fields) > 0 and name != 'phenotype':
             df_out = attach_max_values(df, max_fields)
         else:
             df_out = df
+
+        df_out = df_out.withColumnRenamed('phenotype', 'study')
+        df_out = df_out.filter(study_filter(df_out.study)) \
+            .withColumn('phenotype', study_to_phenotype(df_out.study))
         df_out.orderBy(order) \
             .write \
             .mode('overwrite') \
