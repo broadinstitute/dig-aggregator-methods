@@ -114,6 +114,7 @@ def main():
     phenotype_df \
         .filter(phenotype_df.rank <= 20) \
         .drop('rank') \
+        .withColumn('dummy', lit(1)) \
         .orderBy(['pValue']) \
         .write \
         .mode('overwrite') \
@@ -132,6 +133,7 @@ def main():
     tissue_df \
         .filter(tissue_df.rank <= 20) \
         .drop('rank') \
+        .withColumn('dummy', lit(1)) \
         .orderBy(['pValue']) \
         .write \
         .mode('overwrite') \
