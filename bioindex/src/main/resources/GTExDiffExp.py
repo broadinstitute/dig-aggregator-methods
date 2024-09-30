@@ -3,7 +3,8 @@ import re
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, StructType, StringType, DoubleType, BooleanType
-from pyspark.sql.functions import input_file_name, udf, lit
+from pyspark.sql.functions import input_file_name, lit, rank, udf
+from pyspark.sql.window import Window
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
@@ -65,7 +66,6 @@ def main():
 
     df = spark.read.csv(srcdir, header=False, sep='\t', schema=SCHEMA) \
         .withColumn('source', lit('GTEx'))
-    df = df.filter(df.pValue < 0.05)
 
     tissue_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(1))
     phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2).lower())
@@ -96,15 +96,46 @@ def main():
         .mode('overwrite') \
         .json(outdir.format('gene'))
 
-    df.orderBy(['phenotype', 'pValue']) \
+    df.orderBy(['phenotype', 'tissue', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('phenotype-tissue'))
+
+    phenotype_partition = Window.partitionBy('phenotype').orderBy('pValue')
+    phenotype_df = df.withColumn('rank', rank().over(phenotype_partition))
+    phenotype_df \
+        .filter(phenotype_df.rank <= 10000) \
+        .drop('rank') \
+        .orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('phenotype'))
 
-    df.orderBy(['tissue', 'pValue']) \
+    phenotype_df \
+        .filter(phenotype_df.rank <= 20) \
+        .drop('rank') \
+        .orderBy(['pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('top-phenotype'))
+
+    tissue_partition = Window.partitionBy('tissue').orderBy('pValue')
+    tissue_df = df.withColumn('rank', rank().over(tissue_partition))
+    tissue_df \
+        .filter(tissue_df.rank <= 10000) \
+        .drop('rank') \
+        .orderBy(['phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('tissue'))
+
+    tissue_df \
+        .filter(tissue_df.rank <= 20) \
+        .drop('rank') \
+        .orderBy(['pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('top-tissue'))
 
     # done
     spark.stop()
