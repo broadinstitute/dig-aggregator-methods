@@ -124,7 +124,7 @@ def main():
     tissue_df \
         .filter(tissue_df.rank <= 10000) \
         .drop('rank') \
-        .orderBy(['phenotype', 'pValue']) \
+        .orderBy(['tissue', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('tissue'))
