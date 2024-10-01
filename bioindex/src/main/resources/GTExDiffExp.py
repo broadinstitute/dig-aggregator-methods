@@ -44,14 +44,15 @@ def get_phenotype_map():
             if len(split_line) >= 6 and len(split_line[0]) > 0 and len(split_line[5]) > 0:
                 phenotype = split_line[0].strip().lower()
                 mondo = split_line[5].strip()
-                phenotypes[phenotype] = mondo
+                name = split_line[1].strip().replace(',', ';')
+                phenotypes[phenotype] = (mondo, name)
     # temporary filter
     mondo_counts = {}
-    for phenotype, mondo in phenotypes.items():
+    for phenotype, (mondo, name) in phenotypes.items():
         if mondo not in mondo_counts:
             mondo_counts[mondo] = 0
         mondo_counts[mondo] += 1
-    phenotypes = {phenotype: mondo for phenotype, mondo in phenotypes.items() if mondo_counts[mondo] == 1}
+    phenotypes = {phenotype: (mondo, name) for phenotype, (mondo, name) in phenotypes.items() if mondo_counts[mondo] == 1}
     return phenotypes
 
 
@@ -84,11 +85,13 @@ def main():
     phenotype_filter = udf(lambda s: s in phenotype_map, BooleanType())
     apply_tissue_map = udf(lambda s: biosample_map[s][0])
     apply_biosample_map = udf(lambda s: biosample_map[s][1])
-    apply_phenotype_map = udf(lambda s: phenotype_map[s])
+    apply_mondo_map = udf(lambda s: phenotype_map[s][0])
+    apply_name_map = udf(lambda s: phenotype_map[s][1])
     df = df.filter((tissue_filter(df.gtexTissue)) & (phenotype_filter(df.gtexPhenotype))) \
         .withColumn('tissue', apply_tissue_map(df.gtexTissue)) \
         .withColumn('biosample', apply_biosample_map(df.gtexTissue)) \
-        .withColumn('phenotype', apply_phenotype_map(df.gtexPhenotype)) \
+        .withColumn('phenotype', apply_mondo_map(df.gtexPhenotype)) \
+        .withColumn('phenotype_name', apply_name_map(df.gtexPhenotype)) \
         .drop('gtexPhenotype', 'gtexTissue', 'gene')
 
     df.orderBy(['geneName', 'pValue']) \
