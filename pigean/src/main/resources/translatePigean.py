@@ -41,7 +41,7 @@ def translate_gss(json_line, phenotype):
     beta_uncorrected = make_option(json_line["beta_uncorrected"])
     if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
         return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
-               f'"source": {json_line["label"]}, ' \
+               f'"source": "{json_line["label"]}", ' \
                f'"beta": {beta}, ' \
                f'"beta_uncorrected": {beta_uncorrected}, ' \
                f'"n": {make_option(json_line["N"])}, ' \
