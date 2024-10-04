@@ -56,6 +56,8 @@ def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields, phenotype_map
         df_out = df_out.filter(study_filter(df_out.study)) \
             .withColumn('phenotype', study_to_phenotype(df_out.study)) \
             .withColumn('phenotype_name', study_to_name(df_out.study))
+        if 'overall' in name:
+            df_out = df_out.filter(df_out.beta_uncorrected > 0)
         df_out.orderBy(order) \
             .write \
             .mode('overwrite') \
@@ -84,7 +86,9 @@ def gene_gene_set(spark, phenotype_map, name_map):
     srcdir = f'{s3_in}/out/pigean/gene_gene_set_stats/*/*.json'
     bioindices = {
         'gene': [col('phenotype'), col('gene'), col('combined').desc()],
-        'gene_set': [col('phenotype'), col('gene_set'), col('beta').desc()]
+        'gene_set': [col('phenotype'), col('gene_set'), col('beta').desc()],
+        'overall_gene': [col('gene'), col('beta_uncorrected').desc()],
+        'overall_gene_set': [col('gene_set'), col('beta_uncorrected').desc()]
     }
     bioindex(spark, srcdir, 'gene_gene_set', bioindices, [], phenotype_map, name_map)
 
