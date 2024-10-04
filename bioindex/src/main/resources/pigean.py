@@ -87,8 +87,7 @@ def gene_gene_set(spark, phenotype_map, name_map):
     bioindices = {
         'gene': [col('phenotype'), col('gene'), col('combined').desc()],
         'gene_set': [col('phenotype'), col('gene_set'), col('beta').desc()],
-        'overall_gene': [col('gene'), col('beta_uncorrected').desc()],
-        'overall_gene_set': [col('gene_set'), col('beta_uncorrected').desc()]
+        'overall_gene': [col('gene'), col('beta_uncorrected').desc()]
     }
     bioindex(spark, srcdir, 'gene_gene_set', bioindices, [], phenotype_map, name_map)
 
