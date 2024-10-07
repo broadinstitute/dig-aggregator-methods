@@ -1,18 +1,17 @@
 {
     "aws": {
-        "project": "cfde-pigean",
+        "project": "cfde-catalog",
         "input": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "pigean"
+            "subdir": "catalog"
         },
         "output": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "pigean"
+            "subdir": "catalog"
         },
         "bioindex": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "pigean/bioindex"
-
+            "subdir": "catalog/bioindex"
         },
         "emr": {
             "subnetIds": [
@@ -28,7 +27,8 @@
             "instance": "dig-analysis-state"
         },
         "portal": {
-            "instance": "dig-bio-portal"
+            "instance": "dig-bio-portal",
+            "dbOverride": "portal_pigean_20241007"
         }
     }
 }
