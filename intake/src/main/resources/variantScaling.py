@@ -197,14 +197,7 @@ def main():
         .withColumn('unscaled_beta', df.beta) \
         .withColumn('unscaled_stdErr', df.stdErr)
 
-    if not is_dichotomous:
-        scaling_factor = get_scaling_factor(df, tech, logger)
-        logger.log(f'Final scaling factor: {scaling_factor}')
-        df = df \
-            .withColumn('beta', df.beta / scaling_factor) \
-            .withColumn('stdErr', df.stdErr / scaling_factor)
-    else:
-        logger.log('Dichotomous trait. Leaving beta/stdErr unscaled')
+    logger.log('Skipping. Leaving beta/stdErr unscaled')
     logger.save()
 
     write_to_s3(outdir, logger, df)
