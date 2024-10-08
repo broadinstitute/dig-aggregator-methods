@@ -25,8 +25,7 @@ class ClumpedAssociationsStage(implicit context: Context) extends Stage {
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
-    instances = 1
+    instances = 5
   )
 
   /** Build the job. */

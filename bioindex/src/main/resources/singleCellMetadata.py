@@ -13,9 +13,9 @@ s3_bioindex = 's3://dig-bio-index'
 def download_data():
     out = []
     cmd = 'aws s3 cp s3://dig-analysis-data/single_cell/ ./data/ ' \
-          '--recursive --exclude="*" --include="*dataset_metadata"'
+          '--recursive --exclude="*" --include="*dataset_metadata.json"'
     subprocess.check_call(cmd, shell=True)
-    for file in glob.glob('data/*/dataset_metadata'):
+    for file in glob.glob('data/*/dataset_metadata.json'):
         with open(file, 'r') as f:
             out.append(json.load(f))
     return out

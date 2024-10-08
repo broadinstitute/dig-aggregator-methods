@@ -38,7 +38,7 @@ def min_p(df):
 
 
 def num_dataset(phenotype, ancestry):
-    path = f'{s3dir}/out/metaanalysis/variants/{phenotype}/'
+    path = f'{s3_in}/out/metaanalysis/variants/{phenotype}/'
     files = subprocess.check_output(['aws', 's3', 'ls', path, '--recursive']).decode().strip().split('\n')
     datasets = set()
     for file in files:

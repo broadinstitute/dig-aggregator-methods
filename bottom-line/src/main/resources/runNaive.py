@@ -39,6 +39,7 @@ def naive(df):
     df = df \
         .withColumn('weight', 1.0 / df.stdErr / df.stdErr) \
         .withColumn('weighted_beta', df.beta / df.stdErr / df.stdErr)
+    df = df.filter(~df.weight.isNull())
     df = df \
         .groupBy(df.varId, df.chromosome, df.position, df.reference, df.alt, df.phenotype, df.ancestry) \
         .agg({'weight': 'sum', 'weighted_beta': 'sum', 'n': 'sum'})
