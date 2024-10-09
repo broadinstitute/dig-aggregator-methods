@@ -15,8 +15,8 @@ def get_name_map():
     with open('/mnt/var/pigean/phenotype_to_text.tsv', 'r') as f:
         for line in f:
             split_line = line.strip().split('\t')
-            if len(split_line) == 3:
-                name_map[split_line[2]] = split_line[1].replace(',', ';')
+            if len(split_line) == 2:
+                name_map[split_line[0]] = split_line[1]
     return name_map
 
 
