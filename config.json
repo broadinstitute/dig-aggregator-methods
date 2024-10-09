@@ -2,7 +2,8 @@
     "aws": {
         "project": "cfde-catalog",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "catalog"
         },
         "output": {
             "bucket": "dig-analysis-cfde",
