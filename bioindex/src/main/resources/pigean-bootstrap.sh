@@ -5,4 +5,4 @@ sudo mkdir -p "${PIGEAN_ROOT}"
 sudo chmod 775 "${PIGEAN_ROOT}"
 cd "${PIGEAN_ROOT}"
 
-sudo aws s3 cp s3://dig-analysis-cfde/pigean/bin/phenotype_to_text.tsv .
+sudo aws s3 cp s3://dig-analysis-cfde/catalog/bin/phenotype_to_text.tsv .
