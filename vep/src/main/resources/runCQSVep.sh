@@ -27,7 +27,7 @@ perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
     --dir "$VEPDIR" \
     --fork "$CPUS" \
     --format ensembl \
-    --buffer_size 1000 \
+    --buffer_size 15000 \
     --json \
     --offline \
     --no_stats \
