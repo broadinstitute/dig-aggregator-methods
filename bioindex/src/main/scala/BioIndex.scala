@@ -53,5 +53,6 @@ object BioIndex extends Method {
     addStage(new SingleCellMetadataStage)
     addStage(new GTExDiffExpStage)
     addStage(new CombineDiffExpStage)
+    addStage(new KidsFirstDiffExpStage)
   }
 }
