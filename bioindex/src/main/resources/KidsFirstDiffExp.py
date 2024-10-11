@@ -38,8 +38,10 @@ def get_phenotype_map():
     phenotypes = {}
     with open(f'{raw_path}/phenotype_map.tsv', 'r') as f:
         for line in f:
-            phenotype, name = line.strip().split('\t')
-            phenotypes[phenotype] = name
+            split_line = line.strip().split('\t')
+            if len(split_line) == 3:
+                phenotype, name, mondo = split_line
+                phenotypes[phenotype] = (name, mondo)
     return phenotypes
 
 
