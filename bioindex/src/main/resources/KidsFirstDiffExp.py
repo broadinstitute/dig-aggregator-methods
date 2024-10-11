@@ -54,11 +54,11 @@ def main():
     srcdir = f'{s3_in}/tissue-sumstats/*.out'
     outdir = f'{s3_bioindex}/diff_exp/{{}}/kidsfirst/'
 
-    df = spark.read.csv(srcdir, header=True, sep='\t', schema=SCHEMA) \
+    df = spark.read.csv(srcdir, header=False, sep='\t', schema=SCHEMA) \
         .withColumn('source', lit('KidsFirst'))
 
     tissue_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(1))
-    phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2).lower())
+    phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2))
 
     # extract the dataset and ancestry from the filename
     df = df.withColumn('filePhenotype', phenotype_of_input(input_file_name())) \
