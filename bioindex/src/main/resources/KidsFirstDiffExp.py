@@ -75,7 +75,7 @@ def main():
     apply_biosample_map = udf(lambda s: biosample_map[s][1])
     apply_mondo_map = udf(lambda s: phenotype_map[s][0])
     apply_name_map = udf(lambda s: phenotype_map[s][1])
-    df = df.filter((tissue_filter(df.gtexTissue)) & (phenotype_filter(df.filePhenotype))) \
+    df = df.filter((tissue_filter(df.fileTissue)) & (phenotype_filter(df.filePhenotype))) \
         .withColumn('tissue', apply_tissue_map(df.fileTissue)) \
         .withColumn('biosample', apply_biosample_map(df.fileTissue)) \
         .withColumn('phenotype', apply_mondo_map(df.filePhenotype)) \

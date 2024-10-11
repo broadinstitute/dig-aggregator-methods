@@ -1,13 +1,13 @@
 {
     "aws": {
-        "project": "GTEx",
+        "project": "KidsFirst",
         "input": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "GTEx"
+            "subdir": "KidsFirst"
         },
         "output": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "GTEx"
+            "subdir": "KidsFirst"
         },
         "bioindex": {
             "bucket": "dig-analysis-cfde",
