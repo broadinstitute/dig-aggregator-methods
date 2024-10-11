@@ -20,6 +20,7 @@ class CQSVepStage(implicit context: Context) extends Stage {
     */
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
+    masterInstanceType = Strategy.memoryOptimized(vCPUs=8),
     masterVolumeSizeInGB = 800,
     applications = Seq.empty,
     bootstrapScripts = Seq(
