@@ -1,9 +1,10 @@
+import numpy as np
 import os
 import re
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, StructType, StringType, DoubleType, BooleanType
-from pyspark.sql.functions import input_file_name, lit, rank, udf
+from pyspark.sql.functions import input_file_name, lit, rank, udf, when
 from pyspark.sql.window import Window
 
 s3_in = os.environ['INPUT_PATH']
@@ -67,6 +68,9 @@ def main():
 
     df = spark.read.csv(srcdir, header=False, sep='\t', schema=SCHEMA) \
         .withColumn('source', lit('GTEx'))
+
+    # pValues can be too small for strings
+    df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
 
     tissue_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(1))
     phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2).lower())
