@@ -35,7 +35,7 @@ def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields, name_map):
     df = spark.read.json(srcdir)
 
     for name, order in bioindices.items():
-        if len(max_fields) > 0 and name != 'phenotype':
+        if len(max_fields) > 0 and name not in ['phenotype', 'source']:
             df_out = attach_max_values(df, max_fields)
         else:
             df_out = df
@@ -62,7 +62,8 @@ def gene_set(spark, name_map):
     srcdir = f'{s3_in}/out/pigean/gene_set_stats/*/*.json'
     bioindices = {
         'gene_set': [col('gene_set'), col('beta').desc()],
-        'phenotype': [col('phenotype'), col('beta').desc()]
+        'phenotype': [col('phenotype'), col('beta').desc()],
+        'source': [col('source'), col('beta').desc()]
     }
     bioindex(spark, srcdir, 'gene_set', bioindices, ['beta', 'beta_uncorrected'], name_map)
 
