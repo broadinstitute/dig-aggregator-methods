@@ -41,7 +41,7 @@ def get_phenotype_map():
             split_line = line.strip().split('\t')
             if len(split_line) == 3:
                 phenotype, name, mondo = split_line
-                phenotypes[phenotype] = (name, mondo)
+                phenotypes[phenotype] = (mondo, name)
     return phenotypes
 
 
