@@ -1,17 +1,17 @@
 {
     "aws": {
-        "project": "KidsFirst",
+        "project": "hubmap",
         "input": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "KidsFirst"
+            "subdir": "hubmap"
         },
         "output": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "KidsFirst"
+            "subdir": "hubmap"
         },
         "bioindex": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "bioindex"
+            "subdir": "hubmap/bioindex"
         },
         "emr": {
             "subnetIds": [
