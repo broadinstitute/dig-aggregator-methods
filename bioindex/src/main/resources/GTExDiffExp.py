@@ -96,7 +96,7 @@ def main():
         .withColumn('biosample', apply_biosample_map(df.gtexTissue)) \
         .withColumn('phenotype', apply_mondo_map(df.gtexPhenotype)) \
         .withColumn('phenotype_name', apply_name_map(df.gtexPhenotype)) \
-        .drop('gtexPhenotype', 'gtexTissue', 'gene')
+        .drop('gene')
 
     df.orderBy(['geneName', 'pValue']) \
         .write \
