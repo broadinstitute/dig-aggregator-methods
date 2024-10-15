@@ -56,16 +56,17 @@ def main():
 
     df = spark.read.csv(srcdir, header=False, sep='\t', schema=SCHEMA) \
         .withColumn('source', lit('KidsFirst'))
-
-    tissue_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(1))
-    phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2))
-
-    # extract the dataset and ancestry from the filename
-    df = df.withColumn('filePhenotype', phenotype_of_input(input_file_name())) \
-        .withColumn('fileTissue', tissue_of_input(input_file_name()))
+    df = df.withColumn('file_name', input_file_name())
 
     # pValues can be too small for strings
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
+
+    tissue_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(1))
+    phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2).lower())
+
+    # extract the dataset and ancestry from the filename
+    df = df.withColumn('filePhenotype', phenotype_of_input(df.file_name)) \
+        .withColumn('fileTissue', tissue_of_input(df.file_name))
 
     phenotype_map = get_phenotype_map()
     biosample_map = get_biosample_map()
@@ -84,7 +85,8 @@ def main():
         .withColumn('biosample', apply_biosample_map(df.fileTissue)) \
         .withColumn('phenotype', apply_mondo_map(df.filePhenotype)) \
         .withColumn('phenotype_name', apply_name_map(df.filePhenotype)) \
-        .withColumn('direction', apply_direction(df.log2FoldChange))
+        .withColumn('direction', apply_direction(df.log2FoldChange)) \
+        .drop('file_name')
     df = df.withColumn('gene_set_file', gene_set_file(df.fileTissue, df.phenotype, df.direction))
 
     df.orderBy(['geneName', 'pValue']) \
