@@ -7,7 +7,7 @@ import shutil
 import subprocess
 
 s3_in = os.environ['INPUT_PATH']
-s3_bioindex = os.environ['BIOINDEX_PATH']
+s3_bioindex = os.environ['JOB_BUCKET']
 
 
 def download_data():
