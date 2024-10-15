@@ -68,6 +68,7 @@ def main():
 
     df = spark.read.csv(srcdir, header=False, sep='\t', schema=SCHEMA) \
         .withColumn('source', lit('GTEx'))
+    df = df.withColumn('file_name', input_file_name())
 
     # pValues can be too small for strings
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
@@ -78,8 +79,8 @@ def main():
     gene_to_name = udf(lambda gene: re.search(f'([^\.]+)\.[^-]*-(.*)', gene).group(2))
 
     # extract the dataset and ancestry from the filename
-    df = df.withColumn('filePhenotype', phenotype_of_input(input_file_name())) \
-        .withColumn('fileTissue', tissue_of_input(input_file_name())) \
+    df = df.withColumn('filePhenotype', phenotype_of_input(df.file_name)) \
+        .withColumn('fileTissue', tissue_of_input(df.file_name)) \
         .withColumn('ensemblID', gene_to_ensemble(df.gene)) \
         .withColumn('geneName', gene_to_name(df.gene))
 
@@ -102,7 +103,7 @@ def main():
         .withColumn('phenotype_name', apply_name_map(df.filePhenotype)) \
         .withColumn('direction', apply_direction(df.log2FoldChange))
     df = df.withColumn('gene_set_file', gene_set_file(df.fileTissue, df.phenotype, df.direction)) \
-        .drop('gene')
+        .drop('gene', 'file_name')
 
     df.orderBy(['geneName', 'pValue']) \
         .write \
