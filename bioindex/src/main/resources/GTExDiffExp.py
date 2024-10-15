@@ -78,8 +78,8 @@ def main():
     gene_to_name = udf(lambda gene: re.search(f'([^\.]+)\.[^-]*-(.*)', gene).group(2))
 
     # extract the dataset and ancestry from the filename
-    df = df.withColumn('gtexPhenotype', phenotype_of_input(input_file_name())) \
-        .withColumn('gtexTissue', tissue_of_input(input_file_name())) \
+    df = df.withColumn('filePhenotype', phenotype_of_input(input_file_name())) \
+        .withColumn('fileTissue', tissue_of_input(input_file_name())) \
         .withColumn('ensemblID', gene_to_ensemble(df.gene)) \
         .withColumn('geneName', gene_to_name(df.gene))
 
@@ -91,11 +91,11 @@ def main():
     apply_biosample_map = udf(lambda s: biosample_map[s][1])
     apply_mondo_map = udf(lambda s: phenotype_map[s][0])
     apply_name_map = udf(lambda s: phenotype_map[s][1])
-    df = df.filter((tissue_filter(df.gtexTissue)) & (phenotype_filter(df.gtexPhenotype)))
-    df = df.withColumn('tissue', apply_tissue_map(df.gtexTissue)) \
-        .withColumn('biosample', apply_biosample_map(df.gtexTissue)) \
-        .withColumn('phenotype', apply_mondo_map(df.gtexPhenotype)) \
-        .withColumn('phenotype_name', apply_name_map(df.gtexPhenotype)) \
+    df = df.filter((tissue_filter(df.fileTissue)) & (phenotype_filter(df.filePhenotype)))
+    df = df.withColumn('tissue', apply_tissue_map(df.fileTissue)) \
+        .withColumn('biosample', apply_biosample_map(df.fileTissue)) \
+        .withColumn('phenotype', apply_mondo_map(df.filePhenotype)) \
+        .withColumn('phenotype_name', apply_name_map(df.filePhenotype)) \
         .drop('gene')
 
     df.orderBy(['geneName', 'pValue']) \
