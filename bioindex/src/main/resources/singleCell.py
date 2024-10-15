@@ -112,6 +112,8 @@ def file_iter(dataset, infile, outfile, cell_indexes, number_map, gene_map):
                 part_count = 0
                 part_num += 1
                 f_out = open(f'raw/count_files/part-{str(part_num).zfill(5)}', 'w')
+        part_in = f'raw/count_files/part-{str(part_num).zfill(5)}'
+        part_out = outfile.format(str(part_num).zfill(5))
         yield part_in, part_out, dataset, genex_indexes, number_map, gene_map
 
 
