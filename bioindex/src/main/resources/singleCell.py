@@ -9,6 +9,7 @@ import subprocess
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
+gene_path = '/mnt/var/single_cell/genes.json'
 
 cpus = 8
 
@@ -22,6 +23,15 @@ number_maps = {
 }
 
 
+def get_gene_map():
+    out = {}
+    with open(gene_path, 'r') as f:
+        for line in f:
+            json_line = json.loads(line.strip())
+            out[json_line['name']] = json_line['symbol']
+    return out
+
+
 def fetch_metadata():
     with open('raw/metadata.tsv', 'r') as f:
         header = f.readline().strip().split('\t')
@@ -31,6 +41,7 @@ def fetch_metadata():
         index_dict = {label: dict() for label in possible_label_dict}
         for line in f:
             split_line = [a.strip() for a in line.split('\t')]  # can have empty cells at the end of the line
+            split_line = [split_line[0]] + ['_'.join(split_line[1:3])] + split_line[3:]
             for label in possible_label_dict:
                 label_value = split_line[possible_label_dict[label]]
                 if label_value not in index_dict[label]:
@@ -84,7 +95,7 @@ def output_coordinates(index_lists, coordinates):
             f.write(f'{coords_line}\n')
 
 
-def file_iter(dataset, infile, outfile, cell_indexes, number_map):
+def file_iter(dataset, infile, outfile, cell_indexes, number_map, gene_map):
     with gzip.open(infile, 'rt') as f_in:
         header = f_in.readline().strip().split('\t')[1:]
         genex_indexes = {cell_indexes[column_cell]: matrix_idx for matrix_idx, column_cell in enumerate(header)}
@@ -97,14 +108,15 @@ def file_iter(dataset, infile, outfile, cell_indexes, number_map):
             if part_count == 300:
                 part_in = f'raw/count_files/part-{str(part_num).zfill(5)}'
                 part_out = outfile.format(str(part_num).zfill(5))
-                yield part_in, part_out, dataset, genex_indexes, number_map
+                yield part_in, part_out, dataset, genex_indexes, number_map, gene_map
                 part_count = 0
                 part_num += 1
                 f_out = open(f'raw/count_files/part-{str(part_num).zfill(5)}', 'w')
+        yield part_in, part_out, dataset, genex_indexes, number_map, gene_map
 
 
 def process_file(args):
-    infile, outfile, dataset, genex_indexes, number_map = args
+    infile, outfile, dataset, genex_indexes, number_map, gene_map = args
     print(infile, outfile)
     with open(infile, 'rt') as f_in:
         with open(outfile, 'w') as f_out:
@@ -113,17 +125,18 @@ def process_file(args):
                 expression = list(map(number_maps[number_map], split_line[1:]))
                 sorted_expression = [expression[genex_indexes[i]] for i in range(len(genex_indexes))]
                 expression_str = ','.join(map(str, sorted_expression))
-                gene = split_line[0]
+                ensembl = split_line[0].split('.')[0]
+                gene = gene_map.get(ensembl, ensembl)
                 f_out.write(f'{{"dataset": "{dataset}", '
                             f'"gene": "{gene}", '
                             f'"expression": [{expression_str}]}}\n')
     os.remove(infile)
 
 
-def fetch_and_output_expression(dataset, cell_indexes, infile, outfile, number_map):
+def fetch_and_output_expression(dataset, cell_indexes, infile, outfile, number_map, gene_map):
     os.mkdir('raw/count_files')
     with Pool(cpus) as p:
-        list(p.imap(process_file, file_iter(dataset, infile, outfile, cell_indexes, number_map)))
+        list(p.imap(process_file, file_iter(dataset, infile, outfile, cell_indexes, number_map, gene_map)))
     shutil.rmtree('raw/count_files')
 
 
@@ -155,7 +168,8 @@ def main():
     cells = index_dict[metadata_cell_key]
     os.mkdir('processed/gene_lognorm')
     gene_lognorm_out = f'processed/gene_lognorm/part-{{}}.json'
-    fetch_and_output_expression(args.dataset, cells, 'raw/lognorm_counts.tsv.gz', gene_lognorm_out, 'float')
+    gene_map = get_gene_map()
+    fetch_and_output_expression(args.dataset, cells, 'raw/lognorm_counts.tsv.gz', gene_lognorm_out, 'float', gene_map)
 
     upload(args.dataset)
 
