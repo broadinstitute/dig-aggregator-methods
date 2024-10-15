@@ -93,15 +93,15 @@ def main():
     apply_biosample_map = udf(lambda s: biosample_map[s][1])
     apply_mondo_map = udf(lambda s: phenotype_map[s][0])
     apply_name_map = udf(lambda s: phenotype_map[s][1])
-    apply_direction = udf(lambda s: lit('down') if s < 0 else lit('up'))
-    gene_set_file = udf(lambda tissue, phenotype, direction: lit(f'gtex_{tissue}_{phenotype}_{direction}'))
+    apply_direction = udf(lambda s: 'down' if s < 0 else 'up')
+    gene_set_file = udf(lambda tissue, phenotype, direction: f'gtex_{tissue}_{phenotype}_{direction}')
 
     df = df.withColumn('tissue', apply_tissue_map(df.fileTissue)) \
         .withColumn('biosample', apply_biosample_map(df.fileTissue)) \
         .withColumn('phenotype', apply_mondo_map(df.filePhenotype)) \
         .withColumn('phenotype_name', apply_name_map(df.filePhenotype)) \
-        .withColumn('direction', apply_direction(df.log2FoldChange)) \
-        .withColumn('gene_set_file', gene_set_file(df.fileTissue, df.phenotype, df.direction)) \
+        .withColumn('direction', apply_direction(df.log2FoldChange))
+    df = df.withColumn('gene_set_file', gene_set_file(df.fileTissue, df.phenotype, df.direction)) \
         .drop('gene')
 
     df.orderBy(['geneName', 'pValue']) \
