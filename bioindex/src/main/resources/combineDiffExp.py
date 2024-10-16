@@ -22,7 +22,8 @@ def main():
         'phenotype': ['phenotype', 'pValue'],
         'top-phenotype': ['pValue'],
         'tissue': ['tissue', 'pValue'],
-        'top-tissue': ['pValue']
+        'top-tissue': ['pValue'],
+        'top-tissue-phenotype-source': ['pValue']
     }
 
     for bioindex, order_by in bioindices.items():
