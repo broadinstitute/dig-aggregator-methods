@@ -153,6 +153,17 @@ def main():
         .mode('overwrite') \
         .json(outdir.format('top-tissue'))
 
+    tissue_phenotype_partition = Window.partitionBy('tissue', 'phenotype', 'source').orderBy('pValue')
+    tissue_phenotype_df = df.withColumn('rank', rank().over(tissue_phenotype_partition))
+    tissue_phenotype_df \
+        .filter(tissue_phenotype_df.rank <= 20) \
+        .drop('rank') \
+        .withColumn('dummy', lit(1)) \
+        .orderBy(['pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('top-tissue-phenotype-source'))
+
     # done
     spark.stop()
 
