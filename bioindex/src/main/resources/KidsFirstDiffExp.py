@@ -62,7 +62,7 @@ def main():
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
 
     tissue_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(1))
-    phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2).lower())
+    phenotype_of_input = udf(lambda s: re.search(r'.*/([^\./]+).([^\./]+).sort.filter.out', s).group(2))
 
     # extract the dataset and ancestry from the filename
     df = df.withColumn('filePhenotype', phenotype_of_input(df.file_name)) \
