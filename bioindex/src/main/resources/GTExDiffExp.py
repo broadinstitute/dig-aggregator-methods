@@ -1,3 +1,5 @@
+import glob
+import json
 import numpy as np
 import os
 import re
@@ -57,6 +59,15 @@ def get_phenotype_map():
     return phenotypes
 
 
+def get_count_map():
+    counts = {}
+    with open(glob.glob(f'{raw_path}/gene_set_count/*.json')[0], 'r') as f:
+        for line in f:
+            json_line = json.loads(line)
+            counts[json_line['gene_set']] = json_line['count']
+    return counts
+
+
 def main():
     """
     Arguments: none
@@ -86,6 +97,7 @@ def main():
 
     phenotype_map = get_phenotype_map()
     biosample_map = get_biosample_map()
+    count_map = get_count_map()
     tissue_filter = udf(lambda s: s in biosample_map, BooleanType())
     phenotype_filter = udf(lambda s: s in phenotype_map, BooleanType())
     df = df.filter((tissue_filter(df.fileTissue)) & (phenotype_filter(df.filePhenotype)))
@@ -95,7 +107,7 @@ def main():
     apply_mondo_map = udf(lambda s: phenotype_map[s][0])
     apply_name_map = udf(lambda s: phenotype_map[s][1])
     apply_direction = udf(lambda s: 'down' if s < 0 else 'up')
-    gene_set_file = udf(lambda tissue, phenotype, direction: f'gtex_{tissue}_{phenotype}_{direction}')
+    gene_set_file = udf(lambda tissue, phenotype, direction: f'gtex_{tissue}_{phenotype}_{direction}' if f'gtex_{tissue}_{phenotype}_{direction}' in count_map else '')
 
     df = df.withColumn('tissue', apply_tissue_map(df.fileTissue)) \
         .withColumn('biosample', apply_biosample_map(df.fileTissue)) \
