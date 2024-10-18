@@ -11,7 +11,7 @@
         },
         "bioindex": {
             "bucket": "dig-analysis-cfde",
-            "subdir": "bioindex"
+            "subdir": "KidsFirst/bioindex"
         },
         "emr": {
             "subnetIds": [
