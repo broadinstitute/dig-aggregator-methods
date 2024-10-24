@@ -132,10 +132,10 @@ def convert_clump_file(ancestry, df):
     return df
 
 
-def get_out_dir(df, meta_param):
+def get_out_dir(df, meta_param, dataset):
     df_first = df.first()
     ancestry = df_first['ancestry']
-    dataset = df_first['dataset']
+    dataset = df_first['dataset'] if meta_param == 'bottom-line' else dataset
     phenotype = df_first['phenotype']
     return f'{s3_out}/out/credible_sets/intake/{phenotype}/{ancestry}/{meta_param}/{dataset}/'
 
@@ -165,7 +165,7 @@ def main():
         df = convert_clump_file(args.ancestry, df)
     # TODO: To use alternative meta/param types, pass through as arguments
     meta_param = 'credible_set' if args.source == 'credible-set' else 'bottom-line'
-    out_dir = get_out_dir(df, meta_param)
+    out_dir = get_out_dir(df, meta_param, args.dataset)
 
     save_df(df, out_dir)
     spark.stop()
