@@ -12,7 +12,7 @@ class GraphPigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 8
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
@@ -27,6 +27,6 @@ class GraphPigeanStage(implicit context: Context) extends Stage {
       case Seq(phenotype, sigmaPower, geneSetSize) =>
         Seq(s"--phenotype=$phenotype", s"--sigma=$sigmaPower", s"--gene-set-size=$geneSetSize")
     }
-    new Job(Job.Script(resourceUri("factorPigean.py"), flags:_*))
+    new Job(Job.Script(resourceUri("graphPigean.py"), flags:_*))
   }
 }

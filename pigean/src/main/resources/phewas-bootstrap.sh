@@ -9,7 +9,7 @@ sudo chmod 775 "${PIGEAN_ROOT}"
 # install to the metal directory
 cd "${PIGEAN_ROOT}"
 
-sudo aws s3 cp s3://dig-analysis-bin/pigean/factor_phewas.py .
+sudo aws s3 cp s3://dig-analysis-bin/pigean/methods/factor_phewas.py .
 sudo aws s3 cp s3://dig-analysis-data/out/pigean/staging/combined_gs/ . --recursive
 
 # install dependencies
