@@ -20,6 +20,6 @@ class CombineGSStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("combineGS.py", s"--trait-group=$output")))
+    new Job(Job.Script(resourceUri("combineGS.py"), s"--trait-group=$output"))
   }
 }

@@ -18,7 +18,7 @@ class FactorPigeanStage(implicit context: Context) extends Stage {
 
   override val rules: PartialFunction[Input, Outputs] = {
     case pigean(traitGroup, phenotype, sigmaPower, geneSetSize) => Outputs.Named(
-      s"${traitGroup}/$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
+      s"$traitGroup/$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
     )
   }
 
