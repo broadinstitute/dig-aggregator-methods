@@ -10,8 +10,8 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download_data(phenotype, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{phenotype}/sigma={sigma}/size={gene_set_size}'
+def download_data(trait_group, phenotype, sigma, gene_set_size):
+    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/f.out', '.'])
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gc.out', '.'])
 
@@ -26,11 +26,12 @@ def run_graph():
     subprocess.check_call(cmd)
 
 
-def add_fields(phenotype, sigma, gene_set_size):
+def add_fields(trait_group, phenotype, sigma, gene_set_size):
     file = f'{phenotype}.{sigma}.{gene_set_size}.graph.json'
     with open(file, 'w') as f_out:
         with open('graph.json', 'r') as f_in:
             data = json.load(f_in)
+        data['trait_group'] = trait_group
         data['phenotype'] = phenotype
         data['sigma'] = sigma
         data['gene_set_size'] = gene_set_size
@@ -44,8 +45,8 @@ def success(file_path):
     os.remove('_SUCCESS')
 
 
-def upload_data(file, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/graph/sigma={sigma}/size={gene_set_size}/{phenotype}/'
+def upload_data(file, trait_group, phenotype, sigma, gene_set_size):
+    file_path = f'{s3_out}/out/pigean/graph/{trait_group}/sigma={sigma}/size={gene_set_size}/{phenotype}/'
     subprocess.check_call(['aws', 's3', 'cp', file, file_path])
     os.remove(file)
     success(file_path)
@@ -53,6 +54,8 @@ def upload_data(file, phenotype, sigma, gene_set_size):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--trait-group', default=None, required=True, type=str,
+                        help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
     parser.add_argument('--sigma', default=None, required=True, type=str,
@@ -61,11 +64,11 @@ def main():
                         help="gene-set-size (small, medium, or large).")
     args = parser.parse_args()
 
-    download_data(args.phenotype, args.sigma, args.gene_set_size)
+    download_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     try:
         run_graph()
-        file = add_fields(args.phenotype, args.sigma, args.gene_set_size)
-        upload_data(file, args.phenotype, args.sigma, args.gene_set_size)
+        file = add_fields(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
+        upload_data(file, args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     except Exception:
         print('Error')
     os.remove('gc.out')

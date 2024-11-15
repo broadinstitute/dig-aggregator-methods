@@ -12,20 +12,20 @@ class GraphPigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 8
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(phenotype, sigmaPower, geneSetSize) => Outputs.Named(
-      s"$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
+    case pigean(traitGroup, phenotype, sigmaPower, geneSetSize) => Outputs.Named(
+      s"$traitGroup/$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
     )
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(phenotype, sigmaPower, geneSetSize) =>
-        Seq(s"--phenotype=$phenotype", s"--sigma=$sigmaPower", s"--gene-set-size=$geneSetSize")
+      case Seq(traitGroup, phenotype, sigmaPower, geneSetSize) =>
+        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--sigma=$sigmaPower", s"--gene-set-size=$geneSetSize")
     }
     new Job(Job.Script(resourceUri("graphPigean.py"), flags:_*))
   }

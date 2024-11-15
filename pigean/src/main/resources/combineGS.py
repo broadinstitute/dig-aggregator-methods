@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import argparse
 import glob
 from multiprocessing import Pool
 import os
@@ -11,8 +12,8 @@ s3_out = os.environ['OUTPUT_PATH']
 cpus = 8
 
 
-def download_all_data():
-    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/pigean/staging/pigean/', './data/', '--recursive',
+def download_all_data(trait_group):
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/pigean/staging/pigean/{trait_group}/', './data/', '--recursive',
            '--exclude="*"', '--include="*/*/*/gs.out"']
     subprocess.check_call(' '.join(cmd), shell=True)
 
@@ -57,16 +58,20 @@ def combine_all():
     shutil.rmtree('data')
 
 
-def upload_data():
-    subprocess.check_call(['aws', 's3', 'cp', 'out/', f'{s3_out}/out/pigean/staging/combined_gs/', '--recursive'])
+def upload_data(trait_group):
+    subprocess.check_call(['aws', 's3', 'cp', 'out/', f'{s3_out}/out/pigean/staging/combined_gs/{trait_group}/', '--recursive'])
     shutil.rmtree('out')
 
 
 def main():
-    download_all_data()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--trait-group', default=None, required=True, type=str,
+                        help="Input phenotype group.")
+    args = parser.parse_args()
+    download_all_data(args.trait_group)
     convert_all_data()
     combine_all()
-    upload_data()
+    upload_data(args.trait_group)
 
 
 if __name__ == '__main__':

@@ -26,11 +26,11 @@ object Pigean extends Method {
     addStage(new PigeanStage)
     addStage(new TranslatePigeanStage)
     addStage(new FactorPigeanStage)
-    addStage(new GraphPigeanStage)
     addStage(new TranslateFactorStage)
     addStage(new CombinePigeanFactorStage)
     addStage(new CombineGSStage)
     addStage(new PhewasPigeanStage)
     addStage(new TranslatePhewasStage)
+    addStage(new GraphPigeanStage)
   }
 }
