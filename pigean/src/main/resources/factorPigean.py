@@ -10,10 +10,10 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 size_sorting = {
-    'gene_set_list_mouse.txt': ['small', 'medium', 'large'],
-    'gene_set_list_msigdb_nohp.txt': ['small', 'medium', 'large'],
-    'gene_set_list_string_notext_medium_processed.txt': ['medium', 'large'],
-    'gene_set_list_pops_sparse_small.txt': ['medium', 'large'],
+    'gene_set_list_mouse_2024.txt': ['small', 'large'],
+    'gene_set_list_msigdb_nohp.txt': ['small', 'large'],
+    'gene_set_list_string_notext_medium_processed.txt': ['large'],
+    'gene_set_list_pops_sparse_small.txt': ['large'],
     'gene_set_list_mesh_processed.txt': ['large']
 }
 
@@ -36,8 +36,8 @@ class OpenAPIKey:
         return self.config['apiKey']
 
 
-def download_data(phenotype, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/pigean/{phenotype}/sigma={sigma}/size={gene_set_size}'
+def download_data(trait_group, phenotype, sigma, gene_set_size):
+    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gs.out', '.'])
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', '.'])
 
@@ -53,9 +53,8 @@ def get_gene_sets(gene_set_size):
 def run_factor(gene_set_size, openapi_key):
     cmd = [
               'python3', f'{downloaded_files}/priors.py', 'factor',
-              '--gene-stats-in', 'gs.out',
+              '--gene-bfs-in', 'gs.out',
               '--gene-set-stats-in', 'gss.out',
-              '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
               '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
               '--gene-bfs-id-col', 'Gene',
               '--gene-bfs-log-bf-col', 'log_bf',
@@ -64,23 +63,18 @@ def run_factor(gene_set_size, openapi_key):
               '--gene-set-stats-id-col', 'Gene_Set',
               '--gene-set-stats-beta-uncorrected-col', 'beta_uncorrected',
               '--gene-set-stats-beta-col', 'beta',
-              '--min-gene-set-beta-uncorrected', '1e-20',
+              '--min-gene-set-read-beta-uncorrected', '1e-20',
               '--gene-set-filter-type', 'beta_uncorrected',
               '--gene-set-filter-value', '0.01',
               '--gene-filter-type', 'combined',
               '--gene-filter-value', '1',
-              '--debug-level', '3',
               '--factors-out', 'f.out',
-              '--marker-factors-out', 'mf.out',
-              '--gene-factors-out', 'gf.out',
-              '--gene-set-factors-out', 'gsf.out',
               '--gene-clusters-out', 'gc.out',
               '--gene-set-clusters-out', 'gsc.out',
-              '--hide-opts'
+              ' --gene-set-multiply-type', 'beta_uncorrected',
           ] + get_gene_sets(gene_set_size) + \
           (['--lmm-auth-key', openapi_key] if openapi_key is not None else [])
     subprocess.check_call(cmd)
-
 
 def success(file_path):
     subprocess.check_call(['touch', '_SUCCESS'])
@@ -88,9 +82,9 @@ def success(file_path):
     os.remove('_SUCCESS')
 
 
-def upload_data(phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/staging/factor/{phenotype}/sigma={sigma}/size={gene_set_size}/'
-    for file in ['f.out', 'mf.out', 'gf.out', 'gsf.out', 'gc.out', 'gsc.out']:
+def upload_data(trait_group, phenotype, sigma, gene_set_size):
+    file_path = f'{s3_out}/out/pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/'
+    for file in ['f.out', 'gc.out', 'gsc.out']:
         subprocess.check_call(['aws', 's3', 'cp', file, file_path])
         os.remove(file)
     success(file_path)
@@ -98,6 +92,8 @@ def upload_data(phenotype, sigma, gene_set_size):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--trait-group', default=None, required=True, type=str,
+                        help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
     parser.add_argument('--sigma', default=None, required=True, type=str,
@@ -107,10 +103,10 @@ def main():
     args = parser.parse_args()
 
     open_api_key = OpenAPIKey().get_key()
-    download_data(args.phenotype, args.sigma, args.gene_set_size)
+    download_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     try:
         run_factor(args.gene_set_size, open_api_key)
-        upload_data(args.phenotype, args.sigma, args.gene_set_size)
+        upload_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     except Exception:
         print('Error')
     os.remove('gs.out')
