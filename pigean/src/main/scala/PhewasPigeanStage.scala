@@ -23,7 +23,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
     case pigean(traitGroup, phenotype, sigmaPower, geneSetSize) =>
       outputSet += s"$traitGroup/$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
       Outputs.Null
-    case gsCombined(_) => Outputs.Named("phewas")
+    case gsCombined(traitGroup, _) => Outputs.Named(traitGroup)
   }
 
   def toFlags(output: String): Seq[String] = output.split("/").toSeq match {
@@ -31,8 +31,15 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
       Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--sigma=$sigmaPower", s"--gene-set-size=$geneSetSize")
   }
 
+  def filterByTrait(traitGroup: String): String => Boolean = {
+    input: String => input.split("/").toSeq match {
+      case Seq(inputTraitGroup, _, _, _) if inputTraitGroup == traitGroup => true
+      case _ => false
+    }
+  }
+
   override def make(output: String): Job = {
-    val steps: Seq[Job.Script] = outputSet.map { output =>
+    val steps: Seq[Job.Script] = outputSet.filter(filterByTrait(output)).map { output =>
       Job.Script(resourceUri("phewasPigean.py"), toFlags(output):_*)
     }.toSeq
     new Job(steps, parallelSteps = true)
