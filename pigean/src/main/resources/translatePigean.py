@@ -30,7 +30,7 @@ def translate_gs(json_line, trait_group, phenotype, sigma, gene_set_size):
         return f'{{"gene": "{json_line["Gene"]}", ' \
                f'"prior": {make_option(json_line["prior"])}, ' \
                f'"combined": {combined}, ' \
-               f'"huge_score": {make_option(json_line["huge_score_gwas"])}, ' \
+               f'"huge_score": {make_option(json_line["positive_control"])}, ' \
                f'"log_bf": {make_option(json_line["log_bf"])}, ' \
                f'"n": {make_option(json_line["N"])}, ' \
                f'"trait_group": "{trait_group}", ' \
