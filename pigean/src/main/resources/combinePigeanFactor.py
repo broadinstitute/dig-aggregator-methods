@@ -8,8 +8,13 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
+def check_file(file, file_path):
+    return subprocess.call(f'aws s3 ls {file_path}/{file}', shell=True)
+
+
 def download_file(file, file_path):
-    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/{file}', file])
+    if check_file(file, file_path) == 0:
+        subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/{file}', file])
 
 
 def get_label_dict(label_file, combine_key):
@@ -35,8 +40,8 @@ def combine(label_file, data_file, out_file, combine_key):
                 f_out.write(f'{json.dumps(json_line)}\n')
 
 
-def upload(out_file, out_path):
-    subprocess.check_call(['aws', 's3', 'cp', out_file, f'{out_path}/{out_file}'])
+def upload(data_file, out_file, out_path):
+    subprocess.check_call(['aws', 's3', 'cp', data_file, f'{out_path}/{out_file}'])
     subprocess.check_call(['touch', '_SUCCESS'])
     subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{out_path}/_SUCCESS'])
     os.remove('_SUCCESS')
@@ -53,8 +58,11 @@ def run(trait_group, phenotype, sigma, gene_set_size, data_name, label_name, out
 
     download_file(label_file, label_path)
     download_file(data_file, data_path)
-    combine(label_file, data_file, out_file, combine_key)
-    upload(out_file, out_path)
+    if os.path.exists(label_file):
+        combine(label_file, data_file, out_file, combine_key)
+        upload(out_file, out_file, out_path)
+    else:
+        upload(data_file, out_file, out_path)
     os.remove(label_file)
     os.remove(data_file)
     os.remove(out_file)
