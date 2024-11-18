@@ -7,7 +7,7 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download_data(phenotype, file_name, sigma, gene_set_size):
+def download_data(trait_group, phenotype, file_name, sigma, gene_set_size):
     file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/{file_name}'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
@@ -79,7 +79,7 @@ def translate(trait_group, phenotype, sigma, gene_set_size, data_type, file_name
                 str_line = line_fnc(json_line, trait_group, phenotype, sigma, gene_set_size)
                 if str_line is not None:
                     f_out.write(str_line)
-    upload_data(phenotype, data_type, sigma, gene_set_size)
+    upload_data(trait_group, phenotype, data_type, sigma, gene_set_size)
     os.remove(file_name)
 
 

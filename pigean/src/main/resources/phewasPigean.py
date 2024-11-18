@@ -18,8 +18,8 @@ def get_factor_cols():
         headers = f.readline().strip().split('\t')
         factors_with_genes = set()
         for line in f:
-            factors_with_genes |= {line.strip().split('\t')[4]}
-        return [header for header in headers[6:] if header in factors_with_genes]
+            factors_with_genes |= {line.strip().split('\t')[5]}
+        return [header for header in headers[7:] if header in factors_with_genes]
 
 
 def run_phewas(trait_group, gs_file):
