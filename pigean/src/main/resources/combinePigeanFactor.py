@@ -42,14 +42,14 @@ def upload(out_file, out_path):
     os.remove('_SUCCESS')
 
 
-def run(phenotype, sigma, gene_set_size, data_name, label_name, out_name, combine_key):
-    label_file = f'{phenotype}.{sigma}.{gene_set_size}.{label_name}.json'
-    data_file = f'{phenotype}.{sigma}.{gene_set_size}.{data_name}.json'
-    out_file = f'{phenotype}.{sigma}.{gene_set_size}.{out_name}.json'
+def run(trait_group, phenotype, sigma, gene_set_size, data_name, label_name, out_name, combine_key):
+    label_file = f'{label_name}.json'
+    data_file = f'{data_name}.json'
+    out_file = f'{out_name}.json'
 
-    label_path = f'{s3_in}/out/pigean/{label_name}/sigma={sigma}/size={gene_set_size}/{phenotype}'
-    data_path = f'{s3_in}/out/pigean/{data_name}/sigma={sigma}/size={gene_set_size}/{phenotype}'
-    out_path = f'{s3_out}/out/pigean/{out_name}/sigma={sigma}/size={gene_set_size}/{phenotype}'
+    label_path = f'{s3_in}/out/pigean/{label_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
+    data_path = f'{s3_in}/out/pigean/{data_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
+    out_path = f'{s3_out}/out/pigean/{out_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
 
     download_file(label_file, label_path)
     download_file(data_file, data_path)
@@ -62,6 +62,8 @@ def run(phenotype, sigma, gene_set_size, data_name, label_name, out_name, combin
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--trait-group', default=None, required=True, type=str,
+                        help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
     parser.add_argument('--sigma', default=None, required=True, type=str,
@@ -70,8 +72,8 @@ def main():
                         help="gene-set-size (small, medium, or large).")
     args = parser.parse_args()
 
-    run(args.phenotype, args.sigma, args.gene_set_size, 'gene_stats', 'gene_factor', 'combined_gene_stats', 'gene')
-    run(args.phenotype, args.sigma, args.gene_set_size, 'gene_set_stats', 'gene_set_factor', 'combined_gene_set_stats', 'gene_set')
+    run(args.trait_group, args.phenotype, args.sigma, args.gene_set_size, 'gene_stats', 'gene_factor', 'combined_gene_stats', 'gene')
+    run(args.trait_group, args.phenotype, args.sigma, args.gene_set_size, 'gene_set_stats', 'gene_set_factor', 'combined_gene_set_stats', 'gene_set')
 
 
 if __name__ == '__main__':

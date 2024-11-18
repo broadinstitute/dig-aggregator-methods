@@ -46,7 +46,7 @@ def success(file_path):
 
 
 def upload_data(file, trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/graph/{trait_group}/sigma={sigma}/size={gene_set_size}/{phenotype}/'
+    file_path = f'{s3_out}/out/pigean/graph/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}/'
     subprocess.check_call(['aws', 's3', 'cp', file, file_path])
     os.remove(file)
     success(file_path)
