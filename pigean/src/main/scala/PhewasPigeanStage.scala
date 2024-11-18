@@ -5,6 +5,7 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
 class PhewasPigeanStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
