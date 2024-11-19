@@ -19,7 +19,7 @@ def bioindex(df, bioindex_name, bioindex_order):
 
 
 def factor(spark):
-    srcdir = f'{s3_in}/out/pigean/factor/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/factor/*/*/*/*/*.json'
     df = spark.read.json(srcdir)
     df = df.withColumn('cluster', df.factor)
     df = df.withColumn('top_genes', clean(df.top_genes))
@@ -29,7 +29,7 @@ def factor(spark):
 
 
 def gene_factor(spark):
-    srcdir = f'{s3_in}/out/pigean/gene_factor/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/gene_factor/*/*/*/*/*.json'
     df = spark.read.json(srcdir)
     df = df.withColumn('gene', clean(df.gene))
     bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('factor'), col('factor_value').desc()]
@@ -37,7 +37,7 @@ def gene_factor(spark):
 
 
 def gene_set_factor(spark):
-    srcdir = f'{s3_in}/out/pigean/gene_set_factor/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/gene_set_factor/*/*/*/*/*.json'
     df = spark.read.json(srcdir)
     df = df.withColumn('gene_set', clean(df.gene_set))
     bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('factor'), col('factor_value').desc()]
