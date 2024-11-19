@@ -11,24 +11,24 @@ class CombinePigeanFactorStage(implicit context: Context) extends Stage {
     stepConcurrency = 8
   )
 
-  val geneFactor: Input.Source = Input.Source.Success("out/pigean/gene_factor/*/*/*/")
-  val geneSetFactor: Input.Source = Input.Source.Success("out/pigean/gene_set_factor/*/*/*/")
+  val geneStats: Input.Source = Input.Source.Success("out/pigean/gene_stats/*/*/*/*/")
+  val geneSetStats: Input.Source = Input.Source.Success("out/pigean/gene_set_stats/*/*/*/*/")
 
-  override val sources: Seq[Input.Source] = Seq(geneFactor, geneSetFactor)
+  override val sources: Seq[Input.Source] = Seq(geneStats, geneSetStats)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case geneFactor(sigmaPower, geneSetSize, phenotype) => Outputs.Named(
-      s"$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
+    case geneStats(sigmaPower, geneSetSize, traitGroup, phenotype) => Outputs.Named(
+      s"$traitGroup/$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
     )
-    case geneSetFactor(sigmaPower, geneSetSize, phenotype) => Outputs.Named(
-      s"$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
+    case geneSetStats(sigmaPower, geneSetSize, traitGroup, phenotype) => Outputs.Named(
+      s"$traitGroup/$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
     )
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(phenotype, sigmaPower, geneSetSize) =>
-        Seq(s"--phenotype=$phenotype", s"--sigma=$sigmaPower", s"--gene-set-size=$geneSetSize")
+      case Seq(traitGroup, phenotype, sigmaPower, geneSetSize) =>
+        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--sigma=$sigmaPower", s"--gene-set-size=$geneSetSize")
     }
     new Job(Job.Script(resourceUri("combinePigeanFactor.py"), flags:_*))
   }
