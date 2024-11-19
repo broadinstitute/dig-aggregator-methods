@@ -12,7 +12,7 @@ idxs = {'portal': {'gc.out': 6, 'gsc.out': 5}, 'gcat_trait': {'gc.out': 7, 'gsc.
 def get_factors(trait_group, filename):
     if filename in idxs[trait_group]:
         with open(filename, 'r') as f:
-            return f.readline().strip().split('\t')[idxs[filename]:]
+            return f.readline().strip().split('\t')[idxs[trait_group][filename]:]
     else:
         return []
 
