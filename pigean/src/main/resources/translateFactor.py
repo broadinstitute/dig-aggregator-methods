@@ -7,9 +7,10 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-idxs = {'gc.out': 7, 'gsc.out': 6}
-def get_factors(filename):
-    if filename in idxs:
+# Temp bodge
+idxs = {'portal': {'gc.out': 6, 'gsc.out': 5}, 'gcat_trait': {'gc.out': 7, 'gsc.out': 6}, 'rare_v2': {'gc.out': 7, 'gsc.out': 6}}
+def get_factors(trait_group, filename):
+    if filename in idxs[trait_group]:
         with open(filename, 'r') as f:
             return f.readline().strip().split('\t')[idxs[filename]:]
     else:
@@ -83,7 +84,7 @@ def translate_gsc(json_line, trait_group, phenotype, sigma, gene_set_size, facto
 
 def translate(trait_group, phenotype, sigma, gene_set_size, data_type, file_name, line_fnc):
     download_data(trait_group, phenotype, file_name, sigma, gene_set_size)
-    factors = get_factors(file_name)
+    factors = get_factors(trait_group, file_name)
     with open(f'{data_type}.json', 'w') as f_out:
         with open(file_name, 'r') as f_in:
             header = f_in.readline().strip().split('\t')
