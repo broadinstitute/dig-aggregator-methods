@@ -39,6 +39,7 @@ def gene(spark):
         'phenotype': [col('phenotype'), col('sigma'), col('gene_set_size'), col('combined').desc()]
     }
     df = spark.read.json(srcdir)
+    df = df.filter(df.gene.isNotNull())
     df = df.withColumn('gene', clean(df.gene))
     bioindex(df, 'gene', bioindices, ['prior', 'combined', 'log_bf'])
 
@@ -50,6 +51,7 @@ def gene_set(spark):
         'phenotype': [col('phenotype'), col('sigma'), col('gene_set_size'), col('beta').desc()]
     }
     df = spark.read.json(srcdir)
+    df = df.filter(df.gene_set.isNotNull())
     df = df.withColumn('gene_set', clean(df.gene_set))
     bioindex(df, 'gene_set', bioindices, ['beta', 'beta_uncorrected'])
 
@@ -61,7 +63,9 @@ def gene_gene_set(spark):
         'gene_set': [col('phenotype'), col('gene_set'), col('sigma'), col('gene_set_size'), col('beta').desc()]
     }
     df = spark.read.json(srcdir)
+    df = df.filter(df.gene.isNotNull())
     df = df.withColumn('gene', clean(df.gene))
+    df = df.filter(df.gene_set.isNotNull())
     df = df.withColumn('gene_set', clean(df.gene_set))
     bioindex(df, 'gene_gene_set', bioindices, [])
 
