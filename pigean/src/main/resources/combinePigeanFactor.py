@@ -28,16 +28,22 @@ def get_label_dict(label_file, combine_key):
 
 
 def combine(label_file, data_file, out_file, combine_key):
+    errors = 0
     label_dict = get_label_dict(label_file, combine_key)
     with open(out_file, 'w') as f_out:
         with open(data_file, 'r') as f_in:
             for line in f_in:
-                json_line = json.loads(line.strip())
-                label_factor = label_dict.get(json_line[combine_key])
-                if label_factor is not None:
-                    json_line['label'] = label_factor[0]
-                    json_line['factor'] = label_factor[1]
-                f_out.write(f'{json.dumps(json_line)}\n')
+                try:
+                    json_line = json.loads(line.strip())
+                    label_factor = label_dict.get(json_line[combine_key])
+                    if label_factor is not None:
+                        json_line['label'] = label_factor[0]
+                        json_line['factor'] = label_factor[1]
+                    f_out.write(f'{json.dumps(json_line)}\n')
+                except:
+                    print('line invalid')
+                    errors += 1
+    print(f'Total Errors: {errors}')
 
 
 def upload(data_file, out_file, out_path):
