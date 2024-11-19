@@ -61,11 +61,11 @@ def run(trait_group, phenotype, sigma, gene_set_size, data_name, label_name, out
     if os.path.exists(label_file):
         combine(label_file, data_file, out_file, combine_key)
         upload(out_file, out_file, out_path)
+        os.remove(label_file)
+        os.remove(out_file)
     else:
         upload(data_file, out_file, out_path)
-    os.remove(label_file)
     os.remove(data_file)
-    os.remove(out_file)
 
 
 def main():
