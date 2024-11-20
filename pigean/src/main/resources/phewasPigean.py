@@ -22,14 +22,14 @@ def get_factor_cols():
         return [header for header in headers[7:] if header in factors_with_genes]
 
 
-def run_phewas(trait_group, gs_file):
+def run_phewas(gs_file):
     cmd = [
         'python3', f'{downloaded_files}/factor_phewas.py',
         '--factors-in', 'gc.out',
         '--factors-gene-id-col', 'Gene',
         '--factors-gene-factor-cols', ','.join(get_factor_cols()),
         '--filter-to-factor-genes',
-        '--gene-stats-in', f'{downloaded_files}/{trait_group}/{gs_file}',
+        '--gene-stats-in', f'{downloaded_files}/{gs_file}',
         '--gene-stats-id-col', 'gene',
         '--gene-stats-pheno-col', 'trait',
         '--gene-stats-assoc-stat-col', 'huge',
@@ -69,7 +69,7 @@ def main():
     download_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     gs_file = f'gs_{args.sigma}_{args.gene_set_size}.tsv'
     try:
-        run_phewas(args.trait_group, gs_file)
+        run_phewas(gs_file)
         upload_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     except Exception as e:
         print(e)
