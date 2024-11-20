@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import argparse
 import glob
 from multiprocessing import Pool
 import os
@@ -12,8 +11,8 @@ s3_out = os.environ['OUTPUT_PATH']
 cpus = 8
 
 
-def download_all_data(trait_group):
-    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/pigean/staging/pigean/{trait_group}/', './data/', '--recursive',
+def download_all_data():
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/pigean/staging/pigean/', './data/', '--recursive',
            '--exclude="*"', '--include="*/*/*/gs.out"']
     subprocess.check_call(' '.join(cmd), shell=True)
 
@@ -21,22 +20,28 @@ def download_all_data(trait_group):
 def convert_line(phenotype, headers, line):
     line_dict = dict(zip(headers, line.strip().split('\t')))
     line_dict['phenotype'] = phenotype
+    if 'positive_control' in line_dict:
+        line_dict['huge_score_gwas'] = line_dict['positive_control']
     keys = ['phenotype', 'Gene', 'combined', 'huge_score_gwas', 'log_bf']
-    return '\t'.join([line_dict[key] for key in keys]) + '\n'
+    values = [line_dict[key] for key in keys]
+    if 'NA' not in values:
+        return '\t'.join(values) + '\n'
 
 
 def convert(file):
-    phenotype = re.findall('data/([^/]*)/.*', file)[0]
+    phenotype = re.findall('data/[^/]*/([^/]*)/.*', file)[0]
     with open(file, 'r') as f_in:
         headers = f_in.readline().strip().split('\t')
         with open(re.sub(r'\.out$', '.tsv', file), 'w') as f_out:
             for line in f_in:
-                f_out.write(convert_line(phenotype, headers, line))
+                converted_line = convert_line(phenotype, headers, line)
+                if converted_line is not None:
+                    f_out.write(converted_line)
 
 
 def convert_all_data():
     with Pool(cpus) as p:
-        p.map(convert, glob.glob('data/*/*/*/gs.out'))
+        p.map(convert, glob.glob('data/*/*/*/*/gs.out'))
 
 
 def combine(sigma, gene_set_size):
@@ -44,34 +49,30 @@ def combine(sigma, gene_set_size):
         os.mkdir('out')
     with open(f'out/gs_{sigma}_{gene_set_size}.tsv', 'w') as f_out:
         f_out.write('trait\tgene\tcombined\thuge\tlog_bf\n')
-        for file in glob.glob(f'data/*/sigma={sigma}/size={gene_set_size}/gs.tsv'):
+        for file in glob.glob(f'data/*/*/sigma={sigma}/size={gene_set_size}/gs.tsv'):
             with open(file, 'r') as f_in:
                 shutil.copyfileobj(f_in, f_out)
 
 
 def combine_all():
     sigma_sizes = set()
-    for file in glob.glob('data/*/*/*/gs.tsv'):
-        sigma_sizes |= {re.findall('data/.*/sigma=([^/]*)/size=([^/]*)/gs.tsv', file)[0]}
+    for file in glob.glob('data/*/*/*/*/gs.tsv'):
+        sigma_sizes |= {re.findall('data/.*/.*/sigma=([^/]*)/size=([^/]*)/gs.tsv', file)[0]}
     for sigma, gene_set_size in sigma_sizes:
         combine(sigma, gene_set_size)
     shutil.rmtree('data')
 
 
-def upload_data(trait_group):
-    subprocess.check_call(['aws', 's3', 'cp', 'out/', f'{s3_out}/out/pigean/staging/combined_gs/{trait_group}/', '--recursive'])
+def upload_data():
+    subprocess.check_call(['aws', 's3', 'cp', 'out/', f'{s3_out}/out/pigean/staging/combined_gs/', '--recursive'])
     shutil.rmtree('out')
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--trait-group', default=None, required=True, type=str,
-                        help="Input phenotype group.")
-    args = parser.parse_args()
-    download_all_data(args.trait_group)
+    download_all_data()
     convert_all_data()
     combine_all()
-    upload_data(args.trait_group)
+    upload_data()
 
 
 if __name__ == '__main__':

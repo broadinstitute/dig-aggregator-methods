@@ -16,7 +16,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
   )
 
   val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
-  val gsCombined: Input.Source = Input.Source.Raw("out/pigean/staging/combined_gs/*/*.tsv")
+  val gsCombined: Input.Source = Input.Source.Raw("out/pigean/staging/combined_gs/*.tsv")
 
   override val sources: Seq[Input.Source] = Seq(pigean, gsCombined)
 
@@ -26,7 +26,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
     case pigean(traitGroup, phenotype, sigmaPower, geneSetSize) =>
       outputSet += s"$traitGroup/$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
       Outputs.Null
-    case gsCombined(traitGroup, _) => Outputs.Named(traitGroup)
+    case gsCombined(_) => Outputs.Named("phewas")
   }
 
   def toFlags(output: String): Seq[String] = output.split("/").toSeq match {
@@ -42,7 +42,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    val steps: Seq[Job.Script] = outputSet.filter(filterByTrait(output)).map { output =>
+    val steps: Seq[Job.Script] = outputSet.filter(filterByTrait("rare_v2")).map { output =>
       Job.Script(resourceUri("phewasPigean.py"), toFlags(output):_*)
     }.toSeq
     new Job(steps, parallelSteps = true)
