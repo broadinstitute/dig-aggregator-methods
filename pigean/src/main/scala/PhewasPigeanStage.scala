@@ -9,10 +9,9 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
     masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("phewas-bootstrap.sh"))),
-    stepConcurrency = 6
+    stepConcurrency = 3
   )
 
   val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
