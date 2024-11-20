@@ -12,7 +12,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
     masterInstanceType = Ec2.Strategy.memoryOptimized(mem = 64.gb),
     masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("phewas-bootstrap.sh"))),
-    stepConcurrency = 8
+    stepConcurrency = 1
   )
 
   val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
