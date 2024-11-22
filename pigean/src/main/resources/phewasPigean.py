@@ -35,7 +35,8 @@ def run_phewas(gs_file):
         '--gene-stats-assoc-stat-col', 'huge',
         '--output-file', 'phewas.out',
         '--output-provenance-file', 'phewas.provenance.out',
-        '--log-file', 'phewas.log'
+        '--log-file', 'phewas.log',
+        '--pheno-batch-size', '1000'
     ]
     subprocess.check_call(cmd)
 
