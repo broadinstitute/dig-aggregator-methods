@@ -11,7 +11,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
     instances = 1,
     masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("phewas-bootstrap.sh"))),
-    stepConcurrency = 3
+    stepConcurrency = 8
   )
 
   val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
