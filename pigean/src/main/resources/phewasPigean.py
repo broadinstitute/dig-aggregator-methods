@@ -28,7 +28,7 @@ def get_factor_cols():
 def run_phewas(gs_files):
     os.makedirs('out', exist_ok=True)
     for gs_file in gs_files:
-        number = re.findall('.*_([0-9]*).tsv')[0]
+        number = re.findall('.*_([0-9]*).tsv', gs_file)[0]
         cmd = [
             'python3', f'{downloaded_files}/factor_phewas.py',
             '--factors-in', 'gc.out',
@@ -39,16 +39,16 @@ def run_phewas(gs_files):
             '--gene-stats-id-col', 'gene',
             '--gene-stats-pheno-col', 'trait',
             '--gene-stats-assoc-stat-col', 'huge',
-            '--output-file', f'out/phewas_{number}.out',
-            '--output-provenance-file', f'out/phewas_{number}.provenance.out',
-            '--log-file', f'out/phewas_{number}.log'
+            '--output-file', f'phewas_{number}.out',
+            '--output-provenance-file', f'phewas.provenance.out',
+            '--log-file', f'phewas.log'
         ]
         subprocess.check_call(cmd)
 
 
 def combine_phewas():
-    with open('out/phewas.out', 'w') as f_out:
-        for phewas in glob.glob('out/phewas_*.out'):
+    with open('phewas.out', 'w') as f_out:
+        for phewas in glob.glob('phewas_*.out'):
             with open(phewas, 'r') as f_in:
                 shutil.copyfileobj(f_in, f_out)
             os.remove(phewas)
@@ -62,8 +62,9 @@ def success(file_path):
 
 def upload_data(trait_group, phenotype, sigma, gene_set_size):
     file_path = f'{s3_out}/out/pigean/staging/phewas/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/'
-    subprocess.check_call(f'aws s3 cp out/ {file_path} --recursive', shell=True)
-    shutil.rmtree('out')
+    for file in ['phewas.out', 'phewas.provenance.out', 'phewas.log']:
+        subprocess.check_call(['aws', 's3', 'cp', file, file_path])
+        os.remove(file)
     success(file_path)
 
 
