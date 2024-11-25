@@ -84,6 +84,7 @@ def main():
     gs_files = glob.glob(f'gs_{args.sigma}_{args.gene_set_size}_*.tsv')
     try:
         run_phewas(gs_files)
+        combine_phewas()
         upload_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     except Exception as e:
         print(e)
