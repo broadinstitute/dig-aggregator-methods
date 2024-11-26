@@ -35,7 +35,7 @@ def run_phewas(gs_files):
             '--factors-gene-id-col', 'Gene',
             '--factors-gene-factor-cols', ','.join(get_factor_cols()),
             '--filter-to-factor-genes',
-            '--gene-stats-in', f'{downloaded_files}/{gs_file}',
+            '--gene-stats-in', gs_file,
             '--gene-stats-id-col', 'gene',
             '--gene-stats-pheno-col', 'trait',
             '--gene-stats-assoc-stat-col', 'huge',
@@ -81,7 +81,7 @@ def main():
     args = parser.parse_args()
 
     download_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
-    gs_files = glob.glob(f'gs_{args.sigma}_{args.gene_set_size}_*.tsv')
+    gs_files = glob.glob(f'{downloaded_files}/gs_{args.sigma}_{args.gene_set_size}_*.tsv')
     try:
         run_phewas(gs_files)
         combine_phewas()
