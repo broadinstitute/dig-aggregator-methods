@@ -1,6 +1,7 @@
 package org.broadinstitute.dig.aggregator.methods.intake
 
 import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aggregator.methods.ldsc.DifferentialExpressionStage
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
@@ -25,5 +26,6 @@ object Intake extends Method {
     addStage(new VariantProcessingStage)
     addStage(new VariantQCStage)
     addStage(new VariantScalingStage)
+    addStage(new DifferentialExpressionStage)
   }
 }

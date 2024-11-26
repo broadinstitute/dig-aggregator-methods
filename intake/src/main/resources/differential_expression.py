@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import argparse
 import json
 import os
@@ -10,7 +11,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 def download(dataset):
     path = f'{s3_in}/annotated_regions/gene_expression_levels/{dataset}'
-    for file in ['metadata.tsv', 'gene_info.tsv', 'diff_expression.tsv', 'dataset_metadata']:
+    for file in ['metadata.tsv', 'gene_info.tsv', 'diff_expression.tsv', 'dataset_metadata', 'normalized_expression.tsv']:
         subprocess.check_call(f'aws s3 cp {path}/{file} data/{file}', shell=True)
 
 
@@ -35,7 +36,7 @@ def get_gene_map():
         for line in f_in:
             line_dict = dict(zip(header, line.strip().split('\t')))
             gene_map[line_dict['Gene_ID']] = {
-                'gene': line_dict['Gene'],
+                'gene': line_dict['Gene_symbol'],
                 'gene_id': line_dict['Gene_ID'],
                 'chromosome': line_dict['Chr'],
                 'start': int(line_dict['Start']),
@@ -100,9 +101,9 @@ def process_summary_stats(gene_map, p_value_map):
             }
             for data in p_value_map.get(ensembl, []):
                 key = data['category']
-                out_dict[f'f_{key}'] = data['f']
-                out_dict[f'P_value_{key}'] = data['p_value']
-                out_dict[f'P_adj_{key}'] = data['p_value_adj']
+                out_dict[f'f_{key}'] = float(data['f'])
+                out_dict[f'P_value_{key}'] = float(data['p_value'])
+                out_dict[f'P_adj_{key}'] = float(data['p_value_adj'])
             out_dict['gene'] = gene_map[ensembl]['gene']
             f_out.write(f'{json.dumps(out_dict)}\n')
 
@@ -129,7 +130,7 @@ def upload(dataset):
 
 def main():
     opts = argparse.ArgumentParser()
-    opts.add_argument('dataset')
+    opts.add_argument('--dataset', type=str, required=True)
     args = opts.parse_args()
 
     download(args.dataset)
