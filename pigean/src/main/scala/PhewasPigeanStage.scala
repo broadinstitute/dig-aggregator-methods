@@ -10,6 +10,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterVolumeSizeInGB = 100,
+    masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("phewas-bootstrap.sh"))),
     stepConcurrency = 8
   )
