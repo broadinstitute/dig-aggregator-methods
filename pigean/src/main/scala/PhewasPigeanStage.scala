@@ -3,6 +3,7 @@ package org.broadinstitute.dig.aggregator.methods.pigean
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class PhewasPigeanStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
