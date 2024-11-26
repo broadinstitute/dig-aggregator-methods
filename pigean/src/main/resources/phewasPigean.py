@@ -26,7 +26,6 @@ def get_factor_cols():
 
 
 def run_phewas(gs_files):
-    os.makedirs('out', exist_ok=True)
     for gs_file in gs_files:
         number = re.findall('.*_([0-9]*).tsv', gs_file)[0]
         cmd = [
@@ -47,9 +46,13 @@ def run_phewas(gs_files):
 
 
 def combine_phewas():
+    phewases = glob.glob('phewas_*.out')
     with open('phewas.out', 'w') as f_out:
-        for phewas in glob.glob('phewas_*.out'):
+        with open(phewases[0], 'r') as f:
+            f_out.write(f.readline())  # header
+        for phewas in phewases:
             with open(phewas, 'r') as f_in:
+                _ = f_in.readline()
                 shutil.copyfileobj(f_in, f_out)
             os.remove(phewas)
 
