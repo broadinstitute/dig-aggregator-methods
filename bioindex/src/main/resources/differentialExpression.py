@@ -25,12 +25,12 @@ def main():
 
     summary_stats_df = spark.read.json(summary_stats_dir)
 
-    summary_stats_df.orderBy(['gene', 'P_value_strain']) \
+    summary_stats_df.orderBy(['gene', 'p_value']) \
         .write \
         .mode('overwrite') \
         .json(f'{outdir}/summary_stats/gene')
 
-    summary_stats_df.orderBy(['tissue', 'P_value_strain']) \
+    summary_stats_df.orderBy(['tissue', 'p_value']) \
         .write \
         .mode('overwrite') \
         .json(f'{outdir}/summary_stats/tissue')
