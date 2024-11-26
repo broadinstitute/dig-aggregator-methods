@@ -100,9 +100,9 @@ def process_summary_stats(gene_map, p_value_map):
                     'end': gene_map[ensembl]['end'],
                     'tissue': gene_map[ensembl]['tissue'],
                     'category': data['category'],
-                    'f': data['f'],
-                    'p_value': data['p_value'],
-                    'p_value_adj': data['p_value_adj']
+                    'f': float(data['f']),
+                    'p_value': float(data['p_value']),
+                    'p_value_adj': float(data['p_value_adj'])
                 }
                 f_out.write(f'{json.dumps(out_dict)}\n')
 
