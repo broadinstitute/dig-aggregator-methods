@@ -42,8 +42,17 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
     }
   }
 
+  val phenotypes: Set[String] = Set()
+
+  def filterByPhenotype(): String => Boolean = {
+    input: String => input.split("/").toSeq match {
+      case Seq(_, phenotype, _, _) if phenotypes.contains(phenotype) => true
+      case _ => false
+    }
+  }
+
   override def make(output: String): Job = {
-    val steps: Seq[Job.Script] = outputSet.filter(filterByTrait("rare_v2")).map { output =>
+    val steps: Seq[Job.Script] = outputSet.filter(filterByTrait("gcat_trait")).map { output =>
       Job.Script(resourceUri("phewasPigean.py"), toFlags(output):_*)
     }.toSeq
     new Job(steps, parallelSteps = true)
