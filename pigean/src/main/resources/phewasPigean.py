@@ -16,23 +16,24 @@ def download_data(trait_group, phenotype, sigma, gene_set_size):
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gc.out', '.'])
 
 
-def get_factor_cols():
+idxs = {'portal': {'factor': 4, 'idx': 6}, 'gcat_trait': {'factor': 5, 'idx': 7}, 'rare_v2': {'factor': 5, 'idx': 7}}
+def get_factor_cols(trait_group):
     with open('gc.out', 'r') as f:
         headers = f.readline().strip().split('\t')
         factors_with_genes = set()
         for line in f:
-            factors_with_genes |= {line.strip().split('\t')[5]}
-        return [header for header in headers[7:] if header in factors_with_genes]
+            factors_with_genes |= {line.strip().split('\t')[idxs[trait_group]['factor']]}
+        return [header for header in headers[idxs[trait_group]['idx']:] if header in factors_with_genes]
 
 
-def run_phewas(gs_files):
+def run_phewas(trait_group, gs_files):
     for gs_file in gs_files:
         number = re.findall('.*_([0-9]*).tsv', gs_file)[0]
         cmd = [
             'python3', f'{downloaded_files}/factor_phewas.py',
             '--factors-in', 'gc.out',
             '--factors-gene-id-col', 'Gene',
-            '--factors-gene-factor-cols', ','.join(get_factor_cols()),
+            '--factors-gene-factor-cols', ','.join(get_factor_cols(trait_group)),
             '--filter-to-factor-genes',
             '--gene-stats-in', gs_file,
             '--gene-stats-id-col', 'gene',
@@ -86,7 +87,7 @@ def main():
     download_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     gs_files = glob.glob(f'{downloaded_files}/gs_{args.sigma}_{args.gene_set_size}_*.tsv')
     try:
-        run_phewas(gs_files)
+        run_phewas(args.trait_group, gs_files)
         combine_phewas()
         upload_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
     except Exception as e:
