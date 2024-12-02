@@ -52,7 +52,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    val steps: Seq[Job.Script] = outputSet.filter(filterByTrait("gcat_trait")).map { output =>
+    val steps: Seq[Job.Script] = outputSet.filter(filterByTrait("portal")).map { output =>
       Job.Script(resourceUri("phewasPigean.py"), toFlags(output):_*)
     }.toSeq
     new Job(steps, parallelSteps = true)
