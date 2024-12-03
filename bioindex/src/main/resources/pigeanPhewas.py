@@ -31,7 +31,7 @@ def phewas(df):
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = f'{s3_in}/out/pigean/phewas/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/phewas/*/*/*/*/*.json'
     df = spark.read.json(srcdir)
     top_phewas(df)
     phewas(df)
