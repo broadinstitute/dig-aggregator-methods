@@ -1,7 +1,8 @@
+import numpy as np
 import os
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, when
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
@@ -33,6 +34,12 @@ def main():
 
     srcdir = f'{s3_in}/out/pigean/phewas/*/*/*/*/*.json'
     df = spark.read.json(srcdir)
+
+    df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
+    df = df.withColumn('pValue_marginal', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_marginal))
+    df = df.withColumn('pValue_orig', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_orig))
+    df = df.withColumn('pValue_robust', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_robust))
+
     top_phewas(df)
     phewas(df)
 
