@@ -36,9 +36,9 @@ def main():
     df = spark.read.json(srcdir)
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
-    df = df.withColumn('pValue_marginal', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_marginal))
-    df = df.withColumn('pValue_orig', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_orig))
-    df = df.withColumn('pValue_robust', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_robust))
+    df = df.withColumn('pValue_marginal', when(df.pValue_marginal == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_marginal))
+    df = df.withColumn('pValue_orig', when(df.pValue_orig == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_orig))
+    df = df.withColumn('pValue_robust', when(df.pValue_robust == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_robust))
 
     top_phewas(df)
     phewas(df)
