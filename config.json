@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "glygen",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "glygen"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "glygen"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "glygen/bioindex"
         },
         "emr": {
             "subnetIds": [
