@@ -24,7 +24,6 @@ object BioIndex extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new GenesStage)
     addStage(new ATACStage)
-    addStage(new ColocStage)
     addStage(new VariantLinksStage)
     addStage(new DatasetAssociationsStage)
   }

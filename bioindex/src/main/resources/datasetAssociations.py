@@ -25,7 +25,7 @@ def main():
     # load and output directory
     common_dir = f'{s3_in}/out/varianteffect/common'
     srcdir = f'{s3_in}/variants/{args.path}/part-*'
-    outdir = f'{s3_bioindex}/associations/dataset'
+    outdir = f'{s3_bioindex}/associations/phenotype/{phenotype}/{ancestry}'
 
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
     df = spark.read.json(srcdir)

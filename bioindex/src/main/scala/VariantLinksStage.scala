@@ -16,11 +16,11 @@ class VariantLinksStage(implicit context: Context) extends Stage {
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case variantLinks(_) => Outputs.Named("links")
+    case variantLinks(project) => Outputs.Named(project)
   }
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("variantLinks.py")))
+    new Job(Job.PySpark(resourceUri("variantLinks.py"), s"--project=$output"))
   }
 }
