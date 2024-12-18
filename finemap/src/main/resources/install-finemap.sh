@@ -1,8 +1,5 @@
 #!/bin/bash -xe
 
-# susie method
-## Developed with python 3 and R
-
 finemap_ROOT=/mnt/var/cojo
 
 # install to the root directory
