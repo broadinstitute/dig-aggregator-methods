@@ -1,4 +1,4 @@
-package org.broadinstitute.dig.aggregator.methods.susie
+package org.broadinstitute.dig.aggregator.methods.finemap
 
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws.emr._
