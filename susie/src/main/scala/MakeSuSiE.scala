@@ -8,8 +8,7 @@ import org.broadinstitute.dig.aws.MemorySize
 class MakeSuSiE(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  // val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry=EU/")
-  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/ancestry=EU/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-clumped/*/ancestry=EU/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific)
@@ -26,14 +25,12 @@ class MakeSuSiE(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
-    // bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-susie.sh")))
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-finemap.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-susie.sh")))
   )
 
   override def make(output: String): Job = {
     val input = MakeSuSiEInput.fromString(output)
-    // new Job(Job.Script(resourceUri("makeSuSiE.py"), input.flags:_*))
-    new Job(Job.Script(resourceUri("makeFinemap.py"), input.flags:_*))
+    new Job(Job.Script(resourceUri("makeSuSiE.py"), input.flags:_*))
   }
 
 }
