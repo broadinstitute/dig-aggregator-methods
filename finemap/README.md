@@ -9,6 +9,6 @@ outputs are, where it reads from, and where it writes to.
 
 These are the stages of finemap.
 
-### FinemapStage
+### MakeFinemap
 
 A description of what this stage does.

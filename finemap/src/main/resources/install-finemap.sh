@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
-# finemap method
-## Developed with python 3 
+# susie method
+## Developed with python 3 and R
 
 finemap_ROOT=/mnt/var/cojo
 
