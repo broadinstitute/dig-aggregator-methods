@@ -5,7 +5,7 @@ import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
 
-class MakeSuSiE(implicit context: Context) extends Stage {
+class MakeFinemap(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/ancestry=EU/")
@@ -29,14 +29,14 @@ class MakeSuSiE(implicit context: Context) extends Stage {
   )
 
   override def make(output: String): Job = {
-    val input = MakeSuSiEInput.fromString(output)
+    val input = MakeFinemapInput.fromString(output)
     new Job(Job.Script(resourceUri("makeFinemap.py"), input.flags:_*))
   }
 
 }
   
 
-case class MakeSuSiEInput(
+case class MakeFinemapInput(
   phenotype: String,
   ancestry: String
 ) {
@@ -44,10 +44,10 @@ case class MakeSuSiEInput(
   def flags: Seq[String] = Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
 }
 
-object MakeSuSiEInput {
-  def fromString(output: String): MakeSuSiEInput = {
+object MakeFinemapInput {
+  def fromString(output: String): MakeFinemapInput = {
     output.split("/").toSeq match {
-      case Seq(phenotype, ancestry) => MakeSuSiEInput(phenotype, ancestry)
+      case Seq(phenotype, ancestry) => MakeFinemapInput(phenotype, ancestry)
     }
   }
 }
