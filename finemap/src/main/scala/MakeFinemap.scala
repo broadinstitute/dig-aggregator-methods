@@ -4,11 +4,11 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
-// import org.broadinstitute.dig.aws.Ec2.Strategy
-// import org.broadinstitute.dig.aws.MemorySize
+import org.broadinstitute.dig.aws.Ec2.Strategy
+import org.broadinstitute.dig.aws.MemorySize
 
 class MakeFinemap(implicit context: Context) extends Stage {
-  // import MemorySize.Implicits._
+  import MemorySize.Implicits._
 
   val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/ancestry=EU/")
 
