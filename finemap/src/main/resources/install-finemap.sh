@@ -11,7 +11,7 @@ cd "$finemap_ROOT"
 
 # install yum dependencies
 sudo yum install -y python3-devel
-
+sudo yum update -y
 
 # Install conda
 cd $finemap_ROOT
@@ -45,7 +45,7 @@ cd ~/software/finemap
 sudo wget http://www.christianbenner.com/finemap_v1.4_x86_64.tgz
 sudo tar -zxf finemap_v1.4_x86_64.tgz
 sudo ln -s finemap_v1.4_x86_64/finemap_v1.4_x86_64 finemap
-sudo yum install -y libgomp1 # Not present by default it seems
+sudo yum install -y libgomp # Not present by default it seems
 echo export PATH="$PWD:\$PATH" >> ~/.profile
 . ~/.profile
 
@@ -74,3 +74,10 @@ sudo chmod 777 ./finemapping/run_finemap_pipeline.sh
 
 # fetch snps for mapping
 sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
+
+
+# Activate environment
+sudo . ~/.profile 
+conda env create -n finemap --file ./finemapping/environment.yaml
+source activate finemap
+echo "Setup completed successfully. The 'finemap' environment is ready to use."  
