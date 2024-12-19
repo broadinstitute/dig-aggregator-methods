@@ -56,8 +56,8 @@ sudo yum install -y java-1.8.0-openjdk-devel
 # sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
 
 # Install parallel
-sudo yum install -y epel-release
-sudo yum install -y parallel
+# sudo yum install -y epel-release
+# sudo yum install -y parallel
 
 echo COMPLETE
 
