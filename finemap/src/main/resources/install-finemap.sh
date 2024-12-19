@@ -45,17 +45,17 @@ cd ~/software/finemap
 sudo wget http://www.christianbenner.com/finemap_v1.4_x86_64.tgz
 sudo tar -zxf finemap_v1.4_x86_64.tgz
 sudo ln -s finemap_v1.4_x86_64/finemap_v1.4_x86_64 finemap
-sudo yum install libgomp1 # Not present by default it seems
+sudo yum install -y libgomp1 # Not present by default it seems
 echo export PATH="$PWD:\$PATH" >> ~/.profile
 . ~/.profile
 
 # Install JRE
-sudo apt install -yf openjdk-8-jre-headless openjdk-8-jdk
+sudo yum install -yf openjdk-8-jre-headless openjdk-8-jdk
 # sudo update-java-alternatives --list
 # sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
 
 # Install parallel
-sudo apt install -yf parallel
+sudo yum install -yf parallel
 
 echo COMPLETE
 
