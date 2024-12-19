@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 from optparse import OptionParser
-import pandas as pd
-import numpy as np
 import shutil
 import subprocess
 import os
