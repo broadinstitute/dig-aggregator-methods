@@ -79,7 +79,7 @@ sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
 
 
 # Activate environment
-sudo . ~/.profile 
+. ~/.profile 
 conda env create -n finemap --file ./finemapping/environment.yaml
 source activate finemap
 echo "Setup completed successfully. The 'finemap' environment is ready to use."  
