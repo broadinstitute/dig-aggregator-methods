@@ -45,7 +45,7 @@ cd ~/software/finemap
 sudo wget http://www.christianbenner.com/finemap_v1.4_x86_64.tgz
 sudo tar -zxf finemap_v1.4_x86_64.tgz
 sudo ln -s finemap_v1.4_x86_64/finemap_v1.4_x86_64 finemap
-sudo apt-get install libgomp1 # Not present by default it seems
+sudo yum install libgomp1 # Not present by default it seems
 echo export PATH="$PWD:\$PATH" >> ~/.profile
 . ~/.profile
 
