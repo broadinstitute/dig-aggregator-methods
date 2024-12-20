@@ -35,7 +35,7 @@ def main():
 	var2rs_path = '/mnt/var/cojo/snps.csv'
 	bfiles = '/mnt/var/cojo/bfiles'
 	finemap_dir = '/mnt/var/cojo/finemapping'
-	config_file = '/mnt/var/cojo/finemapping/analysis.config.yaml'
+	config_file = f'{finemap_dir}/analysis.config.yaml'
 	out_path = f'{s3_out}/out/cojo/staging/{args.phenotype}/ancestry={args.ancestry}' 
 
 	# read all files in the clump path
@@ -46,7 +46,7 @@ def main():
 	if not os.path.exists(out_directory):
 		os.makedirs(out_directory, exist_ok=True)
 
-	subprocess.call(['bash', '/mnt/var/cojo/finemapping/run_finemap_pipeline.sh', 
+	subprocess.call(['bash', f'{finemap_dir}/run_finemap_pipeline.sh', 
 					'--input','input'
 					'--bfiles', bfiles,
 					'--config_file',config_file,
