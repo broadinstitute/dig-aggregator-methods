@@ -13,6 +13,7 @@ cd "$finemap_ROOT"
 sudo yum install -y python3-devel
 sudo yum update -y
 sudo yum install -y jq
+sudo yum install -y zstd
 
 # Install conda
 # cd $finemap_ROOT
