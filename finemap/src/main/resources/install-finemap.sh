@@ -12,13 +12,14 @@ cd "$finemap_ROOT"
 # install yum dependencies
 sudo yum install -y python3-devel
 sudo yum update -y
+sudo yum install -y jq
 
 # Install conda
-cd $finemap_ROOT
-sudo wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-sudo bash miniconda.sh -b -p $finemap_ROOT/miniconda
-echo export PATH="$finemap_ROOT/miniconda/bin:\$PATH" >> ~/.profile
-. ~/.profile
+# cd $finemap_ROOT
+# sudo wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+# sudo bash miniconda.sh -b -p $finemap_ROOT/miniconda
+# echo export PATH="$finemap_ROOT/miniconda/bin:\$PATH" >> ~/.profile
+# . ~/.profile
 
 # Install GCTA
 cd $finemap_ROOT
@@ -73,17 +74,15 @@ sudo aws s3 cp s3://dig-analysis-bin/cojo/finemapping/ ./finemapping/ --recursiv
 sudo chmod 777 ./finemapping/combine_results.sh
 sudo chmod 777 ./finemapping/run_finemap_pipeline.sh
 
-
 # fetch snps for mapping
 sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
-
 
 # Activate environment
 . ~/.profile 
 # conda env create -n finemap --file ./finemapping/environment.yaml
 # source activate finemap
-sudo yum install -y jq
 
+# install python dependencies
 pip3 install -U pandas
 pip3 install -U dask
 pip3 install -U gcsfs
