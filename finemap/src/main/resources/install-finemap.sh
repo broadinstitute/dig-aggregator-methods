@@ -21,6 +21,39 @@ sudo yum install -y jq
 # echo export PATH="$finemap_ROOT/miniconda/bin:\$PATH" >> ~/.profile
 # . ~/.profile
 
+
+# pull down LD bfiles
+sudo mkdir -p ./bfiles
+sudo aws s3 cp s3://dig-analysis-bin/cojo/bfiles/ ./bfiles/ --recursive
+
+# pull down finemap dir
+sudo mkdir -p ./finemapping
+sudo aws s3 cp s3://dig-analysis-bin/cojo/finemapping/ ./finemapping/ --recursive
+
+sudo chmod 777 ./finemapping/combine_results.sh
+sudo chmod 777 ./finemapping/run_finemap_pipeline.sh
+
+# fetch snps for mapping
+sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
+
+# Activate environment
+# . ~/.profile 
+# conda env create -n finemap --file ./finemapping/environment.yaml
+# source activate finemap
+
+# install python dependencies
+pip3 install -U pandas
+pip3 install -U dask
+pip3 install -U gcsfs
+pip3 install -U fastparquet
+pip3 install -U pyarrow
+pip3 install -U pyyaml
+pip3 install -U scipy
+pip3 install -U numpy
+pip3 install -U python-snappy
+pip3 install -U jq
+
+
 # Install GCTA
 cd $finemap_ROOT
 sudo mkdir -p ~/software/gcta
@@ -61,37 +94,5 @@ sudo yum install -y java-1.8.0-openjdk-devel
 # sudo yum install -y parallel
 
 echo COMPLETE
-
-
-# pull down LD bfiles
-sudo mkdir -p ./bfiles
-sudo aws s3 cp s3://dig-analysis-bin/cojo/bfiles/ ./bfiles/ --recursive
-
-# pull down finemap dir
-sudo mkdir -p ./finemapping
-sudo aws s3 cp s3://dig-analysis-bin/cojo/finemapping/ ./finemapping/ --recursive
-
-sudo chmod 777 ./finemapping/combine_results.sh
-sudo chmod 777 ./finemapping/run_finemap_pipeline.sh
-
-# fetch snps for mapping
-sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
-
-# Activate environment
-. ~/.profile 
-# conda env create -n finemap --file ./finemapping/environment.yaml
-# source activate finemap
-
-# install python dependencies
-pip3 install -U pandas
-pip3 install -U dask
-pip3 install -U gcsfs
-pip3 install -U fastparquet
-pip3 install -U pyarrow
-pip3 install -U pyyaml
-pip3 install -U scipy
-pip3 install -U numpy
-pip3 install -U python-snappy
-pip3 install -U jq
 
 echo "Setup completed successfully. The 'finemap' environment is ready to use."  
