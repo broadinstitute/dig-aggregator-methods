@@ -54,7 +54,6 @@ pip3 install -U numpy
 pip3 install -U python-snappy
 pip3 install -U jq
 
-
 # Install GCTA
 cd $finemap_ROOT
 sudo mkdir -p ~/software/gcta
