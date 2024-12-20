@@ -47,7 +47,7 @@ def main():
 		os.makedirs(out_directory, exist_ok=True)
 
 	subprocess.call(['bash', f'{finemap_dir}/run_finemap_pipeline.sh', 
-					'--input','input'
+					'--input','input',
 					'--bfiles', bfiles,
 					'--config_file',config_file,
 					'--dbsnp_file',var2rs_path,
