@@ -84,6 +84,23 @@ def output_coordinates(index_lists, coordinates):
             f.write(f'{coords_line}\n')
 
 
+def fetch_marker_genes():
+    marker_genes = {}
+    with open('raw/marker_genes.top20.sig.json', 'r') as f_in:
+        for line in f_in:
+            json_data = json.loads(line.strip())
+            cell_type = json_data['cell_type__matkp']
+            if cell_type not in marker_genes:
+                marker_genes[cell_type] = []
+            marker_genes[cell_type].append(json_data['gene'])
+    return marker_genes
+
+
+def output_marker_genes(marker_genes):
+    with gzip.open('processed/marker_genes.json.gz', 'wt') as f:
+        json.dump(marker_genes, f)
+
+
 def file_iter(dataset, infile, outfile, cell_indexes, number_map):
     with gzip.open(infile, 'rt') as f_in:
         header = f_in.readline().strip().split('\t')[1:]
@@ -130,6 +147,7 @@ def fetch_and_output_expression(dataset, cell_indexes, infile, outfile, number_m
 def upload(dataset):
     subprocess.check_call(['aws', 's3', 'cp', 'processed/fields.json.gz', f'{s3_bioindex}/raw/single_cell/{dataset}/'])
     subprocess.check_call(['aws', 's3', 'cp', 'processed/coordinates.tsv.gz', f'{s3_bioindex}/raw/single_cell/{dataset}/'])
+    subprocess.check_call(['aws', 's3', 'cp', 'processed/marker_genes.json.gz', f'{s3_bioindex}/raw/single_cell/{dataset}/'])
     subprocess.check_call(['aws', 's3', 'rm', f'{s3_bioindex}/single_cell/gene_lognorm/{dataset}/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'cp', 'processed/gene_lognorm/', f'{s3_bioindex}/single_cell/gene_lognorm/{dataset}/', '--recursive'])
     shutil.rmtree('raw')
@@ -144,13 +162,16 @@ def main():
     f_in = f'{s3_in}/single_cell/{args.dataset}/'
     subprocess.check_call(['aws', 's3', 'cp', f_in, 'raw', '--recursive'])
 
-    os.mkdir('processed')
+    os.makedirs('processed', exist_ok=True)
     index_lists, set_lists, index_dict = fetch_metadata()
     index_lists, set_lists, index_dict = filter_metadata(index_lists, set_lists, index_dict)
 
     coordinates = fetch_coordinates(index_dict[metadata_cell_key])
     output_metadata(set_lists, index_lists)
     output_coordinates(index_lists, coordinates)
+
+    marker_genes = fetch_marker_genes()
+    output_marker_genes(marker_genes)
 
     cells = index_dict[metadata_cell_key]
     os.mkdir('processed/gene_lognorm')
