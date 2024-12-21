@@ -60,9 +60,13 @@ cd $finemap_ROOT
 sudo mkdir -p ~/software/gcta
 cd ~/software/gcta
 # Note that this URL may change - old versions aren't accessible at the same URL
-sudo wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip
-sudo unzip gcta_1.93.2beta.zip
-cd gcta_1.93.2beta
+# sudo wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip
+# sudo unzip gcta_1.93.2beta.zip
+# cd gcta_1.93.2beta
+
+sudo wget https://yanglab.westlake.edu.cn/software/gcta/bin/gcta-1.94.3-linux-kernel-3-x86_64.zip
+suod unzip gcta-1.94.3-linux-kernel-3-x86_64.zip
+cd gcta-1.94.3-linux-kernel-3-x86_64
 echo export PATH="$PWD:\$PATH" >> ~/.profile
 . ~/.profile
 
