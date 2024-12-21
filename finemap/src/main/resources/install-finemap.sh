@@ -106,6 +106,8 @@ source ~/.profile
 sudo chmod +x ~/software/finemap/finemap
 sudo chmod +x ~/software/gcta/gcta-1.94.3-linux-kernel-3-x86_64gcta64/gcta64
 
+gcta64
+
 
 echo COMPLETE
 
