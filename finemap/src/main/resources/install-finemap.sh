@@ -98,7 +98,7 @@ sudo yum install -y java-1.8.0-openjdk-devel
 # sudo yum install -y epel-release
 # sudo yum install -y parallel
 sudo chmod +x ~/software/finemap/finemap
-sudo chmod +x ~/software/finemap/gcta64
+sudo chmod +x ~/software/gcta/gcta64
 
 # Activate software path
 source ~/.profile 
