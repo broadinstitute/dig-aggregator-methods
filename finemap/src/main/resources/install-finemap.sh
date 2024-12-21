@@ -63,6 +63,8 @@ cd ~/software/gcta
 # sudo wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip
 # sudo unzip gcta_1.93.2beta.zip
 # cd gcta_1.93.2beta
+# echo export PATH="$PWD:\$PATH" >> ~/.profile
+# . ~/.profile
 
 sudo wget https://yanglab.westlake.edu.cn/software/gcta/bin/gcta-1.94.3-linux-kernel-3-x86_64.zip
 sudo unzip gcta-1.94.3-linux-kernel-3-x86_64.zip
@@ -97,12 +99,13 @@ sudo yum install -y java-1.8.0-openjdk-devel
 # Install parallel
 # sudo yum install -y epel-release
 # sudo yum install -y parallel
-sudo chmod +x ~/software/finemap/finemap
-sudo chmod +x ~/software/gcta/gcta64
+echo "$(cat ~/.profile)"
+
+# sudo chmod +x ~/software/finemap/finemap
+# sudo chmod +x ~/software/gcta/gcta64
 
 # Activate software path
 source ~/.profile 
-echo "$(cat ~/.profile)"
 
 echo COMPLETE
 
