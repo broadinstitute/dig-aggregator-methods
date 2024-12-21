@@ -44,10 +44,10 @@ sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
 
 # install python dependencies
 pip3 install -U pandas
-pip3 install -U dask==2.6.0
+pip3 install -U dask
 pip3 install -U gcsfs
 pip3 install -U fastparquet
-pip3 install -U pyarrow==1.0.0
+pip3 install -U pyarrow
 pip3 install -U pyyaml
 pip3 install -U scipy
 pip3 install -U numpy
