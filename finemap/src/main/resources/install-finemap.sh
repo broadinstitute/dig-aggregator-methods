@@ -98,6 +98,9 @@ sudo yum install -y java-1.8.0-openjdk-devel
 # sudo yum install -y epel-release
 # sudo yum install -y parallel
 
+# Activate software path
+. ~/.profile 
+
 echo COMPLETE
 
 echo "Setup completed successfully. The 'finemap' environment is ready to use."  
