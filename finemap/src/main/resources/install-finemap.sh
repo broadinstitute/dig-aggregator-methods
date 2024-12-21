@@ -65,7 +65,7 @@ cd ~/software/gcta
 # cd gcta_1.93.2beta
 
 sudo wget https://yanglab.westlake.edu.cn/software/gcta/bin/gcta-1.94.3-linux-kernel-3-x86_64.zip
-suod unzip gcta-1.94.3-linux-kernel-3-x86_64.zip
+sudo unzip gcta-1.94.3-linux-kernel-3-x86_64.zip
 cd gcta-1.94.3-linux-kernel-3-x86_64
 echo export PATH="$PWD:\$PATH" >> ~/.profile
 . ~/.profile
