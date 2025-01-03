@@ -10,7 +10,15 @@ s3_out=os.environ['OUTPUT_PATH']
 # def finds json files in the directory
 def make_json_files(directory):
 	subprocess.check_call(['aws', 's3', 'cp', directory, 'input/', '--recursive'])
-	subprocess.run("zstdcat input/*.json.zst | jq -s '.' > input/input.json", shell=True)
+	command = """
+			(
+			  echo "["
+			  zstdcat input/*.json.zst | paste -sd, -
+			  echo "]"
+			) > input/input.json
+			"""
+	# subprocess.run("zstdcat input/*.json.zst | jq -s '.' > input/input.json", shell=True)
+	subprocess.run(command, shell=True)
 
 def safe_remove(file_path):
     try:
