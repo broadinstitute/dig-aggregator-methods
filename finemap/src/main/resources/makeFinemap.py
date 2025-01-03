@@ -17,8 +17,8 @@ def make_json_files(directory):
 			  echo "]"
 			) > input/input.json
 			"""
-	subprocess.run("zstdcat input/*.json.zst | jq -s '.' > input/input.json", shell=True)
-	# subprocess.run(command, shell=True)
+	# subprocess.run("zstdcat input/*.json.zst | jq -s '.' > input/input.json", shell=True)
+	subprocess.run(command, shell=True)
 
 def safe_remove(file_path):
     try:
