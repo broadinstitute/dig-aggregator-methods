@@ -27,7 +27,8 @@
             "instance": "dig-analysis-state"
         },
         "portal": {
-            "instance": "dig-bio-portal"
+            "instance": "dig-bio-portal",
+            "dbOverride": "portal_satoshi_20240202"
         }
     }
 }
