@@ -52,6 +52,7 @@ cd ~/software/gcta
 sudo wget https://yanglab.westlake.edu.cn/software/gcta/bin/gcta-1.94.3-linux-kernel-3-x86_64.zip
 sudo unzip gcta-1.94.3-linux-kernel-3-x86_64.zip
 cd gcta-1.94.3-linux-kernel-3-x86_64
+chmod +x ~/software/gcta/gcta-1.94.3-linux-kernel-3-x86_64/gcta64
 echo export PATH="$PWD:\$PATH" >> ~/.profile
 . ~/.profile
 
@@ -69,6 +70,7 @@ cd ~/software/finemap
 sudo wget http://www.christianbenner.com/finemap_v1.4_x86_64.tgz
 sudo tar -zxf finemap_v1.4_x86_64.tgz
 sudo ln -s finemap_v1.4_x86_64/finemap_v1.4_x86_64 finemap
+chmod +x ~/software/finemap/finemap_v1.4_x86_64/finemap_v1.4_x86_64
 sudo yum install -y libgomp # Not present by default it seems
 echo export PATH="$PWD:\$PATH" >> ~/.profile
 . ~/.profile
