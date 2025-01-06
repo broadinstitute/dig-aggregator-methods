@@ -66,7 +66,7 @@ def main():
 	
 	subprocess.check_call(['touch', f'{out_directory}/_SUCCESS'])	
 	subprocess.check_call(['aws', 's3', 'cp', f'{out_directory}/', out_path, '--recursive'])
-	subprocess.check_call(['aws', 's3', 'cp', f'{input}/', out_path, '--recursive'])
+	subprocess.check_call(['aws', 's3', 'cp', 'input/', out_path, '--recursive'])
 	safe_remove('input/input.json')
 	shutil.rmtree('input')
 	shutil.rmtree(out_directory)
