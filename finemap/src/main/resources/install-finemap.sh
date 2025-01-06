@@ -86,7 +86,7 @@ sudo yum install -y java-1.8.0-openjdk-devel
 # Activate software path
 echo "$(cat ~/.profile)"
 source ~/.profile 
-sudo chmod 777 ~/software/finemap/finemap
+sudo chmod u+x ~/software/finemap/finemap
 
 echo COMPLETE
 
