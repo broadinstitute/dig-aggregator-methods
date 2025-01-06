@@ -15,13 +15,6 @@ sudo yum update -y
 sudo yum install -y jq
 sudo yum install -y zstd
 
-# Install conda
-# cd $finemap_ROOT
-# sudo wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-# sudo bash miniconda.sh -b -p $finemap_ROOT/miniconda
-# echo export PATH="$finemap_ROOT/miniconda/bin:\$PATH" >> ~/.profile
-# . ~/.profile
-
 
 # pull down LD bfiles
 sudo mkdir -p ./bfiles
@@ -36,11 +29,6 @@ sudo chmod 777 ./finemapping/run_finemap_pipeline.sh
 
 # fetch snps for mapping
 sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
-
-# Activate environment
-# . ~/.profile 
-# conda env create -n finemap --file ./finemapping/environment.yaml
-# source activate finemap
 
 # install python dependencies
 pip3 install -U pandas
@@ -59,12 +47,7 @@ pip3 install -U jq
 cd $finemap_ROOT
 sudo mkdir -p ~/software/gcta
 cd ~/software/gcta
-# Note that this URL may change - old versions aren't accessible at the same URL
-# sudo wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip
-# sudo unzip gcta_1.93.2beta.zip
-# cd gcta_1.93.2beta
-# echo export PATH="$PWD:\$PATH" >> ~/.profile
-# . ~/.profile
+
 
 sudo wget https://yanglab.westlake.edu.cn/software/gcta/bin/gcta-1.94.3-linux-kernel-3-x86_64.zip
 sudo unzip gcta-1.94.3-linux-kernel-3-x86_64.zip
@@ -103,8 +86,7 @@ sudo yum install -y java-1.8.0-openjdk-devel
 # Activate software path
 echo "$(cat ~/.profile)"
 source ~/.profile 
-sudo chmod +x ~/software/finemap/finemap
-# sudo chmod +x ~/software/gcta/gcta-1.94.3-linux-kernel-3-x86_64gcta64/gcta64
+sudo chmod 777 ~/software/finemap/finemap
 
 echo COMPLETE
 
