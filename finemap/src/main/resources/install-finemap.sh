@@ -15,6 +15,9 @@ sudo yum update -y
 sudo yum install -y jq
 sudo yum install -y zstd
 
+# Install parallel
+sudo yum install -y python3 git epel-release
+sudo yum install -y parallel
 
 # pull down LD bfiles
 sudo mkdir -p ./bfiles
@@ -85,10 +88,6 @@ echo export PATH="$PWD:\$PATH" >> ~/.profile
 sudo yum install -y java-1.8.0-openjdk-devel
 # sudo update-java-alternatives --list
 # sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
-
-# Install parallel
-# sudo yum install -y epel-release
-# sudo yum install -y parallel
 
 # Activate software path
 echo "$(cat ~/.profile)"
