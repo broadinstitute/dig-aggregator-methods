@@ -17,6 +17,7 @@ sudo yum install -y zstd
 
 # Install parallel
 # sudo yum -y install epel-release
+sudo amazon-linux-extras install epel -y
 sudo yum install -y parallel
 
 # pull down LD bfiles
