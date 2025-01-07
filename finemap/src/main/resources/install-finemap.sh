@@ -16,7 +16,7 @@ sudo yum install -y jq
 sudo yum install -y zstd
 
 # Install parallel
-sudo yum install -y python3 git epel-release
+sudo yum install -y epel
 sudo yum install -y parallel
 
 # pull down LD bfiles
