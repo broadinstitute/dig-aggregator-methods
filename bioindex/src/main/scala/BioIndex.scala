@@ -49,6 +49,10 @@ object BioIndex extends Method {
     addStage(new PathwayAssociationsStage)
     addStage(new GeneToTranscriptStage)
     addStage(new HugeStage)
+    addStage(new PigeanStage)
+    addStage(new PigeanFactorStage)
+    addStage(new PigeanGraphStage)
+    addStage(new PigeanPhewasStage)
     addStage(new SingleCellStage)
     addStage(new SingleCellMetadataStage)
   }
