@@ -11,7 +11,7 @@ class C2CTStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(c2ct)
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 5
   )
 
   /** Rules for mapping input to outputs. */

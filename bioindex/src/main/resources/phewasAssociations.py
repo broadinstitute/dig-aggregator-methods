@@ -55,7 +55,7 @@ def main():
         outdir = f'{s3_bioindex}/associations/phewas/trans-ethnic'
     else:
         srcdir = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/*/ancestry={args.ancestry}/part-*'
-        outdir = f'{s3_bioindex}/ancestry-associations/phewas/ancestry/{args.ancestry}'
+        outdir = f'{s3_bioindex}/associations/phewas/ancestry/{args.ancestry}'
     clumpdir = f'{s3_in}/out/credible_sets/merged/*/{args.ancestry}/part-*'
 
     df = get_src_df(spark, srcdir) \
