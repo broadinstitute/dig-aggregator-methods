@@ -252,28 +252,28 @@ def load_trans_ethnic_analysis(phenotype):
     #       from those datasets (not present in the bottom-line), add them to the
     #       variants dataframe, group by varId, and choose the result with max(n)
 
-    print(f'Fetch Mixed variants for bottom-line results for {phenotype}')
-
-    # load all the mixed ancestry-variants across the datasets
-    mixed = spark.read.json(f'{input_path}/variants/*/*/{phenotype}/part-*')
-    mixed = mixed.filter((mixed.ancestry == 'Mixed')) \
-        .filter(mixed.multiAllelic == False) \
-        .filter(mixed.pValue.isNotNull() & ~isnan(mixed.pValue)) \
-        .filter(mixed.beta.isNotNull() & ~isnan(mixed.beta)) \
-        .select(
-            'varId',
-            'chromosome',
-            'position',
-            'reference',
-            'alt',
-            'phenotype',
-            'pValue',
-            'beta',
-            'zScore',
-            'stdErr',
-            'n',
-        )
-    print("Number of mixed variants: {}".format(mixed.count()))
+    # print(f'Fetch Mixed variants for bottom-line results for {phenotype}')
+    #
+    # # load all the mixed ancestry-variants across the datasets
+    # mixed = spark.read.json(f'{input_path}/variants/*/*/{phenotype}/part-*')
+    # mixed = mixed.filter((mixed.ancestry == 'Mixed')) \
+    #     .filter(mixed.multiAllelic == False) \
+    #     .filter(mixed.pValue.isNotNull() & ~isnan(mixed.pValue)) \
+    #     .filter(mixed.beta.isNotNull() & ~isnan(mixed.beta)) \
+    #     .select(
+    #         'varId',
+    #         'chromosome',
+    #         'position',
+    #         'reference',
+    #         'alt',
+    #         'phenotype',
+    #         'pValue',
+    #         'beta',
+    #         'zScore',
+    #         'stdErr',
+    #         'n',
+    #     )
+    # print("Number of mixed variants: {}".format(mixed.count()))
 
     # The trans-ethnic analysis won't exist if only mixed ancestries were used in the analysis
     if hadoop_test(srcdir):
@@ -296,13 +296,13 @@ def load_trans_ethnic_analysis(phenotype):
 
         print("Number of variants: {}".format(variants.count()))
 
-        # Add variants to mixed
-        # NOTE: While this can't be relied on this order is chosen to prefer mixed over variants
-        # This is because there is a common case in which single-ancestry datasets will be partitions of a mixed dataset
-        # This method in particular should, vaguely, prefer the more accurate mixed dataset values where applicable
-        variants = mixed.union(variants)
-    else:
-        variants = mixed
+    #     # Add variants to mixed
+    #     # NOTE: While this can't be relied on this order is chosen to prefer mixed over variants
+    #     # This is because there is a common case in which single-ancestry datasets will be partitions of a mixed dataset
+    #     # This method in particular should, vaguely, prefer the more accurate mixed dataset values where applicable
+    #     variants = mixed.union(variants)
+    # else:
+    #     variants = mixed
 
     # keep the largest N for repeat variants
     variants = variants.rdd \

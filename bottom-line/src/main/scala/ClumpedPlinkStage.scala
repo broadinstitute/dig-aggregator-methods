@@ -27,14 +27,15 @@ class ClumpedPlinkStage(implicit context: Context) extends Stage {
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case transEthnic(metaType, phenotype) =>
+    case transEthnic(metaType, phenotype) if metaType != "gold-standard" =>
       Outputs.Named(paramTypes(metaType).map { paramType =>
         s"$metaType/$paramType/$phenotype"
       }: _*)
-    case ancestrySpecific(metaType, phenotype, ancestry) =>
+    case ancestrySpecific(metaType, phenotype, ancestry) if metaType != "gold-standard" =>
       Outputs.Named(paramTypes(metaType).map { paramType =>
         s"$metaType/$paramType/$phenotype/${ancestry.split("ancestry=").last}"
       }: _*)
+    case _ => Outputs.Null
   }
 
   /** Simple cluster with more memory. */

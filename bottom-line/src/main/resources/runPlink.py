@@ -247,33 +247,21 @@ def clump_ranges(df):
 
 
 def concat_rare(clumped, rare):
-    """
-    Append rare variants that aren't within a range of any clumped.
-    """
-    ranges = list(clumped[['chromosome', 'clumpStart', 'clumpEnd']].itertuples(index=False, name=None))
-
-    # returns True if position is within any of the ranges
-    def is_clumped(chromosome, position):
-        return any(map(lambda r: r[0] == chromosome and r[1] <= position < r[2], ranges))
-
-    # find all rare variants not within any range
-    outside = rare[rare.apply(lambda row: not is_clumped(row.chromosome, row.position), axis=1)]
-
     # for the 'outside' variants, set their range to 1 bp
-    outside['clumpStart'] = outside['position'].copy()
-    outside['clumpEnd'] = outside['position'].copy() + 1
+    rare['clumpStart'] = rare['position'].copy()
+    rare['clumpEnd'] = rare['position'].copy() + 1
 
     rare_clump_id = clumped['clump'].max() + 1
-    last_clump_id = rare_clump_id + len(outside.index)
+    last_clump_id = rare_clump_id + len(rare.index)
 
     # add clump id starting from clumped['clump'].max() + 1
-    outside['clump'] = list(range(rare_clump_id, last_clump_id))
+    rare['clump'] = list(range(rare_clump_id, last_clump_id))
 
-    outside['freqType'] = 'rare'
+    rare['freqType'] = 'rare'
 
     # only concat if there is something to append
-    if not outside.empty:
-        return pd.concat([clumped, outside])
+    if not rare.empty:
+        return pd.concat([clumped, rare])
 
     return clumped
 
@@ -349,7 +337,7 @@ def main():
     # frequency type
     clumped['freqType'] = 'common'
 
-    # add rare variants that do not overlap a clumped range
+    # concat rare
     clumped = concat_rare(clumped, rare)
 
     # make sure the clump ID is an integer

@@ -57,7 +57,7 @@ def main():
     )
 
     # write associations sorted by variant and then pValue
-    df.orderBy(['chromosome', 'position', 'pValue']) \
+    df.orderBy(['phenotype', 'chromosome', 'position', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(outdir)

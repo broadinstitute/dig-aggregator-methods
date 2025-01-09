@@ -8,7 +8,7 @@ import shutil
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-meta_types = ['bottom-line', 'min_p', 'largest']
+meta_types = ['bottom-line', 'naive', 'min_p', 'largest', 'gold-standard']
 
 
 def check_file(path):
@@ -45,7 +45,8 @@ def get_variants_dict():
                         variants = []
                         curr_clump = json_line['clump']
                     variants.append(json_line)
-        variants_dict[meta_type].append(variants)
+        if len(variants) > 0:
+            variants_dict[meta_type].append(variants)
     return variants_dict
 
 
@@ -106,21 +107,22 @@ def get_overview(clump_to_meta):
     return output
 
 
-def output_and_upload(phenotype, ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview):
+def output_and_upload(freq_type, meta_type, phenotype, ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview):
     if ancestry == 'TE':
-        path_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/merged/analysis/{phenotype}/'
+        path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/merged/analysis/{phenotype}/'
     else:
-        path_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/ancestry-merged/analysis/{phenotype}/ancestry={ancestry}/'
+        path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/ancestry-merged/analysis/{phenotype}/ancestry={ancestry}/'
     os.mkdir('output')
-    output_and_upload_variants(path_out, variants_dict, var_id_to_clump, clump_to_metas)
-    output_and_upload_overview(path_out, overview)
-    cleanup()
+    output_and_upload_variants(freq_type, path_out, meta_type, variants_dict, var_id_to_clump, clump_to_metas)
+    output_and_upload_overview(freq_type, path_out, overview)
+    shutil.rmtree('output')
 
 
-def output_and_upload_variants(path_out, variants_dict, var_id_to_clump, clump_to_metas):
-    variants_list = variants_dict['bottom-line']
+def output_and_upload_variants(freq_type, path_out, meta_type, variants_dict, var_id_to_clump, clump_to_metas):
+    variants_list = variants_dict[meta_type]
     if sum([len(variants) for variants in variants_list]) > 0:
-        file = f'output/variants.json'
+        suffix = '' if freq_type == 'common' else f'_{freq_type}'
+        file = f'output/variants{suffix}.json'
         with open(file, 'w') as f:
             for variants in variants_list:
                 for variant in variants:
@@ -129,20 +131,14 @@ def output_and_upload_variants(path_out, variants_dict, var_id_to_clump, clump_t
         subprocess.check_call(['aws', 's3', 'cp', file, path_out])
 
 
-def output_and_upload_overview(path_out, overview):
+def output_and_upload_overview(freq_type, path_out, overview):
     if len(overview) > 0:
-        file = f'output/overview.tsv'
+        suffix = '' if freq_type == 'common' else f'_{freq_type}'
+        file = f'output/overview{suffix}.tsv'
         with open(file, 'w') as f:
             for category in sorted(overview, key=lambda category: -overview[category]):
                 f.write('{}\t{}\n'.format(category, overview[category]))
         subprocess.check_call(['aws', 's3', 'cp', file, path_out])
-
-
-def cleanup():
-    if os.path.exists('data'):
-        shutil.rmtree('data')
-    if os.path.exists('output'):
-        shutil.rmtree('output')
 
 
 def main():
@@ -152,13 +148,18 @@ def main():
     args = arg_parser.parse_args()
 
     get_all_variants(args.phenotype, args.ancestry)
-    variants_dict = get_variants_dict()
-    all_variants = [[line['varId'] for line in lines] for meta_type in meta_types for lines in variants_dict[meta_type]]
-    if sum([len(variants) for variants in all_variants]) > 0:
-        var_id_to_clump = get_components(all_variants)
-        clump_to_metas = get_clump_to_metas(variants_dict, var_id_to_clump)
-        overview = get_overview(clump_to_metas)
-        output_and_upload(args.phenotype, args.ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview)
+    all_variants_dict = get_variants_dict()
+    for freq_type in ['common', 'rare']:
+        variants_dict = {meta_type: [clump for clump in clumps if clump[0]['freqType'] == freq_type] for meta_type, clumps in all_variants_dict.items()}
+        all_variants = [[line['varId'] for line in lines] for meta_type in meta_types for lines in variants_dict[meta_type]]
+        if sum([len(variants) for variants in all_variants]) > 0:
+            var_id_to_clump = get_components(all_variants)
+            clump_to_metas = get_clump_to_metas(variants_dict, var_id_to_clump)
+            overview = get_overview(clump_to_metas)
+            for meta_type in meta_types:
+                output_and_upload(freq_type, meta_type, args.phenotype, args.ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview)
+    if os.path.exists('data'):
+        shutil.rmtree('data')
 
 
 if __name__ == '__main__':
