@@ -19,7 +19,7 @@ def main():
     variants_dir = f'{s3_in}/variant_counts/*/*/*/part-*'
     genes_dir = f's3://dig-analysis-bin/genes/GRCh37/part-*'
     cqs_dir = f'{s3_in}/out/varianteffect/variant_counts/cqs/part-*'
-    common_dir = f'{s3_in}/out/varianteffect/variants_counts/common/part-*'
+    common_dir = f'{s3_in}/out/varianteffect/variant_counts/common/part-*'
 
     # where to write the output to
     outdir = f'{s3_bioindex}/variants/gene'
