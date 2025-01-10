@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "trang_2025_01_10",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "trang_2025_01_10"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "trang_2025_01_10"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-private",
+            "subdir": "trang_2025_01_10/bioindex"
         },
         "emr": {
             "subnetIds": [
