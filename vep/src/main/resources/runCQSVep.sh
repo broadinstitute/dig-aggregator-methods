@@ -9,6 +9,7 @@ VEPDIR="/mnt/var/vep"
 PART=$(basename -- "$1")
 DATATYPE="$2"
 OUTFILE="${PART%.*}.json"
+COMPRESSED_OUTFILE="${PART%.*}.json.zst"
 WARNINGS="${OUTFILE}_warnings.txt"
 
 # update the path to include samtools and tabix
