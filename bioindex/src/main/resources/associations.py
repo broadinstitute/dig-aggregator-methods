@@ -23,7 +23,7 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
-    common_dir = f'{s3_in}/out/varianteffect/common/part-*'
+    common_dir = f'{s3_in}/out/varianteffect/variants/common/part-*'
     if args.ancestry == 'Mixed':
         srcdir = f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/{args.phenotype}/part-*'
         outdir = f'{s3_bioindex}/associations/phenotype/trans-ethnic/{args.phenotype}'

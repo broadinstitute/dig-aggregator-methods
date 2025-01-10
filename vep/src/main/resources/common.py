@@ -124,17 +124,18 @@ def common_fields(row):
 
 
 def process_part(srcdir, outdir, part):
-    """
-    Download and process a part file.
-    """
-    _, tmp = tempfile.mkstemp()
+    tmp = tempfile.TemporaryDirectory()
+
+    base_part, part_ext = os.path.splitext(part)
 
     # copy the file into a temp file
-    subprocess.check_call(['aws', 's3', 'cp', f'{srcdir}/{part}', tmp])
+    subprocess.check_call(['aws', 's3', 'cp', f'{srcdir}/{part}', f'{tmp.name}/input/'])
+    subprocess.check_call(f'zstd --rm -d {tmp.name}/input/{part}', shell=True)
 
     # loop over every line, parse, and create common row
-    with open(tmp) as fp:
-        with open(part, mode='w', encoding='utf-8') as out:
+    with open(f'{tmp.name}/input/{base_part}') as fp:
+        os.makedirs(f'{tmp.name}/output', exist_ok=True)
+        with open(f'{tmp.name}/output/{base_part}', mode='w', encoding='utf-8') as out:
             for line in fp:
                 row = json.loads(line)
                 common = common_fields(row)
@@ -152,29 +153,25 @@ def process_part(srcdir, outdir, part):
                     print(file=out)
 
     # copy the output file to S3
-    subprocess.check_call(['aws', 's3', 'cp', part, f'{outdir}/{part}'])
+    subprocess.check_call(f'zstd --rm {tmp.name}/output/{base_part}', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', f'{tmp.name}/output/{part}', f'{outdir}/{part}'])
 
     # cleanup
-    os.remove(tmp)
-    os.remove(part)
+    tmp.cleanup()
 
     # debug output
     print(f'Processed {part} successfully')
 
 
 def main():
-    """
-    Arguments: part-file
-    """
-    opts = argparse.ArgumentParser()
-    opts.add_argument('part')
-
-    # parse cli
-    args = opts.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--part', type=str, required=True, help="part name")
+    parser.add_argument('--data-type', type=str, required=True, help="data type (e.g. variants)")
+    args = parser.parse_args()
 
     # s3 locations
-    srcdir = f'{s3_in}/out/varianteffect/common-effects'
-    outdir = f'{s3_out}/out/varianteffect/common'
+    srcdir = f'{s3_in}/out/varianteffect/{args.data_type}/common-effects'
+    outdir = f'{s3_out}/out/varianteffect/{args.data_type}/common'
 
     # run
     process_part(srcdir, outdir, args.part)

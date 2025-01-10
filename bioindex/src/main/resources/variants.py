@@ -13,7 +13,7 @@ def main():
     """
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = f'{s3_in}/out/varianteffect/common/part-*'
+    srcdir = f'{s3_in}/out/varianteffect/variants/common/part-*'
     outdir = f'{s3_bioindex}/variants/common/'
 
     df = spark.read.json(srcdir)

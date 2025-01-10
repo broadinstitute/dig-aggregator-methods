@@ -6,7 +6,7 @@ import org.broadinstitute.dig.aws.emr._
 
 class HugeCacheStage(implicit context: Context) extends Stage {
 
-  val variantCommon: Input.Source = Input.Source.Success("out/varianteffect/common/")
+  val variantCommon: Input.Source = Input.Source.Success("out/varianteffect/variants/common/")
   val nearestGenes: Input.Source = Input.Source.Success("out/huge/nearestgenes/")
 
   override val sources: Seq[Input.Source] = Seq(variantCommon, nearestGenes)

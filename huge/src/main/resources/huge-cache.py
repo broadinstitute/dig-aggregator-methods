@@ -6,7 +6,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def main():
-    variants_common_dir = f'{s3_in}/out/varianteffect/common'
+    variants_common_dir = f'{s3_in}/out/varianteffect/variants/common'
     nearest_gene_dir = f'{s3_in}/out/huge/nearestgenes'
     out_dir = f'{s3_out}/out/huge/cache'
 

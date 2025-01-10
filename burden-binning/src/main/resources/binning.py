@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import explode, lit, when, input_file_name, udf, split
 
 
-CQS_SRCDIR = 's3://dig-analysis-data/out/varianteffect/cqs'
+CQS_SRCDIR = 's3://dig-analysis-data/out/varianteffect/ld_server/cqs'
 VARIANTS_SRCDIR = 's3://dig-analysis-data/ld_server/variants'
 
 
