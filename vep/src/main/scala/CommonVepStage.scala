@@ -16,6 +16,7 @@ class CommonVepStage(implicit context: Context) extends Stage {
 
   private lazy val clusterBootstrap = resourceUri("cluster-bootstrap.sh")
   private lazy val installScript    = resourceUri("installCommonVep.sh")
+  private lazy val zstdBootstrap = resourceUri("zstd-bootstrap.sh")
 
   /** Definition of each VM "cluster" of 1 machine that will run VEP.
    */
@@ -25,7 +26,8 @@ class CommonVepStage(implicit context: Context) extends Stage {
     applications = Seq.empty,
     bootstrapScripts = Seq(
       new BootstrapScript(clusterBootstrap),
-      new BootstrapScript(installScript)
+      new BootstrapScript(installScript),
+      new BootstrapScript(zstdBootstrap)
     ),
     stepConcurrency = 4
   )
