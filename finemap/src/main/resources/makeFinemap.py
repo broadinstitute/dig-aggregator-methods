@@ -9,12 +9,9 @@ s3_in=os.environ['INPUT_PATH']
 s3_out=os.environ['OUTPUT_PATH']
 
 # def finds json files in the directory
-def make_json_files(directory,pval):
+def make_json_files(directory):
 	subprocess.check_call(['aws', 's3', 'cp', directory, 'input/', '--recursive'])
-	# subprocess.run("zstdcat input/*.json.zst | jq -c '.' > input/input.json", shell=True)
-	subprocess.run(f"zstdcat input/*.json.zst | jq -c 'select(.pValue < {pval})' > input/input.json",
-		shell=True)
-
+	subprocess.run("zstdcat input/*.json.zst | jq -c '.' > input/input.json", shell=True)
 
 def safe_remove(file_path):
 	try:
@@ -41,12 +38,9 @@ def main():
 	finemap_dir = '/mnt/var/cojo/finemapping'
 	config_file = f'{finemap_dir}/analysis.config.yaml'
 	out_path = f'{s3_out}/out/cojo/staging/{args.phenotype}/ancestry={args.ancestry}' 
-	res_tmp = subprocess.run(f"(grep 'gwas_pval_threshold:' {config_file})",shell=True,capture_output=True,text=True)
-	pval = res_tmp.stdout.strip().split()[1]
-
 
 	# read all files in the clump path
-	make_json_files(pheno_path,pval)
+	make_json_files(pheno_path)
 
 	# create the tmp out directory
 	out_directory = 'data'
