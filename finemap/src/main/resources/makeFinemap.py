@@ -46,13 +46,16 @@ def main():
 	out_directory = 'data'
 	if not os.path.exists(out_directory):
 		os.makedirs(out_directory, exist_ok=True)
+	
+	out_directory_full_path = os.path.abspath(out_directory)
+	input_full_path = os.path.abspath('input')
 
 	subprocess.call(['bash', f'{finemap_dir}/run_finemap_pipeline.sh', 
-					'--input','input',
+					'--input',input_full_path,
 					'--bfiles', bfiles,
 					'--config_file',config_file,
 					'--dbsnp_file',var2rs_path,
-					'--output', out_directory,
+					'--output', out_directory_full_path,
 					'--finemap_dir',finemap_dir
 					])
 	
