@@ -10,17 +10,20 @@ from scipy.stats import t as tdist
 import shutil
 import subprocess
 
+this_project = os.environ['PROJECT']
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def get_annot_map(phenotype):
-    subprocess.check_call(['aws', 's3', 'cp',
-                           f'{s3_in}/out/ldsc/staging/partitioned_heritability/{phenotype}/', f'./{phenotype}',
-                           '--recursive', '--exclude=_SUCCESS'])
+def get_annot_map(project, phenotype):
+    path_in = f'{s3_in}/out/ldsc/staging/partitioned_heritability/{project}/{phenotype}/'
+    subprocess.check_call(
+        f'aws s3 cp {path_in} ./{phenotype}/{project}/ --recursive --exclude="*_SUCCESS"',
+        shell=True
+    )
     out = {}
-    for file in glob.glob(f'./{phenotype}/*/*/*/*'):
-        results_search = re.findall('./[^/]+/[^/]+/(.+)/[^/]+/(.+).results', file)
+    for file in glob.glob(f'./{phenotype}/{project}/*/*/*/*'):
+        results_search = re.findall('./[^/]+/[^/]+/[^/]+/(.+)/[^/]+/(.+).results', file)
         if len(results_search) > 0:
             sub_region, result = results_search[0]
             ancestry, _, annotation, tissue = result.split('.')
@@ -37,37 +40,33 @@ def translate(file):
     out = {}
     with open(file, 'r') as f:
         header = [a.strip() for a in f.readline().strip().split('\t')]
-        # Read up to lines with entries ending in '_1'
-        split_line = [a.strip() for a in f.readline().strip().split('\t')]
-        while int(split_line[0].rsplit('_', 1)[-1]) == 0:
-            split_line = [a.strip() for a in f.readline().strip().split('\t')]
-        # don't need first line, that is always the annotation confounder line
-        line = f.readline()
-        while len(line) > 0:
+        for line in f:
             split_line = [a.strip() for a in line.strip().split('\t')]
-            data_dict = dict(zip(header, split_line))
-            if float(data_dict['Prop._h2_std_error']) > 0.0:
-                out[split_line[0].rsplit('_', 1)[0]] = {
-                    'snps': float(data_dict['Prop._SNPs']),
-                    'h2': {'beta': float(data_dict['Prop._h2']), 'stdErr': float(data_dict['Prop._h2_std_error'])},
-                    'enrichment': {'beta': float(data_dict['Enrichment']), 'stdErr': float(data_dict['Enrichment_std_error'])},
-                    'coefficient': {'beta': float(data_dict['Coefficient']), 'stdErr': float(data_dict['Coefficient_std_error'])},
-                    'diff': {'beta': float(data_dict['Diff']), 'stdErr': float(data_dict['Diff_std_error'])},
-                    'pValue': float(data_dict['Enrichment_p'])
-                }
-            line = f.readline()
+            if int(split_line[0].rsplit('_', 1)[-1]) == 1:
+                data_dict = dict(zip(header, split_line))
+                if float(data_dict['Prop._h2_std_error']) > 0.0:
+                    annotation_name = split_line[0].rsplit('_', 1)[0]
+                    if annotation_name not in ['accessible_chromatin', 'promoter', 'enhancer', 'binding_sites']:
+                        out[annotation_name] = {
+                            'snps': float(data_dict['Prop._SNPs']),
+                            'h2': {'beta': float(data_dict['Prop._h2']), 'stdErr': float(data_dict['Prop._h2_std_error'])},
+                            'enrichment': {'beta': float(data_dict['Enrichment']), 'stdErr': float(data_dict['Enrichment_std_error'])},
+                            'coefficient': {'beta': float(data_dict['Coefficient']), 'stdErr': float(data_dict['Coefficient_std_error'])},
+                            'diff': {'beta': float(data_dict['Diff']), 'stdErr': float(data_dict['Diff_std_error'])},
+                            'pValue': float(data_dict['Enrichment_p'])
+                        }
     return out
 
 
-def get_data(phenotype, annot_map):
+def get_data(project, phenotype, full_map):
     out = {}
-    for sub_region, annot_map in annot_map.items():
+    for sub_region, annot_map in full_map.items():
         out[sub_region] = {}
         for annot, ancestries in annot_map.items():
             annotation, tissue = annot.split('.')
             out[sub_region][annot] = {}
             for ancestry in ancestries:
-                file = f'{phenotype}/ancestry={ancestry}/{sub_region}/{annotation}___{tissue}/{ancestry}.{phenotype}.{annot}.results'
+                file = f'{phenotype}/{project}/ancestry={ancestry}/{sub_region}/{annotation}___{tissue}/{ancestry}.{phenotype}.{annot}.results'
                 translated_file = translate(file)
                 for biosample, biosample_data in translated_file.items():
                     if biosample not in out[sub_region][annot]:
@@ -112,30 +111,32 @@ def meta_analyze(data):
 def upload_data(phenotype, data):
     file = f'./{phenotype}.json'
     with open(file, 'w') as f:
-        for sub_region in data:
-            for annot in data[sub_region]:
-                for biosample in data[sub_region][annot]:
-                    write_biosample = biosample if sub_region == 'annotation-tissue-biosample' else None
-                    annotation, tissue = annot.split('.')
-                    for ancestry, output_data in data[sub_region][annot][biosample].items():
-                        formatted_data = {
-                            'phenotype': phenotype,
-                            'annotation': annotation,
-                            'tissue': tissue,
-                            'biosample': write_biosample,
-                            'ancestry': ancestry,
-                            'SNPs': output_data['snps'],
-                            'h2_beta': output_data['h2']['beta'],
-                            'h2_stdErr': output_data['h2']['stdErr'],
-                            'enrichment_beta': output_data['enrichment']['beta'],
-                            'enrichment_stdErr': output_data['enrichment']['stdErr'],
-                            'coefficient_beta': output_data['coefficient']['beta'],
-                            'coefficient_stdErr': output_data['coefficient']['stdErr'],
-                            'diff_beta': output_data['diff']['beta'],
-                            'diff_stdErr': output_data['diff']['stdErr'],
-                            'pValue': output_data['pValue']
-                        }
-                        f.write(json.dumps(formatted_data) + '\n')
+        for project in data:
+            for sub_region in data[project]:
+                for annot in data[project][sub_region]:
+                    for biosample in data[project][sub_region][annot]:
+                        write_biosample = biosample if sub_region == 'annotation-tissue-biosample' else None
+                        annotation, tissue = annot.split('.')
+                        for ancestry, output_data in data[project][sub_region][annot][biosample].items():
+                            formatted_data = {
+                                'project': project,
+                                'phenotype': phenotype,
+                                'annotation': annotation,
+                                'tissue': tissue,
+                                'biosample': write_biosample,
+                                'ancestry': ancestry,
+                                'SNPs': output_data['snps'],
+                                'h2_beta': output_data['h2']['beta'],
+                                'h2_stdErr': output_data['h2']['stdErr'],
+                                'enrichment_beta': output_data['enrichment']['beta'],
+                                'enrichment_stdErr': output_data['enrichment']['stdErr'],
+                                'coefficient_beta': output_data['coefficient']['beta'],
+                                'coefficient_stdErr': output_data['coefficient']['stdErr'],
+                                'diff_beta': output_data['diff']['beta'],
+                                'diff_stdErr': output_data['diff']['stdErr'],
+                                'pValue': output_data['pValue']
+                            }
+                            f.write(json.dumps(formatted_data) + '\n')
     subprocess.check_call(['aws', 's3', 'cp', file, f'{s3_out}/out/ldsc/partitioned_heritability/{phenotype}/'])
     subprocess.check_call(['touch', '_SUCCESS'])
     subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/out/ldsc/partitioned_heritability/{phenotype}/'])
@@ -151,9 +152,11 @@ def main():
 
     phenotype = args.phenotype
 
-    annot_map = get_annot_map(phenotype)
-    data = get_data(phenotype, annot_map)
-    data = meta_analyze(data)
+    data = {}
+    for project in {'portal', this_project}:
+        annot_map = get_annot_map(project, phenotype)
+        data[project] = get_data(project, phenotype, annot_map)
+        data[project] = meta_analyze(data[project])
     upload_data(phenotype, data)
 
 

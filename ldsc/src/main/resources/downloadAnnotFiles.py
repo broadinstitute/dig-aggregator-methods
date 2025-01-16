@@ -3,16 +3,13 @@ import argparse
 import subprocess
 
 downloaded_files = '/mnt/var/ldsc'
-sumstats_files = f'{downloaded_files}/sumstats'
+annot_files = f'{downloaded_files}/annot'
 
 
-def download_sumstats(project, path):
-    f_in = f'{path}/out/ldsc/sumstats/'
-    f_out = f'{sumstats_files}/{project}/'
-    subprocess.check_call(
-        f'sudo aws s3 cp {f_in} {f_out} --recursive --exclude="*" --include="*.sumstats.gz*"',
-        shell=True
-    )
+def download_annot(project, path):
+    f_in = f'{path}/out/ldsc/regions/combined_ld'
+    f_out = f'{annot_files}/{project}/'
+    subprocess.check_call(f'sudo aws s3 cp {f_in} {f_out} --recursive --exclude="*_SUCCESS"', shell=True)
 
 
 def main():
@@ -23,9 +20,9 @@ def main():
     s3_in = args.input_path
     project = args.project
 
-    download_sumstats(project, s3_in)
+    download_annot(project, s3_in)
     if project != 'portal':
-        download_sumstats('portal', 's3://dig-analysis-data')
+        download_annot('portal', 's3://dig-analysis-data')
 
 
 if __name__ == '__main__':

@@ -8,7 +8,8 @@ downloaded_files = '/mnt/var/ldsc'
 def download_genetic_correlations(path):
     f_in = f'{path}/out/ldsc/staging/genetic_correlation/'
     subprocess.check_call(
-        ['sudo', 'aws', 's3', 'cp', f_in, downloaded_files, '--recursive', '--exclude="*"', '--include="*.log"']
+        f'sudo aws s3 cp {f_in} {downloaded_files} --recursive --exclude="*" --include="*.log"',
+        shell=True
     )
 
 

@@ -51,13 +51,20 @@ def annotation_file(annotation):
     return f'ld_files/annotation/{annotation}/{annotation}'
 
 
+def get_annotation_files(annotation, add_annotation):
+    if add_annotation:
+        return [annotation_file(annotation)], [annotation.encode()]
+    else:
+        return [], []
+
+
 def get_biosample_files(annotation, tissue, biosamples):
-    return [annotation_file(annotation)] + \
-           [biosample_to_file(annotation, tissue, biosample) for biosample in biosamples]
+    return [biosample_to_file(annotation, tissue, biosample) for biosample in biosamples], \
+        [biosample.encode() for biosample in biosamples]
 
 
 def get_tissue_files(annotation, tissue):
-    return [annotation_file(annotation), tissue_to_file(annotation, tissue)]
+    return [tissue_to_file(annotation, tissue)], [tissue.encode()]
 
 
 def combine_annot(files, header, sub_region, annotation, tissue, CHR):
@@ -95,6 +102,17 @@ def combine_non_gzip(files, sub_region, annotation, tissue, CHR, extension):
         f_out.write('\t'.join([f.readline().strip() for f in open_files]) + '\n')
 
 
+def check_files(annotation_filename, tissue_filename):
+    for CHR in range(1, 23):
+        with gzip.open(f'{annotation_filename}.{CHR}.annot.gz', 'rt') as annotation_file, \
+            gzip.open(f'{tissue_filename}.{CHR}.annot.gz', 'rt') as tissue_file:
+            _, _ = annotation_file.readline(), tissue_file.readline()
+            for annotation_line, tissue_line in zip(annotation_file, tissue_file):
+                if annotation_line.strip() != tissue_line.strip():
+                    return True
+    return False
+
+
 def combine_sub_region(files, header, sub_region, annotation, tissue):
     for CHR in range(1, 23):
         combine_annot(files, header, sub_region, annotation, tissue, CHR)
@@ -103,16 +121,20 @@ def combine_sub_region(files, header, sub_region, annotation, tissue):
         combine_non_gzip(files, sub_region, annotation, tissue, CHR, 'l2.M_5_50')
 
 
-def combine_biosamples(annotation, tissue, biosamples):
-    header = [annotation.encode()] + [biosample.encode() for biosample in biosamples]
-    files = get_biosample_files(annotation, tissue, biosamples)
+def combine_biosamples(annotation, tissue, biosamples, add_annotation):
+    annotation_files, annotation_headers = get_annotation_files(annotation, add_annotation)
+    biosample_files, biosample_headers = get_biosample_files(annotation, tissue, biosamples)
+    header = annotation_headers + biosample_headers
+    files = annotation_files + biosample_files
     sub_region = 'annotation-tissue-biosample'
     combine_sub_region(files, header, sub_region, annotation, tissue)
 
 
-def combine_tissue(annotation, tissue):
-    header = [annotation.encode(), tissue.encode()]
-    files = get_tissue_files(annotation, tissue)
+def combine_tissue(annotation, tissue, add_annotation):
+    annotation_files, annotation_headers = get_annotation_files(annotation, add_annotation)
+    tissue_files, tissue_headers = get_tissue_files(annotation, tissue)
+    header = annotation_headers + tissue_headers
+    files = annotation_files + tissue_files
     sub_region = 'annotation-tissue'
     combine_sub_region(files, header, sub_region, annotation, tissue)
 
@@ -145,8 +167,9 @@ def main():
     os.mkdir('ld_files/combined')
     os.mkdir('ld_files/combined/annotation-tissue')
     os.mkdir('ld_files/combined/annotation-tissue-biosample')
-    combine_biosamples(annotation, tissue, biosamples)
-    combine_tissue(annotation, tissue)
+    add_annotation = check_files(annotation_file(annotation), tissue_to_file(annotation, tissue))
+    combine_biosamples(annotation, tissue, biosamples, add_annotation)
+    combine_tissue(annotation, tissue, add_annotation)
     upload_and_remove(ancestry, annotation, tissue)
 
 

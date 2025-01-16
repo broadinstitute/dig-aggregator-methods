@@ -9,11 +9,16 @@ class C2CTStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterVolumeSizeInGB = 100,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("download-cmdga.sh"))),
+    bootstrapScripts = Seq(
+      new BootstrapScript(
+        resourceUri("downloadAnnotFiles.py"), s"--input-path=s3://${context.s3.path}", s"--project=${context.project}"
+      )
+    ),
     stepConcurrency = 5
   )
 
   val credibleSets: Input.Source = Input.Source.Success("out/credible_sets/merged/*/*/")
+  val projects = Set(context.project, "portal")
 
   override val sources: Seq[Input.Source] = Seq(credibleSets)
 
