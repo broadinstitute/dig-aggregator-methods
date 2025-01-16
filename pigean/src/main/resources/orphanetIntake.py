@@ -103,7 +103,7 @@ def check_file(path):
 
 
 def download_all_gene_lists():
-    path = f'{s3_in}/out/pigean/gene_lists/rare_v2/'
+    path = f'{s3_in}/out/pigean/inputs/gene_lists/rare_v2/'
     os.makedirs('gene_lists', exist_ok=True)
     if check_file(path) == 0:
         subprocess.check_call(f'aws s3 cp {path} ./gene_lists/ --recursive', shell=True)
@@ -148,7 +148,7 @@ def save_data(name_map, gene_map, new_or_altered_ids):
             for gene, prob in gene_map[new_or_altered_id].items():
                 f.write(f'{gene}\t{prob}\n')
         subprocess.check_call(f'touch output/{file_name}/_SUCCESS', shell=True)
-    subprocess.check_call(f'aws s3 cp output/ {s3_out}/out/pigean/gene_lists/rare_v2/ --recursive', shell=True)
+    subprocess.check_call(f'aws s3 cp output/ {s3_out}/out/pigean/inputs/gene_lists/rare_v2/ --recursive', shell=True)
     shutil.rmtree('output')
 
 
