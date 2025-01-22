@@ -91,19 +91,23 @@ def process_summary_stats(gene_map, p_value_map):
     os.makedirs('out', exist_ok=True)
     with open('out/summary_stats.json', 'w') as f_out:
         for ensembl, gene_info in gene_map.items():
-            for data in p_value_map.get(ensembl, []):
-                out_dict = {
-                    'gene': gene_map[ensembl]['gene'],
-                    'gene_id': gene_map[ensembl]['gene_id'],
-                    'chromosome': gene_map[ensembl]['chromosome'],
-                    'start': gene_map[ensembl]['start'],
-                    'end': gene_map[ensembl]['end'],
-                    'tissue': gene_map[ensembl]['tissue'],
-                    'category': data['category'],
-                    'f': float(data['f']),
-                    'p_value': float(data['p_value']),
-                    'p_value_adj': float(data['p_value_adj'])
-                }
+            out_dict = {
+                'gene': gene_map[ensembl]['gene'],
+                'gene_id': gene_map[ensembl]['gene_id'],
+                'chromosome': gene_map[ensembl]['chromosome'],
+                'start': gene_map[ensembl]['start'],
+                'end': gene_map[ensembl]['end'],
+                'tissue': gene_map[ensembl]['tissue'],
+            }
+            if ensembl in p_value_map:
+                for data in p_value_map.get(ensembl, []):
+                    category = data['category']
+                    out_dict.update({
+                        f'f_{category}': float(data['f']),
+                        f'P_value_{category}': float(data['p_value']),
+                        f'P_adj_{category}': float(data['p_value_adj'])
+                    }
+                    )
                 f_out.write(f'{json.dumps(out_dict)}\n')
 
 
