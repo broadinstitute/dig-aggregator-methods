@@ -8,10 +8,11 @@ class Combine600TraitStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     applications = Seq.empty,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("intake_bootstrap.sh"))),
     instances = 1
   )
 
-  val traits_600 = Input.Source.Dataset("gene_associations/600k_600traits/*/")
+  val traits_600 = Input.Source.Dataset("gene_associations/600k_600traits/Mixed/UKB_450k_AoU_250k_MGB_53k_META_overlapcorrected/*/")
 
   override val sources: Seq[Input.Source] = Seq(traits_600)
 

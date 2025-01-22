@@ -50,7 +50,9 @@ def process_600trait_datasets(spark):
     """
     df = spark.read.json(f'{s3_in}/gene_associations/600k_600traits/*/*/part-*')
 
-    df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
+    df = df.withColumn('pValue_rare', when(df.pValue_rare == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_rare))
+    df = df.withColumn('pValue', df.pValue_rare)
+    df = df.withColumn('pValue_low_freq', when(df.pValue_low_freq == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_low_freq))
     genes = spark.read.json('s3://dig-analysis-bin/genes/GRCh37/part-*')
 
     # fix for join
@@ -67,14 +69,14 @@ def process_600trait_datasets(spark):
     df = df.join(genes, on='ensemblId', how='inner')
 
     # sort by gene, then by p-value
-    df.orderBy(['ancestry', 'gene', 'pValue']) \
+    df.orderBy(['ancestry', 'cohort', 'gene', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(f'{s3_bioindex}/gene_associations/600trait')
 
     # sort by phenotype, then by p-value for the gene finder
     df.drop('masks') \
-        .orderBy(['ancestry', 'phenotype', 'pValue']) \
+        .orderBy(['ancestry', 'cohort', 'phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
         .json(f'{s3_bioindex}/finder/600trait')
@@ -135,13 +137,13 @@ def process_magma(spark):
     non_mixed_df.orderBy(['gene', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/gene_associations/gene/ancestry-specific')
+        .json(f'{s3_bioindex}/gene_associations/gene/ancestry')
 
     # sort by phenotype, ancestry, then by p-value for the gene finder
     non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/finder/gene/ancestry-specific')
+        .json(f'{s3_bioindex}/finder/gene/ancestry')
 
 
 def main():

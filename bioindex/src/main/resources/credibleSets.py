@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
+locus_columns = ['phenotype', 'ancestry', 'dataset', 'method', 'pmid', 'credibleSetId', 'chromosome', 'start', 'end']
 
 def write(df, name):
     df.orderBy(['phenotype', 'ancestry', 'credibleSetId', 'chromosome', 'position']) \
@@ -11,9 +12,9 @@ def write(df, name):
         .mode('overwrite') \
         .json(f'{s3_bioindex}/credible_sets/variants/{name}/')
 
-    df.withColumnRenamed('clumpStart', 'start') \
-        .withColumnRenamed('clumpEnd', 'end') \
-        .select('phenotype', 'ancestry', 'dataset', 'method', 'pmid', 'credibleSetId', 'chromosome', 'start', 'end') \
+    df = df.withColumnRenamed('clumpStart', 'start') \
+        .withColumnRenamed('clumpEnd', 'end')
+    df.select(*(set(df.columns) & set(locus_columns))) \
         .drop_duplicates() \
         .orderBy(['phenotype', 'ancestry', 'chromosome', 'start']) \
         .write \
@@ -31,7 +32,7 @@ def main():
     # load all the credible sets for the phenotype
     df = spark.read.json(srcdir)
     write(df[df.ancestry == 'Mixed'], 'trans-ethnic')
-    write(df[df.ancestry != 'Mixed'], 'ancestry-specific')
+    write(df[df.ancestry != 'Mixed'], 'ancestry')
 
     # done
     spark.stop()
