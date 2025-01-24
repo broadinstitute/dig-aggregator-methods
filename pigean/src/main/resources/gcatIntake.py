@@ -7,7 +7,6 @@ import subprocess
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-trait_uri_key = 'MAPPED_TRAIT_URI'
 
 
 def download_gwas_catalog():
@@ -21,11 +20,15 @@ def get_count():
         header = f.readline().strip().split('\t')
         for line in f:
             data_dict = dict(zip(header, line.strip().split('\t')))
-            trait_uri = data_dict[trait_uri_key]
-            if ',' not in trait_uri:
-                if trait_uri not in count:
-                    count[trait_uri] = 0
-                count[trait_uri] += 1
+            trait = data_dict['DISEASE/TRAIT']
+            mapped_trait = data_dict['MAPPED_TRAIT']
+            mapped_trait_uri = data_dict['MAPPED_TRAIT_URI']
+            if mapped_trait == '':
+                mapped_trait = trait
+            if ',' not in mapped_trait_uri:
+                if mapped_trait not in count:
+                    count[mapped_trait] = 0
+                count[mapped_trait] += 1
     return count
 
 
@@ -54,9 +57,7 @@ def save_data(name_map, gene_map, new_or_altered_ids):
 def run():
     #download_gwas_catalog()
     count = get_count()
-    print(len(count))
-    print(len([a for a in count if 'EFO' in a and count[a] >= 10]))
-    print(len([a for a in count if count[a] >= 10]))
+    print(list(count.keys())[:10])
 
 
 if __name__ == '__main__':
