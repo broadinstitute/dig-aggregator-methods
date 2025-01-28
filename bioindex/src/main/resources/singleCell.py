@@ -2,7 +2,9 @@
 import argparse
 import gzip
 import json
+import math
 from multiprocessing import Pool
+import numpy as np
 import os
 import shutil
 import subprocess
@@ -84,21 +86,56 @@ def output_coordinates(index_lists, coordinates):
             f.write(f'{coords_line}\n')
 
 
+def format_p_values(p_value, p_value_adj, log10p, log10p_adj):
+    if p_value == 0.0:
+        p_value, log10p = np.nextafter(0, 1), -math.log10(np.nextafter(0, 1))
+    if p_value_adj == 0.0:
+        p_value_adj, log10p_adj = np.nextafter(0, 1), -math.log10(np.nextafter(0, 1))
+    return p_value, p_value_adj, log10p, log10p_adj
+
+
+def format_json_data(json_data):
+    cell_type = json_data['cell_type__matkp']
+    json_data['cell_type'] = cell_type
+    json_data.pop('cell_type__matkp')
+    p_value, p_value_adj, log10p, log10p_adj = format_p_values(
+        json_data['p_value'],
+        json_data['p_value_adj'],
+        json_data['-log10P'],
+        json_data['-log10P_adj']
+    )
+    json_data['p_value'] = p_value
+    json_data['p_value_adj'] = p_value_adj
+    json_data['-log10P'] = log10p
+    json_data['-log10P_adj'] = log10p_adj
+    return json_data
+
+
 def fetch_marker_genes():
-    marker_genes = {}
-    with open('raw/marker_genes.top20.sig.json', 'r') as f_in:
+    marker_genes = []
+    with open('raw/marker_genes.json', 'r') as f_in:
         for line in f_in:
-            json_data = json.loads(line.strip())
-            cell_type = json_data['cell_type__matkp']
-            if cell_type not in marker_genes:
-                marker_genes[cell_type] = []
-            marker_genes[cell_type].append(json_data['gene'])
+            marker_genes.append(format_json_data(json.loads(line.strip())))
     return marker_genes
 
 
-def output_marker_genes(marker_genes):
+def fetch_top_marker_genes():
+    top_marker_genes = []
+    with open('raw/marker_genes.top20.sig.json', 'r') as f_in:
+        for line in f_in:
+            top_marker_genes.append(format_json_data(json.loads(line.strip())))
+    return top_marker_genes
+
+
+def filter_marker_genes(marker_genes, top_marker_genes):
+    all_genes = {d['gene'] for d in top_marker_genes}
+    return [marker_gene for marker_gene in marker_genes if marker_gene['gene'] in all_genes]
+
+
+def save_marker_genes(filtered_marker_genes):
     with gzip.open('processed/marker_genes.json.gz', 'wt') as f:
-        json.dump(marker_genes, f)
+        for marker_gene in filtered_marker_genes:
+            f.write(f'{json.dumps(marker_gene)}\n')
 
 
 def file_iter(dataset, infile, outfile, cell_indexes, number_map):
@@ -174,7 +211,9 @@ def main():
     output_coordinates(index_lists, coordinates)
 
     marker_genes = fetch_marker_genes()
-    output_marker_genes(marker_genes)
+    top_marker_genes = fetch_top_marker_genes()
+    filtered_marker_genes = filter_marker_genes(marker_genes, top_marker_genes)
+    save_marker_genes(filtered_marker_genes)
 
     cells = index_dict[metadata_cell_key]
     os.mkdir('processed/gene_lognorm')
