@@ -38,7 +38,7 @@ def convert_single_file(file):
 
 
 def combine_and_upload(phenotype):
-    file_out = f'{phenotype}.sumstats.gz'
+    file_out = 'pigean.sumstats.gz'
     with gzip.open(file_out, 'w') as f_out:
         f_out.write(b'CHROM\tPOS\tP\tN\n')
     subprocess.run(f'cat data/*.sumstats.gz >> {file_out}', shell=True)
