@@ -12,7 +12,7 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 
 def download_data():
     out = []
-    cmd = f'aws s3 cp {s3_in}}/single_cell/ ./data/ ' \
+    cmd = f'aws s3 cp {s3_in}/single_cell/ ./data/ ' \
           '--recursive --exclude="*" --include="*dataset_metadata.json"'
     subprocess.check_call(cmd, shell=True)
     for file in glob.glob('data/*/dataset_metadata.json'):
