@@ -17,7 +17,7 @@ class GcatIntakeStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(associations)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case associations(_) => Outputs.Named("gcatIntake")
+    case associations() => Outputs.Named("gcatIntake")
   }
 
   override def make(output: String): Job = {
