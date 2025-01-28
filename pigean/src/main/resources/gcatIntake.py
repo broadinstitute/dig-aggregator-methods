@@ -186,7 +186,7 @@ def save_data(traits, new_or_altered_ids, associations):
         if trait in new_or_altered_ids:
             os.makedirs(f'output/{trait}', exist_ok=True)
             with gzip.open(f'output/{trait}/pigean.sumstats.gz', 'wt') as f:
-                f.write('CHR_ID\tCHR_POS\tP-VALUE\tN\n')
+                f.write('CHROM\tPOS\tP\tN\n')
                 for association in associations[trait]:
                     f.write('{}\t{}\t{}\t{}\n'.format(
                         association['CHR_ID'],
