@@ -24,7 +24,7 @@ gene_lists = {
 def file_name(trait_type):
     if trait_type == 'sumstats':
         return 'pigean.sumstats.gz'
-    elif trait_type == 'gene_list':
+    elif trait_type == 'gene_lists':
         return 'gene_list.tsv'
     else:
         raise ValueError(f'Invalid trait_type: {trait_type}')
@@ -54,7 +54,7 @@ def trait_type_command(trait_type):
                 '--gwas-p-col', 'P',
                 '--gwas-n-col', 'N'
                 ]
-    elif trait_type == 'gene_list':
+    elif trait_type == 'gene_lists':
         return [
             '--positive-controls-in', file_name(trait_type),
             '--positive-controls-all-in', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
@@ -114,7 +114,7 @@ def upload_data(trait_group, phenotype, gene_set_size):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--trait-type', default=None, required=True, type=str,
-                        help="sumstats or gene_list")
+                        help="sumstats or gene_lists")
     parser.add_argument('--trait-group', default=None, required=True, type=str,
                         help="Trait group")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
