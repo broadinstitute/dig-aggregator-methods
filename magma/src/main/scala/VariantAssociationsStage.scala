@@ -11,7 +11,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class VariantAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/*/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/largest/ancestry-specific/*/*/")
   val mixedDatasets: Input.Source = Input.Source.Success("variants/*/*/*/")
 
   /** Ouputs to watch. */
