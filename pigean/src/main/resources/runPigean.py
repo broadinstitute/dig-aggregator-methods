@@ -57,9 +57,12 @@ def trait_type_command(trait_type):
     elif trait_type == 'gene_lists':
         return [
             '--positive-controls-in', file_name(trait_type),
+            '--positive-controls-id-col', '1',
+            '--positive-controls-prob-col', '2',
+            '--positive-controls-no-header', 'True',
             '--positive-controls-all-in', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
-            '--positive-controls-all-id-col', '1',
-            '--positive-controls-prob-col', '2'
+            '--positive-controls-all-no-header', 'True',
+            '--positive-controls-all-id-col', '1'
         ]
 
 base_cmd = [
@@ -98,17 +101,18 @@ def success(file_path):
     os.remove('_SUCCESS')
 
 
+def upload(file_name, file_path):
+    if os.path.exists(file_name):
+        subprocess.check_call(['aws', 's3', 'cp', file_name, file_path])
+        os.remove(file_name)
+
 def upload_data(trait_group, phenotype, gene_set_size):
     file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
-    subprocess.check_call(['aws', 's3', 'cp', 'gs.out', file_path])
-    subprocess.check_call(['aws', 's3', 'cp', 'gss.out', file_path])
-    subprocess.check_call(['aws', 's3', 'cp', 'ggss.out', file_path])
-    subprocess.check_call(['aws', 's3', 'cp', 'ge.out', file_path])
+    upload('gs.out', file_path)
+    upload('gss.out', file_path)
+    upload('ggss.out', file_path)
+    upload('ge.out', file_path)
     success(file_path)
-    os.remove('gs.out')
-    os.remove('gss.out')
-    os.remove('ggss.out')
-    os.remove('ge.out')
 
 
 def main():
