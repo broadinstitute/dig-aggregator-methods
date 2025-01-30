@@ -19,12 +19,12 @@ def main():
     sn_df = df[df.source == 'snATAC-seq peaks']
 
     # sort and write
-    bulk_df.orderBy(['tissue', 'chromosome', 'start']) \
+    bulk_df.orderBy(['chromosome', 'start']) \
         .write \
         .mode('overwrite') \
         .json(bulk_outdir)
 
-    sn_df.orderBy(['species', 'tissue', 'biosample', 'chromosome', 'start']) \
+    sn_df.orderBy(['species', 'chromosome', 'start']) \
         .write \
         .mode('overwrite') \
         .json(sn_outdir)
