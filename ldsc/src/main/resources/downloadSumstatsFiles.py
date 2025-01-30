@@ -23,8 +23,8 @@ def main():
     project = args.project
 
     download_sumstats(project, s3_in)
-    if project != 'portal':
-        download_sumstats('portal', 's3://dig-analysis-data')
+    # if project != 'portal':
+    #     download_sumstats('portal', 's3://dig-analysis-data')
 
 
 if __name__ == '__main__':
