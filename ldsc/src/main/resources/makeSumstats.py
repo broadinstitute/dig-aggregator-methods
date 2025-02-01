@@ -78,7 +78,7 @@ def get_s3_dirs(phenotype, ancestry):
         tech_datasets = db.get_largest_mixed_datasets(phenotype)
         return [f'{s3_in}/variants/{tech_dataset}/{phenotype}/' for tech_dataset in tech_datasets]
     else:
-        return [f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/']
+        return [f'{s3_in}/out/metaanalysis/largest/ancestry-specific/{phenotype}/ancestry={ancestry}/']
 
 
 def get_single_json_file(s3_dir, phenotype, ancestry):
