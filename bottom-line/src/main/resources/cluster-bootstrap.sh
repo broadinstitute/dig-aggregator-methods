@@ -23,9 +23,8 @@ sudo ln -s /home/hadoop/metal/build/metal/metal /home/hadoop/bin/metal
 # build MR-MEGA
 sudo mkdir -p /home/hadoop/bin/MR-MEGA
 cd /home/hadoop/bin/MR-MEGA
-sudo aws s3 cp s3://dig-analysis-bin/metaanalysis/MR-MEGA_v0.2.zip .
-sudo unzip MR-MEGA_v0.2.zip
-sudo make
+sudo aws s3 cp s3://dig-analysis-bin/metaanalysis/MR-MEGA.zip .
+sudo unzip MR-MEGA.zip
 cd "${METAL_ROOT}"
 
 # copy the getmerge-strip-headers shell script from S3
