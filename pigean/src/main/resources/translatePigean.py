@@ -7,13 +7,13 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download_data(trait_group, phenotype, file_name, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/{file_name}'
+def download_data(trait_group, phenotype, file_name, gene_set_size):
+    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/{file_name}'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
 
-def upload_data(trait_group, phenotype, data_type, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/{data_type}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}/'
+def upload_data(trait_group, phenotype, data_type, gene_set_size):
+    file_path = f'{s3_out}/out/pigean/{data_type}/{gene_set_size}/{trait_group}/{phenotype}/'
     file_out = f'{data_type}.json'
     subprocess.check_call(['aws', 's3', 'cp', file_out, file_path])
     success(file_path)
@@ -24,7 +24,7 @@ def make_option(value):
     return value if value != 'NA' else 'null'
 
 
-def translate_gs(json_line, trait_group, phenotype, sigma, gene_set_size):
+def translate_gs(json_line, trait_group, phenotype, gene_set_size):
     combined = make_option(json_line["combined"])
     if combined is not None:
         return f'{{"gene": "{json_line["Gene"]}", ' \
@@ -35,11 +35,10 @@ def translate_gs(json_line, trait_group, phenotype, sigma, gene_set_size):
                f'"n": {make_option(json_line["N"])}, ' \
                f'"trait_group": "{trait_group}", ' \
                f'"phenotype": "{phenotype}", ' \
-               f'"sigma": {sigma}, ' \
                f'"gene_set_size": "{gene_set_size}"}}\n'
 
 
-def translate_gss(json_line, trait_group, phenotype, sigma, gene_set_size):
+def translate_gss(json_line, trait_group, phenotype, gene_set_size):
     beta = make_option(json_line["beta"])
     beta_uncorrected = make_option(json_line["beta_uncorrected"])
     if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
@@ -49,11 +48,10 @@ def translate_gss(json_line, trait_group, phenotype, sigma, gene_set_size):
                f'"n": {make_option(json_line["N"])}, ' \
                f'"trait_group": "{trait_group}", ' \
                f'"phenotype": "{phenotype}", ' \
-               f'"sigma": {sigma}, ' \
                f'"gene_set_size": "{gene_set_size}"}}\n'
 
 
-def translate_ggss(json_line, trait_group, phenotype, sigma, gene_set_size):
+def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
     beta = make_option(json_line["beta"])
     combined = make_option(json_line["combined"])
     if beta is not None and combined is not None:
@@ -65,21 +63,20 @@ def translate_ggss(json_line, trait_group, phenotype, sigma, gene_set_size):
                f'"log_bf": {make_option(json_line["log_bf"])}, ' \
                f'"trait_group": "{trait_group}", ' \
                f'"phenotype": "{phenotype}", ' \
-               f'"sigma": {sigma}, ' \
                f'"gene_set_size": "{gene_set_size}"}}\n'
 
 
-def translate(trait_group, phenotype, sigma, gene_set_size, data_type, file_name, line_fnc):
-    download_data(trait_group, phenotype, file_name, sigma, gene_set_size)
+def translate(trait_group, phenotype, gene_set_size, data_type, file_name, line_fnc):
+    download_data(trait_group, phenotype, file_name, gene_set_size)
     with open(f'{data_type}.json', 'w') as f_out:
         with open(file_name, 'r') as f_in:
             header = f_in.readline().strip().split('\t')
             for line in f_in:
                 json_line = dict(zip(header, line.strip().split('\t')))
-                str_line = line_fnc(json_line, trait_group, phenotype, sigma, gene_set_size)
+                str_line = line_fnc(json_line, trait_group, phenotype, gene_set_size)
                 if str_line is not None:
                     f_out.write(str_line)
-    upload_data(trait_group, phenotype, data_type, sigma, gene_set_size)
+    upload_data(trait_group, phenotype, data_type, gene_set_size)
     os.remove(file_name)
 
 
@@ -95,15 +92,13 @@ def main():
                         help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
-    parser.add_argument('--sigma', default=None, required=True, type=str,
-                        help="Sigma power (0, 2, 4).")
     parser.add_argument('--gene-set-size', default=None, required=True, type=str,
-                        help="gene-set-size (small, medium, or large).")
+                        help="gene-set-size (small, large, cfde).")
     args = parser.parse_args()
 
-    translate(args.trait_group, args.phenotype, args.sigma, args.gene_set_size, 'gene_stats', 'gs.out', translate_gs)
-    translate(args.trait_group, args.phenotype, args.sigma, args.gene_set_size, 'gene_set_stats', 'gss.out', translate_gss)
-    translate(args.trait_group, args.phenotype, args.sigma, args.gene_set_size, 'gene_gene_set_stats', 'ggss.out', translate_ggss)
+    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_stats', 'gs.out', translate_gs)
+    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_stats', 'gss.out', translate_gss)
+    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_gene_set_stats', 'ggss.out', translate_ggss)
 
 
 if __name__ == '__main__':
