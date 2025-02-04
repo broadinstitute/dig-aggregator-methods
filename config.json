@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "catalog_v2",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "catalog_v2"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "catalog_v2"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-cfde",
+            "subdir": "bioindex-dev/catalog_v2"
         },
         "emr": {
             "subnetIds": [
