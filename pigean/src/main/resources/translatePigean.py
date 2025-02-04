@@ -26,11 +26,12 @@ def make_option(value):
 
 def translate_gs(json_line, trait_group, phenotype, gene_set_size):
     combined = make_option(json_line["combined"])
+    huge_score = json_line["huge_score_gwas"] if 'huge_score_gwas' in json_line else json_line["positive_control"]
     if combined is not None:
         return f'{{"gene": "{json_line["Gene"]}", ' \
                f'"prior": {make_option(json_line["prior"])}, ' \
                f'"combined": {combined}, ' \
-               f'"huge_score": {make_option(json_line["huge_score_gwas"])}, ' \
+               f'"huge_score": {make_option(huge_score)}, ' \
                f'"log_bf": {make_option(json_line["log_bf"])}, ' \
                f'"n": {make_option(json_line["N"])}, ' \
                f'"trait_group": "{trait_group}", ' \
