@@ -13,11 +13,11 @@ clean = udf(lambda s: s.replace(',', ';').encode('utf-8').decode('ascii', errors
 
 def attach_max_values(df, fields):
     max_values = df \
-        .select('phenotype', 'sigma', 'gene_set_size', *fields) \
-        .groupBy(['phenotype', 'sigma', 'gene_set_size']) \
+        .select('phenotype', 'gene_set_size', *fields) \
+        .groupBy(['phenotype', 'gene_set_size']) \
         .agg({field: 'max' for field in fields}) \
-        .select('phenotype', 'sigma', 'gene_set_size', *[col(f'max({field})').alias(f'max_trait_{field}') for field in fields])  # rename
-    return df.join(max_values, how='left', on=['phenotype', 'sigma', 'gene_set_size'])
+        .select('phenotype', 'gene_set_size', *[col(f'max({field})').alias(f'max_trait_{field}') for field in fields])  # rename
+    return df.join(max_values, how='left', on=['phenotype', 'gene_set_size'])
 
 
 def bioindex(df, bioindex_name, bioindices, max_fields):
@@ -33,10 +33,10 @@ def bioindex(df, bioindex_name, bioindices, max_fields):
 
 
 def gene(spark):
-    srcdir = f'{s3_in}/out/pigean/combined_gene_stats/*/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/combined_gene_stats/*/*/*/*.json'
     bioindices = {
-        'gene': [col('trait_group'), col('gene'), col('sigma'), col('gene_set_size'), col('combined').desc()],
-        'phenotype': [col('phenotype'), col('sigma'), col('gene_set_size'), col('combined').desc()]
+        'gene': [col('trait_group'), col('gene'), col('gene_set_size'), col('combined').desc()],
+        'phenotype': [col('phenotype'), col('gene_set_size'), col('combined').desc()]
     }
     df = spark.read.json(srcdir)
     df = df.filter(df.gene.isNotNull())
@@ -45,10 +45,10 @@ def gene(spark):
 
 
 def gene_set(spark):
-    srcdir = f'{s3_in}/out/pigean/combined_gene_set_stats/*/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/combined_gene_set_stats/*/*/*/*.json'
     bioindices = {
-        'gene_set': [col('trait_group'), col('gene_set'), col('sigma'), col('gene_set_size'), col('beta').desc()],
-        'phenotype': [col('phenotype'), col('sigma'), col('gene_set_size'), col('beta').desc()]
+        'gene_set': [col('trait_group'), col('gene_set'), col('gene_set_size'), col('beta').desc()],
+        'phenotype': [col('phenotype'), col('gene_set_size'), col('beta').desc()]
     }
     df = spark.read.json(srcdir)
     df = df.filter(df.gene_set.isNotNull())
@@ -57,10 +57,10 @@ def gene_set(spark):
 
 
 def gene_gene_set(spark):
-    srcdir = f'{s3_in}/out/pigean/gene_gene_set_stats/*/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/gene_gene_set_stats/*/*/*/*.json'
     bioindices = {
-        'gene': [col('phenotype'), col('gene'), col('sigma'), col('gene_set_size'), col('combined').desc()],
-        'gene_set': [col('phenotype'), col('gene_set'), col('sigma'), col('gene_set_size'), col('beta').desc()]
+        'gene': [col('phenotype'), col('gene'), col('gene_set_size'), col('combined').desc()],
+        'gene_set': [col('phenotype'), col('gene_set'), col('gene_set_size'), col('beta').desc()]
     }
     df = spark.read.json(srcdir)
     df = df.filter(df.gene.isNotNull())
