@@ -44,6 +44,7 @@ def translate_gss(json_line, trait_group, phenotype, gene_set_size):
     beta_uncorrected = make_option(json_line["beta_uncorrected"])
     if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
         return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
+               f'"source": {json_line["label"]}, ' \
                f'"beta": {beta}, ' \
                f'"beta_uncorrected": {beta_uncorrected}, ' \
                f'"n": {make_option(json_line["N"])}, ' \
@@ -58,6 +59,7 @@ def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
     if beta is not None and combined is not None:
         return f'{{"gene": "{json_line["Gene"]}", ' \
                f'"gene_set": "{json_line["gene_set"]}", ' \
+               f'"source": {json_line["label"]}, ' \
                f'"prior": {make_option(json_line["prior"])}, ' \
                f'"combined": {combined}, ' \
                f'"beta": {beta}, ' \
