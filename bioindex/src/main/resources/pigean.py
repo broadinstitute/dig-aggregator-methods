@@ -14,7 +14,7 @@ clean = udf(lambda s: s.replace(',', ';').encode('utf-8').decode('ascii', errors
 
 def attach_max_values(df, fields):
     max_values = df \
-        .select('phenotype', 'gene_set_size' *fields) \
+        .select('phenotype', 'gene_set_size', *fields) \
         .groupBy(['phenotype', 'gene_set_size']) \
         .agg({field: 'max' for field in fields}) \
         .select('phenotype', 'gene_set_size', *[col(f'max({field})').alias(f'max_trait_{field}') for field in fields])  # rename
