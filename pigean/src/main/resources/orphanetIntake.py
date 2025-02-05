@@ -39,7 +39,7 @@ def download_orphanet_xml():
 
 
 def process_name(s):
-    return s.replace(',', ';').encode('utf-8').decode('ascii', errors='ignore')
+    return s.replace(',', ';').replace('"', '\'').encode('utf-8').decode('ascii', errors='ignore')
 
 
 def get_gene_data():

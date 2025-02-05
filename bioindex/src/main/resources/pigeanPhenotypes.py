@@ -69,14 +69,18 @@ def get_orphanet_map():
     return out
 
 
+def clean(s):
+    return s.replace(',', ';').replace('"', '\'').encode('utf-8').decode('ascii', errors='ignore')
+
+
 def upload_maps(all_maps):
     with open('part-00000.json', 'w') as f:
         for trait_group, group_map in all_maps.items():
             for name, description in group_map.items():
                 f.write(f'{{"trait_group": "{trait_group}", '
                         f'"phenotype": "{name}", '
-                        f'"phenotype_name": "{description}", '
-                        f'"dummy": 1}}')
+                        f'"phenotype_name": "{clean(description)}", '
+                        f'"dummy": 1}}\n')
     subprocess.check_call(f'aws s3 cp part-00000.json {outdir}', shell=True)
 
 def main():

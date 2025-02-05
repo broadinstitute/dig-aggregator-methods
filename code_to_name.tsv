@@ -1,0 +1,2531 @@
+gcat_trait_1-1-enyl-palmitoyl-2-linoleoyl-GPE_P-160182_measurement	1-(1-enyl-palmitoyl)-2-linoleoyl-GPE (P-16:0/18:2) measurement
+gcat_trait_1-1-enyl-palmitoyl-2-oleoyl-GPC_P-160181_measurement	1-(1-enyl-palmitoyl)-2-oleoyl-GPC (P-16:0/18:1) measurement
+gcat_trait_1-1-enyl-palmitoyl-2-palmitoleoyl-GPC_P-160161_measurement	1-(1-enyl-palmitoyl)-2-palmitoleoyl-GPC (P-16:0/16:1) measurement
+gcat_trait_1-1-enyl-palmitoyl-2-palmitoyl-GPC_P-160160_measurement	1-(1-enyl-palmitoyl)-2-palmitoyl-GPC (P-16:0/16:0) measurement
+gcat_trait_1-1-enyl-palmitoyl-GPC_P-160_measurement	1-(1-enyl-palmitoyl)-GPC (P-16:0) measurement
+gcat_trait_1-1-enyl-stearoyl-2-linoleoyl-GPE_P-180182_measurement	1-(1-enyl-stearoyl)-2-linoleoyl-GPE (P-18:0/18:2)* measurement
+gcat_trait_1-Methylhistidine_measurement	1-Methylhistidine measurement
+gcat_trait_1-arachidonoyl-GPC_204n6_measurement	1-arachidonoyl-GPC (20:4n6) measurement
+gcat_trait_1-arachidonoyl-GPE_204n6_measurement	1-arachidonoyl-GPE (20:4n6) measurement
+gcat_trait_1-arachidonoyl-GPI_204_measurement	1-arachidonoyl-GPI (20:4) measurement
+gcat_trait_1-docosahexaenoyl-GPE_226_measurement	1-docosahexaenoyl-GPE (22:6) measurement
+gcat_trait_1-linoleoyl-2-arachidonoyl-GPC_182204n6_measurement	1-linoleoyl-2-arachidonoyl-GPC (18:2/20:4n6) measurement
+gcat_trait_1-linoleoyl-GPE_182_measurement	1-linoleoyl-GPE (18:2) measurement
+gcat_trait_1-linoleoyl-GPI_182_measurement	1-linoleoyl-GPI (18:2) measurement
+gcat_trait_1-margaroyl-2-linoleoyl-GPC_170182_measurement	1-margaroyl-2-linoleoyl-GPC (17:0/18:2) measurement
+gcat_trait_1-methylurate_measurement	1-methylurate measurement
+gcat_trait_1-methylxanthine_measurement	1-methylxanthine measurement
+gcat_trait_1-oleoyl-2-docosahexaenoyl-GPC_181226_measurement	1-oleoyl-2-docosahexaenoyl-GPC (18:1/22:6) measurement
+gcat_trait_1-oleoyl-2-linoleoyl-GPE_181182_measurement	1-oleoyl-2-linoleoyl-GPE (18:1/18:2) measurement
+gcat_trait_1-palmitoleoyl-GPC_161_measurement	1-palmitoleoyl-GPC (16:1) measurement
+gcat_trait_1-palmitoyl-2-arachidonoyl-GPE_160204_measurement	1-palmitoyl-2-arachidonoyl-GPE (16:0/20:4) measurement
+gcat_trait_1-palmitoyl-2-arachidonoyl-GPI_160204_measurement	1-palmitoyl-2-arachidonoyl-GPI (16:0/20:4) measurement
+gcat_trait_1-palmitoyl-2-docosahexaenoyl-GPC_160226_measurement	1-palmitoyl-2-docosahexaenoyl-GPC (16:0/22:6) measurement
+gcat_trait_1-palmitoyl-2-docosahexaenoyl-GPE_160226_measurement	1-palmitoyl-2-docosahexaenoyl-GPE (16:0/22:6) measurement
+gcat_trait_1-palmitoyl-2-linoleoyl-GPC_160182_measurement	1-palmitoyl-2-linoleoyl-GPC (16:0/18:2) measurement
+gcat_trait_1-palmitoyl-2-linoleoyl-GPE_160182_measurement	1-palmitoyl-2-linoleoyl-GPE (16:0/18:2) measurement
+gcat_trait_1-palmitoyl-2-linoleoyl-GPI_160182_measurement	1-palmitoyl-2-linoleoyl-GPI (16:0/18:2) measurement
+gcat_trait_1-palmitoyl-2-oleoyl-GPE_160181_measurement	1-palmitoyl-2-oleoyl-GPE (16:0/18:1) measurement
+gcat_trait_1-palmitoyl-2-oleoyl-GPI_160181_measurement	1-palmitoyl-2-oleoyl-GPI (16:0/18:1) measurement
+gcat_trait_1-palmitoyl-2-stearoyl-GPC_160180_measurement	1-palmitoyl-2-stearoyl-GPC (16:0/18:0) measurement
+gcat_trait_1-palmitoyl-GPC_160_measurement	1-palmitoyl-GPC (16:0) measurement
+gcat_trait_1-palmitoyl-GPE_160_measurement	1-palmitoyl-GPE (16:0) measurement
+gcat_trait_1-ribosyl-imidazoleacetate_measurement	1-ribosyl-imidazoleacetate measurement
+gcat_trait_1-stearoyl-2-arachidonoyl-GPC_180204_measurement	1-stearoyl-2-arachidonoyl-GPC (18:0/20:4) measurement
+gcat_trait_1-stearoyl-2-arachidonoyl-GPE_180204_measurement	1-stearoyl-2-arachidonoyl-GPE (18:0/20:4) measurement
+gcat_trait_1-stearoyl-2-arachidonoyl-GPI_180204_measurement	1-stearoyl-2-arachidonoyl-GPI (18:0/20:4) measurement
+gcat_trait_1-stearoyl-2-docosahexaenoyl-GPC_180226_measurement	1-stearoyl-2-docosahexaenoyl-GPC (18:0/22:6) measurement
+gcat_trait_1-stearoyl-2-docosahexaenoyl-GPE_180226_measurement	1-stearoyl-2-docosahexaenoyl-GPE (18:0/22:6) measurement
+gcat_trait_1-stearoyl-2-docosapentaenoyl-GPC_180225n3_measurement	1-stearoyl-2-docosapentaenoyl-GPC (18:0/22:5n3) measurement
+gcat_trait_1-stearoyl-2-linoleoyl-GPC_180182_measurement	1-stearoyl-2-linoleoyl-GPC (18:0/18:2) measurement
+gcat_trait_1-stearoyl-2-linoleoyl-GPE_180182_measurement	1-stearoyl-2-linoleoyl-GPE (18:0/18:2) measurement
+gcat_trait_1-stearoyl-2-linoleoyl-GPI_180182_measurement	1-stearoyl-2-linoleoyl-GPI (18:0/18:2) measurement
+gcat_trait_1-stearoyl-2-oleoyl-GPE_180181_measurement	1-stearoyl-2-oleoyl-GPE (18:0/18:1) measurement
+gcat_trait_1-stearoyl-GPC_180_measurement	1-stearoyl-GPC (18:0) measurement
+gcat_trait_1-stearoyl-GPE_180_measurement	1-stearoyl-GPE (18:0) measurement
+gcat_trait_10-undecenoate_111n1_measurement	10-undecenoate 11:1n1 measurement
+gcat_trait_11beta-hydroxyandrosterone_glucuronide_measurement	11beta-hydroxyandrosterone glucuronide measurement
+gcat_trait_12-dilinoleoyl-GPC_182182_measurement	1;2-dilinoleoyl-GPC (18:2/18:2) measurement
+gcat_trait_12-dipalmitoyl-GPC_160160_measurement	1;2-dipalmitoyl-GPC (16:0/16:0) measurement
+gcat_trait_137-trimethylurate_measurement	1;3;7-trimethylurate measurement
+gcat_trait_15_anhydroglucitol_measurement	1;5 anhydroglucitol measurement
+gcat_trait_16a-hydroxy_DHEA_3-sulfate_measurement	16a-hydroxy DHEA 3-sulfate measurement
+gcat_trait_17-dimethylurate_measurement	1;7-dimethylurate measurement
+gcat_trait_17-hydroxyprogesterone_measurement	17-hydroxyprogesterone measurement
+gcat_trait_2-aminobutyrate_measurement	2-aminobutyrate measurement
+gcat_trait_2-aminooctanoate_measurement	2-aminooctanoate measurement
+gcat_trait_2-hydroxy-3-methylvalerate_measurement	2-hydroxy-3-methylvalerate measurement
+gcat_trait_2-hydroxyglutarate_measurement	2-hydroxyglutarate measurement
+gcat_trait_2-stearoyl-GPE_180_measurement	2-stearoyl-GPE (18:0) measurement
+gcat_trait_21-hydroxypregnenolone_disulfate_measurement	21-hydroxypregnenolone disulfate measurement
+gcat_trait_245-trichlorophenol_measurement	2;4;5-trichlorophenol measurement
+gcat_trait_3-aminoisobutyrate_measurement	3-aminoisobutyrate measurement
+gcat_trait_3-carboxy-4-methyl-5-propyl-2-furanpropanoate_CMPF_measurement	3-carboxy-4-methyl-5-propyl-2-furanpropanoate CMPF measurement
+gcat_trait_3-formylindole_measurement	3-formylindole measurement
+gcat_trait_3-hydroxy-1-methylpropylmercapturic_acid_measurement	3-hydroxy-1-methylpropylmercapturic acid measurement
+gcat_trait_3-hydroxybutyrate_measurement	3-hydroxybutyrate measurement
+gcat_trait_3-hydroxypropylmercapturic_acid_measurement	3-hydroxypropylmercapturic acid measurement
+gcat_trait_3-methoxytyrosine_measurement	3-methoxytyrosine measurement
+gcat_trait_3-methyl-2-oxobutyrate_measurement	3-methyl-2-oxobutyrate measurement
+gcat_trait_3-methylglutaconate_measurement	3-methylglutaconate measurement
+gcat_trait_3-methylglutarylcarnitine_2_measurement	3-methylglutarylcarnitine (2) measurement
+gcat_trait_3-phenylpropionate_hydrocinnamate_measurement	3-phenylpropionate hydrocinnamate measurement
+gcat_trait_4-acetamidobutanoate_measurement	4-acetamidobutanoate measurement
+gcat_trait_4-androsten-3beta17beta-diol_disulfate_1_measurement	4-androsten-3beta;17beta-diol disulfate 1 measurement
+gcat_trait_4-androsten-3beta17beta-diol_disulfate_2_measurement	4-androsten-3beta;17beta-diol disulfate 2 measurement
+gcat_trait_4-ethylphenylsulfate_measurement	4-ethylphenylsulfate measurement
+gcat_trait_4-guanidinobutanoate_measurement	4-guanidinobutanoate measurement
+gcat_trait_4-hydroxychlorothalonil_measurement	4-hydroxychlorothalonil measurement
+gcat_trait_46-dinitro-o-cresol_measurement	4;6-dinitro-o-cresol measurement
+gcat_trait_5-HIAA_measurement	5-HIAA measurement
+gcat_trait_5-acetylamino-6-amino-3-methyluracil_measurement	5-acetylamino-6-amino-3-methyluracil measurement
+gcat_trait_5-acetylamino-6-formylamino-3-methyluracil_measurement	5-acetylamino-6-formylamino-3-methyluracil measurement
+gcat_trait_5-formyltetrahydrofolate_cyclo-ligase_measurement	5-formyltetrahydrofolate cyclo-ligase measurement
+gcat_trait_5-hydroxylysine_measurement	5-hydroxylysine measurement
+gcat_trait_5-methyluridine_ribothymidine_measurement	5-methyluridine (ribothymidine) measurement
+gcat_trait_5-oxoproline_measurement	5-oxoproline measurement
+gcat_trait_5alpha-androstan-3alpha17alpha-diol_monosulfate_measurement	5alpha-androstan-3alpha;17alpha-diol monosulfate measurement
+gcat_trait_5alpha-androstan-3alpha17beta-diol_disulfate_measurement	5alpha-androstan-3alpha;17beta-diol disulfate measurement
+gcat_trait_5alpha-androstan-3alpha17beta-diol_monosulfate_1_measurement	5alpha-androstan-3alpha;17beta-diol monosulfate (1) measurement
+gcat_trait_5alpha-androstan-3alpha17beta-diol_monosulfate_2_measurement	5alpha-androstan-3alpha;17beta-diol monosulfate (2) measurement
+gcat_trait_5alpha-androstan-3beta17beta-diol_disulfate_measurement	5alpha-androstan-3beta;17beta-diol disulfate measurement
+gcat_trait_5alpha-pregnan-3beta20alpha-diol_monosulfate_2_measurement	5alpha-pregnan-3beta;20alpha-diol monosulfate (2) measurement
+gcat_trait_5alpha-pregnan-3beta20beta-diol_monosulfate_1_measurement	5alpha-pregnan-3beta;20beta-diol monosulfate (1) measurement
+gcat_trait_5alpha-pregnan-diol_disulfate_measurement	5alpha-pregnan-diol disulfate measurement
+gcat_trait_6-bromotryptophan_measurement	6-bromotryptophan measurement
+gcat_trait_7-methylguanine_measurement	7-methylguanine measurement
+gcat_trait_ADP-ribosyl_cyclasecyclic_ADP-ribose_hydrolase_2_measurement	ADP-ribosyl cyclase/cyclic ADP-ribose hydrolase 2 measurement
+gcat_trait_AIDS	AIDS
+gcat_trait_Abdominal_Aortic_Aneurysm	Abdominal Aortic Aneurysm
+gcat_trait_Abnormality_of_chromosome_segregation	Abnormality of chromosome segregation
+gcat_trait_Abnormality_of_refraction	Abnormality of refraction
+gcat_trait_Acute_kidney_injury	Acute kidney injury
+gcat_trait_Age-related_nuclear_cataract	Age-related nuclear cataract
+gcat_trait_Agents_acting_on_the_renin-angiotensin_system_use_measurement	Agents acting on the renin-angiotensin system use measurement
+gcat_trait_Agouti-related_protein_measurement	Agouti-related protein measurement
+gcat_trait_Alpha_ketoglutarate_measurement	Alpha ketoglutarate measurement
+gcat_trait_Alzheimer_disease	Alzheimer disease
+gcat_trait_Alzheimers_disease_biomarker_measurement	Alzheimer's disease biomarker measurement
+gcat_trait_Anilide_use_measurement	Anilide use measurement
+gcat_trait_Anti-hepatitis_E_antibody_levels	Anti-hepatitis E antibody levels
+gcat_trait_Antiglaucoma_preparations_and_miotics_use_measurement	Antiglaucoma preparations and miotics use measurement
+gcat_trait_Antihistamine_use_measurement	Antihistamine use measurement
+gcat_trait_Antihypertensive_use_measurement	Antihypertensive use measurement
+gcat_trait_Antimigraine_preparation_use_measurement	Antimigraine preparation use measurement
+gcat_trait_Antithrombotic_agent_use_measurement	Antithrombotic agent use measurement
+gcat_trait_Astigmatism	Astigmatism
+gcat_trait_Autoimmune_Hepatitis	Autoimmune Hepatitis
+gcat_trait_B-cell_acute_lymphoblastic_leukemia	B-cell acute lymphoblastic leukemia
+gcat_trait_BMI-adjusted_adiponectin_measurement	BMI-adjusted adiponectin measurement
+gcat_trait_BMI-adjusted_fasting_blood_glucose_measurement	BMI-adjusted fasting blood glucose measurement
+gcat_trait_BMI-adjusted_fasting_blood_insulin_measurement	BMI-adjusted fasting blood insulin measurement
+gcat_trait_BMI-adjusted_hip_circumference	BMI-adjusted hip circumference
+gcat_trait_BMI-adjusted_leptin_measurement	BMI-adjusted leptin measurement
+gcat_trait_BMI-adjusted_waist-hip_ratio	BMI-adjusted waist-hip ratio
+gcat_trait_BMI-adjusted_waist_circumference	BMI-adjusted waist circumference
+gcat_trait_BRCA1_mutation_carier_status	BRCA1 mutation carier status
+gcat_trait_BRCA2_mutation_carier_statu	BRCA2 mutation carier statu
+gcat_trait_BRCAX_breast_cancer	BRCAX breast cancer
+gcat_trait_Back_pain	Back pain
+gcat_trait_Barretts_esophagus	Barrett's esophagus
+gcat_trait_Behcets_syndrome	Behcet's syndrome
+gcat_trait_Bells_palsy	Bell's palsy
+gcat_trait_Beta_blocking_agent_use_measurement	Beta blocking agent use measurement
+gcat_trait_Borderline_personality_disorder	Borderline personality disorder
+gcat_trait_Brugada_syndrome	Brugada syndrome
+gcat_trait_C-C_motif_chemokine_14_measurement	C-C motif chemokine 14 measurement
+gcat_trait_C-C_motif_chemokine_15_measurement	C-C motif chemokine 15 measurement
+gcat_trait_C-C_motif_chemokine_16_measurement	C-C motif chemokine 16 measurement
+gcat_trait_C-C_motif_chemokine_17_measurement	C-C motif chemokine 17 measurement
+gcat_trait_C-C_motif_chemokine_18_measurement	C-C motif chemokine 18 measurement
+gcat_trait_C-C_motif_chemokine_23_measurement	C-C motif chemokine 23 measurement
+gcat_trait_C-C_motif_chemokine_25_measurement	C-C motif chemokine 25 measurement
+gcat_trait_C-C_motif_chemokine_28_measurement	C-C motif chemokine 28 measurement
+gcat_trait_C-C_motif_chemokine_3_measurement	C-C motif chemokine 3 measurement
+gcat_trait_C-C_motif_chemokine_4-like_measurement	C-C motif chemokine 4-like measurement
+gcat_trait_C-C_motif_chemokine_7_measurement	C-C motif chemokine 7 measurement
+gcat_trait_C-C_motif_chemokine_8_measurement	C-C motif chemokine 8 measurement
+gcat_trait_C-X-C_motif_chemokine_10_measurement	C-X-C motif chemokine 10 measurement
+gcat_trait_C-X-C_motif_chemokine_11_measurement	C-X-C motif chemokine 11 measurement
+gcat_trait_C-X-C_motif_chemokine_16_measurement	C-X-C motif chemokine 16 measurement
+gcat_trait_C-X-C_motif_chemokine_5_measurement	C-X-C motif chemokine 5 measurement
+gcat_trait_C-X-C_motif_chemokine_6_measurement	C-X-C motif chemokine 6 measurement
+gcat_trait_C-peptide_measurement	C-peptide measurement
+gcat_trait_C-reactive_protein_measurement	C-reactive protein measurement
+gcat_trait_CCL11_measurement	CCL11 measurement
+gcat_trait_CCL24_measurement	CCL24 measurement
+gcat_trait_CCL2_measurement	CCL2 measurement
+gcat_trait_CCL4_measurement	CCL4 measurement
+gcat_trait_CCL5_measurement	CCL5 measurement
+gcat_trait_CD109_antigen_measurement	CD109 antigen measurement
+gcat_trait_CD209_antigen_measurement	CD209 antigen measurement
+gcat_trait_CD27_antigen_measurement	CD27 antigen measurement
+gcat_trait_CFTR_mutation_carrier_status	CFTR mutation carrier status
+gcat_trait_CMRF35-like_molecule_6_measurement	CMRF35-like molecule 6 measurement
+gcat_trait_COVID-19	COVID-19
+gcat_trait_COVID-19_symptoms_measurement	COVID-19 symptoms measurement
+gcat_trait_Calcium_channel_blocker_use_measurement	Calcium channel blocker use measurement
+gcat_trait_Cannabis_use	Cannabis use
+gcat_trait_Cannabis_use_initiation	Cannabis use initiation
+gcat_trait_Cardiac_MRI_latent_space	Cardiac MRI latent space
+gcat_trait_Central_precocious_puberty	Central precocious puberty
+gcat_trait_Chagas_cardiomyopathy	Chagas cardiomyopathy
+gcat_trait_Child_Behaviour_Checklist_assessment	Child Behaviour Checklist assessment
+gcat_trait_Cholecystitis	Cholecystitis
+gcat_trait_Chronic_pain	Chronic pain
+gcat_trait_Ck-beta-8-1_measurement	Ck-beta-8-1 measurement
+gcat_trait_Cleft_palate	Cleft palate
+gcat_trait_Corneal_astigmatism	Corneal astigmatism
+gcat_trait_Crohns_disease	Crohn's disease
+gcat_trait_DDT_metabolite_measurement	DDT metabolite measurement
+gcat_trait_DNA_methylation	DNA methylation
+gcat_trait_D_dimer_measurement	D dimer measurement
+gcat_trait_Dental_enamel_hypoplasia	Dental enamel hypoplasia
+gcat_trait_Diarrhea	Diarrhea
+gcat_trait_Dickkopf-related_protein_4_measurement	Dickkopf-related protein 4 measurement
+gcat_trait_Diuretic_use_measurement	Diuretic use measurement
+gcat_trait_Drug-induced_agranulocytosis	Drug-induced agranulocytosis
+gcat_trait_Drugs_affecting_bone_structure_and_mineralization_use_measurement	Drugs affecting bone structure and mineralization use measurement
+gcat_trait_Drugs_used_in_diabetes_use_measurement	Drugs used in diabetes use measurement
+gcat_trait_Dupuytren_Contracture	Dupuytren Contracture
+gcat_trait_Dysphagia	Dysphagia
+gcat_trait_Eczematoid_dermatitis	Eczematoid dermatitis
+gcat_trait_Epstein-Barr_virus_infection	Epstein-Barr virus infection
+gcat_trait_Epstein-Barr_virus_seropositivity	Epstein-Barr virus seropositivity
+gcat_trait_Ewing_sarcoma	Ewing sarcoma
+gcat_trait_FEVFVC_ratio	FEV/FVC ratio
+gcat_trait_Facial_wrinkling	Facial wrinkling
+gcat_trait_Febrile_seizure_within_the_age_range_of_3_months_to_6_years	Febrile seizure (within the age range of 3 months to 6 years)
+gcat_trait_Fuchs_endothelial_corneal_dystrophy	Fuchs endothelial corneal dystrophy
+gcat_trait_GDH6PGL_endoplasmic_bifunctional_protein_measurement	GDH/6PGL endoplasmic bifunctional protein measurement
+gcat_trait_GDNF_family_receptor_alpha-2_measurement	GDNF family receptor alpha-2 measurement
+gcat_trait_GM3_ganglioside_measurement	GM3 ganglioside measurement
+gcat_trait_Genetic_chronic_primary_adrenal_insufficiency	Genetic chronic primary adrenal insufficiency
+gcat_trait_Glucocorticoid_use_measurement	Glucocorticoid use measurement
+gcat_trait_Gluconic_acid_measurement	Gluconic acid measurement
+gcat_trait_Graves_disease	Graves disease
+gcat_trait_Grey_matter_density_measurement	Grey matter density measurement
+gcat_trait_HDL_cholesterol_change_measurement	HDL cholesterol change measurement
+gcat_trait_HETE_measurement	HETE measurement
+gcat_trait_HIV-1_infection	HIV-1 infection
+gcat_trait_HIV_viral_set_point_measurement	HIV viral set point measurement
+gcat_trait_HMG_CoA_reductase_inhibitor_use_measurement	HMG CoA reductase inhibitor use measurement
+gcat_trait_HOMA-B	HOMA-B
+gcat_trait_HOMA-IR	HOMA-IR
+gcat_trait_HSV2_virologic_severity_measurement	HSV2 virologic severity measurement
+gcat_trait_HVA_measurement	HVA measurement
+gcat_trait_Hallux_valgus	Hallux valgus
+gcat_trait_Hashimotos_thyroiditis	Hashimoto's thyroiditis
+gcat_trait_HbA1c_measurement	HbA1c measurement
+gcat_trait_Headache	Headache
+gcat_trait_Henoch-Schoenlein_purpura	Henoch-Schoenlein purpura
+gcat_trait_Hepatic_fibrosis	Hepatic fibrosis
+gcat_trait_Hepatitis	Hepatitis
+gcat_trait_Hernia	Hernia
+gcat_trait_Herpes_Zoster	Herpes Zoster
+gcat_trait_Heschls_gyrus_morphology_measurement	Heschl's gyrus morphology measurement
+gcat_trait_Hirschsprung_disease	Hirschsprung disease
+gcat_trait_Hodgkins_lymphoma	Hodgkins lymphoma
+gcat_trait_Hypermetropia	Hypermetropia
+gcat_trait_Hypertriglyceridemia	Hypertriglyceridemia
+gcat_trait_Hypoxanthine_measurement	Hypoxanthine measurement
+gcat_trait_ICAM-1_measurement	ICAM-1 measurement
+gcat_trait_IGA_glomerulonephritis	IGA glomerulonephritis
+gcat_trait_IGF-1_measurement	IGF-1 measurement
+gcat_trait_IGFBP-3_measurement	IGFBP-3 measurement
+gcat_trait_Immunosuppressant_use_measurement	Immunosuppressant use measurement
+gcat_trait_Inguinal_hernia	Inguinal hernia
+gcat_trait_Inhalant_adrenergic_use_measurement	Inhalant adrenergic use measurement
+gcat_trait_Intrahepatic_cholestasis_of_pregnancy	Intrahepatic cholestasis of pregnancy
+gcat_trait_Ischemic_stroke	Ischemic stroke
+gcat_trait_JT_interval	JT interval
+gcat_trait_Keloid	Keloid
+gcat_trait_Kunitz-type_protease_inhibitor_1_measurement	Kunitz-type protease inhibitor 1 measurement
+gcat_trait_Kunitz-type_protease_inhibitor_2_measurement	Kunitz-type protease inhibitor 2 measurement
+gcat_trait_L-Selectin_measurement	L-Selectin measurement
+gcat_trait_L-arginine_measurement	L-arginine measurement
+gcat_trait_L_lactate_dehydrogenase_measurement	L lactate dehydrogenase measurement
+gcat_trait_Left_ventricular_mass_to_end-diastolic_volume_ratio	Left ventricular mass to end-diastolic volume ratio
+gcat_trait_Lewy_body_dementia	Lewy body dementia
+gcat_trait_MHC_class_I_polypeptide-related_sequence_A_measurement	MHC class I polypeptide-related sequence A measurement
+gcat_trait_MHC_class_I_polypeptide-related_sequence_B_measurement	MHC class I polypeptide-related sequence B measurement
+gcat_trait_MHPG_measurement	MHPG measurement
+gcat_trait_MMR-related_febrile_seizures	MMR-related febrile seizures
+gcat_trait_Mastocytosis	Mastocytosis
+gcat_trait_Mental_deterioration	Mental deterioration
+gcat_trait_Mitral_valve_prolapse	Mitral valve prolapse
+gcat_trait_Moderate_albuminuria	Moderate albuminuria
+gcat_trait_Modic_type_vertebral_endplate_changes	Modic type vertebral endplate changes
+gcat_trait_Mosaic_loss_of_chromosome_X	Mosaic loss of chromosome X
+gcat_trait_Moyamoya_disease	Moyamoya disease
+gcat_trait_Myasthenia_gravis	Myasthenia gravis
+gcat_trait_Myopia	Myopia
+gcat_trait_N-acetyl-1-methylhistidine_measurement	N-acetyl-1-methylhistidine measurement
+gcat_trait_N-acetyl-2-aminooctanoate_measurement	N-acetyl-2-aminooctanoate measurement
+gcat_trait_N-acetyl-aspartyl-glutamate_NAAG_measurement	N-acetyl-aspartyl-glutamate (NAAG) measurement
+gcat_trait_N-acetyl-beta-alanine_measurement	N-acetyl-beta-alanine measurement
+gcat_trait_N-acetyl-isoputreanine_measurement	N-acetyl-isoputreanine measurement
+gcat_trait_N-acetylarginine_measurement	N-acetylarginine measurement
+gcat_trait_N-acetylcarnosine_measurement	N-acetylcarnosine measurement
+gcat_trait_N-acetylglucosaminylasparagine_measurement	N-acetylglucosaminylasparagine measurement
+gcat_trait_N-acetylglutamine_measurement	N-acetylglutamine measurement
+gcat_trait_N-acetylglycine_measurement	N-acetylglycine measurement
+gcat_trait_N-acetylhistidine_measurement	N-acetylhistidine measurement
+gcat_trait_N-acetylkynurenine_2_measurement	N-acetylkynurenine (2) measurement
+gcat_trait_N-acetylleucine_measurement	N-acetylleucine measurement
+gcat_trait_N-acetylmethionine_measurement	N-acetylmethionine measurement
+gcat_trait_N-acetylneuraminate_measurement	N-acetylneuraminate measurement
+gcat_trait_N-acetylphenylalanine_measurement	N-acetylphenylalanine measurement
+gcat_trait_N-acetylputrescine_measurement	N-acetylputrescine measurement
+gcat_trait_N-acetylserine_measurement	N-acetylserine measurement
+gcat_trait_N-acetyltaurine_measurement	N-acetyltaurine measurement
+gcat_trait_N-acetyltryptophan_measurement	N-acetyltryptophan measurement
+gcat_trait_N-acetyltyrosine_measurement	N-acetyltyrosine measurement
+gcat_trait_N-acylethanolamine-hydrolyzing_acid_amidase_measurement	N-acylethanolamine-hydrolyzing acid amidase measurement
+gcat_trait_N-delta-acetylornithine_measurement	N-delta-acetylornithine measurement
+gcat_trait_N-formylmethionine_measurement	N-formylmethionine measurement
+gcat_trait_N-glycan_measurement	N-glycan measurement
+gcat_trait_N1-methyladenosine_measurement	N1-methyladenosine measurement
+gcat_trait_N4-acetylcytidine_measurement	N4-acetylcytidine measurement
+gcat_trait_N6-acetyllysine_measurement	N6-acetyllysine measurement
+gcat_trait_N6-methyllysine_measurement	N6-methyllysine measurement
+gcat_trait_N6N6-dimethyllysine_measurement	N6;N6-dimethyllysine measurement
+gcat_trait_N6N6N6-trimethyllysine_measurement	N6;N6;N6-trimethyllysine measurement
+gcat_trait_NAD-dependent_protein_deacetylase_sirtuin-2_measurement	NAD-dependent protein deacetylase sirtuin-2 measurement
+gcat_trait_NNN-trimethyl-5-aminovalerate_measurement	N;N;N-trimethyl-5-aminovalerate measurement
+gcat_trait_Nasal_Cavity_Polyp	Nasal Cavity Polyp
+gcat_trait_Nystagmus	Nystagmus
+gcat_trait_Obsessive-compulsive_trait	Obsessive-compulsive trait
+gcat_trait_Opioid_use_measurement	Opioid use measurement
+gcat_trait_Oral_ulcer	Oral ulcer
+gcat_trait_Orofacial_cleft	Orofacial cleft
+gcat_trait_Otitis_media	Otitis media
+gcat_trait_P-Selectin_measurement	P-Selectin measurement
+gcat_trait_PCSK9_protein_measurement	PCSK9 protein measurement
+gcat_trait_PR_interval	PR interval
+gcat_trait_P_wave_duration	P wave duration
+gcat_trait_Parkinson_disease	Parkinson disease
+gcat_trait_Parkinsons_disease_symptom_measurement	Parkinson's disease symptom measurement
+gcat_trait_Peptic_ulcer_and_gastro-oesophageal_reflux_disease_GORD_drug_use_measurement	Peptic ulcer and gastro-oesophageal reflux disease (GORD) drug use measurement
+gcat_trait_Periodontal_Pocket	Periodontal Pocket
+gcat_trait_Phenyllactate_PLA_measurement	Phenyllactate (PLA) measurement
+gcat_trait_Postural_instability	Postural instability
+gcat_trait_Pregn_steroid_monosulfate_measurement	Pregn steroid monosulfate measurement
+gcat_trait_Premature_atrial_contractions	Premature atrial contractions
+gcat_trait_Progressive_visual_loss	Progressive visual loss
+gcat_trait_Proteinuria	Proteinuria
+gcat_trait_QRS-T_angle	QRS-T angle
+gcat_trait_QRS_duration	QRS duration
+gcat_trait_QT_interval	QT interval
+gcat_trait_R-6-hydroxywarfarin_measurement	R-6-hydroxywarfarin measurement
+gcat_trait_R-6-hydroxywarfarin_to_R-warfarin_ratio_measurement	R-6-hydroxywarfarin to R-warfarin ratio measurement
+gcat_trait_R-warfarin_measurement	R-warfarin measurement
+gcat_trait_RR_interval	RR interval
+gcat_trait_RS-10-hydroxywarfarin_measurement	RS-10-hydroxywarfarin measurement
+gcat_trait_RS-10-hydroxywarfarin_to_RS-warfarin_ratio_measurement	RS-10-hydroxywarfarin to RS-warfarin ratio measurement
+gcat_trait_RS-6-hydroxywarfarin_measurement	RS-6-hydroxywarfarin measurement
+gcat_trait_RS-warfarin_measurement	RS-warfarin measurement
+gcat_trait_Raynaud_disease	Raynaud disease
+gcat_trait_Red_cell_distribution_width	Red cell distribution width
+gcat_trait_Rolandic_epilepsy	Rolandic epilepsy
+gcat_trait_S-1-pyrroline-5-carboxylate_measurement	S-1-pyrroline-5-carboxylate measurement
+gcat_trait_S-6-hydroxywarfarin_measurement	S-6-hydroxywarfarin measurement
+gcat_trait_S-6-hydroxywarfarin_to_S-warfarin_ratio_measurement	S-6-hydroxywarfarin to S-warfarin ratio measurement
+gcat_trait_S-7-hydroxywarfarin_measurement	S-7-hydroxywarfarin measurement
+gcat_trait_S-7-hydroxywarfarin_to_S-warfarin_ratio_measurement	S-7-hydroxywarfarin to S-warfarin ratio measurement
+gcat_trait_S-adenosylhomocysteine_measurement	S-adenosylhomocysteine measurement
+gcat_trait_S-formylglutathione_hydrolase_measurement	S-formylglutathione hydrolase measurement
+gcat_trait_S-warfarin_measurement	S-warfarin measurement
+gcat_trait_S-warfarin_to_R-warfarin_ratio_measurement	S-warfarin to R-warfarin ratio measurement
+gcat_trait_S100_calcium-binding_protein_B_measurement	S100 calcium-binding protein B measurement
+gcat_trait_SAPHO_syndrome	SAPHO syndrome
+gcat_trait_SLAM_family_member_7_measurement	SLAM family member 7 measurement
+gcat_trait_SPARC-like_protein_1_measurement	SPARC-like protein 1 measurement
+gcat_trait_ST2_protein_measurement	ST2 protein measurement
+gcat_trait_Sarcosine_measurement	Sarcosine measurement
+gcat_trait_Schizoaffective_disorder-bipolar_type	Schizoaffective disorder-bipolar type
+gcat_trait_Secreted_frizzled-related_protein_3_measurement	Secreted frizzled-related protein 3 measurement
+gcat_trait_Self-injurious_behavior	Self-injurious behavior
+gcat_trait_Sjogren_syndrome	Sjogren syndrome
+gcat_trait_Sphingomyelin_d181140_d161160_measurement	Sphingomyelin (d18:1/14:0; d16:1/16:0) measurement
+gcat_trait_Sphingomyelin_d181170_d171180_d191160_measurement	Sphingomyelin (d18:1/17:0; d17:1/18:0; d19:1/16:0) measurement
+gcat_trait_Sphingomyelin_d181200_d161220_measurement	Sphingomyelin (d18:1/20:0; d16:1/22:0) measurement
+gcat_trait_Sphingomyelin_d181201_d182200_measurement	Sphingomyelin (d18:1/20:1; d18:2/20:0) measurement
+gcat_trait_Sphingomyelin_d182241_d181242_measurement	Sphingomyelin (d18:2/24:1; d18:1/24:2) measurement
+gcat_trait_Strabismus	Strabismus
+gcat_trait_Stuttering	Stuttering
+gcat_trait_Sushi_von_Willebrand_factor_type_A_EGF_and_pentraxin_domain-containing_protein_1_measurement	Sushi; von Willebrand factor type A; EGF and pentraxin domain-containing protein 1 measurement
+gcat_trait_T-cell_surface_glycoprotein_CD3_epsilon_chain_measurement	T-cell surface glycoprotein CD3 epsilon chain measurement
+gcat_trait_TEMPS-A_questionnaire	TEMPS-A questionnaire
+gcat_trait_TNF-related_apoptosis-inducing_ligand_measurement	TNF-related apoptosis-inducing ligand measurement
+gcat_trait_TPE_interval_measurement	TPE interval measurement
+gcat_trait_T_wave_morphology_measurement	T wave morphology measurement
+gcat_trait_Takayasu_arteritis	Takayasu arteritis
+gcat_trait_Testicular_Germ_Cell_Tumor	Testicular Germ Cell Tumor
+gcat_trait_Thrombocytopenia	Thrombocytopenia
+gcat_trait_Thromboembolism	Thromboembolism
+gcat_trait_Thyroid_preparation_use_measurement	Thyroid preparation use measurement
+gcat_trait_Tinnitus	Tinnitus
+gcat_trait_Tourette_syndrome	Tourette syndrome
+gcat_trait_Umbilical_hernia	Umbilical hernia
+gcat_trait_Uterine_leiomyoma	Uterine leiomyoma
+gcat_trait_Uveal_Melanoma	Uveal Melanoma
+gcat_trait_Varicose_veins	Varicose veins
+gcat_trait_Vascular_dementia	Vascular dementia
+gcat_trait_Vasodilators_used_in_cardiac_diseases_use_measurement	Vasodilators used in cardiac diseases use measurement
+gcat_trait_Vertigo	Vertigo
+gcat_trait_Vitiligo	Vitiligo
+gcat_trait_WAP_Kazal_immunoglobulin_Kunitz_and_NTR_domain-containing_protein_2_measurement	WAP; Kazal; immunoglobulin; Kunitz and NTR domain-containing protein 2 measurement
+gcat_trait_WNT1-inducible-signaling_pathway_protein_1_measurement	WNT1-inducible-signaling pathway protein 1 measurement
+gcat_trait_X-11308_measurement	X-11308 measurement
+gcat_trait_X-11315_measurement	X-11315 measurement
+gcat_trait_X-11381_measurement	X-11381 measurement
+gcat_trait_X-11440_measurement	X-11440 measurement
+gcat_trait_X-11444_measurement	X-11444 measurement
+gcat_trait_X-11470_measurement	X-11470 measurement
+gcat_trait_X-11787_measurement	X-11787 measurement
+gcat_trait_X-12063_measurement	X-12063 measurement
+gcat_trait_X-12100_measurement	X-12100 measurement
+gcat_trait_X-12112_measurement	X-12112 measurement
+gcat_trait_X-12127_measurement	X-12127 measurement
+gcat_trait_X-12707_measurement	X-12707 measurement
+gcat_trait_X-12798_measurement	X-12798 measurement
+gcat_trait_X-12822_measurement	X-12822 measurement
+gcat_trait_X-12844_measurement	X-12844 measurement
+gcat_trait_X-13431_measurement	X-13431 measurement
+gcat_trait_X-13553_measurement	X-13553 measurement
+gcat_trait_X-13684_measurement	X-13684 measurement
+gcat_trait_X-16935_measurement	X-16935 measurement
+gcat_trait_X-17357_measurement	X-17357 measurement
+gcat_trait_X-17653_measurement	X-17653 measurement
+gcat_trait_X-17654_measurement	X-17654 measurement
+gcat_trait_X-17676_measurement	X-17676 measurement
+gcat_trait_X-18921_measurement	X-18921 measurement
+gcat_trait_X-18922_measurement	X-18922 measurement
+gcat_trait_X-19141_measurement	X-19141 measurement
+gcat_trait_X-21410_measurement	X-21410 measurement
+gcat_trait_X-21441_measurement	X-21441 measurement
+gcat_trait_X-21467_measurement	X-21467 measurement
+gcat_trait_X-21470_measurement	X-21470 measurement
+gcat_trait_X-21471_measurement	X-21471 measurement
+gcat_trait_X-21607_measurement	X-21607 measurement
+gcat_trait_X-22162_measurement	X-22162 measurement
+gcat_trait_X-23639_measurement	X-23639 measurement
+gcat_trait_X-23680_measurement	X-23680 measurement
+gcat_trait_X-23749_measurement	X-23749 measurement
+gcat_trait_X-24309_measurement	X-24309 measurement
+gcat_trait_X-24418_measurement	X-24418 measurement
+gcat_trait_X-24544_measurement	X-24544 measurement
+gcat_trait_X-24588_measurement	X-24588 measurement
+gcat_trait_X-24947_measurement	X-24947 measurement
+gcat_trait_YKL40_measurement	YKL40 measurement
+gcat_trait_Yu-Zhi_constitution_type	Yu-Zhi constitution type
+gcat_trait_a_disintegrin_and_metalloproteinase_with_thrombospondin_motifs_13_measurement	a disintegrin and metalloproteinase with thrombospondin motifs 13 measurement
+gcat_trait_abdominal_adipose_tissue_measurement	abdominal adipose tissue measurement
+gcat_trait_abdominal_fat_cell_number	abdominal fat cell number
+gcat_trait_abdominalgluteofemoral_adipose_tissue_ratio_measurement	abdominal:gluteofemoral adipose tissue ratio measurement
+gcat_trait_able_to_hear_with_hearing_aids	able to hear with hearing aids
+gcat_trait_acetate_measurement	acetate measurement
+gcat_trait_acetone_measurement	acetone measurement
+gcat_trait_acetylcarnitine_measurement	acetylcarnitine measurement
+gcat_trait_acid_sphingomyelinase-like_phosphodiesterase_3a_measurement	acid sphingomyelinase-like phosphodiesterase 3a measurement
+gcat_trait_acisoga_measurement	acisoga measurement
+gcat_trait_acne	acne
+gcat_trait_actinic_keratosis	actinic keratosis
+gcat_trait_activities_of_daily_living_score_measurement	activities of daily living score measurement
+gcat_trait_acute_graft_vs_host_disease	acute graft vs. host disease
+gcat_trait_acute_lymphoblastic_leukemia	acute lymphoblastic leukemia
+gcat_trait_acute_pancreatitis	acute pancreatitis
+gcat_trait_acylcarnitine_measurement	acylcarnitine measurement
+gcat_trait_adenosine_diphosphate_measurement	adenosine diphosphate measurement
+gcat_trait_adenosine_monophosphate_measurement	adenosine monophosphate measurement
+gcat_trait_adenoviridae_virus_seropositivity	adenoviridae virus seropositivity
+gcat_trait_adiponectin_measurement	adiponectin measurement
+gcat_trait_adipose_tissue_measurement	adipose tissue measurement
+gcat_trait_adipoylcarnitine_C6-DC_measurement	adipoylcarnitine (C6-DC) measurement
+gcat_trait_adolescent_idiopathic_scoliosis	adolescent idiopathic scoliosis
+gcat_trait_adult_onset_asthma	adult onset asthma
+gcat_trait_advanced_glycosylation_end_product-specific_receptor_ligand_measurement	advanced glycosylation end product-specific receptor ligand measurement
+gcat_trait_advanced_glycosylation_end_product-specific_receptor_soluble_measurement	advanced glycosylation end product-specific receptor; soluble measurement
+gcat_trait_age-related_hearing_impairment	age-related hearing impairment
+gcat_trait_age-related_macular_degeneration	age-related macular degeneration
+gcat_trait_age_at_first_birth_measurement	age at first birth measurement
+gcat_trait_age_at_first_sexual_intercourse_measurement	age at first sexual intercourse measurement
+gcat_trait_age_at_initiation_of_smoking	age at initiation of smoking
+gcat_trait_age_at_menarche	age at menarche
+gcat_trait_age_at_menopause	age at menopause
+gcat_trait_age_at_voice_drop	age at voice drop
+gcat_trait_age_of_onset_of_Alzheimer_disease	age of onset of Alzheimer disease
+gcat_trait_age_of_onset_of_Parkinson_disease	age of onset of Parkinson disease
+gcat_trait_age_of_onset_of_asthma	age of onset of asthma
+gcat_trait_age_of_onset_of_childhood_onset_asthma	age of onset of childhood onset asthma
+gcat_trait_age_of_onset_of_cognitive_disorder	age of onset of cognitive disorder
+gcat_trait_aggressive_behavior	aggressive behavior
+gcat_trait_aggressive_periodontitis	aggressive periodontitis
+gcat_trait_aging	aging
+gcat_trait_airway_imaging_measurement	airway imaging measurement
+gcat_trait_airway_responsiveness_measurement	airway responsiveness measurement
+gcat_trait_airway_wall_thickness_measurement	airway wall thickness measurement
+gcat_trait_alanine_measurement	alanine measurement
+gcat_trait_albuminglobulin_ratio_measurement	albumin:globulin ratio measurement
+gcat_trait_albuminuria	albuminuria
+gcat_trait_alcohol_and_nicotine_codependence	alcohol and nicotine codependence
+gcat_trait_alcohol_consumption_measurement	alcohol consumption measurement
+gcat_trait_alcohol_dependence	alcohol dependence
+gcat_trait_alcohol_dependence_measurement	alcohol dependence measurement
+gcat_trait_alcohol_drinking	alcohol drinking
+gcat_trait_alcohol_use_disorder_measurement	alcohol use disorder measurement
+gcat_trait_alcoholic_liver_cirrhosis	alcoholic liver cirrhosis
+gcat_trait_alcoholic_liver_disease	alcoholic liver disease
+gcat_trait_alcoholic_pancreatitis	alcoholic pancreatitis
+gcat_trait_aldrin_measurement	aldrin measurement
+gcat_trait_alkaline_phosphatase_measurement	alkaline phosphatase measurement
+gcat_trait_allergic_disease	allergic disease
+gcat_trait_allergic_rhinitis	allergic rhinitis
+gcat_trait_allergic_sensitization_measurement	allergic sensitization measurement
+gcat_trait_alopecia	alopecia
+gcat_trait_alopecia_areata	alopecia areata
+gcat_trait_alpha-1-antitrypsin_measurement	alpha-1-antitrypsin measurement
+gcat_trait_alpha-13-fucosyltransferase_5_measurement	alpha-(1;3)-fucosyltransferase 5 measurement
+gcat_trait_alpha-2-HS-glycoprotein_measurement	alpha-2-HS-glycoprotein measurement
+gcat_trait_alpha-2-macroglobulin_receptor-associated_protein_measurement	alpha-2-macroglobulin receptor-associated protein measurement
+gcat_trait_alpha-L-iduronidase_measurement	alpha-L-iduronidase measurement
+gcat_trait_alpha-amylase_1_measurement	alpha-amylase 1 measurement
+gcat_trait_alpha-hydroxyisovalerate_measurement	alpha-hydroxyisovalerate measurement
+gcat_trait_alpha-linolenic_acid_measurement	alpha-linolenic acid measurement
+gcat_trait_alpha-tocopherol_measurement	alpha-tocopherol measurement
+gcat_trait_alpha_fetoprotein_measurement	alpha fetoprotein measurement
+gcat_trait_alpha_synuclein_measurement	alpha synuclein measurement
+gcat_trait_amblyopia	amblyopia
+gcat_trait_amino_acid_measurement	amino acid measurement
+gcat_trait_aminoadipic_acid_measurement	aminoadipic acid measurement
+gcat_trait_amygdala_volume	amygdala volume
+gcat_trait_amyloid-beta_measurement	amyloid-beta measurement
+gcat_trait_amyotrophic_lateral_sclerosis	amyotrophic lateral sclerosis
+gcat_trait_andro_steroid_monosulfate_C19H28O6S_1_measurement	andro steroid monosulfate C19H28O6S (1) measurement
+gcat_trait_androgenetic_alopecia	androgenetic alopecia
+gcat_trait_androstenediol_3alpha_17alpha_monosulfate_3_measurement	androstenediol (3alpha; 17alpha) monosulfate (3) measurement
+gcat_trait_androstenedione_measurement	androstenedione measurement
+gcat_trait_androsterone_glucuronide_measurement	androsterone glucuronide measurement
+gcat_trait_androsterone_sulfate_measurement	androsterone sulfate measurement
+gcat_trait_angina_pectoris	angina pectoris
+gcat_trait_angiogenin_measurement	angiogenin measurement
+gcat_trait_angiopoietin-1_receptor_measurement	angiopoietin-1 receptor measurement
+gcat_trait_angiopoietin-1_receptor_soluble_measurement	angiopoietin-1 receptor; soluble measurement
+gcat_trait_angiopoietin-related_protein_1_measurement	angiopoietin-related protein 1 measurement
+gcat_trait_animal_allergen_seropositivity	animal allergen seropositivity
+gcat_trait_ankle_brachial_index	ankle brachial index
+gcat_trait_ankle_injury	ankle injury
+gcat_trait_ankylosing_spondylitis	ankylosing spondylitis
+gcat_trait_annexin_A2_measurement	annexin A2 measurement
+gcat_trait_anorectal_malformation	anorectal malformation
+gcat_trait_anorexia_nervosa	anorexia nervosa
+gcat_trait_anterior_thigh_muscle_fat_infiltration_measurement	anterior thigh muscle fat infiltration measurement
+gcat_trait_anterior_uveitis	anterior uveitis
+gcat_trait_anthranilic_acid_measurement	anthranilic acid measurement
+gcat_trait_anthropometric_measurement	anthropometric measurement
+gcat_trait_anti-Epstein_Barr_virus_antibody_measurement	anti-Epstein Barr virus antibody measurement
+gcat_trait_anti-GAD65_autoimmune_neurological_syndromes	anti-GAD65 autoimmune neurological syndromes
+gcat_trait_anti-Mullerian_hormone_measurement	anti-Mullerian hormone measurement
+gcat_trait_anti-anoctamin_2_antibody_measurement	anti-anoctamin 2 antibody measurement
+gcat_trait_anti-centromere-antibody-positive_systemic_scleroderma	anti-centromere-antibody-positive systemic scleroderma
+gcat_trait_anti-neutrophil_antibody_associated_vasculitis	anti-neutrophil antibody associated vasculitis
+gcat_trait_anti-thyroglobulin_antibody_measurement	anti-thyroglobulin antibody measurement
+gcat_trait_antibody_measurement	antibody measurement
+gcat_trait_antihyperlipidemic_drug_use_measurement	antihyperlipidemic drug use measurement
+gcat_trait_antioxidant_measurement	antioxidant measurement
+gcat_trait_antiphospholipid_antibody_measurement	antiphospholipid antibody measurement
+gcat_trait_antiphospholipid_syndrome	antiphospholipid syndrome
+gcat_trait_antipsychotic_drug_related_weight_gain	antipsychotic drug related weight gain
+gcat_trait_antipsychotic_drug_use_measurement	antipsychotic drug use measurement
+gcat_trait_antisaccade_response_measurement	antisaccade response measurement
+gcat_trait_anxiety	anxiety
+gcat_trait_anxiety_disorder	anxiety disorder
+gcat_trait_anxiety_measurement	anxiety measurement
+gcat_trait_aortic_measurement	aortic measurement
+gcat_trait_aortic_root_size	aortic root size
+gcat_trait_aortic_stenosis	aortic stenosis
+gcat_trait_apolipoprotein_A_1_measurement	apolipoprotein A 1 measurement
+gcat_trait_apolipoprotein_B_measurement	apolipoprotein B measurement
+gcat_trait_apolipoprotein_B_to_apolipoprotein_A1_ratio	apolipoprotein B to apolipoprotein A1 ratio
+gcat_trait_apolipoprotein_C_measurement	apolipoprotein C measurement
+gcat_trait_apolipoprotein_E_measurement	apolipoprotein E measurement
+gcat_trait_apolipoprotein_L1_measurement	apolipoprotein L1 measurement
+gcat_trait_appendicitis	appendicitis
+gcat_trait_appendicular_lean_mass	appendicular lean mass
+gcat_trait_arachidonate_204n6_measurement	arachidonate 20:4n6 measurement
+gcat_trait_arachidonic_acid_measurement	arachidonic acid measurement
+gcat_trait_arachidonoylcarnitine_C204_measurement	arachidonoylcarnitine (C20:4) measurement
+gcat_trait_arginine_measurement	arginine measurement
+gcat_trait_arterial_stiffness_measurement	arterial stiffness measurement
+gcat_trait_arylsulfatase_A_measurement	arylsulfatase A measurement
+gcat_trait_arylsulfatase_B_measurement	arylsulfatase B measurement
+gcat_trait_ascending_aortic_diameter	ascending aortic diameter
+gcat_trait_ascorbic_acid_3-sulfate_measurement	ascorbic acid 3-sulfate measurement
+gcat_trait_asparaginase_hypersensitivity	asparaginase hypersensitivity
+gcat_trait_asparagine_measurement	asparagine measurement
+gcat_trait_aspartate_aminotransferase_measurement	aspartate aminotransferase measurement
+gcat_trait_aspartate_aminotransferase_to_alanine_aminotransferase_ratio	aspartate aminotransferase to alanine aminotransferase ratio
+gcat_trait_aspartate_measurement	aspartate measurement
+gcat_trait_asphyxia_neonatorum	asphyxia neonatorum
+gcat_trait_aspirin_use_measurement	aspirin use measurement
+gcat_trait_asthma	asthma
+gcat_trait_asthma_exacerbation_measurement	asthma exacerbation measurement
+gcat_trait_asymmetric_dimethylarginine_measurement	asymmetric dimethylarginine measurement
+gcat_trait_atopic_asthma	atopic asthma
+gcat_trait_atopic_eczema	atopic eczema
+gcat_trait_atrial_fibrillation	atrial fibrillation
+gcat_trait_atrophic_macular_degeneration	atrophic macular degeneration
+gcat_trait_attempted_suicide	attempted suicide
+gcat_trait_attention_deficit_hyperactivity_disorder	attention deficit hyperactivity disorder
+gcat_trait_attention_function_measurement	attention function measurement
+gcat_trait_autism	autism
+gcat_trait_autism_spectrum_disorder	autism spectrum disorder
+gcat_trait_autism_spectrum_disorder_symptom	autism spectrum disorder symptom
+gcat_trait_autoantibody_measurement	autoantibody measurement
+gcat_trait_autoimmune_disease	autoimmune disease
+gcat_trait_autoimmune_thyroid_disease	autoimmune thyroid disease
+gcat_trait_autosomal_dominant_compelling_helio-ophthalmic_outburst_syndrome	autosomal dominant compelling helio-ophthalmic outburst syndrome
+gcat_trait_axial_length_measurement	axial length measurement
+gcat_trait_azinphos_methyl_measurement	azinphos methyl measurement
+gcat_trait_bacteria_seropositivity	bacteria seropositivity
+gcat_trait_bactericidal_permeability-increasing_protein_measurement	bactericidal permeability-increasing protein measurement
+gcat_trait_bacteriemia	bacteriemia
+gcat_trait_bacteroides_seropositivity	bacteroides seropositivity
+gcat_trait_balding_measurement	balding measurement
+gcat_trait_banks_of_the_superior_temporal_sulcus_volume_measurement	banks of the superior temporal sulcus volume measurement
+gcat_trait_basal_cell_adhesion_molecule_measurement	basal cell adhesion molecule measurement
+gcat_trait_basal_cell_carcinoma	basal cell carcinoma
+gcat_trait_base_metabolic_rate_measurement	base metabolic rate measurement
+gcat_trait_basophil_count	basophil count
+gcat_trait_basophil_measurement	basophil measurement
+gcat_trait_basophil_percentage_of_granulocytes	basophil percentage of granulocytes
+gcat_trait_basophil_percentage_of_leukocytes	basophil percentage of leukocytes
+gcat_trait_behavior	behavior
+gcat_trait_behavioural_disinhibition_measurement	behavioural disinhibition measurement
+gcat_trait_behavioural_inhibitory_control_measurement	behavioural inhibitory control measurement
+gcat_trait_beta-2-microglobulin_measurement	beta-2-microglobulin measurement
+gcat_trait_beta-Ala-His_dipeptidase_measurement	beta-Ala-His dipeptidase measurement
+gcat_trait_beta-aminoisobutyric_acid_measurement	beta-aminoisobutyric acid measurement
+gcat_trait_beta-amyloid_1-42_measurement	beta-amyloid 1-42 measurement
+gcat_trait_beta-citrylglutamate_measurement	beta-citrylglutamate measurement
+gcat_trait_beta-defensin_1_measurement	beta-defensin 1 measurement
+gcat_trait_beta-endorphin_measurement	beta-endorphin measurement
+gcat_trait_beta-hydroxyisovalerate_measurement	beta-hydroxyisovalerate measurement
+gcat_trait_beta-microseminoprotein_measurement	beta-microseminoprotein measurement
+gcat_trait_beta-nerve_growth_factor_measurement	beta-nerve growth factor measurement
+gcat_trait_beverage_consumption_measurement	beverage consumption measurement
+gcat_trait_biliary_atresia	biliary atresia
+gcat_trait_biliary_liver_cirrhosis	biliary liver cirrhosis
+gcat_trait_bilirubin_measurement	bilirubin measurement
+gcat_trait_biliverdin_measurement	biliverdin measurement
+gcat_trait_biological_sex	biological sex
+gcat_trait_bipolar_I_disorder	bipolar I disorder
+gcat_trait_bipolar_disorder	bipolar disorder
+gcat_trait_birth_weight	birth weight
+gcat_trait_bitter_alcoholic_beverage_consumption_measurement	bitter alcoholic beverage consumption measurement
+gcat_trait_bitter_beverage_consumption_measurement	bitter beverage consumption measurement
+gcat_trait_bitter_non-alcoholic_beverage_consumption_measurement	bitter non-alcoholic beverage consumption measurement
+gcat_trait_bladder_exstrophy	bladder exstrophy
+gcat_trait_blautia_seropositivity	blautia seropositivity
+gcat_trait_blood_aluminium_measurement	blood aluminium measurement
+gcat_trait_blood_arsenic_measurement	blood arsenic measurement
+gcat_trait_blood_barium_measurement	blood barium measurement
+gcat_trait_blood_cadmium_measurement	blood cadmium measurement
+gcat_trait_blood_chromium_measurement	blood chromium measurement
+gcat_trait_blood_cobalt_measurement	blood cobalt measurement
+gcat_trait_blood_copper_measurement	blood copper measurement
+gcat_trait_blood_lead_measurement	blood lead measurement
+gcat_trait_blood_manganese_measurement	blood manganese measurement
+gcat_trait_blood_mercury_measurement	blood mercury measurement
+gcat_trait_blood_metabolite_measurement	blood metabolite measurement
+gcat_trait_blood_molybdenum_measurement	blood molybdenum measurement
+gcat_trait_blood_nickel_measurement	blood nickel measurement
+gcat_trait_blood_osmolality_measurement	blood osmolality measurement
+gcat_trait_blood_phosphate_measurement	blood phosphate measurement
+gcat_trait_blood_pressure	blood pressure
+gcat_trait_blood_protein_measurement	blood protein measurement
+gcat_trait_blood_rubidium_measurement	blood rubidium measurement
+gcat_trait_blood_sedimentation	blood sedimentation
+gcat_trait_blood_strontium_measurement	blood strontium measurement
+gcat_trait_blood_tin_measurement	blood tin measurement
+gcat_trait_blood_titanium_measurement	blood titanium measurement
+gcat_trait_blood_urea_nitrogen_measurement	blood urea nitrogen measurement
+gcat_trait_blood_vanadium_measurement	blood vanadium measurement
+gcat_trait_blood_viscosity	blood viscosity
+gcat_trait_blood_zinc_measurement	blood zinc measurement
+gcat_trait_body_composition_measurement	body composition measurement
+gcat_trait_body_fat_distribution	body fat distribution
+gcat_trait_body_fat_percentage	body fat percentage
+gcat_trait_body_height	body height
+gcat_trait_body_height_at_birth	body height at birth
+gcat_trait_body_mass_index	body mass index
+gcat_trait_body_surface_area	body surface area
+gcat_trait_body_weight	body weight
+gcat_trait_body_weight_loss	body weight loss
+gcat_trait_body_weights_and_measures	body weights and measures
+gcat_trait_bone_density	bone density
+gcat_trait_bone_fracture	bone fracture
+gcat_trait_bone_mineral_content_measurement	bone mineral content measurement
+gcat_trait_bone_quantitative_ultrasound_measurement	bone quantitative ultrasound measurement
+gcat_trait_bowel_opening_frequency	bowel opening frequency
+gcat_trait_brain-derived_neurotrophic_factor_measurement	brain-derived neurotrophic factor measurement
+gcat_trait_brain_age_measurement	brain age measurement
+gcat_trait_brain_aneurysm	brain aneurysm
+gcat_trait_brain_connectivity_measurement	brain connectivity measurement
+gcat_trait_brain_cortex_volume_measurement	brain cortex volume measurement
+gcat_trait_brain_infarction	brain infarction
+gcat_trait_brain_measurement	brain measurement
+gcat_trait_brain_stem_volume_measurement	brain stem volume measurement
+gcat_trait_brain_volume_measurement	brain volume measurement
+gcat_trait_breast_cancer	breast cancer
+gcat_trait_breast_carcinoma	breast carcinoma
+gcat_trait_breast_density	breast density
+gcat_trait_breast_milk_measurement	breast milk measurement
+gcat_trait_breast_size	breast size
+gcat_trait_bronchopulmonary_dysplasia	bronchopulmonary dysplasia
+gcat_trait_bulimia_nervosa	bulimia nervosa
+gcat_trait_bullous_pemphigoid	bullous pemphigoid
+gcat_trait_butyrylcarnitine_C4_measurement	butyrylcarnitine (C4) measurement
+gcat_trait_butyrylcarnitine_measurement	butyrylcarnitine measurement
+gcat_trait_cD177_antigen_measurement	cD177 antigen measurement
+gcat_trait_cadherin-5_measurement	cadherin-5 measurement
+gcat_trait_cadherin-7_measurement	cadherin-7 measurement
+gcat_trait_cadmium_chloride_measurement	cadmium chloride measurement
+gcat_trait_caffeine_measurement	caffeine measurement
+gcat_trait_caffeine_metabolite_measurement	caffeine metabolite measurement
+gcat_trait_calcium_measurement	calcium measurement
+gcat_trait_calciumcalmodulin-dependent_protein_kinase_type_1_measurement	calcium/calmodulin-dependent protein kinase type 1 measurement
+gcat_trait_campesterol_measurement	campesterol measurement
+gcat_trait_cancer	cancer
+gcat_trait_cancer_antigen_125_measurement	cancer antigen 125 measurement
+gcat_trait_cancer_biomarker_measurement	cancer biomarker measurement
+gcat_trait_cannabis_dependence	cannabis dependence
+gcat_trait_cannabis_dependence_measurement	cannabis dependence measurement
+gcat_trait_carbohydrate_intake_measurement	carbohydrate intake measurement
+gcat_trait_carbohydrate_measurement	carbohydrate measurement
+gcat_trait_carbonic_anhydrase_6_measurement	carbonic anhydrase 6 measurement
+gcat_trait_carboxypeptidase_B2_measurement	carboxypeptidase B2 measurement
+gcat_trait_cardiac_arrhythmia	cardiac arrhythmia
+gcat_trait_cardiac_hypertrophy	cardiac hypertrophy
+gcat_trait_cardiac_troponin_I_measurement	cardiac troponin I measurement
+gcat_trait_cardiac_troponin_T_measurement	cardiac troponin T measurement
+gcat_trait_cardioembolic_stroke	cardioembolic stroke
+gcat_trait_cardiovascular_age_measurement	cardiovascular age measurement
+gcat_trait_cardiovascular_disease	cardiovascular disease
+gcat_trait_cardiovascular_measurement	cardiovascular measurement
+gcat_trait_carnitine_measurement	carnitine measurement
+gcat_trait_carnosine_measurement	carnosine measurement
+gcat_trait_carotid_artery_disease	carotid artery disease
+gcat_trait_carotid_artery_intima_media_thickness	carotid artery intima media thickness
+gcat_trait_carotid_atherosclerosis	carotid atherosclerosis
+gcat_trait_carotid_plaque_build	carotid plaque build
+gcat_trait_carpal_tunnel_syndrome	carpal tunnel syndrome
+gcat_trait_cartilage_thickness_measurement	cartilage thickness measurement
+gcat_trait_cataract	cataract
+gcat_trait_cathepsin_B_measurement	cathepsin B measurement
+gcat_trait_cathepsin_D_measurement	cathepsin D measurement
+gcat_trait_cathepsin_H_measurement	cathepsin H measurement
+gcat_trait_cathepsin_L1_measurement	cathepsin L1 measurement
+gcat_trait_cathepsin_Z_measurement	cathepsin Z measurement
+gcat_trait_cation-independent_mannose-6-phosphate_receptor_measurement	cation-independent mannose-6-phosphate receptor measurement
+gcat_trait_caudal_anterior_cingulate_cortex_volume_measurement	caudal anterior cingulate cortex volume measurement
+gcat_trait_caudal_middle_frontal_gyrus_volume_measurement	caudal middle frontal gyrus volume measurement
+gcat_trait_caudate_nucleus_volume	caudate nucleus volume
+gcat_trait_caudate_volume_change_measurement	caudate volume change measurement
+gcat_trait_celiac_disease	celiac disease
+gcat_trait_cell_surface_glycoprotein_CD200_receptor_1_measurement	cell surface glycoprotein CD200 receptor 1 measurement
+gcat_trait_central_corneal_thickness	central corneal thickness
+gcat_trait_central_nervous_system_cancer	central nervous system cancer
+gcat_trait_ceramide_measurement	ceramide measurement
+gcat_trait_cerebellar_cortex_volume_measurement	cerebellar cortex volume measurement
+gcat_trait_cerebellar_volume_measurement	cerebellar volume measurement
+gcat_trait_cerebellum_cortex_volume_change_measurement	cerebellum cortex volume change measurement
+gcat_trait_cerebellum_white_matter_volume_change_measurement	cerebellum white matter volume change measurement
+gcat_trait_cerebral_amyloid_angiopathy	cerebral amyloid angiopathy
+gcat_trait_cerebral_amyloid_deposition_measurement	cerebral amyloid deposition measurement
+gcat_trait_cerebral_microbleeds	cerebral microbleeds
+gcat_trait_cerebrospinal_fluid_biomarker_measurement	cerebrospinal fluid biomarker measurement
+gcat_trait_cerebrospinal_fluid_clusterin_measurement	cerebrospinal fluid clusterin measurement
+gcat_trait_cerotoylcarnitine_C26_measurement	cerotoylcarnitine (C26) measurement
+gcat_trait_cervical_artery_dissection	cervical artery dissection
+gcat_trait_cervical_cancer	cervical cancer
+gcat_trait_cervical_carcinoma	cervical carcinoma
+gcat_trait_chemerin_measurement	chemerin measurement
+gcat_trait_chemokine_C-C_motif_ligand_27_measurement	chemokine (C-C motif) ligand 27 measurement
+gcat_trait_chenodeoxycholate_measurement	chenodeoxycholate measurement
+gcat_trait_childhood_aggressive_behaviour_measurement	childhood aggressive behaviour measurement
+gcat_trait_childhood_gender_nonconformity	childhood gender nonconformity
+gcat_trait_childhood_onset_asthma	childhood onset asthma
+gcat_trait_childhood_trauma_measurement	childhood trauma measurement
+gcat_trait_chin_morphology_measurement	chin morphology measurement
+gcat_trait_chitotriosidase-1_measurement	chitotriosidase-1 measurement
+gcat_trait_chloride_measurement	chloride measurement
+gcat_trait_chlorpyrifos_measurement	chlorpyrifos measurement
+gcat_trait_cholate_measurement	cholate measurement
+gcat_trait_cholelithiasis	cholelithiasis
+gcat_trait_cholesterol_efflux_capacity_measurement	cholesterol efflux capacity measurement
+gcat_trait_cholesterol_esters_in_large_HDL_measurement	cholesterol esters in large HDL measurement
+gcat_trait_cholesterol_esters_in_large_LDL_measurement	cholesterol esters in large LDL measurement
+gcat_trait_cholesterol_esters_in_large_VLDL_measurement	cholesterol esters in large VLDL measurement
+gcat_trait_cholesterol_esters_in_medium_LDL_measurement	cholesterol esters in medium LDL measurement
+gcat_trait_cholesterol_esters_in_medium_VLDL_measurement	cholesterol esters in medium VLDL measurement
+gcat_trait_cholesterol_in_IDL_measurement	cholesterol in IDL measurement
+gcat_trait_cholesterol_in_chylomicrons_and_extremely_large_VLDL_measurement	cholesterol in chylomicrons and extremely large VLDL measurement
+gcat_trait_cholesterol_in_large_HDL_measurement	cholesterol in large HDL measurement
+gcat_trait_cholesterol_in_large_LDL_measurement	cholesterol in large LDL measurement
+gcat_trait_cholesterol_in_large_VLDL_measurement	cholesterol in large VLDL measurement
+gcat_trait_cholesterol_in_medium_HDL_measurement	cholesterol in medium HDL measurement
+gcat_trait_cholesterol_in_medium_LDL_measurement	cholesterol in medium LDL measurement
+gcat_trait_cholesterol_in_medium_VLDL_measurement	cholesterol in medium VLDL measurement
+gcat_trait_cholesterol_in_small_HDL_measurement	cholesterol in small HDL measurement
+gcat_trait_cholesterol_in_small_LDL_measurement	cholesterol in small LDL measurement
+gcat_trait_cholesterol_in_small_VLDL_measurement	cholesterol in small VLDL measurement
+gcat_trait_cholesterol_in_very_large_HDL_measurement	cholesterol in very large HDL measurement
+gcat_trait_cholesterol_in_very_large_VLDL_measurement	cholesterol in very large VLDL measurement
+gcat_trait_cholesterol_in_very_small_VLDL_measurement	cholesterol in very small VLDL measurement
+gcat_trait_cholesterol_to_total_lipids_in_IDL_percentage	cholesterol to total lipids in IDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_chylomicrons_and_extremely_large_VLDL_percentage	cholesterol to total lipids in chylomicrons and extremely large VLDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_large_HDL_percentage	cholesterol to total lipids in large HDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_large_LDL_percentage	cholesterol to total lipids in large LDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_large_VLDL_percentage	cholesterol to total lipids in large VLDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_medium_HDL_percentage	cholesterol to total lipids in medium HDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_medium_LDL_percentage	cholesterol to total lipids in medium LDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_medium_VLDL_percentage	cholesterol to total lipids in medium VLDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_small_HDL_percentage	cholesterol to total lipids in small HDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_small_LDL_percentage	cholesterol to total lipids in small LDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_small_VLDL_percentage	cholesterol to total lipids in small VLDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_very_large_HDL_percentage	cholesterol to total lipids in very large HDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_very_large_VLDL_percentage	cholesterol to total lipids in very large VLDL percentage
+gcat_trait_cholesterol_to_total_lipids_in_very_small_VLDL_percentage	cholesterol to total lipids in very small VLDL percentage
+gcat_trait_cholesteryl_ester_140_measurement	cholesteryl ester 14:0 measurement
+gcat_trait_cholesteryl_ester_160_measurement	cholesteryl ester 16:0 measurement
+gcat_trait_cholesteryl_ester_161_measurement	cholesteryl ester 16:1 measurement
+gcat_trait_cholesteryl_ester_180_measurement	cholesteryl ester 18:0 measurement
+gcat_trait_cholesteryl_ester_181_measurement	cholesteryl ester 18:1 measurement
+gcat_trait_cholesteryl_ester_182_measurement	cholesteryl ester 18:2 measurement
+gcat_trait_cholesteryl_ester_183_measurement	cholesteryl ester 18:3 measurement
+gcat_trait_cholesteryl_ester_203_measurement	cholesteryl ester 20:3 measurement
+gcat_trait_cholesteryl_ester_204_measurement	cholesteryl ester 20:4 measurement
+gcat_trait_cholesteryl_ester_205_measurement	cholesteryl ester 20:5 measurement
+gcat_trait_cholesteryl_ester_225_measurement	cholesteryl ester 22:5 measurement
+gcat_trait_cholesteryl_ester_226_measurement	cholesteryl ester 22:6 measurement
+gcat_trait_cholesteryl_ester_measurement	cholesteryl ester measurement
+gcat_trait_cholesteryl_esters_to_total_lipids_in_IDL_percentage	cholesteryl esters to total lipids in IDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_chylomicrons_and_extremely_large_VLDL_percentage	cholesteryl esters to total lipids in chylomicrons and extremely large VLDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_large_HDL_percentage	cholesteryl esters to total lipids in large HDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_large_LDL_percentage	cholesteryl esters to total lipids in large LDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_large_VLDL_percentage	cholesteryl esters to total lipids in large VLDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_medium_HDL_percentage	cholesteryl esters to total lipids in medium HDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_medium_LDL_percentage	cholesteryl esters to total lipids in medium LDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_medium_VLDL_percentage	cholesteryl esters to total lipids in medium VLDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_small_HDL_percentage	cholesteryl esters to total lipids in small HDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_small_LDL_percentage	cholesteryl esters to total lipids in small LDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_small_VLDL_percentage	cholesteryl esters to total lipids in small VLDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_very_large_HDL_percentage	cholesteryl esters to total lipids in very large HDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_very_large_VLDL_percentage	cholesteryl esters to total lipids in very large VLDL percentage
+gcat_trait_cholesteryl_esters_to_total_lipids_in_very_small_VLDL_percentage	cholesteryl esters to total lipids in very small VLDL percentage
+gcat_trait_choline_measurement	choline measurement
+gcat_trait_chromatid-type_aberration_frequency	chromatid-type aberration frequency
+gcat_trait_chromosomal_aberration_frequency	chromosomal aberration frequency
+gcat_trait_chromosome-type_aberration_frequency	chromosome-type aberration frequency
+gcat_trait_chronic_hepatitis_B_virus_infection	chronic hepatitis B virus infection
+gcat_trait_chronic_hepatitis_C_virus_infection	chronic hepatitis C virus infection
+gcat_trait_chronic_kidney_disease	chronic kidney disease
+gcat_trait_chronic_lymphocytic_leukemia	chronic lymphocytic leukemia
+gcat_trait_chronic_musculoskeletal_pain	chronic musculoskeletal pain
+gcat_trait_chronic_obstructive_pulmonary_disease	chronic obstructive pulmonary disease
+gcat_trait_chronic_rhinosinusitis	chronic rhinosinusitis
+gcat_trait_chronic_widespread_pain	chronic widespread pain
+gcat_trait_chronotype_measurement	chronotype measurement
+gcat_trait_cigarettes_per_day_measurement	cigarettes per day measurement
+gcat_trait_circadian_rhythm	circadian rhythm
+gcat_trait_cirrhosis_of_liver	cirrhosis of liver
+gcat_trait_cis-4-decenoate_101n6_measurement	cis-4-decenoate (10:1n6) measurement
+gcat_trait_citrate_measurement	citrate measurement
+gcat_trait_citrulline_measurement	citrulline measurement
+gcat_trait_clear_cell_renal_carcinoma	clear cell renal carcinoma
+gcat_trait_cleft_lip	cleft lip
+gcat_trait_clinical_and_behavioural_ideal_cardiovascular_health	clinical and behavioural ideal cardiovascular health
+gcat_trait_clinical_treatment	clinical treatment
+gcat_trait_clonal_hematopoiesis	clonal hematopoiesis
+gcat_trait_clonal_hematopoiesis_mutation_measurement	clonal hematopoiesis mutation measurement
+gcat_trait_clopidogrel_metabolite_measurement	clopidogrel metabolite measurement
+gcat_trait_clostridiales_seropositivity	clostridiales seropositivity
+gcat_trait_clostridium_difficile_infection	clostridium difficile infection
+gcat_trait_coagulation_factor_V_measurement	coagulation factor V measurement
+gcat_trait_coagulation_factor_XA_measurement	coagulation factor XA measurement
+gcat_trait_coagulation_factor_X_measurement	coagulation factor X measurement
+gcat_trait_coagulation_factor_measurement	coagulation factor measurement
+gcat_trait_cocaine_dependence	cocaine dependence
+gcat_trait_cochlin_measurement	cochlin measurement
+gcat_trait_coenzyme_Q10_measurement	coenzyme Q10 measurement
+gcat_trait_coffee_consumption	coffee consumption
+gcat_trait_coffee_consumption_measurement	coffee consumption measurement
+gcat_trait_cognition	cognition
+gcat_trait_cognitive_behavioural_therapy	cognitive behavioural therapy
+gcat_trait_cognitive_decline_measurement	cognitive decline measurement
+gcat_trait_cognitive_function_measurement	cognitive function measurement
+gcat_trait_cognitive_impairment_measurement	cognitive impairment measurement
+gcat_trait_cognitive_inhibition_measurement	cognitive inhibition measurement
+gcat_trait_cold-induced_vasodilation	cold-induced vasodilation
+gcat_trait_collectin-11_measurement	collectin-11 measurement
+gcat_trait_collectin-12_measurement	collectin-12 measurement
+gcat_trait_colon_carcinoma	colon carcinoma
+gcat_trait_colonic_neoplasm	colonic neoplasm
+gcat_trait_color_vision_disorder	color vision disorder
+gcat_trait_colorectal_adenoma	colorectal adenoma
+gcat_trait_colorectal_cancer	colorectal cancer
+gcat_trait_colorectal_health	colorectal health
+gcat_trait_colorectal_mucinous_adenocarcinoma	colorectal mucinous adenocarcinoma
+gcat_trait_common_carotid_intimal_medial_thickness	common carotid intimal medial thickness
+gcat_trait_comparative_body_size_at_age_10_self-reported	comparative body size at age 10; self-reported
+gcat_trait_complement_C1q_tumor_necrosis_factor-related_protein_5_measurement	complement C1q tumor necrosis factor-related protein 5 measurement
+gcat_trait_complement_C3_measurement	complement C3 measurement
+gcat_trait_complement_C4_measurement	complement C4 measurement
+gcat_trait_complement_C4b_measurement	complement C4b measurement
+gcat_trait_complement_component_C6_measurement	complement component C6 measurement
+gcat_trait_complement_component_C7_measurement	complement component C7 measurement
+gcat_trait_complement_component_C9_measurement	complement component C9 measurement
+gcat_trait_complement_factor_B_measurement	complement factor B measurement
+gcat_trait_complement_factor_D_measurement	complement factor D measurement
+gcat_trait_complement_factor_H-like_1_protein_measurement	complement factor H-like 1 protein measurement
+gcat_trait_complement_factor_H-related_protein_1_measurement	complement factor H-related protein 1 measurement
+gcat_trait_complement_factor_H-related_protein_2_measurement	complement factor H-related protein 2 measurement
+gcat_trait_complement_factor_H-related_protein_3_measurement	complement factor H-related protein 3 measurement
+gcat_trait_complement_factor_H-related_protein_4_measurement	complement factor H-related protein 4 measurement
+gcat_trait_complement_factor_H-related_protein_5_measurement	complement factor H-related protein 5 measurement
+gcat_trait_complement_factor_H_measurement	complement factor H measurement
+gcat_trait_complex_trait	complex trait
+gcat_trait_concentration_of_chylomicrons_and_extremely_large_VLDL_particles_measurement	concentration of chylomicrons and extremely large VLDL particles measurement
+gcat_trait_concentration_of_large_LDL_particles_measurement	concentration of large LDL particles measurement
+gcat_trait_conduct_disorder	conduct disorder
+gcat_trait_congenital_heart_disease	congenital heart disease
+gcat_trait_congenital_left-sided_heart_lesions	congenital left-sided heart lesions
+gcat_trait_conotruncal_heart_malformations	conotruncal heart malformations
+gcat_trait_contactin-2_measurement	contactin-2 measurement
+gcat_trait_contactin-4_measurement	contactin-4 measurement
+gcat_trait_contactin-5_measurement	contactin-5 measurement
+gcat_trait_copine-1_measurement	copine-1 measurement
+gcat_trait_corneal_endothelial_cell_measurement	corneal endothelial cell measurement
+gcat_trait_corneal_hysteresis	corneal hysteresis
+gcat_trait_corneal_resistance_factor	corneal resistance factor
+gcat_trait_corneal_topography	corneal topography
+gcat_trait_coronary_aneurysm	coronary aneurysm
+gcat_trait_coronary_artery_calcification	coronary artery calcification
+gcat_trait_coronary_artery_disease	coronary artery disease
+gcat_trait_corpus_callosum_anterior_volume_measurement	corpus callosum anterior volume measurement
+gcat_trait_corpus_callosum_central_volume_measurement	corpus callosum central volume measurement
+gcat_trait_corpus_callosum_mid-anterior_volume_measurement	corpus callosum mid-anterior volume measurement
+gcat_trait_corpus_callosum_posterior_volume_measurement	corpus callosum posterior volume measurement
+gcat_trait_corpus_callosum_volume_measurement	corpus callosum volume measurement
+gcat_trait_corpus_collosum_mid-posterior_volume_measurement	corpus collosum mid-posterior volume measurement
+gcat_trait_cortical_surface_area_measurement	cortical surface area measurement
+gcat_trait_cortical_thickness	cortical thickness
+gcat_trait_cortical_thickness_change_measurement	cortical thickness change measurement
+gcat_trait_cortisol_measurement	cortisol measurement
+gcat_trait_cotinine_glucuronidation_measurement	cotinine glucuronidation measurement
+gcat_trait_cotinine_measurement	cotinine measurement
+gcat_trait_cranial_vault_morphology_measurement	cranial vault morphology measurement
+gcat_trait_craniofacial_microsomia	craniofacial microsomia
+gcat_trait_creatine_kinase_measurement	creatine kinase measurement
+gcat_trait_creatine_measurement	creatine measurement
+gcat_trait_creatinine_measurement	creatinine measurement
+gcat_trait_creativity_measurement	creativity measurement
+gcat_trait_cryptic_phenotype_measurement	cryptic phenotype measurement
+gcat_trait_cumulative_dose_response_to_bevacizumab	cumulative dose response to bevacizumab
+gcat_trait_cuneus_cortex_volume_measurement	cuneus cortex volume measurement
+gcat_trait_cup-to-disc_ratio_measurement	cup-to-disc ratio measurement
+gcat_trait_cups_of_coffee_per_day_measurement	cups of coffee per day measurement
+gcat_trait_cutaneous_Leishmaniasis	cutaneous Leishmaniasis
+gcat_trait_cutaneous_mastocytosis	cutaneous mastocytosis
+gcat_trait_cutaneous_melanoma	cutaneous melanoma
+gcat_trait_cutaneous_squamous_cell_carcinoma	cutaneous squamous cell carcinoma
+gcat_trait_cyclic_adenosine_monophosphate_measurement	cyclic adenosine monophosphate measurement
+gcat_trait_cys-gly_oxidized_measurement	cys-gly; oxidized measurement
+gcat_trait_cystathionine_measurement	cystathionine measurement
+gcat_trait_cystatin-D_measurement	cystatin-D measurement
+gcat_trait_cystatin-F_measurement	cystatin-F measurement
+gcat_trait_cystatin-SA_measurement	cystatin-SA measurement
+gcat_trait_cystatin-SN_measurement	cystatin-SN measurement
+gcat_trait_cystatin_C_measurement	cystatin C measurement
+gcat_trait_cysteine-glutathione_disulfide_measurement	cysteine-glutathione disulfide measurement
+gcat_trait_cysteine-rich_with_EGF-like_domain_protein_1_measurement	cysteine-rich with EGF-like domain protein 1 measurement
+gcat_trait_cystic_fibrosis_associated_meconium_ileus	cystic fibrosis associated meconium ileus
+gcat_trait_cytidine_measurement	cytidine measurement
+gcat_trait_cytokine_measurement	cytokine measurement
+gcat_trait_daytime_rest_measurement	daytime rest measurement
+gcat_trait_decadienedioic_acid_C102-DC_measurement	decadienedioic acid (C10:2-DC) measurement
+gcat_trait_decanoylcarnitine_measurement	decanoylcarnitine measurement
+gcat_trait_decreased_susceptibility_to_hepatitis_C_infection	decreased susceptibility to hepatitis C infection
+gcat_trait_degree_of_unsaturation_measurement	degree of unsaturation measurement
+gcat_trait_dehydroepiandrosterone_sulphate_measurement	dehydroepiandrosterone sulphate measurement
+gcat_trait_dehydroisoandrosterone_sulfate_DHEA-S_measurement	dehydroisoandrosterone sulfate DHEA-S measurement
+gcat_trait_delayed_reward_discounting_measurement	delayed reward discounting measurement
+gcat_trait_dementia	dementia
+gcat_trait_dental_caries	dental caries
+gcat_trait_dentate_gyrus_volume_measurement	dentate gyrus volume measurement
+gcat_trait_dentures	dentures
+gcat_trait_deoxycarnitine_measurement	deoxycarnitine measurement
+gcat_trait_deoxycholate_measurement	deoxycholate measurement
+gcat_trait_deoxycholic_acid_glucuronide_measurement	deoxycholic acid glucuronide measurement
+gcat_trait_depressive_symptom_measurement	depressive symptom measurement
+gcat_trait_descending_aortic_diameter	descending aortic diameter
+gcat_trait_developmental_dysplasia_of_the_hip	developmental dysplasia of the hip
+gcat_trait_diabetes_mellitus	diabetes mellitus
+gcat_trait_diabetic_nephropathy	diabetic nephropathy
+gcat_trait_diabetic_retinopathy	diabetic retinopathy
+gcat_trait_diacylglycerol_322_measurement	diacylglycerol 32.2 measurement
+gcat_trait_diacylglycerol_340_measurement	diacylglycerol 34:0 measurement
+gcat_trait_diacylglycerol_341_measurement	diacylglycerol 34:1 measurement
+gcat_trait_diacylglycerol_342_measurement	diacylglycerol 34:2 measurement
+gcat_trait_diacylglycerol_343_measurement	diacylglycerol 34:3 measurement
+gcat_trait_diacylglycerol_361_measurement	diacylglycerol 36:1 measurement
+gcat_trait_diacylglycerol_362_measurement	diacylglycerol 36:2 measurement
+gcat_trait_diacylglycerol_363_measurement	diacylglycerol 36:3 measurement
+gcat_trait_diacylglycerol_364_measurement	diacylglycerol 36:4 measurement
+gcat_trait_diacylglycerol_383_measurement	diacylglycerol 38:3 measurement
+gcat_trait_diacylglycerol_384_measurement	diacylglycerol 38:4 measurement
+gcat_trait_diacylglycerol_385_measurement	diacylglycerol 38:5 measurement
+gcat_trait_diacylglycerol_427_measurement	diacylglycerol 42:7 measurement
+gcat_trait_diacylglycerol_446_measurement	diacylglycerol 44:6 measurement
+gcat_trait_diacylglycerol_447_measurement	diacylglycerol 44:7 measurement
+gcat_trait_diaphragmatic_hernia	diaphragmatic hernia
+gcat_trait_diastolic_blood_pressure	diastolic blood pressure
+gcat_trait_diastolic_blood_pressure_change_measurement	diastolic blood pressure change measurement
+gcat_trait_diazinon_measurement	diazinon measurement
+gcat_trait_dibutyl_phthalate_measurement	dibutyl phthalate measurement
+gcat_trait_dickkopfrelated_protein_1_measurement	dickkopf‐related protein 1 measurement
+gcat_trait_dicofol_measurement	dicofol measurement
+gcat_trait_dieldrin_measurement	dieldrin measurement
+gcat_trait_diet_measurement	diet measurement
+gcat_trait_differentiated_thyroid_carcinoma	differentiated thyroid carcinoma
+gcat_trait_diffuse_gastric_adenocarcinoma	diffuse gastric adenocarcinoma
+gcat_trait_diffuse_idiopathic_skeletal_hyperostosis	diffuse idiopathic skeletal hyperostosis
+gcat_trait_diffuse_large_B-cell_lymphoma	diffuse large B-cell lymphoma
+gcat_trait_diffusing_capacity_of_the_lung_for_carbon_monoxide	diffusing capacity of the lung for carbon monoxide
+gcat_trait_digestive_system_infectious_disorder	digestive system infectious disorder
+gcat_trait_digit_length_ratio	digit length ratio
+gcat_trait_diglyceride_measurement	diglyceride measurement
+gcat_trait_dihomo-gamma-linolenic_acid_measurement	dihomo-gamma-linolenic acid measurement
+gcat_trait_dihomo-linolenate_203n3_or_n6_measurement	dihomo-linolenate 20:3n3 or n6 measurement
+gcat_trait_dihomo-linolenoylcarnitine_C203n3_or_6_measurement	dihomo-linolenoylcarnitine (C20:3n3 or 6) measurement
+gcat_trait_dihydroorotate_measurement	dihydroorotate measurement
+gcat_trait_dihydroxy_docosatrienoic_acid_measurement	dihydroxy docosatrienoic acid measurement
+gcat_trait_dilated_cardiomyopathy	dilated cardiomyopathy
+gcat_trait_dimethylarginine_SDMA__ADMA_measurement	dimethylarginine (SDMA + ADMA) measurement
+gcat_trait_dimethylglycine_measurement	dimethylglycine measurement
+gcat_trait_disease	disease
+gcat_trait_disease_free_survival	disease free survival
+gcat_trait_disease_progression_measurement	disease progression measurement
+gcat_trait_disorder_of_pharynx	disorder of pharynx
+gcat_trait_disulfoton_measurement	disulfoton measurement
+gcat_trait_diverticular_disease	diverticular disease
+gcat_trait_diverticulitis	diverticulitis
+gcat_trait_docosahexaenoic_acid_measurement	docosahexaenoic acid measurement
+gcat_trait_docosahexaenoic_acid_to_total_fatty_acids_percentage	docosahexaenoic acid to total fatty acids percentage
+gcat_trait_docosapentaenoic_acid_measurement	docosapentaenoic acid measurement
+gcat_trait_dodecanedioate_measurement	dodecanedioate measurement
+gcat_trait_dolichyl-diphosphooligosaccharide--protein_glycosyltransferase_subunit_1_measurement	dolichyl-diphosphooligosaccharide--protein glycosyltransferase subunit 1 measurement
+gcat_trait_drug-induced_liver_injury	drug-induced liver injury
+gcat_trait_drug_dependence	drug dependence
+gcat_trait_drug_use_measurement	drug use measurement
+gcat_trait_dry_eye_syndrome	dry eye syndrome
+gcat_trait_dual_specificity_mitogen-activated_protein_kinase_kinase_2_measurement	dual specificity mitogen-activated protein kinase kinase 2 measurement
+gcat_trait_dual_specificity_mitogen-activated_protein_kinase_kinase_4_measurement	dual specificity mitogen-activated protein kinase kinase 4 measurement
+gcat_trait_duodenal_ulcer	duodenal ulcer
+gcat_trait_dyslexia	dyslexia
+gcat_trait_dysmenorrheic_pain_measurement	dysmenorrheic pain measurement
+gcat_trait_e-selectin_measurement	e-selectin measurement
+gcat_trait_eating_disorder	eating disorder
+gcat_trait_economic_and_social_preference	economic and social preference
+gcat_trait_ecosanoids_measurement	ecosanoids measurement
+gcat_trait_ectonucleoside_triphosphate_diphosphohydrolase_5_measurement	ectonucleoside triphosphate diphosphohydrolase 5 measurement
+gcat_trait_ectonucleotide_pyrophosphatasephosphodiesterase_family_member_7_measurement	ectonucleotide pyrophosphatase/phosphodiesterase family member 7 measurement
+gcat_trait_educational_attainment	educational attainment
+gcat_trait_eicosapentaenoic_acid_measurement	eicosapentaenoic acid measurement
+gcat_trait_ejection_fraction_measurement	ejection fraction measurement
+gcat_trait_electrocardiography	electrocardiography
+gcat_trait_electroencephalogram_measurement	electroencephalogram measurement
+gcat_trait_empathy_measurement	empathy measurement
+gcat_trait_emphysema	emphysema
+gcat_trait_emphysema_imaging_measurement	emphysema imaging measurement
+gcat_trait_emphysema_pattern_measurement	emphysema pattern measurement
+gcat_trait_employment_status	employment status
+gcat_trait_endoglin_measurement	endoglin measurement
+gcat_trait_endometrial_carcinoma	endometrial carcinoma
+gcat_trait_endometriosis	endometriosis
+gcat_trait_endoplasmic_reticulum_aminopeptidase_1_measurement	endoplasmic reticulum aminopeptidase 1 measurement
+gcat_trait_endoplasmic_reticulum_resident_protein_29_measurement	endoplasmic reticulum resident protein 29 measurement
+gcat_trait_endosulfan_measurement	endosulfan measurement
+gcat_trait_endothelin-converting_enzyme_1_measurement	endothelin-converting enzyme 1 measurement
+gcat_trait_endrin_measurement	endrin measurement
+gcat_trait_energy_expenditure	energy expenditure
+gcat_trait_energy_expenditure_measurement	energy expenditure measurement
+gcat_trait_energy_intake	energy intake
+gcat_trait_enterobacter_phage_virus_seropositivity	enterobacter phage virus seropositivity
+gcat_trait_environmental_exposure_measurement	environmental exposure measurement
+gcat_trait_eosinophil_count	eosinophil count
+gcat_trait_eosinophil_measurement	eosinophil measurement
+gcat_trait_eosinophil_percentage_of_granulocytes	eosinophil percentage of granulocytes
+gcat_trait_eosinophil_percentage_of_leukocytes	eosinophil percentage of leukocytes
+gcat_trait_eosinophilic_esophagitis	eosinophilic esophagitis
+gcat_trait_eotaxin_measurement	eotaxin measurement
+gcat_trait_epiandrosterone_sulfate_measurement	epiandrosterone sulfate measurement
+gcat_trait_epilepsy	epilepsy
+gcat_trait_episodic_memory	episodic memory
+gcat_trait_epithelial_cell_adhesion_molecule_measurement	epithelial cell adhesion molecule measurement
+gcat_trait_erectile_dysfunction	erectile dysfunction
+gcat_trait_ergothioneine_measurement	ergothioneine measurement
+gcat_trait_erosive_tooth_wear_measurement	erosive tooth wear measurement
+gcat_trait_erythritol_measurement	erythritol measurement
+gcat_trait_erythrocyte_cadmium_measurement	erythrocyte cadmium measurement
+gcat_trait_erythrocyte_count	erythrocyte count
+gcat_trait_erythrocyte_measurement	erythrocyte measurement
+gcat_trait_esophageal_adenocarcinoma	esophageal adenocarcinoma
+gcat_trait_esophageal_carcinoma	esophageal carcinoma
+gcat_trait_esophageal_squamous_cell_carcinoma	esophageal squamous cell carcinoma
+gcat_trait_essential_tremor	essential tremor
+gcat_trait_esterified_cholesterol_measurement	esterified cholesterol measurement
+gcat_trait_estradiol_measurement	estradiol measurement
+gcat_trait_estrogen-receptor_negative_breast_cancer	estrogen-receptor negative breast cancer
+gcat_trait_estrogen-receptor_positive_breast_cancer	estrogen-receptor positive breast cancer
+gcat_trait_ethion_measurement	ethion measurement
+gcat_trait_ethylmalonate_measurement	ethylmalonate measurement
+gcat_trait_etiocholanolone_glucuronide_measurement	etiocholanolone glucuronide measurement
+gcat_trait_excessive_daytime_sleepiness_measurement	excessive daytime sleepiness measurement
+gcat_trait_executive_function_measurement	executive function measurement
+gcat_trait_exercise	exercise
+gcat_trait_exercise_test	exercise test
+gcat_trait_exploratory_eye_movement_measurement	exploratory eye movement measurement
+gcat_trait_extracellular_matrix_protein_1_measurement	extracellular matrix protein 1 measurement
+gcat_trait_eye_color	eye color
+gcat_trait_eye_colour_measurement	eye colour measurement
+gcat_trait_eye_disease	eye disease
+gcat_trait_eye_measurement	eye measurement
+gcat_trait_eye_morphology_measurement	eye morphology measurement
+gcat_trait_eyelid_sagging_measurement	eyelid sagging measurement
+gcat_trait_facial_asymmetry_measurement	facial asymmetry measurement
+gcat_trait_facial_attractiveness_measurement	facial attractiveness measurement
+gcat_trait_facial_emotion_recognition_measurement	facial emotion recognition measurement
+gcat_trait_facial_hair_thickness_measurement	facial hair thickness measurement
+gcat_trait_facial_height_measurement	facial height measurement
+gcat_trait_facial_morphology	facial morphology
+gcat_trait_facial_morphology_measurement	facial morphology measurement
+gcat_trait_facial_pigmentation_measurement	facial pigmentation measurement
+gcat_trait_facial_width_measurement	facial width measurement
+gcat_trait_factor_VIII_measurement	factor VIII measurement
+gcat_trait_factor_VII_activating_protease_measurement	factor VII activating protease measurement
+gcat_trait_factor_VII_measurement	factor VII measurement
+gcat_trait_factor_XI_measurement	factor XI measurement
+gcat_trait_familial_hyperlipidemia	familial hyperlipidemia
+gcat_trait_family_history_of_Alzheimers_disease	family history of Alzheimer’s disease
+gcat_trait_fasting_blood_glucose_change_measurement	fasting blood glucose change measurement
+gcat_trait_fasting_blood_glucose_measurement	fasting blood glucose measurement
+gcat_trait_fasting_blood_insulin_measurement	fasting blood insulin measurement
+gcat_trait_fat_body_mass	fat body mass
+gcat_trait_fat_intake_measurement	fat intake measurement
+gcat_trait_fatty_acid_change_measurement	fatty acid change measurement
+gcat_trait_fatty_acid_measurement	fatty acid measurement
+gcat_trait_fear_of_minor_pain_measurement	fear of minor pain measurement
+gcat_trait_feeling_emotionally_hurt_measurement	feeling emotionally hurt measurement
+gcat_trait_feeling_fed-up_measurement	feeling 'fed-up' measurement
+gcat_trait_feeling_miserable_measurement	feeling miserable measurement
+gcat_trait_feeling_nervous_measurement	feeling nervous measurement
+gcat_trait_feeling_tense_measurement	feeling tense measurement
+gcat_trait_female_reproductive_system_disease	female reproductive system disease
+gcat_trait_femoral_hernia	femoral hernia
+gcat_trait_femoral_neck_bone_mineral_density	femoral neck bone mineral density
+gcat_trait_femoral_neck_size	femoral neck size
+gcat_trait_ferritin_measurement	ferritin measurement
+gcat_trait_fetal_genotype_effect_measurement	fetal genotype effect measurement
+gcat_trait_fetal_hemoglobin_measurement	fetal hemoglobin measurement
+gcat_trait_fetuin-B_measurement	fetuin-B measurement
+gcat_trait_fibrinogen_measurement	fibrinogen measurement
+gcat_trait_fibroblast_growth_factor_23_measurement	fibroblast growth factor 23 measurement
+gcat_trait_fibroblast_growth_factor_basic_measurement	fibroblast growth factor basic measurement
+gcat_trait_fibromuscular_dysplasia	fibromuscular dysplasia
+gcat_trait_ficolin-2_measurement	ficolin-2 measurement
+gcat_trait_ficolin-3_measurement	ficolin-3 measurement
+gcat_trait_filaggrin_gene_expression_measurement	filaggrin gene expression measurement
+gcat_trait_fish_consumption_measurement	fish consumption measurement
+gcat_trait_focal_segmental_glomerulosclerosis	focal segmental glomerulosclerosis
+gcat_trait_folic_acid_measurement	folic acid measurement
+gcat_trait_follicle_stimulating_hormone_measurement	follicle stimulating hormone measurement
+gcat_trait_food_allergy_measurement	food allergy measurement
+gcat_trait_forced_expiratory_volume	forced expiratory volume
+gcat_trait_forehead_morphology_measurement	forehead morphology measurement
+gcat_trait_fourth_ventricle_volume_measurement	fourth ventricle volume measurement
+gcat_trait_frailty_measurement	frailty measurement
+gcat_trait_freckles	freckles
+gcat_trait_free_androgen_index	free androgen index
+gcat_trait_free_cholesterol_in_HDL_measurement	free cholesterol in HDL measurement
+gcat_trait_free_cholesterol_in_IDL_measurement	free cholesterol in IDL measurement
+gcat_trait_free_cholesterol_in_LDL_measurement	free cholesterol in LDL measurement
+gcat_trait_free_cholesterol_in_VLDL_measurement	free cholesterol in VLDL measurement
+gcat_trait_free_cholesterol_in_chylomicrons_and_extremely_large_VLDL_measurement	free cholesterol in chylomicrons and extremely large VLDL measurement
+gcat_trait_free_cholesterol_in_large_HDL_measurement	free cholesterol in large HDL measurement
+gcat_trait_free_cholesterol_in_large_LDL_measurement	free cholesterol in large LDL measurement
+gcat_trait_free_cholesterol_in_large_VLDL_measurement	free cholesterol in large VLDL measurement
+gcat_trait_free_cholesterol_in_medium_HDL_measurement	free cholesterol in medium HDL measurement
+gcat_trait_free_cholesterol_in_medium_LDL_measurement	free cholesterol in medium LDL measurement
+gcat_trait_free_cholesterol_in_medium_VLDL_measurement	free cholesterol in medium VLDL measurement
+gcat_trait_free_cholesterol_in_small_HDL_measurement	free cholesterol in small HDL measurement
+gcat_trait_free_cholesterol_in_small_LDL_measurement	free cholesterol in small LDL measurement
+gcat_trait_free_cholesterol_in_small_VLDL_measurement	free cholesterol in small VLDL measurement
+gcat_trait_free_cholesterol_in_very_large_HDL_measurement	free cholesterol in very large HDL measurement
+gcat_trait_free_cholesterol_in_very_large_VLDL_measurement	free cholesterol in very large VLDL measurement
+gcat_trait_free_cholesterol_in_very_small_VLDL_measurement	free cholesterol in very small VLDL measurement
+gcat_trait_free_cholesterol_measurement	free cholesterol measurement
+gcat_trait_free_cholesterol_to_total_lipids_in_IDL_percentage	free cholesterol to total lipids in IDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_chylomicrons_and_extremely_large_VLDL_percentage	free cholesterol to total lipids in chylomicrons and extremely large VLDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_large_HDL_percentage	free cholesterol to total lipids in large HDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_large_LDL_percentage	free cholesterol to total lipids in large LDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_large_VLDL_percentage	free cholesterol to total lipids in large VLDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_medium_HDL_percentage	free cholesterol to total lipids in medium HDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_medium_LDL_percentage	free cholesterol to total lipids in medium LDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_medium_VLDL_percentage	free cholesterol to total lipids in medium VLDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_small_HDL_percentage	free cholesterol to total lipids in small HDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_small_LDL_percentage	free cholesterol to total lipids in small LDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_small_VLDL_percentage	free cholesterol to total lipids in small VLDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_very_large_HDL_percentage	free cholesterol to total lipids in very large HDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_very_large_VLDL_percentage	free cholesterol to total lipids in very large VLDL percentage
+gcat_trait_free_cholesterol_to_total_lipids_in_very_small_VLDL_percentage	free cholesterol to total lipids in very small VLDL percentage
+gcat_trait_frontal_fibrosing_alopecia	frontal fibrosing alopecia
+gcat_trait_frontal_pole_volume_measurement	frontal pole volume measurement
+gcat_trait_frontotemporal_dementia	frontotemporal dementia
+gcat_trait_fumarate_measurement	fumarate measurement
+gcat_trait_functional_brain_measurement	functional brain measurement
+gcat_trait_gait_measurement	gait measurement
+gcat_trait_galactoside_34-L-fucosyltransferase_measurement	galactoside 3(4)-L-fucosyltransferase measurement
+gcat_trait_galectin-3_measurement	galectin-3 measurement
+gcat_trait_gallbladder_neoplasm	gallbladder neoplasm
+gcat_trait_gallstones	gallstones
+gcat_trait_gamma-aminoisobutyric_acid_measurement	gamma-aminoisobutyric acid measurement
+gcat_trait_gamma-glutamyl-2-aminobutyrate_measurement	gamma-glutamyl-2-aminobutyrate measurement
+gcat_trait_gamma-glutamylglutamate_measurement	gamma-glutamylglutamate measurement
+gcat_trait_gamma-glutamylglutamine_measurement	gamma-glutamylglutamine measurement
+gcat_trait_gamma-glutamylleucine_measurement	gamma-glutamylleucine measurement
+gcat_trait_gamma-glutamylphenylalanine_measurement	gamma-glutamylphenylalanine measurement
+gcat_trait_gamma-glutamylthreonine_measurement	gamma-glutamylthreonine measurement
+gcat_trait_gamma-glutamyltyrosine_measurement	gamma-glutamyltyrosine measurement
+gcat_trait_gamma-linolenic_acid_measurement	gamma-linolenic acid measurement
+gcat_trait_ganglion_cell_inner_plexiform_layer_thickness_measurement	ganglion cell inner plexiform layer thickness measurement
+gcat_trait_gas_trapping_measurement	gas trapping measurement
+gcat_trait_gastric_cancer	gastric cancer
+gcat_trait_gastric_carcinoma	gastric carcinoma
+gcat_trait_gastric_intestinal_type_adenocarcinoma	gastric intestinal type adenocarcinoma
+gcat_trait_gastric_ulcer	gastric ulcer
+gcat_trait_gastroesophageal_reflux_disease	gastroesophageal reflux disease
+gcat_trait_gdnf_family_receptor_alpha-1_measurement	gdnf family receptor alpha-1 measurement
+gcat_trait_generalised_epilepsy	generalised epilepsy
+gcat_trait_generalized_anxiety_disorder	generalized anxiety disorder
+gcat_trait_genotoxic_compound_exposure_measurement	genotoxic compound exposure measurement
+gcat_trait_gestational_age	gestational age
+gcat_trait_gestational_diabetes	gestational diabetes
+gcat_trait_ghrelin_measurement	ghrelin measurement
+gcat_trait_glaucoma	glaucoma
+gcat_trait_glioma	glioma
+gcat_trait_glomerular_filtration_rate	glomerular filtration rate
+gcat_trait_glucagon_measurement	glucagon measurement
+gcat_trait_glucocorticoid_receptor_gene_expression_measurement	glucocorticoid receptor gene expression measurement
+gcat_trait_glucose-dependent_insulinotropic_peptide_measurement	glucose-dependent insulinotropic peptide measurement
+gcat_trait_glucose_measurement	glucose measurement
+gcat_trait_glucose_tolerance_test	glucose tolerance test
+gcat_trait_glucuronate_measurement	glucuronate measurement
+gcat_trait_glutamate_measurement	glutamate measurement
+gcat_trait_glutamine_measurement	glutamine measurement
+gcat_trait_glutarylcarnitine_C5-DC_measurement	glutarylcarnitine (C5-DC) measurement
+gcat_trait_gluteofemoral_adipose_tissue_measurement	gluteofemoral adipose tissue measurement
+gcat_trait_glycerate_measurement	glycerate measurement
+gcat_trait_glycerol-3-phosphate_measurement	glycerol-3-phosphate measurement
+gcat_trait_glycerol_measurement	glycerol measurement
+gcat_trait_glycerophosphoethanolamine_measurement	glycerophosphoethanolamine measurement
+gcat_trait_glycerophospholipid_measurement	glycerophospholipid measurement
+gcat_trait_glycine_measurement	glycine measurement
+gcat_trait_glycochenodeoxycholate_glucuronide_1_measurement	glycochenodeoxycholate glucuronide (1) measurement
+gcat_trait_glycochenodeoxycholate_measurement	glycochenodeoxycholate measurement
+gcat_trait_glycocholate_measurement	glycocholate measurement
+gcat_trait_glycocholenate_sulfate_measurement	glycocholenate sulfate measurement
+gcat_trait_glycodeoxycholate_measurement	glycodeoxycholate measurement
+gcat_trait_glycolithocholate_sulfate_measurement	glycolithocholate sulfate measurement
+gcat_trait_glycoprotein_measurement	glycoprotein measurement
+gcat_trait_glycosyl-N-2-hydroxynervonoyl-sphingosine_d1812412OH_measurement	glycosyl-N-(2-hydroxynervonoyl)-sphingosine (d18:1/24:1(2OH)) measurement
+gcat_trait_glycosyl-N-palmitoyl-sphingosine_d181160_measurement	glycosyl-N-palmitoyl-sphingosine (d18:1/16:0) measurement
+gcat_trait_glycosyl-N-stearoyl-sphingosine_d181180_measurement	glycosyl-N-stearoyl-sphingosine (d18:1/18:0) measurement
+gcat_trait_glycosyl_ceramide_d181200_d161220_measurement	glycosyl ceramide (d18:1/20:0; d16:1/22:0) measurement
+gcat_trait_glypican-5_measurement	glypican-5 measurement
+gcat_trait_goiter	goiter
+gcat_trait_gout	gout
+gcat_trait_granulins_measurement	granulins measurement
+gcat_trait_granulocyte_colony-stimulating_factor_measurement	granulocyte colony-stimulating factor measurement
+gcat_trait_granulocyte_count	granulocyte count
+gcat_trait_granulocyte_percentage_of_myeloid_white_cells	granulocyte percentage of myeloid white cells
+gcat_trait_granulysin_measurement	granulysin measurement
+gcat_trait_grey_matter_volume_measurement	grey matter volume measurement
+gcat_trait_grip_strength_measurement	grip strength measurement
+gcat_trait_growth-regulated_alpha_protein_measurement	growth-regulated alpha protein measurement
+gcat_trait_growth_differentiation_factor_15_measurement	growth differentiation factor 15 measurement
+gcat_trait_guanidinoacetate_measurement	guanidinoacetate measurement
+gcat_trait_guilt_measurement	guilt measurement
+gcat_trait_gut_microbiome_measurement	gut microbiome measurement
+gcat_trait_haemophilus_influenzae_seropositivity	haemophilus influenzae seropositivity
+gcat_trait_hair_color	hair color
+gcat_trait_hair_colour_measurement	hair colour measurement
+gcat_trait_hair_morphology	hair morphology
+gcat_trait_hair_morphology_measurement	hair morphology measurement
+gcat_trait_hair_shape_measurement	hair shape measurement
+gcat_trait_handedness	handedness
+gcat_trait_haptoglobin_measurement	haptoglobin measurement
+gcat_trait_health_literacy_measurement	health literacy measurement
+gcat_trait_health_study_participation	health study participation
+gcat_trait_hearing_loss	hearing loss
+gcat_trait_hearing_measurement	hearing measurement
+gcat_trait_hearing_threshold_measurement	hearing threshold measurement
+gcat_trait_heart_failure	heart failure
+gcat_trait_heart_function_measurement	heart function measurement
+gcat_trait_heart_rate	heart rate
+gcat_trait_heart_rate_response_to_exercise	heart rate response to exercise
+gcat_trait_heart_rate_response_to_recovery_post_exercise	heart rate response to recovery post exercise
+gcat_trait_heart_rate_variability_measurement	heart rate variability measurement
+gcat_trait_heat_shock_protein_beta-1_measurement	heat shock protein beta-1 measurement
+gcat_trait_heel_bone_mineral_density	heel bone mineral density
+gcat_trait_hematocrit	hematocrit
+gcat_trait_hemoglobin_A1_measurement	hemoglobin A1 measurement
+gcat_trait_hemoglobin_change_measurement	hemoglobin change measurement
+gcat_trait_hemoglobin_measurement	hemoglobin measurement
+gcat_trait_hemolysis	hemolysis
+gcat_trait_hemopexin_measurement	hemopexin measurement
+gcat_trait_hemorheological_measurement	hemorheological measurement
+gcat_trait_hemorrhoid	hemorrhoid
+gcat_trait_hepatitis_A_virus_cellular_receptor_1_measurement	hepatitis A virus cellular receptor 1 measurement
+gcat_trait_hepatitis_A_virus_cellular_receptor_2_measurement	hepatitis A virus cellular receptor 2 measurement
+gcat_trait_hepatitis_B_virus_infection	hepatitis B virus infection
+gcat_trait_hepatitis_E_virus_seropositivity	hepatitis E virus seropositivity
+gcat_trait_hepatocellular_carcinoma	hepatocellular carcinoma
+gcat_trait_hepatocyte_growth_factor-like_protein_measurement	hepatocyte growth factor-like protein measurement
+gcat_trait_hepatocyte_growth_factor_activator_measurement	hepatocyte growth factor activator measurement
+gcat_trait_hepatocyte_growth_factor_measurement	hepatocyte growth factor measurement
+gcat_trait_hepcidin_measurement	hepcidin measurement
+gcat_trait_hepcidinferritin_ratio	hepcidin:ferritin ratio
+gcat_trait_hepcidintransferrin_saturation_ratio	hepcidin:transferrin saturation ratio
+gcat_trait_heptachlor_epoxide_measurement	heptachlor epoxide measurement
+gcat_trait_heptachlor_measurement	heptachlor measurement
+gcat_trait_hexadecanedioate_measurement	hexadecanedioate measurement
+gcat_trait_hexadecenedioate_C161-DC_measurement	hexadecenedioate (C16:1-DC) measurement
+gcat_trait_hexanoylcarnitine_measurement	hexanoylcarnitine measurement
+gcat_trait_hexanoylglycine_measurement	hexanoylglycine measurement
+gcat_trait_high_density_lipoprotein_cholesterol_measurement	high density lipoprotein cholesterol measurement
+gcat_trait_high_density_lipoprotein_particle_size_measurement	high density lipoprotein particle size measurement
+gcat_trait_hip_bone_mineral_density	hip bone mineral density
+gcat_trait_hip_bone_size	hip bone size
+gcat_trait_hip_circumference	hip circumference
+gcat_trait_hip_geometry	hip geometry
+gcat_trait_hippocampal_CA1_volume	hippocampal CA1 volume
+gcat_trait_hippocampal_CA3_volume	hippocampal CA3 volume
+gcat_trait_hippocampal_CA4_volume	hippocampal CA4 volume
+gcat_trait_hippocampal_atrophy	hippocampal atrophy
+gcat_trait_hippocampal_sclerosis_of_aging	hippocampal sclerosis of aging
+gcat_trait_hippocampal_tail_volume	hippocampal tail volume
+gcat_trait_hippocampal_volume	hippocampal volume
+gcat_trait_hippocampus_molecular_layer_volume	hippocampus molecular layer volume
+gcat_trait_histidine-rich_glycoprotein_measurement	histidine-rich glycoprotein measurement
+gcat_trait_histidine_measurement	histidine measurement
+gcat_trait_hoarding_disorder	hoarding disorder
+gcat_trait_homocitrulline_measurement	homocitrulline measurement
+gcat_trait_homocysteine_measurement	homocysteine measurement
+gcat_trait_homostachydrine_measurement	homostachydrine measurement
+gcat_trait_hormone_measurement	hormone measurement
+gcat_trait_household_income	household income
+gcat_trait_human_Chorionic_Gonadotropin_measurement	human Chorionic Gonadotropin measurement
+gcat_trait_human_papilloma_virus_infection	human papilloma virus infection
+gcat_trait_hydroxy-leucine_measurement	hydroxy-leucine measurement
+gcat_trait_hypertension	hypertension
+gcat_trait_hyperthyroidism	hyperthyroidism
+gcat_trait_hypertrophic_cardiomyopathy	hypertrophic cardiomyopathy
+gcat_trait_hyperuricemia	hyperuricemia
+gcat_trait_hypospadias	hypospadias
+gcat_trait_hypotaurine_measurement	hypotaurine measurement
+gcat_trait_hypothyroidism	hypothyroidism
+gcat_trait_hypoxanthine_mesurement	hypoxanthine mesurement
+gcat_trait_icos_ligand_measurement	icos ligand measurement
+gcat_trait_idiopathic_dilated_cardiomyopathy	idiopathic dilated cardiomyopathy
+gcat_trait_idiopathic_osteonecrosis_of_the_femoral_head	idiopathic osteonecrosis of the femoral head
+gcat_trait_idiopathic_pulmonary_fibrosis	idiopathic pulmonary fibrosis
+gcat_trait_illegal_drug_consumption	illegal drug consumption
+gcat_trait_imidazole_lactate_measurement	imidazole lactate measurement
+gcat_trait_immature_granulocyte_count	immature granulocyte count
+gcat_trait_immature_platelet_count	immature platelet count
+gcat_trait_immature_platelet_fraction	immature platelet fraction
+gcat_trait_immature_platelet_measurement	immature platelet measurement
+gcat_trait_immature_reticulocyte_measurement	immature reticulocyte measurement
+gcat_trait_immune_system_disease	immune system disease
+gcat_trait_immunoglobulin_E_measurement	immunoglobulin E measurement
+gcat_trait_immunoglobulin_isotype_switching_measurement	immunoglobulin isotype switching measurement
+gcat_trait_immunoglobulin_lambda-like_polypeptide_1_measurement	immunoglobulin lambda-like polypeptide 1 measurement
+gcat_trait_immunoglobulin_superfamily_containing_leucine-rich_repeat_protein_2_measurement	immunoglobulin superfamily containing leucine-rich repeat protein 2 measurement
+gcat_trait_indole-3-propionate_measurement	indole-3-propionate measurement
+gcat_trait_indoleacetylglutamine_measurement	indoleacetylglutamine measurement
+gcat_trait_indolelactate_measurement	indolelactate measurement
+gcat_trait_indolepropionate_measurement	indolepropionate measurement
+gcat_trait_infant_body_height	infant body height
+gcat_trait_infant_expressive_language_ability	infant expressive language ability
+gcat_trait_infant_grey_matter_volume_measurement	infant grey matter volume measurement
+gcat_trait_infant_head_circumference	infant head circumference
+gcat_trait_infantile_hypertrophic_pyloric_stenosis	infantile hypertrophic pyloric stenosis
+gcat_trait_inferior_parietal_cortex_volume_measurement	inferior parietal cortex volume measurement
+gcat_trait_inflammatory_biomarker_measurement	inflammatory biomarker measurement
+gcat_trait_inflammatory_bowel_disease	inflammatory bowel disease
+gcat_trait_influenza_A_H1N1	influenza A (H1N1)
+gcat_trait_information_processing_speed	information processing speed
+gcat_trait_initial_pursuit_acceleration	initial pursuit acceleration
+gcat_trait_inosine_measurement	inosine measurement
+gcat_trait_inositol_measurement	inositol measurement
+gcat_trait_insomnia	insomnia
+gcat_trait_insomnia_measurement	insomnia measurement
+gcat_trait_insular_cortex_volume_measurement	insular cortex volume measurement
+gcat_trait_insulin_measurement	insulin measurement
+gcat_trait_insulin_resistance	insulin resistance
+gcat_trait_insulin_sensitivity_measurement	insulin sensitivity measurement
+gcat_trait_intelligence	intelligence
+gcat_trait_intercellular_adhesion_molecule_5_measurement	intercellular adhesion molecule 5 measurement
+gcat_trait_interferon_alphabeta_receptor_1_measurement	interferon alpha/beta receptor 1 measurement
+gcat_trait_interferon_gamma_measurement	interferon gamma measurement
+gcat_trait_interleukin-17_receptor_A_measurement	interleukin-17 receptor A measurement
+gcat_trait_interleukin-18_receptor_1_measurement	interleukin-18 receptor 1 measurement
+gcat_trait_interleukin-1_beta_measurement	interleukin-1 beta measurement
+gcat_trait_interleukin-1_receptor_type_1_measurement	interleukin-1 receptor type 1 measurement
+gcat_trait_interleukin-1_receptor_type_2_measurement	interleukin-1 receptor type 2 measurement
+gcat_trait_interleukin-2_receptor_subunit_alpha_measurement	interleukin-2 receptor subunit alpha measurement
+gcat_trait_interleukin-3_receptor_subunit_alpha_measurement	interleukin-3 receptor subunit alpha measurement
+gcat_trait_interleukin-5_receptor_subunit_alpha_measurement	interleukin-5 receptor subunit alpha measurement
+gcat_trait_interleukin-6_measurement	interleukin-6 measurement
+gcat_trait_interleukin-6_receptor_subunit_alpha_measurement	interleukin-6 receptor subunit alpha measurement
+gcat_trait_interleukin-8_measurement	interleukin-8 measurement
+gcat_trait_interleukin_10_measurement	interleukin 10 measurement
+gcat_trait_interleukin_12_measurement	interleukin 12 measurement
+gcat_trait_interleukin_13_measurement	interleukin 13 measurement
+gcat_trait_interleukin_16_measurement	interleukin 16 measurement
+gcat_trait_interleukin_17_measurement	interleukin 17 measurement
+gcat_trait_interleukin_17_receptor_A_measurement	interleukin 17 receptor A measurement
+gcat_trait_interleukin_18_measurement	interleukin 18 measurement
+gcat_trait_interleukin_18_receptor_1_measurement	interleukin 18 receptor 1 measurement
+gcat_trait_interleukin_18_receptor_accessory_protein_measurement	interleukin 18 receptor accessory protein measurement
+gcat_trait_interleukin_1_Receptor_accessory_protein_measurement	interleukin 1 Receptor accessory protein measurement
+gcat_trait_interleukin_1_receptor-like_1_measurement	interleukin 1 receptor-like 1 measurement
+gcat_trait_interleukin_1_receptor-like_2_measurement	interleukin 1 receptor-like 2 measurement
+gcat_trait_interleukin_1_receptor_antagonist_measurement	interleukin 1 receptor antagonist measurement
+gcat_trait_interleukin_25_measurement	interleukin 25 measurement
+gcat_trait_interleukin_27_receptor_subunit_alpha_measurement	interleukin 27 receptor subunit alpha measurement
+gcat_trait_interleukin_2_measurement	interleukin 2 measurement
+gcat_trait_interleukin_2_receptor_antagonist_measurement	interleukin 2 receptor antagonist measurement
+gcat_trait_interleukin_4_measurement	interleukin 4 measurement
+gcat_trait_interleukin_5_measurement	interleukin 5 measurement
+gcat_trait_interleukin_5_receptor_subunit_alpha_measurement	interleukin 5 receptor subunit alpha measurement
+gcat_trait_interleukin_6_receptor_subunit_alpha_measurement	interleukin 6 receptor subunit alpha measurement
+gcat_trait_interleukin_7_measurement	interleukin 7 measurement
+gcat_trait_interleukin_9_measurement	interleukin 9 measurement
+gcat_trait_intermediate_density_lipoprotein_measurement	intermediate density lipoprotein measurement
+gcat_trait_internet_addiction_disorder	internet addiction disorder
+gcat_trait_interstitial_collagenase_measurement	interstitial collagenase measurement
+gcat_trait_interstitial_lung_disease	interstitial lung disease
+gcat_trait_intestinal_permeability_measurement	intestinal permeability measurement
+gcat_trait_intracerebral_hemorrhage	intracerebral hemorrhage
+gcat_trait_intracranial_volume_measurement	intracranial volume measurement
+gcat_trait_intraocular_pressure_measurement	intraocular pressure measurement
+gcat_trait_iron_biomarker_measurement	iron biomarker measurement
+gcat_trait_irritability_measurement	irritability measurement
+gcat_trait_irritable_bowel_syndrome	irritable bowel syndrome
+gcat_trait_irritable_bowel_syndrome_symptom_measurement	irritable bowel syndrome symptom measurement
+gcat_trait_isobutyrylcarnitine_measurement	isobutyrylcarnitine measurement
+gcat_trait_isocitrate_measurement	isocitrate measurement
+gcat_trait_isoleucine_measurement	isoleucine measurement
+gcat_trait_isovalerylcarnitine_measurement	isovalerylcarnitine measurement
+gcat_trait_isthmus_cingulate_cortex_volume_measurement	isthmus cingulate cortex volume measurement
+gcat_trait_joint_damage_measurement	joint damage measurement
+gcat_trait_joint_hypermobility_measurement	joint hypermobility measurement
+gcat_trait_juvenile_dermatomyositis	juvenile dermatomyositis
+gcat_trait_juvenile_idiopathic_arthritis	juvenile idiopathic arthritis
+gcat_trait_kallikrein-11_measurement	kallikrein-11 measurement
+gcat_trait_kallikrein-12_measurement	kallikrein-12 measurement
+gcat_trait_kallikrein-14_measurement	kallikrein-14 measurement
+gcat_trait_kallikrein-7_measurement	kallikrein-7 measurement
+gcat_trait_kallistatin_measurement	kallistatin measurement
+gcat_trait_keratinocyte_carcinoma	keratinocyte carcinoma
+gcat_trait_keratoconus	keratoconus
+gcat_trait_killer_cell_immunoglobulin-like_receptor_2DL4_measurement	killer cell immunoglobulin-like receptor 2DL4 measurement
+gcat_trait_killer_cell_immunoglobulin-like_receptor_2DL5A_measurement	killer cell immunoglobulin-like receptor 2DL5A measurement
+gcat_trait_killer_cell_immunoglobulin-like_receptor_2DS2_measurement	killer cell immunoglobulin-like receptor 2DS2 measurement
+gcat_trait_kininogen-1_measurement	kininogen-1 measurement
+gcat_trait_kynurenate_measurement	kynurenate measurement
+gcat_trait_kynurenine_measurement	kynurenine measurement
+gcat_trait_lactate_measurement	lactate measurement
+gcat_trait_lactobacillus_phage_virus_seropositivity	lactobacillus phage virus seropositivity
+gcat_trait_lactobacillus_seropositivity	lactobacillus seropositivity
+gcat_trait_lactoperoxidase_measurement	lactoperoxidase measurement
+gcat_trait_language_measurement	language measurement
+gcat_trait_large_artery_stroke	large artery stroke
+gcat_trait_late-onset_Alzheimers_disease	late-onset Alzheimers disease
+gcat_trait_late-onset_myasthenia_gravis	late-onset myasthenia gravis
+gcat_trait_lateral_occipital_cortex_volume_measurement	lateral occipital cortex volume measurement
+gcat_trait_lateral_orbital_frontal_cortex_volume_measurement	lateral orbital frontal cortex volume measurement
+gcat_trait_lateral_ventricle_volume_change_measurement	lateral ventricle volume change measurement
+gcat_trait_lateral_ventricle_volume_measurement	lateral ventricle volume measurement
+gcat_trait_laurylcarnitine_measurement	laurylcarnitine measurement
+gcat_trait_lean_body_mass	lean body mass
+gcat_trait_lean_mass-adjusted_fat_body_mass	lean mass-adjusted fat body mass
+gcat_trait_left_atrial_function	left atrial function
+gcat_trait_left_atrial_volume_measurement	left atrial volume measurement
+gcat_trait_left_ventricular_diastolic_function_measurement	left ventricular diastolic function measurement
+gcat_trait_left_ventricular_ejection_fraction_measurement	left ventricular ejection fraction measurement
+gcat_trait_left_ventricular_mass	left ventricular mass
+gcat_trait_left_ventricular_mass_index	left ventricular mass index
+gcat_trait_left_ventricular_structural_measurement	left ventricular structural measurement
+gcat_trait_left_ventricular_systolic_function_measurement	left ventricular systolic function measurement
+gcat_trait_lentiform_nucleus_measurement	lentiform nucleus measurement
+gcat_trait_leprosy	leprosy
+gcat_trait_leptin_measurement	leptin measurement
+gcat_trait_leptin_receptor_measurement	leptin receptor measurement
+gcat_trait_leucine-rich_repeat_transmembrane_protein_FLRT3_measurement	leucine-rich repeat transmembrane protein FLRT3 measurement
+gcat_trait_leucine_measurement	leucine measurement
+gcat_trait_leukocyte_count	leukocyte count
+gcat_trait_leukocyte_immunoglobulin-like_receptor_subfamily_A_member_6_measurement	leukocyte immunoglobulin-like receptor subfamily A member 6 measurement
+gcat_trait_leukocyte_immunoglobulin-like_receptor_subfamily_B_member_1_measurement	leukocyte immunoglobulin-like receptor subfamily B member 1 measurement
+gcat_trait_leukocyte_immunoglobulin-like_receptor_subfamily_B_member_2_measurement	leukocyte immunoglobulin-like receptor subfamily B member 2 measurement
+gcat_trait_level_of_C-X-C_motif_chemokine_3_in_blood_serum	level of C-X-C motif chemokine 3 in blood serum
+gcat_trait_level_of_Ceramide_d401_in_blood_serum	level of Ceramide (d40:1) in blood serum
+gcat_trait_level_of_Ceramide_d422_in_blood_serum	level of Ceramide (d42:2) in blood serum
+gcat_trait_level_of_Diacylglycerol_181_181_in_blood_serum	level of Diacylglycerol (18:1_18:1) in blood serum
+gcat_trait_level_of_Diacylglycerol_181_182_in_blood_serum	level of Diacylglycerol (18:1_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_140_182_in_blood_serum	level of Phosphatidylcholine (14:0_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_150_182_in_blood_serum	level of Phosphatidylcholine (15:0_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_160_160_in_blood_serum	level of Phosphatidylcholine (16:0_16:0) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_160_182_in_blood_serum	level of Phosphatidylcholine (16:0_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_160_204_in_blood_serum	level of Phosphatidylcholine (16:0_20:4) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_160_225_in_blood_serum	level of Phosphatidylcholine (16:0_22:5) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_161_181_in_blood_serum	level of Phosphatidylcholine (16:1_18:1) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_161_182_in_blood_serum	level of Phosphatidylcholine (16:1_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_170_204_in_blood_serum	level of Phosphatidylcholine (17:0_20:4) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_180_182_in_blood_serum	level of Phosphatidylcholine (18:0_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_180_203_in_blood_serum	level of Phosphatidylcholine (18:0_20:3) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_180_204_in_blood_serum	level of Phosphatidylcholine (18:0_20:4) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_181_182_in_blood_serum	level of Phosphatidylcholine (18:1_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_181_204_in_blood_serum	level of Phosphatidylcholine (18:1_20:4) in blood serum
+gcat_trait_level_of_Phosphatidylcholine_204_00_in_blood_serum	level of Phosphatidylcholine (20:4_0:0) in blood serum
+gcat_trait_level_of_Phosphatidylethanolamine_160_182_in_blood_serum	level of Phosphatidylethanolamine (16:0_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylethanolamine_160_204_in_blood_serum	level of Phosphatidylethanolamine (16:0_20:4) in blood serum
+gcat_trait_level_of_Phosphatidylethanolamine_180_182_in_blood_serum	level of Phosphatidylethanolamine (18:0_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylethanolamine_180_204_in_blood_serum	level of Phosphatidylethanolamine (18:0_20:4) in blood serum
+gcat_trait_level_of_Phosphatidylethanolamine_181_181_in_blood_serum	level of Phosphatidylethanolamine (18:1_18:1) in blood serum
+gcat_trait_level_of_Phosphatidylinositol_180_181_in_blood_serum	level of Phosphatidylinositol (18:0_18:1) in blood serum
+gcat_trait_level_of_Phosphatidylinositol_180_182_in_blood_serum	level of Phosphatidylinositol (18:0_18:2) in blood serum
+gcat_trait_level_of_Phosphatidylinositol_180_203_in_blood_serum	level of Phosphatidylinositol (18:0_20:3) in blood serum
+gcat_trait_level_of_Phosphatidylinositol_180_204_in_blood_serum	level of Phosphatidylinositol (18:0_20:4) in blood serum
+gcat_trait_level_of_Phosphatidylinositol_181_181_in_blood_serum	level of Phosphatidylinositol (18:1_18:1) in blood serum
+gcat_trait_level_of_Sphingomyelin_d321_in_blood_serum	level of Sphingomyelin (d32:1) in blood serum
+gcat_trait_level_of_Sphingomyelin_d340_in_blood_serum	level of Sphingomyelin (d34:0) in blood serum
+gcat_trait_level_of_Sphingomyelin_d341_in_blood_serum	level of Sphingomyelin (d34:1) in blood serum
+gcat_trait_level_of_Sphingomyelin_d381_in_blood_serum	level of Sphingomyelin (d38:1) in blood serum
+gcat_trait_level_of_Sphingomyelin_d382_in_blood_serum	level of Sphingomyelin (d38:2) in blood serum
+gcat_trait_level_of_Sphingomyelin_d401_in_blood_serum	level of Sphingomyelin (d40:1) in blood serum
+gcat_trait_level_of_Sphingomyelin_d402_in_blood_serum	level of Sphingomyelin (d40:2) in blood serum
+gcat_trait_level_of_Sphingomyelin_d422_in_blood_serum	level of Sphingomyelin (d42:2) in blood serum
+gcat_trait_level_of_Sterol_ester_271160_in_blood_serum	level of Sterol ester (27:1/16:0) in blood serum
+gcat_trait_level_of_Sterol_ester_271180_in_blood_serum	level of Sterol ester (27:1/18:0) in blood serum
+gcat_trait_level_of_Sterol_ester_271181_in_blood_serum	level of Sterol ester (27:1/18:1) in blood serum
+gcat_trait_level_of_Sterol_ester_271182_in_blood_serum	level of Sterol ester (27:1/18:2) in blood serum
+gcat_trait_level_of_Sterol_ester_271203_in_blood_serum	level of Sterol ester (27:1/20:3) in blood serum
+gcat_trait_level_of_Sterol_ester_271204_in_blood_serum	level of Sterol ester (27:1/20:4) in blood serum
+gcat_trait_level_of_Triacylglycerol_513_in_blood_serum	level of Triacylglycerol (51:3) in blood serum
+gcat_trait_level_of_Triacylglycerol_533_in_blood_serum	level of Triacylglycerol (53:3) in blood serum
+gcat_trait_level_of_interleukin-12_subunit_beta_in_blood	level of interleukin-12 subunit beta in blood
+gcat_trait_level_of_oxylipin_in_blood_plasma	level of oxylipin in blood plasma
+gcat_trait_level_of_triacylglycerol_566_in_blood_serum	level of triacylglycerol (56:6) in blood serum
+gcat_trait_level_of_vimentin_in_blood_serum	level of vimentin in blood serum
+gcat_trait_lichen_planus	lichen planus
+gcat_trait_lifestyle_measurement	lifestyle measurement
+gcat_trait_lignoceroylcarnitine_C24_measurement	lignoceroylcarnitine (C24) measurement
+gcat_trait_limited_scleroderma	limited scleroderma
+gcat_trait_lingual_gyrus_volume_measurement	lingual gyrus volume measurement
+gcat_trait_linoleic_acid_measurement	linoleic acid measurement
+gcat_trait_linoleoyl-arachidonoyl-glycerol_182204_1_measurement	linoleoyl-arachidonoyl-glycerol (18:2/20:4) [1] measurement
+gcat_trait_linoleoyl-arachidonoyl-glycerol_182204_2_measurement	linoleoyl-arachidonoyl-glycerol (18:2/20:4) [2] measurement
+gcat_trait_lip_morphology_measurement	lip morphology measurement
+gcat_trait_lipid_measurement	lipid measurement
+gcat_trait_lipopolysaccharide-binding_protein_measurement	lipopolysaccharide-binding protein measurement
+gcat_trait_lipoprotein-associated_phospholipase_A2_measurement	lipoprotein-associated phospholipase A(2) measurement
+gcat_trait_lipoprotein_A_measurement	lipoprotein A measurement
+gcat_trait_lipoprotein_measurement	lipoprotein measurement
+gcat_trait_liver_fat_measurement	liver fat measurement
+gcat_trait_liver_fibrosis_measurement	liver fibrosis measurement
+gcat_trait_liver_iron_measurement	liver iron measurement
+gcat_trait_liver_volume	liver volume
+gcat_trait_lobe_attachment	lobe attachment
+gcat_trait_loneliness_measurement	loneliness measurement
+gcat_trait_longevity	longevity
+gcat_trait_longitudinal_BMI_measurement	longitudinal BMI measurement
+gcat_trait_low_affinity_immunoglobulin_epsilon_Fc_receptor_measurement	low affinity immunoglobulin epsilon Fc receptor measurement
+gcat_trait_low_affinity_immunoglobulin_gamma_Fc_region_receptor_II-a_measurement	low affinity immunoglobulin gamma Fc region receptor II-a measurement
+gcat_trait_low_affinity_immunoglobulin_gamma_Fc_region_receptor_II-b_measurement	low affinity immunoglobulin gamma Fc region receptor II-b measurement
+gcat_trait_low_density_lipoprotein_cholesterol_measurement	low density lipoprotein cholesterol measurement
+gcat_trait_low_density_lipoprotein_particle_size_measurement	low density lipoprotein particle size measurement
+gcat_trait_low_density_lipoprotein_triglyceride_measurement	low density lipoprotein triglyceride measurement
+gcat_trait_low_molecular_weight_phosphotyrosine_protein_phosphatase_measurement	low molecular weight phosphotyrosine protein phosphatase measurement
+gcat_trait_lower_body_strength_measurement	lower body strength measurement
+gcat_trait_lower_face_morphology_measurement	lower face morphology measurement
+gcat_trait_lumbar_disc_degeneration	lumbar disc degeneration
+gcat_trait_lung_adenocarcinoma	lung adenocarcinoma
+gcat_trait_lung_cancer	lung cancer
+gcat_trait_lung_carcinoma	lung carcinoma
+gcat_trait_lung_disease_severity_measurement	lung disease severity measurement
+gcat_trait_lupus_nephritis	lupus nephritis
+gcat_trait_luteinizing_hormone_measurement	luteinizing hormone measurement
+gcat_trait_lymphocyte_count	lymphocyte count
+gcat_trait_lymphocyte_measurement	lymphocyte measurement
+gcat_trait_lymphocyte_percentage_of_leukocytes	lymphocyte percentage of leukocytes
+gcat_trait_lymphocytemonocyte_ratio	lymphocyte:monocyte ratio
+gcat_trait_lymphoid_leukemia	lymphoid leukemia
+gcat_trait_lymphoma	lymphoma
+gcat_trait_lysine_measurement	lysine measurement
+gcat_trait_lysophosphatidylcholine_150_measurement	lysophosphatidylcholine 15:0 measurement
+gcat_trait_lysophosphatidylcholine_180_measurement	lysophosphatidylcholine 18:0 measurement
+gcat_trait_lysophosphatidylcholine_181_measurement	lysophosphatidylcholine 18:1 measurement
+gcat_trait_lysophosphatidylcholine_182_measurement	lysophosphatidylcholine 18:2 measurement
+gcat_trait_lysophosphatidylcholine_203_measurement	lysophosphatidylcholine 20:3 measurement
+gcat_trait_lysophosphatidylcholine_204_measurement	lysophosphatidylcholine 20:4 measurement
+gcat_trait_lysophosphatidylcholine_205_measurement	lysophosphatidylcholine 20:5 measurement
+gcat_trait_lysophosphatidylcholine_225_measurement	lysophosphatidylcholine 22:5 measurement
+gcat_trait_lysophosphatidylcholine_226_measurement	lysophosphatidylcholine 22:6 measurement
+gcat_trait_lysophosphatidylcholine_measurement	lysophosphatidylcholine measurement
+gcat_trait_lysophosphatidylethanolamine_160_measurement	lysophosphatidylethanolamine 16:0 measurement
+gcat_trait_lysophosphatidylethanolamine_180_measurement	lysophosphatidylethanolamine 18:0 measurement
+gcat_trait_lysophosphatidylethanolamine_181_measurement	lysophosphatidylethanolamine 18:1 measurement
+gcat_trait_lysophosphatidylethanolamine_182_measurement	lysophosphatidylethanolamine 18:2 measurement
+gcat_trait_lysophosphatidylethanolamine_204_measurement	lysophosphatidylethanolamine 20:4 measurement
+gcat_trait_lysophosphatidylethanolamine_226_measurement	lysophosphatidylethanolamine 22:6 measurement
+gcat_trait_lysophosphatidylethanolamine_measurement	lysophosphatidylethanolamine measurement
+gcat_trait_lysosomal_protective_protein_measurement	lysosomal protective protein measurement
+gcat_trait_macrophage_colony_stimulating_factor_measurement	macrophage colony stimulating factor measurement
+gcat_trait_macrophage_inflammatory_protein_1a_measurement	macrophage inflammatory protein 1a measurement
+gcat_trait_macrophage_inflammatory_protein_1b_measurement	macrophage inflammatory protein 1b measurement
+gcat_trait_macrophage_migration_inhibitory_factor_measurement	macrophage migration inhibitory factor measurement
+gcat_trait_macula_measurement	macula measurement
+gcat_trait_macular_telangiectasia_type_2	macular telangiectasia type 2
+gcat_trait_magnesium_measurement	magnesium measurement
+gcat_trait_major_depressive_disorder	major depressive disorder
+gcat_trait_major_depressive_episode	major depressive episode
+gcat_trait_malaria	malaria
+gcat_trait_malate_measurement	malate measurement
+gcat_trait_male_breast_carcinoma	male breast carcinoma
+gcat_trait_malignant_epithelial_tumor_of_ovary	malignant epithelial tumor of ovary
+gcat_trait_mammographic_density_measurement	mammographic density measurement
+gcat_trait_mammographic_density_percentage	mammographic density percentage
+gcat_trait_mannan-binding_lectin_serine_protease_1_measurement	mannan-binding lectin serine protease 1 measurement
+gcat_trait_mannose-binding_protein_C_measurement	mannose-binding protein C measurement
+gcat_trait_mathematical_ability	mathematical ability
+gcat_trait_matrix_metalloproteinase_12_measurement	matrix metalloproteinase 12 measurement
+gcat_trait_matrix_metalloproteinase_1_measurement	matrix metalloproteinase 1 measurement
+gcat_trait_matrix_metalloproteinase_7_measurement	matrix metalloproteinase 7 measurement
+gcat_trait_matrix_metalloproteinase_measurement	matrix metalloproteinase measurement
+gcat_trait_maximal_midexpiratory_flow_rate	maximal midexpiratory flow rate
+gcat_trait_maximal_oxygen_uptake_measurement	maximal oxygen uptake measurement
+gcat_trait_maximum_cigarettes_per_day_measurement	maximum cigarettes per day measurement
+gcat_trait_mean_arterial_pressure	mean arterial pressure
+gcat_trait_mean_corpuscular_hemoglobin	mean corpuscular hemoglobin
+gcat_trait_mean_corpuscular_hemoglobin_concentration	mean corpuscular hemoglobin concentration
+gcat_trait_mean_corpuscular_volume	mean corpuscular volume
+gcat_trait_mean_fractional_anisotropy_measurement	mean fractional anisotropy measurement
+gcat_trait_mean_platelet_volume	mean platelet volume
+gcat_trait_mean_reticulocyte_volume	mean reticulocyte volume
+gcat_trait_medial_orbital_frontal_cortex_volume_measurement	medial orbital frontal cortex volume measurement
+gcat_trait_melanoma	melanoma
+gcat_trait_melanoma-derived_growth_regulatory_protein_measurement	melanoma-derived growth regulatory protein measurement
+gcat_trait_membranous_glomerulonephritis	membranous glomerulonephritis
+gcat_trait_memory_performance	memory performance
+gcat_trait_mental_or_behavioural_disorder	mental or behavioural disorder
+gcat_trait_mercuric_chloride_measurement	mercuric chloride measurement
+gcat_trait_metabolic_syndrome	metabolic syndrome
+gcat_trait_metabolically_healthy_obesity	metabolically healthy obesity
+gcat_trait_metabolite_measurement	metabolite measurement
+gcat_trait_metabolonic_lactone_sulfate_measurement	metabolonic lactone sulfate measurement
+gcat_trait_metachronous_colorectal_adenoma	metachronous colorectal adenoma
+gcat_trait_metalloproteinase_inhibitor_3_measurement	metalloproteinase inhibitor 3 measurement
+gcat_trait_methadone_dose_measurement	methadone dose measurement
+gcat_trait_methionine_measurement	methionine measurement
+gcat_trait_methionine_sulfone_measurement	methionine sulfone measurement
+gcat_trait_methoxychlor_measurement	methoxychlor measurement
+gcat_trait_microglial_activation_measurement	microglial activation measurement
+gcat_trait_migraine_disorder	migraine disorder
+gcat_trait_migraine_without_aura_susceptibility_to_4	migraine without aura; susceptibility to; 4
+gcat_trait_mitochondrial_DNA_measurement	mitochondrial DNA measurement
+gcat_trait_mitochondrial_heteroplasmy_measurement	mitochondrial heteroplasmy measurement
+gcat_trait_monoclonal_gammopathy	monoclonal gammopathy
+gcat_trait_monocyte_count	monocyte count
+gcat_trait_monocyte_measurement	monocyte measurement
+gcat_trait_monocyte_percentage_of_leukocytes	monocyte percentage of leukocytes
+gcat_trait_monokine_induced_by_gamma_interferon_measurement	monokine induced by gamma interferon measurement
+gcat_trait_monounsaturated_fatty_acids_161_181_measurement	monounsaturated fatty acids; 16:1; 18:1 measurement
+gcat_trait_mood_instability_measurement	mood instability measurement
+gcat_trait_mortality	mortality
+gcat_trait_mosaic_loss_of_chromosome_Y_measurement	mosaic loss of chromosome Y measurement
+gcat_trait_mosquito_bite_reaction_itch_intensity_measurement	mosquito bite reaction itch intensity measurement
+gcat_trait_mosquito_bite_reaction_size_measurement	mosquito bite reaction size measurement
+gcat_trait_motion_sickness	motion sickness
+gcat_trait_mouth_morphology_measurement	mouth morphology measurement
+gcat_trait_mucocutaneous_lymph_node_syndrome	mucocutaneous lymph node syndrome
+gcat_trait_multiple_myeloma	multiple myeloma
+gcat_trait_multiple_sclerosis	multiple sclerosis
+gcat_trait_multiple_sclerosis_symptom_measurement	multiple sclerosis symptom measurement
+gcat_trait_multiple_system_atrophy	multiple system atrophy
+gcat_trait_multisite_chronic_pain	multisite chronic pain
+gcat_trait_myeloblastin_measurement	myeloblastin measurement
+gcat_trait_myeloid_cell_surface_antigen_CD33_measurement	myeloid cell surface antigen CD33 measurement
+gcat_trait_myeloid_white_cell_count	myeloid white cell count
+gcat_trait_myeloperoxidase_MPO-DNA_complex_measurement	myeloperoxidase (MPO)-DNA complex measurement
+gcat_trait_myeloperoxidase_measurement	myeloperoxidase measurement
+gcat_trait_myeloproliferative_disorder	myeloproliferative disorder
+gcat_trait_myocardial_infarction	myocardial infarction
+gcat_trait_myositis	myositis
+gcat_trait_narcolepsy-cataplexy_syndrome	narcolepsy-cataplexy syndrome
+gcat_trait_nasal_disorder	nasal disorder
+gcat_trait_nasopharyngeal_neoplasm	nasopharyngeal neoplasm
+gcat_trait_neck_circumference	neck circumference
+gcat_trait_necrotizing_enterocolitis	necrotizing enterocolitis
+gcat_trait_neonatal_abstinence_syndrome	neonatal abstinence syndrome
+gcat_trait_neoplasm_of_mature_B-cells	neoplasm of mature B-cells
+gcat_trait_nephrolithiasis	nephrolithiasis
+gcat_trait_nephrotic_syndrome	nephrotic syndrome
+gcat_trait_nervonoylcarnitine_C241_measurement	nervonoylcarnitine (C24:1) measurement
+gcat_trait_nervousness	nervousness
+gcat_trait_netrin-1_measurement	netrin-1 measurement
+gcat_trait_neural_cell_adhesion_molecule_1_120_kda_isoform_measurement	neural cell adhesion molecule 1; 120 kda isoform measurement
+gcat_trait_neurexophilin-1_measurement	neurexophilin-1 measurement
+gcat_trait_neuritic_plaque_measurement	neuritic plaque measurement
+gcat_trait_neuroblastoma	neuroblastoma
+gcat_trait_neurofibrillary_tangles_measurement	neurofibrillary tangles measurement
+gcat_trait_neurofilament_light_chain_measurement	neurofilament light chain measurement
+gcat_trait_neuroimaging_measurement	neuroimaging measurement
+gcat_trait_neuropathic_pain	neuropathic pain
+gcat_trait_neuropsychological_test	neuropsychological test
+gcat_trait_neurotic_disorder	neurotic disorder
+gcat_trait_neuroticism_measurement	neuroticism measurement
+gcat_trait_neutral_ceramidase_measurement	neutral ceramidase measurement
+gcat_trait_neutrophil-to-lymphocyte_ratio	neutrophil-to-lymphocyte ratio
+gcat_trait_neutrophil_collagenase_measurement	neutrophil collagenase measurement
+gcat_trait_neutrophil_count	neutrophil count
+gcat_trait_neutrophil_measurement	neutrophil measurement
+gcat_trait_neutrophil_percentage_of_granulocytes	neutrophil percentage of granulocytes
+gcat_trait_neutrophil_percentage_of_leukocytes	neutrophil percentage of leukocytes
+gcat_trait_nevus_count	nevus count
+gcat_trait_nicotine_dependence	nicotine dependence
+gcat_trait_nicotine_dependence_symptom_count	nicotine dependence symptom count
+gcat_trait_nicotine_metabolite_ratio	nicotine metabolite ratio
+gcat_trait_nicotine_withdrawal_measurement	nicotine withdrawal measurement
+gcat_trait_nicotine_withdrawal_symptom_count	nicotine withdrawal symptom count
+gcat_trait_nighttime_rest_measurement	nighttime rest measurement
+gcat_trait_nitric_oxide_exhalation_measurement	nitric oxide exhalation measurement
+gcat_trait_noggin_measurement	noggin measurement
+gcat_trait_non-Hodgkins_lymphoma	non-Hodgkins lymphoma
+gcat_trait_non-alcoholic_fatty_liver_disease	non-alcoholic fatty liver disease
+gcat_trait_non-alcoholic_fatty_liver_disease_severity_measurement	non-alcoholic fatty liver disease severity measurement
+gcat_trait_non-alcoholic_steatohepatitis	non-alcoholic steatohepatitis
+gcat_trait_non-high_density_lipoprotein_cholesterol_measurement	non-high density lipoprotein cholesterol measurement
+gcat_trait_non-histone_chromosomal_protein_HMG-14_measurement	non-histone chromosomal protein HMG-14 measurement
+gcat_trait_non-lobar_intracerebral_hemorrhage	non-lobar intracerebral hemorrhage
+gcat_trait_non-melanoma_skin_carcinoma	non-melanoma skin carcinoma
+gcat_trait_non-small_cell_lung_carcinoma	non-small cell lung carcinoma
+gcat_trait_non-word_reading	non-word reading
+gcat_trait_nonanoylcarnitine_C9_measurement	nonanoylcarnitine (C9) measurement
+gcat_trait_nose_morphology_measurement	nose morphology measurement
+gcat_trait_nucleotide_measurement	nucleotide measurement
+gcat_trait_nucleus_accumbens_volume	nucleus accumbens volume
+gcat_trait_number_of_children_ever_born_measurement	number of children ever born measurement
+gcat_trait_number_of_teeth_measurement	number of teeth measurement
+gcat_trait_obese_body_mass_index_status	obese body mass index status
+gcat_trait_obesity	obesity
+gcat_trait_obsessive-compulsive_disorder	obsessive-compulsive disorder
+gcat_trait_obsessive-compulsive_symptom_measurement	obsessive-compulsive symptom measurement
+gcat_trait_obstructive_sleep_apnea	obstructive sleep apnea
+gcat_trait_occupational_attainment	occupational attainment
+gcat_trait_octadecanedioate_measurement	octadecanedioate measurement
+gcat_trait_octanoylcarnitine_measurement	octanoylcarnitine measurement
+gcat_trait_ocular_sarcoidosis	ocular sarcoidosis
+gcat_trait_odontogenesis	odontogenesis
+gcat_trait_oleoyl-arachidonoyl-glycerol_181204_2_measurement	oleoyl-arachidonoyl-glycerol (18:1/20:4) [2] measurement
+gcat_trait_oleoylcarnitine_measurement	oleoylcarnitine measurement
+gcat_trait_omega-3_polyunsaturated_fatty_acid_measurement	omega-3 polyunsaturated fatty acid measurement
+gcat_trait_omega-6_polyunsaturated_fatty_acid_measurement	omega-6 polyunsaturated fatty acid measurement
+gcat_trait_omega-6omega-3_polyunsaturated_fatty_acid_ratio	omega-6:omega-3 polyunsaturated fatty acid ratio
+gcat_trait_oncostatin-M_measurement	oncostatin-M measurement
+gcat_trait_open-angle_glaucoma	open-angle glaucoma
+gcat_trait_opioid_dependence	opioid dependence
+gcat_trait_opioid_use_disorder	opioid use disorder
+gcat_trait_oppositional_defiant_disorder_measurement	oppositional defiant disorder measurement
+gcat_trait_optic_cup_area_measurement	optic cup area measurement
+gcat_trait_optic_disc_area_measurement	optic disc area measurement
+gcat_trait_optic_disc_size_measurement	optic disc size measurement
+gcat_trait_oral_cavity_cancer	oral cavity cancer
+gcat_trait_oral_lichen_planus	oral lichen planus
+gcat_trait_oral_microbiome_measurement	oral microbiome measurement
+gcat_trait_oral_motor_function_measurement	oral motor function measurement
+gcat_trait_ornithine_measurement	ornithine measurement
+gcat_trait_orofacial_cleft	orofacial cleft
+gcat_trait_oropharynx_cancer	oropharynx cancer
+gcat_trait_orotate_measurement	orotate measurement
+gcat_trait_orotic_acid_measurement	orotic acid measurement
+gcat_trait_orotidine_measurement	orotidine measurement
+gcat_trait_osteitis_deformans	osteitis deformans
+gcat_trait_osteoarthritis	osteoarthritis
+gcat_trait_osteoarthritis_hand	osteoarthritis; hand
+gcat_trait_osteoarthritis_hip	osteoarthritis; hip
+gcat_trait_osteoarthritis_knee	osteoarthritis; knee
+gcat_trait_osteocalcin_measurement	osteocalcin measurement
+gcat_trait_osteonecrosis	osteonecrosis
+gcat_trait_osteoporosis	osteoporosis
+gcat_trait_osteoprotegerin_measurement	osteoprotegerin measurement
+gcat_trait_otosclerosis	otosclerosis
+gcat_trait_ovarian_carcinoma	ovarian carcinoma
+gcat_trait_ovarian_mucinous_adenocarcinoma	ovarian mucinous adenocarcinoma
+gcat_trait_ovarian_serous_carcinoma	ovarian serous carcinoma
+gcat_trait_ovulation	ovulation
+gcat_trait_oxalate_measurement	oxalate measurement
+gcat_trait_p-cresol_sulfate_measurement	p-cresol sulfate measurement
+gcat_trait_p-tau_measurement	p-tau measurement
+gcat_trait_p-taubeta-amyloid_1-42_ratio_measurement	p-tau:beta-amyloid 1-42 ratio measurement
+gcat_trait_pain	pain
+gcat_trait_pain_measurement	pain measurement
+gcat_trait_pallidum_volume	pallidum volume
+gcat_trait_palmitoyl_dihydrosphingomyelin_d180160_measurement	palmitoyl dihydrosphingomyelin (d18:0/16:0) measurement
+gcat_trait_palmitoyl_sphingomyelin_d181160_measurement	palmitoyl sphingomyelin (d18:1/16:0) measurement
+gcat_trait_palmitoylcarnitine_measurement	palmitoylcarnitine measurement
+gcat_trait_pancreas_fat_measurement	pancreas fat measurement
+gcat_trait_pancreas_volume	pancreas volume
+gcat_trait_pancreatic_carcinoma	pancreatic carcinoma
+gcat_trait_pancreatitis	pancreatitis
+gcat_trait_panic_disorder	panic disorder
+gcat_trait_pantothenate_measurement	pantothenate measurement
+gcat_trait_pantothenic_acid_mesurement	pantothenic acid mesurement
+gcat_trait_pappalysin1_measurement	pappalysin‐1 measurement
+gcat_trait_paracentral_lobule_volume_measurement	paracentral lobule volume measurement
+gcat_trait_parahippocampal_gyrus_volume_measurement	parahippocampal gyrus volume measurement
+gcat_trait_parasitemia_measurement	parasitemia measurement
+gcat_trait_parathion_measurement	parathion measurement
+gcat_trait_parathyroid_hormone_measurement	parathyroid hormone measurement
+gcat_trait_paraxanthine_measurement	paraxanthine measurement
+gcat_trait_parental_genotype_effect_measurement	parental genotype effect measurement
+gcat_trait_parental_longevity	parental longevity
+gcat_trait_pars_opercularis_volume_measurement	pars opercularis volume measurement
+gcat_trait_pars_triangularis_volume_measurement	pars triangularis volume measurement
+gcat_trait_partial_epilepsy	partial epilepsy
+gcat_trait_partial_thromboplastin_time	partial thromboplastin time
+gcat_trait_pathological_myopia	pathological myopia
+gcat_trait_peak_expiratory_flow	peak expiratory flow
+gcat_trait_peak_insulin_response_measurement	peak insulin response measurement
+gcat_trait_peanut_allergy_measurement	peanut allergy measurement
+gcat_trait_pelvic_organ_prolapse	pelvic organ prolapse
+gcat_trait_pemphigus_vulgaris	pemphigus vulgaris
+gcat_trait_pentachlorophenol_measurement	pentachlorophenol measurement
+gcat_trait_peptic_ulcer_disease	peptic ulcer disease
+gcat_trait_peptide_measurement	peptide measurement
+gcat_trait_peptidyl-glycine_alpha-amidating_monooxygenase_measurement	peptidyl-glycine alpha-amidating monooxygenase measurement
+gcat_trait_perceived_unattractiveness_to_mosquitos_measurement	perceived unattractiveness to mosquitos measurement
+gcat_trait_periodontal_measurement	periodontal measurement
+gcat_trait_periodontitis	periodontitis
+gcat_trait_peripheral_arterial_disease	peripheral arterial disease
+gcat_trait_peritonsillar_abscess	peritonsillar abscess
+gcat_trait_perivascular_space_measurement	perivascular space measurement
+gcat_trait_personality_trait	personality trait
+gcat_trait_phenylacetate_measurement	phenylacetate measurement
+gcat_trait_phenylalanine_measurement	phenylalanine measurement
+gcat_trait_phoneme_awareness	phoneme awareness
+gcat_trait_phosphate_measurement	phosphate measurement
+gcat_trait_phosphatidate_measurement	phosphatidate measurement
+gcat_trait_phosphatidylcholine_160225n3_181204_measurement	phosphatidylcholine (16:0/22:5n3; 18:1/20:4) measurement
+gcat_trait_phosphatidylcholine_321_measurement	phosphatidylcholine 32:1 measurement
+gcat_trait_phosphatidylcholine_342_measurement	phosphatidylcholine 34:2 measurement
+gcat_trait_phosphatidylcholine_343_measurement	phosphatidylcholine 34:3 measurement
+gcat_trait_phosphatidylcholine_363_measurement	phosphatidylcholine 36:3 measurement
+gcat_trait_phosphatidylcholine_364_measurement	phosphatidylcholine 36:4 measurement
+gcat_trait_phosphatidylcholine_382_measurement	phosphatidylcholine 38:2 measurement
+gcat_trait_phosphatidylcholine_383_measurement	phosphatidylcholine 38:3 measurement
+gcat_trait_phosphatidylcholine_384_measurement	phosphatidylcholine 38:4 measurement
+gcat_trait_phosphatidylcholine_385_measurement	phosphatidylcholine 38:5 measurement
+gcat_trait_phosphatidylcholine_386_measurement	phosphatidylcholine 38:6 measurement
+gcat_trait_phosphatidylcholine_406_measurement	phosphatidylcholine 40:6 measurement
+gcat_trait_phosphatidylcholine_measurement	phosphatidylcholine measurement
+gcat_trait_phosphatidylethanolamine_measurement	phosphatidylethanolamine measurement
+gcat_trait_phosphatidylinositol_measurement	phosphatidylinositol measurement
+gcat_trait_phosphatidylserines_measurement	phosphatidylserines measurement
+gcat_trait_phosphoenolpyruvic_acid_measurement	phosphoenolpyruvic acid measurement
+gcat_trait_phosphoglyceric_acid_measurement	phosphoglyceric acid measurement
+gcat_trait_phosphoglycerides_measurement	phosphoglycerides measurement
+gcat_trait_phospholipase_A2_membrane_associated_measurement	phospholipase A2; membrane associated measurement
+gcat_trait_phospholipid_measurement	phospholipid measurement
+gcat_trait_phospholipids_in_HDL_measurement	phospholipids in HDL measurement
+gcat_trait_phospholipids_in_IDL_measurement	phospholipids in IDL measurement
+gcat_trait_phospholipids_in_LDL_measurement	phospholipids in LDL measurement
+gcat_trait_phospholipids_in_VLDL_measurement	phospholipids in VLDL measurement
+gcat_trait_phospholipids_in_chylomicrons_and_extremely_large_VLDL_measurement	phospholipids in chylomicrons and extremely large VLDL measurement
+gcat_trait_phospholipids_in_large_HDL_measurement	phospholipids in large HDL measurement
+gcat_trait_phospholipids_in_large_LDL_measurement	phospholipids in large LDL measurement
+gcat_trait_phospholipids_in_large_VLDL_measurement	phospholipids in large VLDL measurement
+gcat_trait_phospholipids_in_medium_HDL_measurement	phospholipids in medium HDL measurement
+gcat_trait_phospholipids_in_medium_LDL_measurement	phospholipids in medium LDL measurement
+gcat_trait_phospholipids_in_medium_VLDL_measurement	phospholipids in medium VLDL measurement
+gcat_trait_phospholipids_in_small_HDL_measurement	phospholipids in small HDL measurement
+gcat_trait_phospholipids_in_small_LDL_measurement	phospholipids in small LDL measurement
+gcat_trait_phospholipids_in_small_VLDL_measurement	phospholipids in small VLDL measurement
+gcat_trait_phospholipids_in_very_large_HDL_measurement	phospholipids in very large HDL measurement
+gcat_trait_phospholipids_in_very_large_VLDL_measurement	phospholipids in very large VLDL measurement
+gcat_trait_phospholipids_in_very_small_VLDL_measurement	phospholipids in very small VLDL measurement
+gcat_trait_phospholipidstotal_lipids_ratio	phospholipids:total lipids ratio
+gcat_trait_phosphorus_measurement	phosphorus measurement
+gcat_trait_photoreceptor_cell_layer_thickness_measurement	photoreceptor cell layer thickness measurement
+gcat_trait_physical_activity	physical activity
+gcat_trait_physical_activity_measurement	physical activity measurement
+gcat_trait_picolinate_measurement	picolinate measurement
+gcat_trait_pipecolate_measurement	pipecolate measurement
+gcat_trait_pit_and_fissure_surface_dental_caries	pit and fissure surface dental caries
+gcat_trait_plant_allergen_seropositivity	plant allergen seropositivity
+gcat_trait_plasma_beta-amyloid_1-40_measurement	plasma beta-amyloid 1-40 measurement
+gcat_trait_plasma_betaine_measurement	plasma betaine measurement
+gcat_trait_plasma_clusterin_measurement	plasma clusterin measurement
+gcat_trait_plasma_kallikrein_measurement	plasma kallikrein measurement
+gcat_trait_plasma_protease_C1_inhibitor_measurement	plasma protease C1 inhibitor measurement
+gcat_trait_plasma_trimethylamine_N-oxide_measurement	plasma trimethylamine N-oxide measurement
+gcat_trait_plasminogen_activator_inhibitor_1_measurement	plasminogen activator inhibitor 1 measurement
+gcat_trait_platelet-derived_growth_factor_BB_measurement	platelet-derived growth factor BB measurement
+gcat_trait_platelet-derived_growth_factor_receptor_beta_measurement	platelet-derived growth factor receptor beta measurement
+gcat_trait_platelet-to-lymphocyte_ratio	platelet-to-lymphocyte ratio
+gcat_trait_platelet_aggregation	platelet aggregation
+gcat_trait_platelet_component_distribution_width	platelet component distribution width
+gcat_trait_platelet_count	platelet count
+gcat_trait_platelet_crit	platelet crit
+gcat_trait_platelet_endothelial_cell_adhesion_molecule_measurement	platelet endothelial cell adhesion molecule measurement
+gcat_trait_platelet_glycoprotein_4_measurement	platelet glycoprotein 4 measurement
+gcat_trait_platelet_measurement	platelet measurement
+gcat_trait_plexin-B2_measurement	plexin-B2 measurement
+gcat_trait_plexin-C1_measurement	plexin-C1 measurement
+gcat_trait_pneumonia	pneumonia
+gcat_trait_polychlorinated_biphenyls_measurement	polychlorinated biphenyls measurement
+gcat_trait_polycystic_ovary_syndrome	polycystic ovary syndrome
+gcat_trait_polymyositis	polymyositis
+gcat_trait_polyp_of_colon	polyp of colon
+gcat_trait_polyp_of_large_intestine	polyp of large intestine
+gcat_trait_polyunsaturated_fatty_acid_measurement	polyunsaturated fatty acid measurement
+gcat_trait_polyunsaturated_fatty_acids_to_monounsaturated_fatty_acids_ratio	polyunsaturated fatty acids to monounsaturated fatty acids ratio
+gcat_trait_polyunsaturated_fatty_acids_to_total_fatty_acids_percentage	polyunsaturated fatty acids to total fatty acids percentage
+gcat_trait_positive_regulation_of_ovulation	positive regulation of ovulation
+gcat_trait_post-traumatic_stress_disorder	post-traumatic stress disorder
+gcat_trait_post-traumatic_stress_disorder_symptom_measurement	post-traumatic stress disorder symptom measurement
+gcat_trait_posterior_cingulate_cortex_volume_measurement	posterior cingulate cortex volume measurement
+gcat_trait_posterior_thigh_muscle_fat_infiltration_measurement	posterior thigh muscle fat infiltration measurement
+gcat_trait_posterior_urethral_valve	posterior urethral valve
+gcat_trait_potassium_chromate_measurement	potassium chromate measurement
+gcat_trait_potassium_measurement	potassium measurement
+gcat_trait_precuneus_cortex_volume_measurement	precuneus cortex volume measurement
+gcat_trait_preeclampsia	preeclampsia
+gcat_trait_pregnancy_disorder	pregnancy disorder
+gcat_trait_pregnanediol-3-glucuronide_measurement	pregnanediol-3-glucuronide measurement
+gcat_trait_pregnenediol_disulfate_C21H34O8S2_measurement	pregnenediol disulfate (C21H34O8S2) measurement
+gcat_trait_pregnenolone_sulfate_measurement	pregnenolone sulfate measurement
+gcat_trait_premature_birth	premature birth
+gcat_trait_premature_ejaculation	premature ejaculation
+gcat_trait_presubiculum_volume	presubiculum volume
+gcat_trait_primary_aldosteronism	primary aldosteronism
+gcat_trait_primary_biliary_cirrhosis	primary biliary cirrhosis
+gcat_trait_primary_dental_caries	primary dental caries
+gcat_trait_prion_disease	prion disease
+gcat_trait_pro-hydroxy-pro_measurement	pro-hydroxy-pro measurement
+gcat_trait_progesterone_measurement	progesterone measurement
+gcat_trait_programmed_cell_death_1_ligand_2_measurement	programmed cell death 1 ligand 2 measurement
+gcat_trait_progranulin_measurement	progranulin measurement
+gcat_trait_progressive_supranuclear_palsy	progressive supranuclear palsy
+gcat_trait_prointerleukin16_measurement	pro‐interleukin‐16 measurement
+gcat_trait_proliferative_diabetic_retinopathy	proliferative diabetic retinopathy
+gcat_trait_proline_measurement	proline measurement
+gcat_trait_promotilin_measurement	promotilin measurement
+gcat_trait_propionylcarnitine_C3_measurement	propionylcarnitine (C3) measurement
+gcat_trait_propionylcarnitine_measurement	propionylcarnitine measurement
+gcat_trait_proprotein_convertase_subtilisinkexin_type_7_measurement	proprotein convertase subtilisin/kexin type 7 measurement
+gcat_trait_proprotein_convertase_subtilisinkexin_type_9_measurement	proprotein convertase subtilisin/kexin type 9 measurement
+gcat_trait_prostate_cancer	prostate cancer
+gcat_trait_prostate_carcinoma	prostate carcinoma
+gcat_trait_prostate_specific_antigen_amount	prostate specific antigen amount
+gcat_trait_protein-glutamine_gamma-glutamyltransferase_e_measurement	protein-glutamine gamma-glutamyltransferase e measurement
+gcat_trait_protein_CREG1_measurement	protein CREG1 measurement
+gcat_trait_protein_C_measurement	protein C measurement
+gcat_trait_protein_FAM3B_measurement	protein FAM3B measurement
+gcat_trait_protein_FAM3D_measurement	protein FAM3D measurement
+gcat_trait_protein_Z-dependent_protease_inhibitor_measurement	protein Z-dependent protease inhibitor measurement
+gcat_trait_protein_intake_measurement	protein intake measurement
+gcat_trait_protein_measurement	protein measurement
+gcat_trait_prothrombin_time_measurement	prothrombin time measurement
+gcat_trait_proto-oncogene_tyrosine-protein_kinase_receptor_Ret_measurement	proto-oncogene tyrosine-protein kinase receptor Ret measurement
+gcat_trait_pseudotumor_cerebri	pseudotumor cerebri
+gcat_trait_psoriasis	psoriasis
+gcat_trait_psoriasis_vulgaris	psoriasis vulgaris
+gcat_trait_psoriatic_arthritis	psoriatic arthritis
+gcat_trait_psychological_resilience_measurement	psychological resilience measurement
+gcat_trait_psychosis	psychosis
+gcat_trait_psychosis_predisposition_measurement	psychosis predisposition measurement
+gcat_trait_psychotic_symptoms	psychotic symptoms
+gcat_trait_puberty_onset_measurement	puberty onset measurement
+gcat_trait_pulmonary_arterial_hypertension	pulmonary arterial hypertension
+gcat_trait_pulmonary_embolism	pulmonary embolism
+gcat_trait_pulmonary_function_measurement	pulmonary function measurement
+gcat_trait_pulmonary_non-tuberculous_mycobacterial_infection	pulmonary non-tuberculous mycobacterial infection
+gcat_trait_pulmonary_surfactant-associated_protein_d_measurement	pulmonary surfactant-associated protein d measurement
+gcat_trait_pulmonary_tuberculosis	pulmonary tuberculosis
+gcat_trait_pulse_pressure_measurement	pulse pressure measurement
+gcat_trait_pursuit_maintenance_gain_measurement	pursuit maintenance gain measurement
+gcat_trait_putamen_volume	putamen volume
+gcat_trait_pyridoxate_measurement	pyridoxate measurement
+gcat_trait_pyroglutamine_measurement	pyroglutamine measurement
+gcat_trait_pyruvate_measurement	pyruvate measurement
+gcat_trait_quinate_measurement	quinate measurement
+gcat_trait_quinolinate_measurement	quinolinate measurement
+gcat_trait_quinolinic_acid_measurement	quinolinic acid measurement
+gcat_trait_quinone_oxidoreductase-like_protein_1_measurement	quinone oxidoreductase-like protein 1 measurement
+gcat_trait_r-spondin-3_measurement	r-spondin-3 measurement
+gcat_trait_radiation-induced_disorder	radiation-induced disorder
+gcat_trait_radius_bone_mineral_density	radius bone mineral density
+gcat_trait_ras-related_protein_Rab-26_measurement	ras-related protein Rab-26 measurement
+gcat_trait_reaction_time_measurement	reaction time measurement
+gcat_trait_reading	reading
+gcat_trait_reading_and_spelling_ability	reading and spelling ability
+gcat_trait_reasoning	reasoning
+gcat_trait_receptive_language_perception	receptive language perception
+gcat_trait_rectum_cancer	rectum cancer
+gcat_trait_red_blood_cell_density_measurement	red blood cell density measurement
+gcat_trait_refractive_error	refractive error
+gcat_trait_remnant_cholesterol_measurement	remnant cholesterol measurement
+gcat_trait_renal_agenesis_unilateral	renal agenesis; unilateral
+gcat_trait_renal_carcinoma	renal carcinoma
+gcat_trait_renal_cell_carcinoma	renal cell carcinoma
+gcat_trait_renal_system_measurement	renal system measurement
+gcat_trait_repulsive_guidance_molecule_A_measurement	repulsive guidance molecule A measurement
+gcat_trait_resistin_measurement	resistin measurement
+gcat_trait_respiratory_quotient	respiratory quotient
+gcat_trait_respiratory_system_disease	respiratory system disease
+gcat_trait_response_to_TNF_antagonist	response to TNF antagonist
+gcat_trait_response_to_acetylsalicylate	response to acetylsalicylate
+gcat_trait_response_to_angiotensin-converting_enzyme_inhibitor	response to angiotensin-converting enzyme inhibitor
+gcat_trait_response_to_angiotensin_receptor_blocker	response to angiotensin receptor blocker
+gcat_trait_response_to_anticoagulant	response to anticoagulant
+gcat_trait_response_to_anticonvulsant	response to anticonvulsant
+gcat_trait_response_to_antidepressant	response to antidepressant
+gcat_trait_response_to_antihypertensive_drug	response to antihypertensive drug
+gcat_trait_response_to_antineoplastic_agent	response to antineoplastic agent
+gcat_trait_response_to_antipsychotic_drug	response to antipsychotic drug
+gcat_trait_response_to_antiviral_drug	response to antiviral drug
+gcat_trait_response_to_aromatase_inhibitor	response to aromatase inhibitor
+gcat_trait_response_to_benznidazole	response to benznidazole
+gcat_trait_response_to_beta_blocker	response to beta blocker
+gcat_trait_response_to_calcium_channel_blocker	response to calcium channel blocker
+gcat_trait_response_to_candesartan	response to candesartan
+gcat_trait_response_to_carboplatin	response to carboplatin
+gcat_trait_response_to_cisplatin	response to cisplatin
+gcat_trait_response_to_clozapine	response to clozapine
+gcat_trait_response_to_cold	response to cold
+gcat_trait_response_to_corticosteroid	response to corticosteroid
+gcat_trait_response_to_cyclophosphamide	response to cyclophosphamide
+gcat_trait_response_to_diuretic	response to diuretic
+gcat_trait_response_to_dolutegravir	response to dolutegravir
+gcat_trait_response_to_fenofibrate	response to fenofibrate
+gcat_trait_response_to_gemcitabine	response to gemcitabine
+gcat_trait_response_to_interferon	response to interferon
+gcat_trait_response_to_ketamine	response to ketamine
+gcat_trait_response_to_lithium_ion	response to lithium ion
+gcat_trait_response_to_mTOR_inhibitor	response to mTOR inhibitor
+gcat_trait_response_to_methotrexate	response to methotrexate
+gcat_trait_response_to_mitochondrial_complex_I_inhibitor	response to mitochondrial complex I inhibitor
+gcat_trait_response_to_norepinephrine-dopamine_reuptake_inhibitor	response to norepinephrine-dopamine reuptake inhibitor
+gcat_trait_response_to_olanzapine	response to olanzapine
+gcat_trait_response_to_opioid	response to opioid
+gcat_trait_response_to_peginterferon_alfa-2a	response to peginterferon alfa-2a
+gcat_trait_response_to_perphenazine	response to perphenazine
+gcat_trait_response_to_phenylephrine	response to phenylephrine
+gcat_trait_response_to_quetiapine	response to quetiapine
+gcat_trait_response_to_radiation	response to radiation
+gcat_trait_response_to_risperidone	response to risperidone
+gcat_trait_response_to_selective_serotonin_reuptake_inhibitor	response to selective serotonin reuptake inhibitor
+gcat_trait_response_to_serotonin-norephinephrine_reuptake_inhibitor	response to serotonin-norephinephrine reuptake inhibitor
+gcat_trait_response_to_statin	response to statin
+gcat_trait_response_to_supplemental_oxygen	response to supplemental oxygen
+gcat_trait_response_to_tamoxifen	response to tamoxifen
+gcat_trait_response_to_tenofovir	response to tenofovir
+gcat_trait_response_to_trauma_exposure	response to trauma exposure
+gcat_trait_response_to_vaccine	response to vaccine
+gcat_trait_response_to_warfarin	response to warfarin
+gcat_trait_response_to_xenobiotic_stimulus	response to xenobiotic stimulus
+gcat_trait_response_to_ziprasidone	response to ziprasidone
+gcat_trait_resting_heart_rate	resting heart rate
+gcat_trait_resting_metabolic_rate_measurement	resting metabolic rate measurement
+gcat_trait_restless_legs_syndrome	restless legs syndrome
+gcat_trait_reticulocyte_count	reticulocyte count
+gcat_trait_reticulocyte_measurement	reticulocyte measurement
+gcat_trait_reticulon-4_receptor_measurement	reticulon-4 receptor measurement
+gcat_trait_retinal_drusen	retinal drusen
+gcat_trait_retinal_layer_thickness_measurement	retinal layer thickness measurement
+gcat_trait_retinal_nerve_fibre_layer_thickness_measurement	retinal nerve fibre layer thickness measurement
+gcat_trait_retinal_vasculature_measurement	retinal vasculature measurement
+gcat_trait_retinopathy	retinopathy
+gcat_trait_revision_of_total_joint_arthroplasty	revision of total joint arthroplasty
+gcat_trait_revision_of_total_knee_arthroplasty	revision of total knee arthroplasty
+gcat_trait_rheumatic_heart_disease	rheumatic heart disease
+gcat_trait_rheumatoid_arthritis	rheumatoid arthritis
+gcat_trait_rhinitis	rhinitis
+gcat_trait_right_ventricular_diastolic_volume_measurement	right ventricular diastolic volume measurement
+gcat_trait_right_ventricular_ejection_fraction_measurement	right ventricular ejection fraction measurement
+gcat_trait_right_ventricular_systolic_volume_measurement	right ventricular systolic volume measurement
+gcat_trait_risk-taking_behaviour	risk-taking behaviour
+gcat_trait_risky_sexual_behaviour_measurement	risky sexual behaviour measurement
+gcat_trait_rosacea_severity_measurement	rosacea severity measurement
+gcat_trait_ruminococcaceae_seropositivity	ruminococcaceae seropositivity
+gcat_trait_salicylate_measurement	salicylate measurement
+gcat_trait_salicylurate_measurement	salicylurate measurement
+gcat_trait_sarcoidosis	sarcoidosis
+gcat_trait_sarcopenia	sarcopenia
+gcat_trait_saturated_fatty_acids_measurement	saturated fatty acids measurement
+gcat_trait_saturated_fatty_acids_to_total_fatty_acids_percentage	saturated fatty acids to total fatty acids percentage
+gcat_trait_scavenger_receptor_cysteine-rich_type_1_protein_m130_measurement	scavenger receptor cysteine-rich type 1 protein m130 measurement
+gcat_trait_schizophrenia	schizophrenia
+gcat_trait_sclerosing_cholangitis	sclerosing cholangitis
+gcat_trait_sclerostin_measurement	sclerostin measurement
+gcat_trait_seasonal_allergic_rhinitis	seasonal allergic rhinitis
+gcat_trait_seasonal_gut_microbiome_measurement	seasonal gut microbiome measurement
+gcat_trait_seborrheic_dermatitis	seborrheic dermatitis
+gcat_trait_secreted_and_transmembrane_protein_1_measurement	secreted and transmembrane protein 1 measurement
+gcat_trait_selective_IgA_deficiency_disease	selective IgA deficiency disease
+gcat_trait_selenium_measurement	selenium measurement
+gcat_trait_self_rated_health	self rated health
+gcat_trait_self_reported_educational_attainment	self reported educational attainment
+gcat_trait_semaphorin-3A_measurement	semaphorin-3A measurement
+gcat_trait_semaphorin-3E_measurement	semaphorin-3E measurement
+gcat_trait_semaphorin-5A_measurement	semaphorin-5A measurement
+gcat_trait_semenogelin-1_measurement	semenogelin-1 measurement
+gcat_trait_sensory_perception_of_bitter_taste	sensory perception of bitter taste
+gcat_trait_sensory_perception_of_smell	sensory perception of smell
+gcat_trait_sensory_perception_of_sweet_taste	sensory perception of sweet taste
+gcat_trait_sensory_perception_of_taste	sensory perception of taste
+gcat_trait_serine_measurement	serine measurement
+gcat_trait_serine_protease_27_measurement	serine protease 27 measurement
+gcat_trait_serineglycine_ratio	serine:glycine ratio
+gcat_trait_seropositivity_measurement	seropositivity measurement
+gcat_trait_serotonin_measurement	serotonin measurement
+gcat_trait_serpin_A12_measurement	serpin A12 measurement
+gcat_trait_serum_IgA_measurement	serum IgA measurement
+gcat_trait_serum_IgE_measurement	serum IgE measurement
+gcat_trait_serum_IgG_glycosylation_measurement	serum IgG glycosylation measurement
+gcat_trait_serum_IgG_measurement	serum IgG measurement
+gcat_trait_serum_IgM_measurement	serum IgM measurement
+gcat_trait_serum_ST2_measurement	serum ST2 measurement
+gcat_trait_serum_alanine_aminotransferase_measurement	serum alanine aminotransferase measurement
+gcat_trait_serum_albumin_measurement	serum albumin measurement
+gcat_trait_serum_amyloid_A-1_protein_measurement	serum amyloid A-1 protein measurement
+gcat_trait_serum_amyloid_P-component_measurement	serum amyloid P-component measurement
+gcat_trait_serum_carcinoembryonic_antigen_measurement	serum carcinoembryonic antigen measurement
+gcat_trait_serum_copper_measurement	serum copper measurement
+gcat_trait_serum_dimethylarginine_measurement	serum dimethylarginine measurement
+gcat_trait_serum_gamma-glutamyl_transferase_measurement	serum gamma-glutamyl transferase measurement
+gcat_trait_serum_homoarginine_measurement	serum homoarginine measurement
+gcat_trait_serum_iron_measurement	serum iron measurement
+gcat_trait_serum_metabolite_measurement	serum metabolite measurement
+gcat_trait_serum_non-albumin_protein_measurement	serum non-albumin protein measurement
+gcat_trait_serum_selenium_measurement	serum selenium measurement
+gcat_trait_serum_urea_measurement	serum urea measurement
+gcat_trait_serum_zinc_measurement	serum zinc measurement
+gcat_trait_sex_hormone-binding_globulin_measurement	sex hormone-binding globulin measurement
+gcat_trait_sexual_dimorphism_measurement	sexual dimorphism measurement
+gcat_trait_shigella_seropositivity	shigella seropositivity
+gcat_trait_shigellosis	shigellosis
+gcat_trait_short-term_memory	short-term memory
+gcat_trait_shoulder_impingement_syndrome	shoulder impingement syndrome
+gcat_trait_sialic_acid-binding_Ig-like_lectin_14_measurement	sialic acid-binding Ig-like lectin 14 measurement
+gcat_trait_sialic_acid-binding_Ig-like_lectin_6_measurement	sialic acid-binding Ig-like lectin 6 measurement
+gcat_trait_sialic_acid-binding_Ig-like_lectin_9_measurement	sialic acid-binding Ig-like lectin 9 measurement
+gcat_trait_sialic_acid-binding_ig-like_lectin_7_measurement	sialic acid-binding ig-like lectin 7 measurement
+gcat_trait_signal-regulatory_protein_beta-1_measurement	signal-regulatory protein beta-1 measurement
+gcat_trait_sitting_height_ratio	sitting height ratio
+gcat_trait_size	size
+gcat_trait_skin_aging_measurement	skin aging measurement
+gcat_trait_skin_hydration_measurement	skin hydration measurement
+gcat_trait_skin_microbiome_measurement	skin microbiome measurement
+gcat_trait_skin_neoplasm	skin neoplasm
+gcat_trait_skin_pigmentation	skin pigmentation
+gcat_trait_skin_pigmentation_measurement	skin pigmentation measurement
+gcat_trait_skin_sensitivity_to_sun	skin sensitivity to sun
+gcat_trait_sleep_apnea	sleep apnea
+gcat_trait_sleep_apnea_measurement	sleep apnea measurement
+gcat_trait_sleep_duration	sleep duration
+gcat_trait_sleep_latency	sleep latency
+gcat_trait_sleep_measurement	sleep measurement
+gcat_trait_sleep_quality	sleep quality
+gcat_trait_small_cell_lung_carcinoma	small cell lung carcinoma
+gcat_trait_small_vessel_stroke	small vessel stroke
+gcat_trait_smoking_behavior	smoking behavior
+gcat_trait_smoking_behaviour_measurement	smoking behaviour measurement
+gcat_trait_smoking_cessation	smoking cessation
+gcat_trait_smoking_initiation	smoking initiation
+gcat_trait_smoking_status_measurement	smoking status measurement
+gcat_trait_smooth_surface_dental_caries	smooth surface dental caries
+gcat_trait_snoring_measurement	snoring measurement
+gcat_trait_social_communication_impairment	social communication impairment
+gcat_trait_social_interaction_measurement	social interaction measurement
+gcat_trait_sodium-coupled_monocarboxylate_transporter_1_measurement	sodium-coupled monocarboxylate transporter 1 measurement
+gcat_trait_sodium_measurement	sodium measurement
+gcat_trait_solar_lentigines_measurement	solar lentigines measurement
+gcat_trait_soluble_transferrin_receptor_measurement	soluble transferrin receptor measurement
+gcat_trait_soluble_triggering_receptor_expressed_on_myeloid_cells_2_measurement	soluble triggering receptor expressed on myeloid cells 2 measurement
+gcat_trait_sorbitol_measurement	sorbitol measurement
+gcat_trait_sphingolipid_measurement	sphingolipid measurement
+gcat_trait_sphingomyelin_140_measurement	sphingomyelin 14:0 measurement
+gcat_trait_sphingomyelin_160_measurement	sphingomyelin 16:0 measurement
+gcat_trait_sphingomyelin_180_measurement	sphingomyelin 18:0 measurement
+gcat_trait_sphingomyelin_220_measurement	sphingomyelin 22:0 measurement
+gcat_trait_sphingomyelin_221_measurement	sphingomyelin 22:1 measurement
+gcat_trait_sphingomyelin_241_measurement	sphingomyelin 24:1 measurement
+gcat_trait_sphingomyelin_measurement	sphingomyelin measurement
+gcat_trait_sphingosine_1-phosphate_measurement	sphingosine 1-phosphate measurement
+gcat_trait_spinal_stenosis	spinal stenosis
+gcat_trait_spine_bone_mineral_density	spine bone mineral density
+gcat_trait_spine_bone_size	spine bone size
+gcat_trait_spleen_volume	spleen volume
+gcat_trait_spondin-1_measurement	spondin-1 measurement
+gcat_trait_spondylosis	spondylosis
+gcat_trait_spontaneous_coronary_artery_dissection	spontaneous coronary artery dissection
+gcat_trait_spontaneous_preterm_birth	spontaneous preterm birth
+gcat_trait_sporadic_amyotrophic_lateral_sclerosis	sporadic amyotrophic lateral sclerosis
+gcat_trait_squamous_cell_carcinoma	squamous cell carcinoma
+gcat_trait_squamous_cell_lung_carcinoma	squamous cell lung carcinoma
+gcat_trait_staphylococcus_seropositivity	staphylococcus seropositivity
+gcat_trait_stearidonate_184n3_measurement	stearidonate 18:4n3 measurement
+gcat_trait_stearoyl_sphingomyelin_d181180_measurement	stearoyl sphingomyelin (d18:1/18:0) measurement
+gcat_trait_stearoylcarnitine_measurement	stearoylcarnitine measurement
+gcat_trait_stem_Cell_Factor_measurement	stem Cell Factor measurement
+gcat_trait_stem_Cell_Growth_Factor_beta_measurement	stem Cell Growth Factor beta measurement
+gcat_trait_sterol_measurement	sterol measurement
+gcat_trait_stimulant_use_measurement	stimulant use measurement
+gcat_trait_stomach_polyp	stomach polyp
+gcat_trait_streptococcus_seropositivity	streptococcus seropositivity
+gcat_trait_stroke	stroke
+gcat_trait_stroke_outcome_severity_measurement	stroke outcome severity measurement
+gcat_trait_stromal_cell-derived_factor_1_alpha_measurement	stromal cell-derived factor 1 alpha measurement
+gcat_trait_subcutaneous_adipose_tissue_measurement	subcutaneous adipose tissue measurement
+gcat_trait_subiculum_volume	subiculum volume
+gcat_trait_substance-related_disorder	substance-related disorder
+gcat_trait_succinylcarnitine_measurement	succinylcarnitine measurement
+gcat_trait_sucrose_liking_measurement	sucrose liking measurement
+gcat_trait_sucrose_measurement	sucrose measurement
+gcat_trait_sudden_cardiac_arrest	sudden cardiac arrest
+gcat_trait_sugar_consumption_measurement	sugar consumption measurement
+gcat_trait_suicidal_ideation	suicidal ideation
+gcat_trait_suicide	suicide
+gcat_trait_suicide_behaviour	suicide behaviour
+gcat_trait_suicide_behaviour_measurement	suicide behaviour measurement
+gcat_trait_sulfate_measurement	sulfate measurement
+gcat_trait_sunburn	sunburn
+gcat_trait_suntan	suntan
+gcat_trait_superior_frontal_gyrus_grey_matter_volume_measurement	superior frontal gyrus grey matter volume measurement
+gcat_trait_superior_parietal_cortex_volume_measurement	superior parietal cortex volume measurement
+gcat_trait_superior_temporal_gyrus_volume_measurement	superior temporal gyrus volume measurement
+gcat_trait_supramarginal_gyrus_volume_measurement	supramarginal gyrus volume measurement
+gcat_trait_susceptibility_to_Mycobacterium_tuberculosis_infection_measurement	susceptibility to Mycobacterium tuberculosis infection measurement
+gcat_trait_susceptibility_to_bacterial_meningitis_measurement	susceptibility to bacterial meningitis measurement
+gcat_trait_susceptibility_to_chickenpox_measurement	susceptibility to chickenpox measurement
+gcat_trait_susceptibility_to_childhood_ear_infection_measurement	susceptibility to childhood ear infection measurement
+gcat_trait_susceptibility_to_chronic_sinus_infection_measurement	susceptibility to chronic sinus infection measurement
+gcat_trait_susceptibility_to_cold_sores_measurement	susceptibility to cold sores measurement
+gcat_trait_susceptibility_to_common_cold_measurement	susceptibility to common cold measurement
+gcat_trait_susceptibility_to_hepatitis_A_infection_measurement	susceptibility to hepatitis A infection measurement
+gcat_trait_susceptibility_to_hepatitis_B_infection_measurement	susceptibility to hepatitis B infection measurement
+gcat_trait_susceptibility_to_infectious_disease_measurement	susceptibility to infectious disease measurement
+gcat_trait_susceptibility_to_measles_measurement	susceptibility to measles measurement
+gcat_trait_susceptibility_to_mononucleosis_measurement	susceptibility to mononucleosis measurement
+gcat_trait_susceptibility_to_mumps_measurement	susceptibility to mumps measurement
+gcat_trait_susceptibility_to_plantar_warts_measurement	susceptibility to plantar warts measurement
+gcat_trait_susceptibility_to_pneumonia_measurement	susceptibility to pneumonia measurement
+gcat_trait_susceptibility_to_rheumatic_fever_measurement	susceptibility to rheumatic fever measurement
+gcat_trait_susceptibility_to_rubella_infection_measurement	susceptibility to rubella infection measurement
+gcat_trait_susceptibility_to_scarlet_fever_measurement	susceptibility to scarlet fever measurement
+gcat_trait_susceptibility_to_shingles_measurement	susceptibility to shingles measurement
+gcat_trait_susceptibility_to_strep_throat_measurement	susceptibility to strep throat measurement
+gcat_trait_susceptibility_to_urinary_tract_infection_measurement	susceptibility to urinary tract infection measurement
+gcat_trait_susceptibility_to_vaginal_yeast_infection_measurement	susceptibility to vaginal yeast infection measurement
+gcat_trait_sweet_liking_measurement	sweet liking measurement
+gcat_trait_symmetrical_dimethylarginine_measurement	symmetrical dimethylarginine measurement
+gcat_trait_synophrys_measurement	synophrys measurement
+gcat_trait_systemic_juvenile_idiopathic_arthritis	systemic juvenile idiopathic arthritis
+gcat_trait_systemic_lupus_erythematosus	systemic lupus erythematosus
+gcat_trait_systemic_mastocytosis	systemic mastocytosis
+gcat_trait_systemic_scleroderma	systemic scleroderma
+gcat_trait_systemising_measurement	systemising measurement
+gcat_trait_systolic_blood_pressure	systolic blood pressure
+gcat_trait_systolic_blood_pressure_change_measurement	systolic blood pressure change measurement
+gcat_trait_t-tau_measurement	t-tau measurement
+gcat_trait_t-taubeta-amyloid_1-42_ratio_measurement	t-tau:beta-amyloid 1-42 ratio measurement
+gcat_trait_tartrate-resistant_acid_phosphatase_type_5_measurement	tartrate-resistant acid phosphatase type 5 measurement
+gcat_trait_taste_liking_measurement	taste liking measurement
+gcat_trait_taurine_measurement	taurine measurement
+gcat_trait_taurochenodeoxycholate_measurement	taurochenodeoxycholate measurement
+gcat_trait_taurocholate_measurement	taurocholate measurement
+gcat_trait_taurocholenate_sulfate_measurement	taurocholenate sulfate measurement
+gcat_trait_taurolithocholate_3-sulfate_measurement	taurolithocholate 3-sulfate measurement
+gcat_trait_tea_consumption_measurement	tea consumption measurement
+gcat_trait_telomere_length	telomere length
+gcat_trait_temperament_and_character_inventory	temperament and character inventory
+gcat_trait_temporal_arteritis	temporal arteritis
+gcat_trait_temporal_horn_of_lateral_ventricle_volume_measurement	temporal horn of lateral ventricle volume measurement
+gcat_trait_tenascin_measurement	tenascin measurement
+gcat_trait_teratocarcinoma-derived_growth_factor_1_measurement	teratocarcinoma-derived growth factor 1 measurement
+gcat_trait_testican-3_measurement	testican-3 measurement
+gcat_trait_testicular_carcinoma	testicular carcinoma
+gcat_trait_testosterone_measurement	testosterone measurement
+gcat_trait_tetradecanedioate_measurement	tetradecanedioate measurement
+gcat_trait_thalamus_volume	thalamus volume
+gcat_trait_thalamus_volume_change_measurement	thalamus volume change measurement
+gcat_trait_theophylline_measurement	theophylline measurement
+gcat_trait_theta_wave_measurement	theta wave measurement
+gcat_trait_thioredoxin_domain-containing_protein_12_measurement	thioredoxin domain-containing protein 12 measurement
+gcat_trait_thoracic_aortic_aneurysm	thoracic aortic aneurysm
+gcat_trait_threonate_measurement	threonate measurement
+gcat_trait_threonine_measurement	threonine measurement
+gcat_trait_thrombin_activatable_fibrinolysis_inhibitor_activation_peptide_measurement	thrombin activatable fibrinolysis inhibitor activation peptide measurement
+gcat_trait_thrombomodulin_measurement	thrombomodulin measurement
+gcat_trait_thrombospondin-2_measurement	thrombospondin-2 measurement
+gcat_trait_thymol_sulfate_measurement	thymol sulfate measurement
+gcat_trait_thyroglobulin_measurement	thyroglobulin measurement
+gcat_trait_thyroid_cancer	thyroid cancer
+gcat_trait_thyroid_carcinoma	thyroid carcinoma
+gcat_trait_thyroid_peroxidase_antibody_measurement	thyroid peroxidase antibody measurement
+gcat_trait_thyroid_stimulating_hormone_measurement	thyroid stimulating hormone measurement
+gcat_trait_thyroid_volume	thyroid volume
+gcat_trait_thyrotoxic_periodic_paralysis	thyrotoxic periodic paralysis
+gcat_trait_thyroxine_measurement	thyroxine measurement
+gcat_trait_tissue_factor_measurement	tissue factor measurement
+gcat_trait_tissue_factor_pathway_inhibitor_measurement	tissue factor pathway inhibitor measurement
+gcat_trait_tobacco_smoke_exposure_measurement	tobacco smoke exposure measurement
+gcat_trait_toll-like_receptor_4Lymphocyte_antigen_96_complex_measurement	toll-like receptor 4:Lymphocyte antigen 96 complex measurement
+gcat_trait_tonsillectomy_risk_measurement	tonsillectomy risk measurement
+gcat_trait_tonsillitis	tonsillitis
+gcat_trait_tooth_agenesis	tooth agenesis
+gcat_trait_tooth_eruption	tooth eruption
+gcat_trait_torsin-1A-interacting_protein_1_measurement	torsin-1A-interacting protein 1 measurement
+gcat_trait_total_blood_protein_measurement	total blood protein measurement
+gcat_trait_total_brain_volume_change_measurement	total brain volume change measurement
+gcat_trait_total_cholesterol_in_IDL	total cholesterol in IDL
+gcat_trait_total_cholesterol_in_large_LDL	total cholesterol in large LDL
+gcat_trait_total_cholesterol_in_large_VLDL	total cholesterol in large VLDL
+gcat_trait_total_cholesterol_in_medium_LDL	total cholesterol in medium LDL
+gcat_trait_total_cholesterol_in_medium_VLDL	total cholesterol in medium VLDL
+gcat_trait_total_cholesterol_in_small_LDL	total cholesterol in small LDL
+gcat_trait_total_cholesterol_in_small_VLDL	total cholesterol in small VLDL
+gcat_trait_total_cholesterol_measurement	total cholesterol measurement
+gcat_trait_total_cortical_area_measurement	total cortical area measurement
+gcat_trait_total_iron_binding_capacity	total iron binding capacity
+gcat_trait_total_lipids_in_HDL_measurement	total lipids in HDL measurement
+gcat_trait_total_lipids_in_IDL	total lipids in IDL
+gcat_trait_total_lipids_in_LDL_measurement	total lipids in LDL measurement
+gcat_trait_total_lipids_in_VLDL_measurement	total lipids in VLDL measurement
+gcat_trait_total_lipids_in_chylomicrons_and_extremely_large_VLDL_measurement	total lipids in chylomicrons and extremely large VLDL measurement
+gcat_trait_total_lipids_in_large_HDL	total lipids in large HDL
+gcat_trait_total_lipids_in_large_LDL	total lipids in large LDL
+gcat_trait_total_lipids_in_large_VLDL	total lipids in large VLDL
+gcat_trait_total_lipids_in_lipoprotein_particles_measurement	total lipids in lipoprotein particles measurement
+gcat_trait_total_lipids_in_medium_HDL_measurement	total lipids in medium HDL measurement
+gcat_trait_total_lipids_in_medium_LDL	total lipids in medium LDL
+gcat_trait_total_lipids_in_medium_VLDL	total lipids in medium VLDL
+gcat_trait_total_lipids_in_small_HDL_measurement	total lipids in small HDL measurement
+gcat_trait_total_lipids_in_small_LDL	total lipids in small LDL
+gcat_trait_total_lipids_in_small_VLDL	total lipids in small VLDL
+gcat_trait_total_lipids_in_very_large_HDL_measurement	total lipids in very large HDL measurement
+gcat_trait_total_lipids_in_very_large_VLDL_measurement	total lipids in very large VLDL measurement
+gcat_trait_total_lipids_in_very_small_VLDL_measurement	total lipids in very small VLDL measurement
+gcat_trait_total_phospholipids_in_lipoprotein_particles_measurement	total phospholipids in lipoprotein particles measurement
+gcat_trait_trait_in_response_to_apixaban	trait in response to apixaban
+gcat_trait_trait_in_response_to_cytarabine	trait in response to cytarabine
+gcat_trait_trait_in_response_to_ethanol	trait in response to ethanol
+gcat_trait_trait_in_response_to_paclitaxel	trait in response to paclitaxel
+gcat_trait_trait_in_response_to_platinum	trait in response to platinum
+gcat_trait_trait_in_response_to_venlafaxine	trait in response to venlafaxine
+gcat_trait_transferrin_glycosylation_measurement	transferrin glycosylation measurement
+gcat_trait_transforming_growth_factor-beta-induced_protein_ig-h3_measurement	transforming growth factor-beta-induced protein ig-h3 measurement
+gcat_trait_transforming_growth_factor_beta_measurement	transforming growth factor beta measurement
+gcat_trait_transmembrane_glycoprotein_NMB_measurement	transmembrane glycoprotein NMB measurement
+gcat_trait_trauma_exposure_measurement	trauma exposure measurement
+gcat_trait_treatment-resistant_hypertension	treatment-resistant hypertension
+gcat_trait_triacylglycerol_460_measurement	triacylglycerol 46:0 measurement
+gcat_trait_triacylglycerol_461_measurement	triacylglycerol 46:1 measurement
+gcat_trait_triacylglycerol_462_measurement	triacylglycerol 46:2 measurement
+gcat_trait_triacylglycerol_480_measurement	triacylglycerol 48:0 measurement
+gcat_trait_triacylglycerol_481_measurement	triacylglycerol 48:1 measurement
+gcat_trait_triacylglycerol_482_measurement	triacylglycerol 48:2 measurement
+gcat_trait_triacylglycerol_483_measurement	triacylglycerol 48:3 measurement
+gcat_trait_triacylglycerol_484_measurement	triacylglycerol 48:4 measurement
+gcat_trait_triacylglycerol_501_measurement	triacylglycerol 50:1 measurement
+gcat_trait_triacylglycerol_502_measurement	triacylglycerol 50:2 measurement
+gcat_trait_triacylglycerol_503_measurement	triacylglycerol 50:3 measurement
+gcat_trait_triacylglycerol_504_measurement	triacylglycerol 50:4 measurement
+gcat_trait_triacylglycerol_505_measurement	triacylglycerol 50:5 measurement
+gcat_trait_triacylglycerol_521_measurement	triacylglycerol 52:1 measurement
+gcat_trait_triacylglycerol_522_measurement	triacylglycerol 52:2 measurement
+gcat_trait_triacylglycerol_523_measurement	triacylglycerol 52:3 measurement
+gcat_trait_triacylglycerol_524_measurement	triacylglycerol 52:4 measurement
+gcat_trait_triacylglycerol_525_measurement	triacylglycerol 52:5 measurement
+gcat_trait_triacylglycerol_526_measurement	triacylglycerol 52:6 measurement
+gcat_trait_triacylglycerol_543_measurement	triacylglycerol 54:3 measurement
+gcat_trait_triacylglycerol_544_measurement	triacylglycerol 54:4 measurement
+gcat_trait_triacylglycerol_545_measurement	triacylglycerol 54:5 measurement
+gcat_trait_triacylglycerol_546_measurement	triacylglycerol 54:6 measurement
+gcat_trait_triacylglycerol_547_measurement	triacylglycerol 54:7 measurement
+gcat_trait_triacylglycerol_548_measurement	triacylglycerol 54:8 measurement
+gcat_trait_triacylglycerol_563_measurement	triacylglycerol 56:3 measurement
+gcat_trait_triacylglycerol_564_measurement	triacylglycerol 56:4 measurement
+gcat_trait_triacylglycerol_565_measurement	triacylglycerol 56:5 measurement
+gcat_trait_triacylglycerol_566_measurement	triacylglycerol 56:6 measurement
+gcat_trait_triacylglycerol_567_measurement	triacylglycerol 56:7 measurement
+gcat_trait_triacylglycerol_568_measurement	triacylglycerol 56:8 measurement
+gcat_trait_triacylglycerol_5810_measurement	triacylglycerol 58:10 measurement
+gcat_trait_triacylglycerol_587_measurement	triacylglycerol 58:7 measurement
+gcat_trait_triacylglycerol_588_measurement	triacylglycerol 58:8 measurement
+gcat_trait_triacylglycerol_589_measurement	triacylglycerol 58:9 measurement
+gcat_trait_triglycerideHDL_cholesterol_ratio	triglyceride:HDL cholesterol ratio
+gcat_trait_triglyceride_measurement	triglyceride measurement
+gcat_trait_triglycerides_in_HDL_measurement	triglycerides in HDL measurement
+gcat_trait_triglycerides_in_IDL_measurement	triglycerides in IDL measurement
+gcat_trait_triglycerides_in_LDL_measurement	triglycerides in LDL measurement
+gcat_trait_triglycerides_in_VLDL_measurement	triglycerides in VLDL measurement
+gcat_trait_triglycerides_in_chylomicrons_and_extremely_large_VLDL_measurement	triglycerides in chylomicrons and extremely large VLDL measurement
+gcat_trait_triglycerides_in_large_HDL_measurement	triglycerides in large HDL measurement
+gcat_trait_triglycerides_in_large_LDL_measurement	triglycerides in large LDL measurement
+gcat_trait_triglycerides_in_large_VLDL_measurement	triglycerides in large VLDL measurement
+gcat_trait_triglycerides_in_medium_HDL_measurement	triglycerides in medium HDL measurement
+gcat_trait_triglycerides_in_medium_LDL_measurement	triglycerides in medium LDL measurement
+gcat_trait_triglycerides_in_medium_VLDL_measurement	triglycerides in medium VLDL measurement
+gcat_trait_triglycerides_in_small_HDL_measurement	triglycerides in small HDL measurement
+gcat_trait_triglycerides_in_small_LDL_measurement	triglycerides in small LDL measurement
+gcat_trait_triglycerides_in_small_VLDL_measurement	triglycerides in small VLDL measurement
+gcat_trait_triglycerides_in_very_large_HDL_measurement	triglycerides in very large HDL measurement
+gcat_trait_triglycerides_in_very_large_VLDL_measurement	triglycerides in very large VLDL measurement
+gcat_trait_triglycerides_in_very_small_VLDL_measurement	triglycerides in very small VLDL measurement
+gcat_trait_triglycerides_to_phosphoglycerides_ratio	triglycerides to phosphoglycerides ratio
+gcat_trait_triglycerides_to_total_lipids_in_IDL_percentage	triglycerides to total lipids in IDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_chylomicrons_and_extremely_large_VLDL_percentage	triglycerides to total lipids in chylomicrons and extremely large VLDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_large_HDL_percentage	triglycerides to total lipids in large HDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_large_LDL_percentage	triglycerides to total lipids in large LDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_large_VLDL_percentage	triglycerides to total lipids in large VLDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_medium_HDL_percentage	triglycerides to total lipids in medium HDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_medium_LDL_percentage	triglycerides to total lipids in medium LDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_medium_VLDL_percentage	triglycerides to total lipids in medium VLDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_small_HDL_percentage	triglycerides to total lipids in small HDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_small_LDL_percentage	triglycerides to total lipids in small LDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_small_VLDL_percentage	triglycerides to total lipids in small VLDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_very_large_HDL_percentage	triglycerides to total lipids in very large HDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_very_large_VLDL_percentage	triglycerides to total lipids in very large VLDL percentage
+gcat_trait_triglycerides_to_total_lipids_in_very_small_VLDL_percentage	triglycerides to total lipids in very small VLDL percentage
+gcat_trait_triiodothyronine_measurement	triiodothyronine measurement
+gcat_trait_trimethylamine-N-oxide_measurement	trimethylamine-N-oxide measurement
+gcat_trait_trochanter_bone_mineral_density	trochanter bone mineral density
+gcat_trait_trypsin-2_measurement	trypsin-2 measurement
+gcat_trait_tryptase_beta-2_measurement	tryptase beta-2 measurement
+gcat_trait_tryptophan_betaine_measurement	tryptophan betaine measurement
+gcat_trait_tryptophan_measurement	tryptophan measurement
+gcat_trait_tuberculosis	tuberculosis
+gcat_trait_tumor_necrosis_factor-alpha_measurement	tumor necrosis factor-alpha measurement
+gcat_trait_tumor_necrosis_factor_beta_measurement	tumor necrosis factor beta measurement
+gcat_trait_tumor_necrosis_factor_ligand_superfamily_member_14_measurement	tumor necrosis factor ligand superfamily member 14 measurement
+gcat_trait_tumor_necrosis_factor_ligand_superfamily_member_8_measurement	tumor necrosis factor ligand superfamily member 8 measurement
+gcat_trait_tumor_necrosis_factor_measurement	tumor necrosis factor measurement
+gcat_trait_tumor_necrosis_factor_receptor_superfamily_member_6_measurement	tumor necrosis factor receptor superfamily member 6 measurement
+gcat_trait_tumor_necrosis_factor_receptor_superfamily_member_EDAR_measurement	tumor necrosis factor receptor superfamily member EDAR measurement
+gcat_trait_type_1_diabetes_mellitus	type 1 diabetes mellitus
+gcat_trait_type_2_diabetes_mellitus	type 2 diabetes mellitus
+gcat_trait_tyrosine-protein_kinase_ZAP-70_measurement	tyrosine-protein kinase ZAP-70 measurement
+gcat_trait_tyrosine-protein_kinase_receptor_Tie-1_soluble_measurement	tyrosine-protein kinase receptor Tie-1; soluble measurement
+gcat_trait_tyrosine-protein_phosphatase_non-receptor_type_1_measurement	tyrosine-protein phosphatase non-receptor type 1 measurement
+gcat_trait_tyrosine_measurement	tyrosine measurement
+gcat_trait_ubiquitin_carboxyl-terminal_hydrolase_25_measurement	ubiquitin carboxyl-terminal hydrolase 25 measurement
+gcat_trait_ulcerative_colitis	ulcerative colitis
+gcat_trait_undecenoylcarnitine_C111_measurement	undecenoylcarnitine (C11:1) measurement
+gcat_trait_upper_aerodigestive_tract_neoplasm	upper aerodigestive tract neoplasm
+gcat_trait_upper_face_morphology_measurement	upper face morphology measurement
+gcat_trait_upper_respiratory_tract_disorder	upper respiratory tract disorder
+gcat_trait_urate_measurement	urate measurement
+gcat_trait_uric_acid_measurement	uric acid measurement
+gcat_trait_uridine_diphosphate_measurement	uridine diphosphate measurement
+gcat_trait_uridine_measurement	uridine measurement
+gcat_trait_urinary_albumin_to_creatinine_ratio	urinary albumin to creatinine ratio
+gcat_trait_urinary_bladder_carcinoma	urinary bladder carcinoma
+gcat_trait_urinary_metabolite_measurement	urinary metabolite measurement
+gcat_trait_urinary_microalbumin_measurement	urinary microalbumin measurement
+gcat_trait_urinary_nitrogen_measurement	urinary nitrogen measurement
+gcat_trait_urinary_uromodulin_measurement	urinary uromodulin measurement
+gcat_trait_urokinase-type_plasminogen_activator_measurement	urokinase-type plasminogen activator measurement
+gcat_trait_urokinase_plasminogen_activator_surface_receptor_measurement	urokinase plasminogen activator surface receptor measurement
+gcat_trait_urolithiasis	urolithiasis
+gcat_trait_uromodulin_measurement	uromodulin measurement
+gcat_trait_urticaria	urticaria
+gcat_trait_uterine_fibroid	uterine fibroid
+gcat_trait_uterine_fibroid_measurement	uterine fibroid measurement
+gcat_trait_uterine_prolapse	uterine prolapse
+gcat_trait_vaginal_microbiome_measurement	vaginal microbiome measurement
+gcat_trait_valine_measurement	valine measurement
+gcat_trait_vanillylmandelate_VMA_measurement	vanillylmandelate (VMA) measurement
+gcat_trait_vascular_endothelial_function_measurement	vascular endothelial function measurement
+gcat_trait_vascular_endothelial_growth_factor_A_isoform_121_measurement	vascular endothelial growth factor A; isoform 121 measurement
+gcat_trait_vascular_endothelial_growth_factor_A_measurement	vascular endothelial growth factor A measurement
+gcat_trait_vascular_endothelial_growth_factor_D_measurement	vascular endothelial growth factor D measurement
+gcat_trait_vascular_endothelial_growth_factor_measurement	vascular endothelial growth factor measurement
+gcat_trait_vascular_endothelial_growth_factor_receptor_2_measurement	vascular endothelial growth factor receptor 2 measurement
+gcat_trait_vascular_endothelial_growth_factor_receptor_3_measurement	vascular endothelial growth factor receptor 3 measurement
+gcat_trait_vasculitis	vasculitis
+gcat_trait_velocity_of_sound_measurement	velocity of sound measurement
+gcat_trait_velopharyngeal_dysfunction	velopharyngeal dysfunction
+gcat_trait_venous_thromboembolism	venous thromboembolism
+gcat_trait_ventral_hernia	ventral hernia
+gcat_trait_ventricular_enlargement_measurement	ventricular enlargement measurement
+gcat_trait_verbal-numerical_reasoning_measurement	verbal-numerical reasoning measurement
+gcat_trait_very_long-chain_saturated_fatty_acid_measurement	very long-chain saturated fatty acid measurement
+gcat_trait_very_low_density_lipoprotein_cholesterol_measurement	very low density lipoprotein cholesterol measurement
+gcat_trait_very_low_density_lipoprotein_particle_size_measurement	very low density lipoprotein particle size measurement
+gcat_trait_vesicoureteral_reflux	vesicoureteral reflux
+gcat_trait_viral_load	viral load
+gcat_trait_virus_seropositivity	virus seropositivity
+gcat_trait_visceral_adipose_tissue_measurement	visceral adipose tissue measurement
+gcat_trait_visceralabdominal_adipose_tissue_ratio_measurement	visceral:abdominal adipose tissue ratio measurement
+gcat_trait_visceralgluteofemoral_adipose_tissue_ratio_measurement	visceral:gluteofemoral adipose tissue ratio measurement
+gcat_trait_visceralsubcutaneous_adipose_tissue_ratio	visceral:subcutaneous adipose tissue ratio
+gcat_trait_visfatin_measurement	visfatin measurement
+gcat_trait_vision_disorder	vision disorder
+gcat_trait_visual_acuity_measurement	visual acuity measurement
+gcat_trait_visual_cortical_surface_area_measurement	visual cortical surface area measurement
+gcat_trait_visual_perception_measurement	visual perception measurement
+gcat_trait_visuospatial_function_measurement	visuospatial function measurement
+gcat_trait_vital_capacity	vital capacity
+gcat_trait_vitamin_B12_measurement	vitamin B12 measurement
+gcat_trait_vitamin_B6_measurement	vitamin B6 measurement
+gcat_trait_vitamin_C_measurement	vitamin C measurement
+gcat_trait_vitamin_D-binding_protein_measurement	vitamin D-binding protein measurement
+gcat_trait_vitamin_D_deficiency	vitamin D deficiency
+gcat_trait_vitamin_D_measurement	vitamin D measurement
+gcat_trait_vitamin_K-dependent_protein_C_measurement	vitamin K-dependent protein C measurement
+gcat_trait_vitronectin_measurement	vitronectin measurement
+gcat_trait_volumetric_bone_mineral_density	volumetric bone mineral density
+gcat_trait_von_Willebrand_factor_measurement	von Willebrand factor measurement
+gcat_trait_waist-hip_ratio	waist-hip ratio
+gcat_trait_waist_circumference	waist circumference
+gcat_trait_wellbeing_measurement	wellbeing measurement
+gcat_trait_wet_macular_degeneration	wet macular degeneration
+gcat_trait_wheezing	wheezing
+gcat_trait_white_matter_hyperintensity_measurement	white matter hyperintensity measurement
+gcat_trait_white_matter_integrity	white matter integrity
+gcat_trait_white_matter_lesion_progression_measurement	white matter lesion progression measurement
+gcat_trait_white_matter_microstructure_measurement	white matter microstructure measurement
+gcat_trait_white_matter_volume_measurement	white matter volume measurement
+gcat_trait_word_reading	word reading
+gcat_trait_worry_measurement	worry measurement
+gcat_trait_xanthine_measurement	xanthine measurement
+gcat_trait_xanthosine_measurement	xanthosine measurement
+gcat_trait_xanthurenate_measurement	xanthurenate measurement
+gcat_trait_ximenoylcarnitine_C261_measurement	ximenoylcarnitine (C26:1) measurement

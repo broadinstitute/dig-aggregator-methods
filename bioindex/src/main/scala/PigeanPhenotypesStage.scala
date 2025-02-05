@@ -20,11 +20,12 @@ class PigeanPhenotypesStage(implicit context: Context) extends Stage {
   }
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 1,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("sqlalchemy-bootstrap.sh")))
   )
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("pigeanPhenotypes.py")))
+    new Job(Job.Script(resourceUri("pigeanPhenotypes.py")))
   }
 }
