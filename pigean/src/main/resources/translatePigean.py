@@ -44,7 +44,7 @@ def translate_gss(json_line, trait_group, phenotype, gene_set_size):
     beta_uncorrected = make_option(json_line["beta_uncorrected"])
     if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
         return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
-               f'"source": {json_line["label"]}, ' \
+               f'"source": "{json_line["label"]}", ' \
                f'"beta": {beta}, ' \
                f'"beta_uncorrected": {beta_uncorrected}, ' \
                f'"n": {make_option(json_line["N"])}, ' \
@@ -53,20 +53,26 @@ def translate_gss(json_line, trait_group, phenotype, gene_set_size):
                f'"gene_set_size": "{gene_set_size}"}}\n'
 
 
-def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
-    beta = make_option(json_line["beta"])
-    combined = make_option(json_line["combined"])
-    if beta is not None and combined is not None:
-        return f'{{"gene": "{json_line["Gene"]}", ' \
-               f'"gene_set": "{json_line["gene_set"]}", ' \
-               f'"source": {json_line["label"]}, ' \
-               f'"prior": {make_option(json_line["prior"])}, ' \
-               f'"combined": {combined}, ' \
-               f'"beta": {beta}, ' \
-               f'"log_bf": {make_option(json_line["log_bf"])}, ' \
-               f'"trait_group": "{trait_group}", ' \
-               f'"phenotype": "{phenotype}", ' \
-               f'"gene_set_size": "{gene_set_size}"}}\n'
+def get_translate_ggss(trait_group, phenotype, gene_set_size):
+    beta_uncorrected_map, source_map = get_ggss_maps(trait_group, phenotype, gene_set_size)
+    def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
+        beta = make_option(json_line["beta"])
+        combined = make_option(json_line["combined"])
+        if beta is not None and combined is not None:
+            beta_uncorrected = beta_uncorrected_map.get((phenotype, json_line['gene_set']), '0.0')
+            source = source_map[(phenotype, json_line['gene_set'])]
+            return f'{{"gene": "{json_line["Gene"]}", ' \
+                   f'"gene_set": "{json_line["gene_set"]}", ' \
+                   f'"source": "{source}", ' \
+                   f'"prior": {make_option(json_line["prior"])}, ' \
+                   f'"combined": {combined}, ' \
+                   f'"beta": {beta}, ' \
+                   f'"beta_uncorrected": {beta_uncorrected}, ' \
+                   f'"log_bf": {make_option(json_line["log_bf"])}, ' \
+                   f'"trait_group": "{trait_group}", ' \
+                   f'"phenotype": "{phenotype}", ' \
+                   f'"gene_set_size": "{gene_set_size}"}}\n'
+    return translate_ggss
 
 
 def translate(trait_group, phenotype, gene_set_size, data_type, file_name, line_fnc):
@@ -81,6 +87,23 @@ def translate(trait_group, phenotype, gene_set_size, data_type, file_name, line_
                     f_out.write(str_line)
     upload_data(trait_group, phenotype, data_type, gene_set_size)
     os.remove(file_name)
+
+
+def get_ggss_maps(trait_group, phenotype, gene_set_size):
+    file_name = 'gss.out'
+    beta_uncorrected_map = {}
+    source_map = {}
+    download_data(trait_group, phenotype, file_name, gene_set_size)
+    with open(file_name, 'r') as f_in:
+        header = f_in.readline().strip().split('\t')
+        for line in f_in:
+            json_line = dict(zip(header, line.strip().split('\t')))
+            source_map[(phenotype, json_line['Gene_Set'])] = json_line['label']
+            beta_uncorrected = make_option(json_line['beta_uncorrected'])
+            if beta_uncorrected != 'null':
+                beta_uncorrected_map[(phenotype, json_line['Gene_Set'])] = json_line['beta_uncorrected']
+    os.remove(file_name)
+    return beta_uncorrected_map, source_map
 
 
 def success(file_path):
@@ -101,7 +124,8 @@ def main():
 
     translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_stats', 'gs.out', translate_gs)
     translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_stats', 'gss.out', translate_gss)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_gene_set_stats', 'ggss.out', translate_ggss)
+    translate_ggss_func = get_translate_ggss(args.trait_group, args.phenotype, args.gene_set_size)
+    translate(args.trait_group, args.phenotype, args.gene_set_size,  'gene_gene_set_stats', 'ggss.out', translate_ggss_func)
 
 
 if __name__ == '__main__':

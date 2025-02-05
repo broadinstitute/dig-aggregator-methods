@@ -11,16 +11,6 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 outdir = f'{s3_bioindex}/pigean/{{}}/{{}}'
 
 
-def get_name_map():
-    name_map = {}
-    with open('/mnt/var/pigean/phenotype_to_text.tsv', 'r') as f:
-        for line in f:
-            split_line = line.strip().split('\t')
-            if len(split_line) == 2:
-                name_map[split_line[0]] = split_line[1]
-    return name_map
-
-
 def attach_max_values(df, fields):
     max_values = df \
         .select('phenotype', *fields) \
@@ -30,9 +20,7 @@ def attach_max_values(df, fields):
     return df.join(max_values, how='left', on='phenotype')
 
 
-def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields, name_map):
-    phenotype_to_name = udf(lambda phenotype: name_map[phenotype])
-
+def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields):
     df = spark.read.json(srcdir)
 
     for name, order in bioindices.items():
@@ -41,7 +29,6 @@ def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields, name_map):
         else:
             df_out = df
 
-        df_out = df_out.withColumn('phenotype_name', phenotype_to_name(df_out.phenotype))
         if 'overall' in name:
             df_out = df_out.filter(df_out.beta_uncorrected > 0)
         df_out.orderBy(order) \
@@ -50,27 +37,26 @@ def bioindex(spark, srcdir, bioindex_name, bioindices, max_fields, name_map):
             .json(outdir.format(bioindex_name, name))
 
 
-def gene(spark, name_map):
-    srcdir = f'{s3_in}/out/pigean/gene_stats/*/*.json'
+def gene(spark):
+    srcdir = f'{s3_in}/out/pigean/gene_stats/*/*/*/*.json'
     bioindices = {
         'gene': [col('gene'), col('combined').desc()],
         'phenotype': [col('phenotype'), col('combined').desc()]
     }
-    bioindex(spark, srcdir, 'gene', bioindices, ['prior', 'combined', 'log_bf'], name_map)
+    bioindex(spark, srcdir, 'gene', bioindices, ['prior', 'combined', 'log_bf'])
 
 
-def gene_set(spark, name_map):
-    srcdir = f'{s3_in}/out/pigean/gene_set_stats/*/*.json'
+def gene_set(spark):
+    srcdir = f'{s3_in}/out/pigean/gene_set_stats/*/*/*/*.json'
     bioindices = {
         'gene_set': [col('gene_set'), col('beta_uncorrected').desc()],
         'phenotype': [col('phenotype'), col('beta_uncorrected').desc()]
     }
-    bioindex(spark, srcdir, 'gene_set', bioindices, ['beta', 'beta_uncorrected'], name_map)
+    bioindex(spark, srcdir, 'gene_set', bioindices, ['beta', 'beta_uncorrected'])
 
 
-def gene_set_source(spark, name_map):
-    srcdir = f'{s3_in}/out/pigean/gene_set_stats/*/*/*.json'
-    phenotype_to_name = udf(lambda phenotype: name_map[phenotype])
+def gene_set_source(spark):
+    srcdir = f'{s3_in}/out/pigean/gene_set_stats/*/*/*/*.json'
 
     df = spark.read.json(srcdir)
     df = df.withColumn('source_index', df.source)
@@ -81,31 +67,29 @@ def gene_set_source(spark, name_map):
     source_df = source_df.withColumn('source_index', lit('all'))
     df = df.union(source_df)
 
-    df = df.withColumn('phenotype_name', phenotype_to_name(df.phenotype))
     df.orderBy(col('source_index'), col('beta_uncorrected').desc()) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('gene_set', 'source'))
 
 
-def gene_gene_set(spark, name_map):
+def gene_gene_set(spark):
     srcdir = f'{s3_in}/out/pigean/gene_gene_set_stats/*/*/*/*.json'
     bioindices = {
         'gene': [col('phenotype'), col('gene'), col('gene_set_size'), col('combined').desc()],
         'gene_set': [col('phenotype'), col('gene_set'), col('gene_set_size'), col('beta').desc()],
         'overall_gene': [col('gene'), col('gene_set_size'), col('beta_uncorrected').desc()]
     }
-    bioindex(spark, srcdir, 'gene_gene_set', bioindices, [], name_map)
+    bioindex(spark, srcdir, 'gene_gene_set', bioindices, [])
 
 
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    name_map = get_name_map()
-    gene(spark, name_map)
-    gene_set(spark, name_map)
-    gene_gene_set(spark, name_map)
-    gene_set_source(spark, name_map)
+    gene(spark)
+    gene_set(spark)
+    gene_gene_set(spark)
+    gene_set_source(spark)
 
     spark.stop()
 
