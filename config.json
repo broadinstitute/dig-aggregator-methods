@@ -1,14 +1,15 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "bottom-line-paper",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "bottom-line-paper"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "bottom-line-paper"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "bottom-line-paper",
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [
