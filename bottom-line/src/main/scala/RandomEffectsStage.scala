@@ -24,8 +24,6 @@ class RandomEffectsStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    val transEthnic = resourceUri("runTransEthnic.sh")
-
-    new Job(Seq(Job.Script(transEthnic, output)))
+    new Job(Seq(Job.Script(resourceUri("runRandomEffects.sh"), output)))
   }
 }

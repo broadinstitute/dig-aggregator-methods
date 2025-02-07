@@ -5,16 +5,8 @@ WORKING_DIR="$1"
 # remove arguments
 shift 1
 
-# create the directory
-mkdir -p "${WORKING_DIR}"
-
-# get all the input files as rest of arguments
-INPUT_FILES=("$@")
-
-# append each input file to the script
-for INPUT_FILE in "${INPUT_FILES[@]}"; do
-    echo "${INPUT_FILE}" >> "MRMEGA.in"
-done
-
 # run it
-/home/hadoop/bin/MR-MEGA/MR-MEGA -qt -o "${WORKING_DIR}/MRMEGA.tbl" -i MRMEGA.in
+/home/hadoop/bin/MR-MEGA/MR-MEGA --name_pos position  --name_chr chromosome --name_n n \
+  --name_se stdErr --name_beta beta --name_eaf eaf \
+  --name_ea alt --name_nea reference --name_marker varId \
+  --qt --pc 1 --no_std_names -o "${WORKING_DIR}/MRMEGA.tbl" -i MRMEGA.in

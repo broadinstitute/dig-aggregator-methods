@@ -63,12 +63,12 @@ done
 ANALYSIS_DIR="${OUTDIR}/_analysis"
 
 # collect all the input files together into an array
-INPUT_FILES=($(find "${OUTDIR}" -name "variants.csv" | xargs realpath))
+find "${OUTDIR}" -name "variants.csv" | xargs realpath > "${ANALYSIS_DIR}/MRMEGA.in"
 
 # run MRMEGA across all ancestries
-sudo bash "${RUN_MRMEGA}" "${ANALYSIS_DIR}" "${INPUT_FILES[@]}"
+sudo bash "${RUN_MRMEGA}" "${ANALYSIS_DIR}"
 
-sudo zstd --rm "${ANALYSIS_DIR}/mrmega.tsv"
+sudo zstd --rm "${ANALYSIS_DIR}/MRMEGA.tbl"
 
 # upload the results to S3
 sudo aws s3 cp "${ANALYSIS_DIR}/" "${S3_OUT}/bottom-line/staging/random-effects/${PHENOTYPE}/" --recursive
