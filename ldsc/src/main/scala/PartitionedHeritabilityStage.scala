@@ -33,8 +33,8 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
     case (subRegion, regions) => subRegion -> regions.map(_.region)
   }
   lazy val annotationMap: Map[String, Map[String, Set[String]]] = Map(
-    "portal" -> allPortalAnnotationMap,
-    //context.project -> allProjectAnnotationMap
+    //"portal" -> allPortalAnnotationMap,
+    context.project -> allProjectAnnotationMap
   )
 
   // TODO: At the moment this will always rerun everything which isn't ideal
@@ -78,7 +78,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
               s"--phenotypes=${groupedPhenotypes.mkString(",")}",
               s"--sub-region=$subRegion",
               s"--region=${groupedRegion.mkString(",")}",
-              s"--project=$project"
+              s"--project=portal"
             )
           }
         }
