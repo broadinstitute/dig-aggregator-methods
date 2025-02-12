@@ -40,21 +40,25 @@ def translate(file):
     out = {}
     with open(file, 'r') as f:
         header = [a.strip() for a in f.readline().strip().split('\t')]
-        for line in f:
+        # Read up to lines with entries ending in '_0'
+        split_line = [a.strip() for a in f.readline().strip().split('\t')]
+        while int(split_line[0].rsplit('_', 1)[-1]) == 0:
+            split_line = [a.strip() for a in f.readline().strip().split('\t')]
+        # don't need first line, that is always the annotation confounder line
+        line = f.readline()
+        while len(line) > 0:
             split_line = [a.strip() for a in line.strip().split('\t')]
-            if int(split_line[0].rsplit('_', 1)[-1]) == 1:
-                data_dict = dict(zip(header, split_line))
-                if float(data_dict['Prop._h2_std_error']) > 0.0:
-                    annotation_name = split_line[0].rsplit('_', 1)[0]
-                    if annotation_name not in ['accessible_chromatin', 'promoter', 'enhancer', 'binding_sites']:
-                        out[annotation_name] = {
-                            'snps': float(data_dict['Prop._SNPs']),
-                            'h2': {'beta': float(data_dict['Prop._h2']), 'stdErr': float(data_dict['Prop._h2_std_error'])},
-                            'enrichment': {'beta': float(data_dict['Enrichment']), 'stdErr': float(data_dict['Enrichment_std_error'])},
-                            'coefficient': {'beta': float(data_dict['Coefficient']), 'stdErr': float(data_dict['Coefficient_std_error'])},
-                            'diff': {'beta': float(data_dict['Diff']), 'stdErr': float(data_dict['Diff_std_error'])},
-                            'pValue': float(data_dict['Enrichment_p'])
-                        }
+            data_dict = dict(zip(header, split_line))
+            if float(data_dict['Prop._h2_std_error']) > 0.0:
+                out[split_line[0].rsplit('_', 1)[0]] = {
+                    'snps': float(data_dict['Prop._SNPs']),
+                    'h2': {'beta': float(data_dict['Prop._h2']), 'stdErr': float(data_dict['Prop._h2_std_error'])},
+                    'enrichment': {'beta': float(data_dict['Enrichment']), 'stdErr': float(data_dict['Enrichment_std_error'])},
+                    'coefficient': {'beta': float(data_dict['Coefficient']), 'stdErr': float(data_dict['Coefficient_std_error'])},
+                    'diff': {'beta': float(data_dict['Diff']), 'stdErr': float(data_dict['Diff_std_error'])},
+                    'pValue': float(data_dict['Enrichment_p'])
+                }
+            line = f.readline()
     return out
 
 
