@@ -92,7 +92,20 @@ def combine_files(ancestry):
 
 
 def run_mrmega():
-    subprocess.check_call('./runMRMEGA.sh ./tmp_files', shell=True)
+    subprocess.check_call('/mnt/var/metaanalysis/MR-MEGA/MR-MEGA '
+                          '--name_pos position  '
+                          '--name_chr chromosome '
+                          '--name_n n '
+                          '--name_se stdErr '
+                          '--name_beta beta '
+                          '--name_eaf eaf '
+                          '--name_ea alt '
+                          '--name_nea reference '
+                          '--name_marker varId '
+                          '--qt '
+                          '--no_std_names '
+                          '-o ./tmp_files/MRMEGA.tbl '
+                          '-i ./tmp_files/MRMEGA.in', shell=True)
 
 
 def upload_data(phenotype):

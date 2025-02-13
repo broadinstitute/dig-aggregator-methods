@@ -14,7 +14,7 @@ class RandomEffectsStage(implicit context: Context) extends Stage {
     masterInstanceType = Strategy.memoryOptimized(),
     instances = 1,
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("random-effects-bootstrap.sh")))
   )
 
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific)
@@ -24,6 +24,6 @@ class RandomEffectsStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    new Job(Seq(Job.Script(resourceUri("runRandomEffects.sh"), output)))
+    new Job(Seq(Job.Script(resourceUri("runRandomEffects.py"), s"--phenotype=$output")))
   }
 }
