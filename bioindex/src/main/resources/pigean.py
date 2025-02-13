@@ -70,7 +70,7 @@ def gene_set_source(spark):
     df = df.withColumn('gene_set', clean(df.gene_set))
     df = df.withColumn('source_index', df.source)
 
-    source_partition = Window.partitionBy('source').orderBy('beta_uncorrected')
+    source_partition = Window.partitionBy('source').orderBy(col('beta_uncorrected').desc())
     source_df = df.withColumn('rank', rank().over(source_partition))
     source_df = source_df.filter(source_df.rank <= 1000).drop('rank')
     source_df = source_df.withColumn('source_index', lit('all'))
