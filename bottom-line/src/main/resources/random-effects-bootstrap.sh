@@ -4,7 +4,17 @@ WORKING_DIR=/mnt/var/metaanalysis
 sudo mkdir -p "${WORKING_DIR}"
 cd "${WORKING_DIR}"
 
-sudo aws s3 cp s3://dig-analysis-bin/bin/intake/var_to_af.zip .
+# build MR-MEGA
+sudo mkdir -p MR-MEGA
+cd MR-MEGA
+sudo aws s3 cp s3://dig-analysis-bin/metaanalysis/MR-MEGA.zip .
+sudo unzip MR-MEGA.zip
+cd "${WORKING_DIR}"
+
+# copy the runMRMEGA script from S3
+sudo aws s3 cp s3://dig-analysis-bin/metaanalysis/runMRMEGA.sh .
+
+sudo aws s3 cp s3://dig-analysis-bin/metaanalysis/var_to_af.zip .
 sudo unzip var_to_af.zip
 sudo rm var_to_af.zip
 
