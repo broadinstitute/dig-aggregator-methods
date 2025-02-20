@@ -20,6 +20,7 @@ def main():
     df = spark.read.json(srcdir)
 
     df = df.select([
+        'project',
         'phenotype',
         'ancestry',
         'annotation',
