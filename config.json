@@ -2,12 +2,10 @@
     "aws": {
         "project": "vision",
         "input": {
-          "bucket": "dig-vision-genomics",
-          "subdir": "hg19"
+          "bucket": "dig-vision-genomics"
         },
         "output": {
             "bucket": "dig-vision-genomics",
-            "subdir": "hg19"
         },
         "bioindex": {
             "bucket": "dig-vision-genomics",
