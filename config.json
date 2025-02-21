@@ -5,7 +5,7 @@
           "bucket": "dig-vision-genomics"
         },
         "output": {
-            "bucket": "dig-vision-genomics",
+            "bucket": "dig-vision-genomics"
         },
         "bioindex": {
             "bucket": "dig-vision-genomics",
