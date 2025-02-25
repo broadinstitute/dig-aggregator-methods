@@ -41,13 +41,13 @@ def translate(file):
     with open(file, 'r') as f:
         header = [a.strip() for a in f.readline().strip().split('\t')]
         # Read up to lines with entries ending in '_0'
-        split_line = [a.strip() for a in f.readline().strip().split('\t')]
-        while int(split_line[0].rsplit('_', 1)[-1]) == 0:
-            split_line = [a.strip() for a in f.readline().strip().split('\t')]
-        # don't need first line, that is always the annotation confounder line
         line = f.readline()
-        while len(line) > 0:
+        split_line = [a.strip() for a in line.strip().split('\t')]
+        while int(split_line[0].rsplit('_', 1)[-1]) == 0:
+            line = f.readline()
             split_line = [a.strip() for a in line.strip().split('\t')]
+        maybe_confounder_key = split_line[0].rsplit('_', 1)[0]
+        while len(line) > 0:
             data_dict = dict(zip(header, split_line))
             if float(data_dict['Prop._h2_std_error']) > 0.0:
                 out[split_line[0].rsplit('_', 1)[0]] = {
@@ -59,6 +59,10 @@ def translate(file):
                     'pValue': float(data_dict['Enrichment_p'])
                 }
             line = f.readline()
+            split_line = [a.strip() for a in line.strip().split('\t')]
+        # Usually the first line is the annotation variable which is unneeded
+        if len(out) > 1:
+            out.pop(maybe_confounder_key)
     return out
 
 
