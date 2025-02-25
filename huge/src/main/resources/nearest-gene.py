@@ -31,7 +31,7 @@ def get_nearest_df(joined_df):
 
 def main():
     genes_dir = f'{s3_in}/out/huge/geneidmap/genes'
-    variants_dir = f'{s3_in}/out/varianteffect/common'
+    variants_dir = f'{s3_in}/out/varianteffect/variants/common'
     out_dir = f'{s3_out}/out/huge/nearestgenes/'
 
     spark = SparkSession.builder.appName('nearest_gene').getOrCreate()

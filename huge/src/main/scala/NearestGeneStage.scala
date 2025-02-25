@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.emr._
 class NearestGeneStage(implicit context: Context) extends Stage {
 
   val genes: Input.Source = Input.Source.Success("out/huge/geneidmap/genes/")
-  val variants: Input.Source = Input.Source.Success("out/varianteffect/common/")
+  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/common/")
 
   override val sources: Seq[Input.Source] = Seq(genes, variants)
 
