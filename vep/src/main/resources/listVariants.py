@@ -1,7 +1,7 @@
 #!/usr/bin/python3
+import argparse
 import boto3
 import os
-import platform
 import re
 
 from pyspark.sql import SparkSession
@@ -28,32 +28,31 @@ def check_path(path):
     return s3.list_objects_v2(Bucket=bucket, Prefix=non_bucket_path)['KeyCount'] > 0
 
 
+def get_src(data_type):
+    if data_type == 'variants':
+        return f'{s3_in}/variants/*/*/*'
+    elif data_type == 'ld_server':
+        return f'{s3_in}/ld_server/variants/*'
+    elif data_type == 'variant_counts':
+        return f'{s3_in}/variant_counts/*/*/*'
+
+
 def main():
-    """
-    Arguments: none
-    """
-    print('Python version: %s' % platform.python_version())
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data-type', type=str, required=True, help="Data type to process")
+    args = parser.parse_args()
 
     # get the source and output directories
-    dataset_srcdir = f'{s3_in}/variants/*/*/*'
-    ld_server_srcdir = f'{s3_in}/ld_server/variants'
-    variant_counts_srcdir = f'{s3_in}/variant_counts'
-    outdir = f'{s3_out}/out/varianteffect/variants'
+    srcdir = get_src(args.data_type)
+    outdir = f'{s3_out}/out/varianteffect/{args.data_type}/variants'
 
     # create a spark session
     spark = SparkSession.builder.appName('vep').getOrCreate()
 
     # slurp all the variants across ALL datasets, but only locus information
     # combine with variants in LD Server to make sure all LD Server variants go through VEP for burden binning
-    df = get_df(spark, dataset_srcdir)
+    df = get_df(spark, srcdir)
 
-    # Add in ld_server and any variant counts if it exists in this path
-    if check_path(ld_server_srcdir):
-        ld_server_df = get_df(spark, f'{ld_server_srcdir}/*')
-        df = df.union(ld_server_df)
-    if check_path(variant_counts_srcdir):
-        variant_counts_df = get_df(spark, f'{variant_counts_srcdir}/*/*/*')
-        df = df.union(variant_counts_df)
     # varIds with length > 1000 causes VEP to hang
     df = df.dropDuplicates(['varId']) \
         .filter(length(df.varId) < 1000)

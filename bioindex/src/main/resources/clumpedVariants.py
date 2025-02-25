@@ -19,7 +19,7 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output locations
-    common_dir = f'{s3_in}/out/varianteffect/common'
+    common_dir = f'{s3_in}/out/varianteffect/variants/common'
     srcdir = f'{s3_in}/out/credible_sets/merged/*/{args.ancestry}/part-*'
     if args.ancestry == 'Mixed':
         outdir = f'{s3_bioindex}/associations/clump/trans-ethnic/'

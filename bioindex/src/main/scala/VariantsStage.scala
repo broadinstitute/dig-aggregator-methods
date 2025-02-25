@@ -9,7 +9,7 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class VariantsStage(implicit context: Context) extends Stage {
-  val common: Input.Source = Input.Source.Success("out/varianteffect/common/")
+  val common: Input.Source = Input.Source.Success("out/varianteffect/variants/common/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(common)
