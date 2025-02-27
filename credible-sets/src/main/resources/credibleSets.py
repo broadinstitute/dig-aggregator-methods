@@ -24,20 +24,15 @@ def get_src_dir(args):
 
 
 def convert_credible_set(df):
-    # Define source and fetch proper columns
-    if 'gwas_dataset' not in df.columns:
-        df = df.withColumn('gwas_dataset', df.dataset)
     df = df.select(
         ['chromosome', 'position', 'reference', 'alt',
          'beta', 'stdErr', 'pValue', 'n',
-         'phenotype', 'ancestry', 'gwas_dataset', 'dataset', 'pmid', 'method',
+         'phenotype', 'ancestry', 'dataset', 'pmid', 'method',
          'credibleSetId', 'posteriorProbability']
     )
     df = df.filter((df.posteriorProbability.isNotNull()) & (df.posteriorProbability > 0.0))
     df = df.withColumn('varId', concat_ws(':', df.chromosome, df.position, df.reference, df.alt))
     df = df.dropDuplicates(['credibleSetId', 'varId']) \
-        .withColumn('dataset', when(df.gwas_dataset.isNull(), df.dataset).otherwise(df.gwas_dataset)) \
-        .drop('gwas_dataset') \
         .withColumn('source', lit('credible_set')) \
         .withColumn('chromosome', df.chromosome.cast("string"))
 
