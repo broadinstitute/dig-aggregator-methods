@@ -20,12 +20,12 @@ def main():
     # initialize spark session
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    tech, dataset, phenotype, ancestry = args.path.split('/')
+    tech, dataset, phenotype = args.path.split('/')
 
     # load and output directory
     common_dir = f'{s3_in}/out/varianteffect/common'
     srcdir = f'{s3_in}/variants/{args.path}/*.json.zst'
-    outdir = f'{s3_bioindex}/associations/phenotype/{phenotype}/{ancestry}'
+    outdir = f'{s3_bioindex}/associations/phenotype/{dataset}'
 
     # load the trans-ethnic, meta-analysis, top variants and write them sorted
     df = spark.read.json(srcdir)
