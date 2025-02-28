@@ -104,6 +104,7 @@ def run_mrmega():
                           '--name_marker varId '
                           '--qt '
                           '--no_std_names '
+                          '--pc 1 '
                           '-o ./tmp_files/MRMEGA.tbl '
                           '-i ./tmp_files/MRMEGA.in', shell=True)
 
