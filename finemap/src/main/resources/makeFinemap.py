@@ -32,11 +32,11 @@ def main():
 
 	(args,_) = parser.parse_args()
 
-	pheno_path = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
+	pheno_path = f'{s3_in}/out/metaanalysis/largest/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
 	var2rs_path = '/mnt/var/cojo/snps.csv'
 	bfiles = '/mnt/var/cojo/bfiles'
 	finemap_dir = '/mnt/var/cojo/finemapping'
-	config_file = f'{finemap_dir}/analysis.config.yaml'
+	config_file = f'{finemap_dir}/only_cojo.config.yaml'
 	out_path = f'{s3_out}/out/cojo/staging/{args.phenotype}/ancestry={args.ancestry}' 
 
 	# read all files in the clump path
