@@ -27,7 +27,8 @@ class MakeFinemap(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-finemap.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-finemap.sh"))),
+    stepConcurrency = 4
   )
 
   override def make(output: String): Job = {
