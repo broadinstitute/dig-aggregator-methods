@@ -92,12 +92,13 @@ def get_chromosome_overlap(credible_set_data, region_data):
         else:
             pos, pp, cs_id, p_value, var_id = cs
             if cs_id not in overlap:
-                overlap[cs_id] = (0.0, 0, p_value, var_id)
-            curr_pp, curr_count, min_p_value, min_var_id = overlap[cs_id]
+                overlap[cs_id] = (0.0, 0, p_value, var_id, {var_id})
+            curr_pp, curr_count, min_p_value, min_var_id, var_ids = overlap[cs_id]
+            var_ids |= {var_id}
             if p_value < min_p_value:
-                overlap[cs_id] = (curr_pp + pp, curr_count + 1, p_value, var_id)
+                overlap[cs_id] = (curr_pp + pp, curr_count + 1, p_value, var_id, var_ids)
             else:
-                overlap[cs_id] = (curr_pp + pp, curr_count + 1, min_p_value, min_var_id)
+                overlap[cs_id] = (curr_pp + pp, curr_count + 1, min_p_value, min_var_id, var_ids)
             curr_cs += 1
     return overlap
 
@@ -131,7 +132,7 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
     with open(tmp_file, 'w') as f:
         for credible_set_id, data in overlap.items():
             cs_data = credible_set_data[credible_set_id]
-            for (project, annotation, tissue, biosample), (pp, count, min_p_value, min_var_id) in data.items():
+            for (project, annotation, tissue, biosample), (pp, count, min_p_value, min_var_id, var_ids) in data.items():
                 annot_size = annotation_sizes[(project, annotation, tissue, biosample)]
                 biosample_str = 'null' if biosample is None else f'"{biosample}"'
                 pp = max(min(pp, 1.0), 0.0)
@@ -146,7 +147,8 @@ def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_siz
                         f'"posteriorProbability": {pp}, '
                         f'"minOverlapPValue": {min_p_value if min_p_value is not None else "null"}, '
                         f'"leadSNPPValue": {cs_data["leadSNPPValue"]}, '
-                        f'"varOverlap": {count}, "varTotal": {cs_data["varTotal"]}, "annot_bp": {annot_size}}}\n')
+                        f'"varOverlap": {count}, "varTotal": {cs_data["varTotal"]}, '
+                        f'"overlapVariants": "{";".join(var_ids)}", "annot_bp": {annot_size}}}\n')
     subprocess.check_call(['touch', '_SUCCESS'])
 
     # Copy and then remove all data generated in this step
