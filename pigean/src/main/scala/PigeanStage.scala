@@ -8,8 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class PigeanStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val sigmaPowers = Seq(2)
-  val geneSetSizes = Seq("small", "large")
+  val geneSetSizes = Seq("small", "large", "cfde")
 
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
@@ -18,22 +17,24 @@ class PigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 10
   )
 
-  val sumstats: Input.Source = Input.Source.Success("out/pigean/inputs/sumstats/*/")
+  val inputs: Input.Source = Input.Source.Success("out/pigean/inputs/*/*/*/")
 
-  override val sources: Seq[Input.Source] = Seq(sumstats)
+  override val sources: Seq[Input.Source] = Seq(inputs)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case sumstats(phenotype) => Outputs.Named(sigmaPowers.flatMap { sigmaPower =>
-        geneSetSizes.map { geneSetSize =>
-          s"$phenotype/$sigmaPower/$geneSetSize"
-        }
+    case inputs(traitType, traitGroup, phenotype) => Outputs.Named(geneSetSizes.map { geneSetSize =>
+        s"$traitType/$traitGroup/$phenotype/$geneSetSize"
       }: _*)
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(phenotype, sigmaPower, geneSetSize) =>
-        Seq(s"--phenotype=$phenotype", s"--sigma=$sigmaPower", s"--gene-set-size=$geneSetSize")
+      case Seq(traitType, traitGroup, phenotype, geneSetSize) =>
+        Seq(
+          s"--trait-type=$traitType",
+          s"--trait-group=$traitGroup",
+          s"--phenotype=$phenotype",
+          s"--gene-set-size=$geneSetSize")
     }
     new Job(Job.Script(resourceUri("runPigean.py"), flags:_*))
   }
