@@ -8,7 +8,7 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 size_sorting = {
-    'gene_set_list_mouse.txt': ['small', 'large'],
+    'gene_set_list_mouse_2024.txt': ['small', 'large'],
     'gene_set_list_msigdb_nohp.txt': ['small', 'large'],
     'gene_set_list_string_notext_medium_processed.txt': ['large'],
     'gene_set_list_pops_sparse_small.txt': ['large'],
