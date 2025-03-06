@@ -16,8 +16,8 @@ def download_gwas_catalog():
 
 
 def get_mapped_trait(data_dict):
-    trait = data_dict['DISEASE/TRAIT'].strip().replace(',', ';')
-    mapped_trait = data_dict['MAPPED_TRAIT'].strip().replace(',', ';')
+    trait = data_dict['DISEASE/TRAIT'].strip().replace(',', ';').replace('"', '\'')
+    mapped_trait = data_dict['MAPPED_TRAIT'].strip().replace(',', ';').replace('"', '\'')
     if mapped_trait == '':
         mapped_trait = trait
     return mapped_trait
