@@ -8,16 +8,16 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 size_sorting = {
-    'gene_set_list_mouse.txt': ['small', 'medium', 'large'],
-    'gene_set_list_msigdb_nohp.txt': ['small', 'medium', 'large'],
-    'gene_set_list_string_notext_medium_processed.txt': ['medium', 'large'],
-    'gene_set_list_pops_sparse_small.txt': ['medium', 'large'],
+    'gene_set_list_mouse.txt': ['small', 'large'],
+    'gene_set_list_msigdb_nohp.txt': ['small', 'large'],
+    'gene_set_list_string_notext_medium_processed.txt': ['large'],
+    'gene_set_list_pops_sparse_small.txt': ['large'],
     'gene_set_list_mesh_processed.txt': ['large']
 }
 
 
 def download_data(phenotype):
-    file_path = f'{s3_in}/out/pigean/sumstats/{phenotype}/{phenotype}.sumstats.gz'
+    file_path = f'{s3_in}/out/pigean/inputs/sumstats/{phenotype}/{phenotype}.sumstats.gz'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
 

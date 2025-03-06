@@ -8,8 +8,8 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class PigeanStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val sigmaPowers = Seq(2, 4)
-  val geneSetSizes = Seq("small", "medium", "large")
+  val sigmaPowers = Seq(2)
+  val geneSetSizes = Seq("small", "large")
 
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
@@ -18,7 +18,7 @@ class PigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 10
   )
 
-  val sumstats: Input.Source = Input.Source.Success("out/pigean/sumstats/*/")
+  val sumstats: Input.Source = Input.Source.Success("out/pigean/inputs/sumstats/*/")
 
   override val sources: Seq[Input.Source] = Seq(sumstats)
 

@@ -22,6 +22,7 @@ object Pigean extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
+    addStage(new OrphanetIntakeStage)
     addStage(new MakeSumstatsStage)
     addStage(new PigeanStage)
     addStage(new TranslatePigeanStage)
