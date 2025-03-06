@@ -23,6 +23,7 @@ object Pigean extends Method {
     */
   override def initStages(implicit context: Context) = {
     addStage(new OrphanetIntakeStage)
+    addStage(new GcatIntakeStage)
     addStage(new MakeSumstatsStage)
     addStage(new PigeanStage)
     addStage(new TranslatePigeanStage)
