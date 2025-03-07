@@ -73,7 +73,9 @@ def gene_set_source(spark):
     source_partition = Window.partitionBy('source').orderBy(col('beta_uncorrected').desc())
     source_df = df.withColumn('rank', rank().over(source_partition))
     source_df = source_df.filter(source_df.rank <= 1000).drop('rank')
-    source_df = source_df.withColumn('source_index', lit('all'))
+    source_df = source_df.withColumn('source_index', lit('all')) \
+        .filter(source_df.source != 'gene_set_list_msigdb_nohp') \
+        .filter(source_df.source != 'gene_set_list_mouse_2024')
     df = df.union(source_df)
 
     df.orderBy(col('source_index'), col('gene_set_size'), col('beta_uncorrected').desc()) \
