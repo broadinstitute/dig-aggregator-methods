@@ -36,8 +36,8 @@ class OpenAPIKey:
         return self.config['apiKey']
 
 
-def download_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
+def download_data(trait_group, phenotype, gene_set_size):
+    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gs.out', '.'])
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', '.'])
 
@@ -82,8 +82,8 @@ def success(file_path):
     os.remove('_SUCCESS')
 
 
-def upload_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/'
+def upload_data(trait_group, phenotype, gene_set_size):
+    file_path = f'{s3_out}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}/'
     for file in ['f.out', 'gc.out', 'gsc.out']:
         subprocess.check_call(['aws', 's3', 'cp', file, file_path])
         os.remove(file)
@@ -96,17 +96,15 @@ def main():
                         help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
-    parser.add_argument('--sigma', default=None, required=True, type=str,
-                        help="Sigma power (0, 2, 4).")
     parser.add_argument('--gene-set-size', default=None, required=True, type=str,
                         help="gene-set-size (small, medium, or large).")
     args = parser.parse_args()
 
     open_api_key = OpenAPIKey().get_key()
-    download_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
+    download_data(args.trait_group, args.phenotype, args.gene_set_size)
     try:
         run_factor(args.gene_set_size, open_api_key)
-        upload_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
+        upload_data(args.trait_group, args.phenotype, args.gene_set_size)
     except Exception:
         print('Error')
     os.remove('gs.out')

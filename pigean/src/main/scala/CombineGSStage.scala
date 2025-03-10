@@ -11,12 +11,12 @@ class CombineGSStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(_, _, _, _) => Outputs.Named("combine")
+    case pigean(_, _, _) => Outputs.Named("combine")
   }
 
   override def make(output: String): Job = {
