@@ -23,7 +23,7 @@ ANCESTRY_MAP = {
     'GME': 'SAS',
     'Mixed': 'EUR'
 }
-downloaded_data = '.'
+downloaded_data = '/mnt/var/metaanalysis'
 
 
 def download_data(phenotype):
