@@ -28,6 +28,7 @@ object BottomLine extends Method {
     addStage(new TransEthnicStage)
     addStage(new LoadTransEthnicStage)
     addStage(new RandomEffectsStage)
+    addStage(new MetasoftStage)
     addStage(new MinPStage)
     addStage(new MinPTransEthnicStage)
     addStage(new NaiveStage)
