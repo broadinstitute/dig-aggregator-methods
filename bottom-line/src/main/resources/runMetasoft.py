@@ -58,7 +58,8 @@ def get_var_map(ancestry):
         with open(file, 'r') as f:
             for line in f:
                 varId, beta, stdErr = line.strip().split('\t')
-                var_map[varId] = (beta, stdErr)
+                if float(stdErr) > 0.0:
+                    var_map[varId] = (beta, stdErr)
     return var_map
 
 
