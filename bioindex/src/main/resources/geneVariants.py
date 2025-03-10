@@ -22,7 +22,7 @@ def main():
     common_dir = f'{s3_in}/out/varianteffect/variant_counts/common/part-*'
 
     # where to write the output to
-    outdir = f'{s3_bioindex}/variants/gene'
+    outdir = f'{s3_bioindex}/variants/{{}}'
 
     # load all the variant counts
     variants = spark.read.json(variants_dir)
@@ -72,7 +72,13 @@ def main():
     df.orderBy(['gene']) \
         .write \
         .mode('overwrite') \
-        .json(outdir)
+        .json(outdir.format('gene'))
+
+    # index by position
+    df.orderBy(['chromosome', 'position']) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('position'))
 
     # done
     spark.stop()
