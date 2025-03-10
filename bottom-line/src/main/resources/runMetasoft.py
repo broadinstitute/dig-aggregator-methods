@@ -81,7 +81,7 @@ def run_metasoft():
 
 
 def upload_data(phenotype):
-    path_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/random-effects/{phenotype}/'
+    path_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/metasoft/{phenotype}/'
     subprocess.check_call('zstd --rm ./tmp_files/Metasoft.tbl', shell=True)
     subprocess.check_call(f'aws s3 cp ./tmp_files/Metasoft.tbl.zst {path_out}', shell=True)
     subprocess.check_call('touch ./tmp_files/_SUCCESS', shell=True)
@@ -94,14 +94,14 @@ def main():
     opts.add_argument('--phenotype')
     args = opts.parse_args()
 
-    # ancestries = download_data(args.phenotype)
-    # var_map = {}
-    # for ancestry in ancestries:
-    #     process_files(ancestry)
-    #     var_map[ancestry] = get_var_map(ancestry)
-    # make_input(var_map)
+    ancestries = download_data(args.phenotype)
+    var_map = {}
+    for ancestry in ancestries:
+        process_files(ancestry)
+        var_map[ancestry] = get_var_map(ancestry)
+    make_input(var_map)
     run_metasoft()
-    #upload_data(args.phenotype)
+    upload_data(args.phenotype)
 
 
 if __name__ == '__main__':
