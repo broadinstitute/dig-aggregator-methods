@@ -41,16 +41,16 @@ def convert(file):
 
 def convert_all_data():
     with Pool(cpus) as p:
-        p.map(convert, glob.glob('data/*/*/*/*/gs.out'))
+        p.map(convert, glob.glob('data/*/*/*/gs.out'))
 
 
-def combine(sigma, gene_set_size):
+def combine(gene_set_size):
     if not os.path.exists('out'):
         os.mkdir('out')
-    all_files = glob.glob(f'data/*/*/sigma={sigma}/size={gene_set_size}/gs.tsv')
+    all_files = glob.glob(f'data/*/*/{gene_set_size}/gs.tsv')
     groups = len(all_files) // 1000 + 1
     for group in range(groups):
-        with open(f'out/gs_{sigma}_{gene_set_size}_{group}.tsv', 'w') as f_out:
+        with open(f'out/gs_{gene_set_size}_{group}.tsv', 'w') as f_out:
             f_out.write('trait\tgene\tcombined\thuge\tlog_bf\n')
             for file in all_files[group*1000:(group+1)*1000]:
                 with open(file, 'r') as f_in:
@@ -58,11 +58,11 @@ def combine(sigma, gene_set_size):
 
 
 def combine_all():
-    sigma_sizes = set()
-    for file in glob.glob('data/*/*/*/*/gs.tsv'):
-        sigma_sizes |= {re.findall('data/.*/.*/sigma=([^/]*)/size=([^/]*)/gs.tsv', file)[0]}
-    for sigma, gene_set_size in sigma_sizes:
-        combine(sigma, gene_set_size)
+    sizes = set()
+    for file in glob.glob('data/*/*/*/gs.tsv'):
+        sizes |= {re.findall('data/.*/.*/([^/]*)/gs.tsv', file)[0]}
+    for gene_set_size in sizes:
+        combine(gene_set_size)
     shutil.rmtree('data')
 
 
