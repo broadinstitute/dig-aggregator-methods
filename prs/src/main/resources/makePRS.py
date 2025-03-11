@@ -101,7 +101,7 @@ def run_prscsx_by_chrom(chromosomes, ref_dir,bim_prefix, sum_stat,out_dir, out_n
         chrom_str = str(chrom)
         sst_file = f"{sum_stat}.chr{chrom}.sumstats.txt"  # Adjust prefix if needed
         command = [
-            "python3", "prscsx/PRScsx.py",
+            "python3", "/mnt/var/prs/prscsx/PRScsx.py",
             f"--ref_dir={ref_dir}",
             f"--bim_prefix={bim_prefix}.{chrom}",
             f"--sst_file={sst_file}",
