@@ -135,7 +135,7 @@ def main():
     output_prefix = f"{input_full_path}/input"
     ref_dir = "/mnt/var/prs/ref_info"
     bim_prefix = f"{bfiles}/1000G.EUR.QC"
-    out_dir = out_path
+    out_dir = f"{input_full_path}/out"
     out_name = "out"
     pop = "EUR"
     phi = "1e-02"
@@ -156,6 +156,11 @@ def main():
     combined_filename = f"{out_name}.combined.txt"
     combine_results(chromosomes, out_dir, out_name, combined_filename)
 
+    subprocess.check_call(['touch', f'{out_dir}/_SUCCESS'])   
+    subprocess.check_call(['aws', 's3', 'cp', f'{out_dir}/', out_path, '--recursive'])
+    safe_remove('input/input.json')
+    shutil.rmtree('input')
+    shutil.rmtree(out_directory)
 
 if __name__ == "__main__":
     main()
