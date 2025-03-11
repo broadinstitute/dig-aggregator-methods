@@ -6,12 +6,13 @@ import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class RandomEffectsStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
 
   val ancestrySpecific: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/")
 
   // NOTE: If jobs report a mem_alloc issue bump the instance memory. For disk space errors increase the volume size
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.memoryOptimized(),
+    masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
     instances = 1,
     applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("random-effects-bootstrap.sh")))

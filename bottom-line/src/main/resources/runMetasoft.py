@@ -11,7 +11,7 @@ import subprocess
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-CPUS = 8
+CPUS = 16
 ANCESTRY_MAP = {
     'AA': 'AFR',
     'AF': 'AFR',
