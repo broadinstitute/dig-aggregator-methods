@@ -116,7 +116,7 @@ def combine_results(chromosomes, out_dir, out_name, combined_filename):
     print(f"Combined results written to {combined_path}")
 
 def main():
-    sage = "usage: %prog [options]"
+    usage = "usage: %prog [options]"
     parser = OptionParser(usage)
     parser.add_option("", "--phenotype", default=None)
     parser.add_option("", "--ancestry", default=None)
