@@ -160,7 +160,7 @@ def main():
     subprocess.check_call(['aws', 's3', 'cp', f'{out_dir}/', out_path, '--recursive'])
     safe_remove('input/input.json')
     shutil.rmtree('input')
-    shutil.rmtree(out_directory)
+    shutil.rmtree(out_dir)
 
 if __name__ == "__main__":
     main()
