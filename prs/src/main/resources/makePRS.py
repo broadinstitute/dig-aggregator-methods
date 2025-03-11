@@ -14,6 +14,17 @@ def make_json_files(directory):
     subprocess.check_call(['aws', 's3', 'cp', directory, 'input/', '--recursive'])
     subprocess.run("zstdcat input/*.json.zst | jq -c '.' > input/input.json", shell=True)
 
+def safe_remove(file_path):
+    try:
+        os.remove(file_path)
+        print(f"File {file_path} successfully removed.")
+    except FileNotFoundError:
+        print(f"File {file_path} does not exist.")
+    except PermissionError:
+        print(f"Permission denied: cannot remove {file_path}.")
+    except Exception as e:
+        print(f"An error occurred while trying to remove {file_path}: {e}")
+
 def process_json_file(input_file, output_prefix):
     max_n = 0
     file_handles = {}
