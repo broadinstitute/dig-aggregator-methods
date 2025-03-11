@@ -121,6 +121,8 @@ def main():
     parser.add_option("", "--phenotype", default=None)
     parser.add_option("", "--ancestry", default=None)
 
+    (args,_) = parser.parse_args()
+
     pheno_path = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
     bfiles = '/mnt/var/prs/bfiles'
     out_path = f'{s3_out}/out/prs/staging/{args.phenotype}/ancestry={args.ancestry}' 
