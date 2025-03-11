@@ -28,7 +28,7 @@ def safe_remove(file_path):
 def load_snp_mapping(snp_file):
     mapping = {}
     with open(snp_file, 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
+        reader = csv.DictReader(csvfile,delimiter='\t')
         for row in reader:
             mapping[row['varId']] = row['dbSNP']
     return mapping
