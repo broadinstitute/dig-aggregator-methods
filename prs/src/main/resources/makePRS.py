@@ -153,7 +153,7 @@ def main():
     input_full_path = os.path.abspath('input')
 
     json_file = f"{input_full_path}/input.json"
-    var2rs_path = '/mnt/var/cojo/snps.csv'
+    var2rs_path = '/mnt/var/prs/snps.csv'
     output_prefix = f"{input_full_path}/input"
     ref_dir = "/mnt/var/prs/ref_info"
     bim_prefix = f"{bfiles}/1000G.EUR.QC"
