@@ -31,6 +31,10 @@ sudo aws s3 cp s3://dig-analysis-bin/prs/prscsx/ ./prscsx/ --recursive
 sudo mkdir -p ./ref_info
 sudo aws s3 cp s3://dig-analysis-bin/prs/ref_info/ ./ref_info/ --recursive
 
+# fetch snps for mapping
+sudo aws s3 cp "s3://dig-analysis-bin/snps/dbSNP_common_GRCh37.csv" ./snps.csv
+
+
 # install python dependencies
 pip3 install -U pandas
 pip3 install -U dask
@@ -43,4 +47,4 @@ pip3 install -U jq
 # Install JRE
 sudo yum install -y java-1.8.0-openjdk-devel
 
-echo "Setup completed successfully. The 'finemap' environment is ready to use."  
+echo "Setup completed successfully. The 'PRScsx' environment is ready to use."  

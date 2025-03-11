@@ -25,7 +25,15 @@ def safe_remove(file_path):
     except Exception as e:
         print(f"An error occurred while trying to remove {file_path}: {e}")
 
-def process_json_file(input_file, output_prefix):
+def load_snp_mapping(snp_file):
+    mapping = {}
+    with open(snp_file, 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            mapping[row['varId']] = row['dbSNP']
+    return mapping
+
+def process_json_file(input_file, output_prefix,snp_mapping):
     max_n = 0
     file_handles = {}
     csv_writers = {} 
@@ -66,8 +74,10 @@ def process_json_file(input_file, output_prefix):
             # Rename and write the record for PRScsx:
             # "varId" -> "SNP", "alt" -> "A1", "reference" -> "A2",
             # "beta" -> "BETA", "pValue" -> "P", "n" -> "N"
+            varid = record.get("varId")
+            rsid = snp_mapping.get(varid, varid)
             new_record = {
-                "SNP": record.get("varId"),
+                "SNP": rsid,
                 "A1": record.get("alt"),
                 "A2": record.get("reference"),
                 "BETA": record.get("beta"),
@@ -143,6 +153,7 @@ def main():
     input_full_path = os.path.abspath('input')
 
     json_file = f"{input_full_path}/input.json"
+    var2rs_path = '/mnt/var/cojo/snps.csv'
     output_prefix = f"{input_full_path}/input"
     ref_dir = "/mnt/var/prs/ref_info"
     bim_prefix = f"{bfiles}/1000G.EUR.QC"
@@ -155,7 +166,8 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     
     # Step 1: Process the JSON file once to compute max_n and split by chromosome.
-    max_n, chromosomes = process_json_file(json_file, output_prefix)
+    snp_mapping = load_snp_mapping(var2rs_path)
+    max_n, chromosomes = process_json_file(json_file, output_prefix,snp_mapping)
     n_gwas = str(max_n)
     print(f"Maximum sample size (n_gwas) found: {n_gwas}")
     print(f"Chromosomes processed: {chromosomes}")
