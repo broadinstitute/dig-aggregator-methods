@@ -44,7 +44,6 @@ pip3 install -U numpy
 pip3 install -U pyspark
 pip3 install -U jq
 pip3 install -U h5py
-pip3 install -U math
 
 # Install JRE
 sudo yum install -y java-1.8.0-openjdk-devel
