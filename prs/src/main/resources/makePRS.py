@@ -3,7 +3,7 @@ from optparse import OptionParser
 import shutil
 import subprocess
 import os
-
+import concurrent.futures
 import json
 import csv
 
@@ -115,6 +115,46 @@ def run_prscsx_by_chrom(chromosomes, ref_dir,bim_prefix, sum_stat,out_dir, out_n
         print(f"Running PRScsx for chromosome {chrom} with command:\n{' '.join(command)}")
         subprocess.call(command)
 
+def run_prscsx_for_single_chrom(chrom, ref_dir, bim_prefix, sum_stat, out_dir, out_name, n_gwas, pop, phi="1e-02"):
+    """
+    Build and execute the PRScsx command for a single chromosome.
+    """
+    chrom_str = str(chrom)
+    n_gwas_str = str(n_gwas) if not isinstance(n_gwas, str) else n_gwas
+    pop_str = pop if isinstance(pop, str) else ','.join(pop)
+    sst_file = f"{sum_stat}.chr{chrom}.sumstats.txt"  # Adjust prefix if needed
+    command = [
+        "python3", "/mnt/var/prs/prscsx/PRScsx.py",
+        f"--ref_dir={ref_dir}",
+        f"--bim_prefix={bim_prefix}.{chrom}",
+        f"--sst_file={sst_file}",
+        f"--n_gwas={n_gwas_str}",
+        f"--pop={pop_str}",
+        f"--chrom={chrom_str}",
+        f"--phi={phi}",
+        f"--out_dir={out_dir}",
+        f"--out_name={out_name}.chr{chrom}",
+    ]
+    print(f"Running PRScsx for chromosome {chrom} with command:\n{' '.join(command)}")
+    subprocess.call(command)
+
+def run_all_chromosomes_parallel(chromosomes, ref_dir, bim_prefix, sum_stat, out_dir, out_name, n_gwas, pop, phi="1e-02", max_workers=4):
+    """
+    Run PRScsx for all chromosomes in parallel using ProcessPoolExecutor.
+    """
+    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = []
+        for chrom in chromosomes:
+            futures.append(
+                executor.submit(run_prscsx_for_single_chrom,
+                                chrom, ref_dir, bim_prefix, sum_stat, out_dir, out_name, n_gwas, pop, phi)
+            )
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"Chromosome job failed: {e}")
+
 def combine_results(chromosomes, out_dir, out_name, combined_filename):
 
     combined_path = os.path.join(out_dir, combined_filename)
@@ -173,7 +213,10 @@ def main():
     print(f"Chromosomes processed: {chromosomes}")
     
     # Step 2: Run PRScsx for each chromosome
-    run_prscsx_by_chrom(chromosomes, ref_dir, bim_prefix,output_prefix,out_dir, out_name, n_gwas, pop, phi)
+    # run_prscsx_by_chrom(chromosomes, ref_dir, bim_prefix,output_prefix,out_dir, out_name, n_gwas, pop, phi)
+    run_all_chromosomes_parallel(chromosomes, ref_dir, bim_prefix, output_prefix, 
+                                out_dir, out_name, n_gwas, pop, phi, 
+                                max_workers= os.cpu_count())
     
     # Step 3: Combine the per-chromosome PRScsx results into a single file
     combined_filename = f"{out_name}.combined.txt"
