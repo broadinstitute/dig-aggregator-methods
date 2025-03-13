@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.emr._
   * outputs are to the dig-bio-index bucket in S3.
   */
 class TranscriptionsStage(implicit context: Context) extends Stage {
-  val effects = Input.Source.Success("out/varianteffect/variants/cqs/")
+  val effects = Input.Source.Success("out/varianteffect/variant_counts/cqs/")
   val motifs  = Input.Source.Dataset("transcription_factors/")
 
   /** Use memory-optimized machine with sizeable disk space for shuffling. */
