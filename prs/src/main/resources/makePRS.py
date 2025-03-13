@@ -213,10 +213,10 @@ def main():
     print(f"Chromosomes processed: {chromosomes}")
     
     # Step 2: Run PRScsx for each chromosome
-    # run_prscsx_by_chrom(chromosomes, ref_dir, bim_prefix,output_prefix,out_dir, out_name, n_gwas, pop, phi)
-    run_all_chromosomes_parallel(chromosomes, ref_dir, bim_prefix, output_prefix, 
-                                out_dir, out_name, n_gwas, pop, phi, 
-                                max_workers= os.cpu_count())
+    run_prscsx_by_chrom(chromosomes, ref_dir, bim_prefix,output_prefix,out_dir, out_name, n_gwas, pop, phi)
+    # run_all_chromosomes_parallel(chromosomes, ref_dir, bim_prefix, output_prefix, 
+    #                             out_dir, out_name, n_gwas, pop, phi, 
+    #                             max_workers= os.cpu_count())
     
     # Step 3: Combine the per-chromosome PRScsx results into a single file
     combined_filename = f"{out_name}.combined.txt"
