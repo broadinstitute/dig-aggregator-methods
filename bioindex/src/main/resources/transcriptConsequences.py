@@ -12,7 +12,7 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # source and output directories
-    srcdir = f'{s3_in}/out/varianteffect/variants/cqs/*.json.zst'
+    srcdir = f'{s3_in}/out/varianteffect/variant_counts/cqs/*.json.zst'
     outdir = f'{s3_bioindex}/transcript_consequences'
 
     # load the common effect data
