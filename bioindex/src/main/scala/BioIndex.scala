@@ -40,7 +40,7 @@ object BioIndex extends Method {
     addStage(new AssociationsPlotStage)
     addStage(new TopAssociationsStage)
 //    addStage(new PhewasAssociationsStage)
-//    addStage(new DatasetAssociationsStage)
+    addStage(new DatasetAssociationsStage)
     addStage(new DatasetAssociationsPlotStage)
 //    addStage(new VariantAssociationsStage)
     addStage(new GeneAssociationsStage)
