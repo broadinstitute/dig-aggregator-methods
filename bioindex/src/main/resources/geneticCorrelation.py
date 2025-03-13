@@ -14,7 +14,7 @@ def process_datasets(spark):
     df = spark.read.json(srcdir)
 
     # filter out all entries with pValue >= 0.05
-    df = df[df['pValue'] < 0.05]
+    df = df[df['project'] == 'cancer']
 
     # Set min pValue to smalled numpy 64-bit value
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))
