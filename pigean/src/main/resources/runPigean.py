@@ -26,6 +26,8 @@ def file_name(trait_type):
         return 'pigean.sumstats.gz'
     elif trait_type == 'gene_lists':
         return 'gene_list.tsv'
+    elif trait_type == 'exomes':
+        return 'exomes.sumstats.gz'
     else:
         raise ValueError(f'Invalid trait_type: {trait_type}')
 
@@ -64,6 +66,13 @@ def trait_type_command(trait_type):
             '--positive-controls-all-no-header', 'True',
             '--positive-controls-all-id-col', '1'
         ]
+    elif trait_type == 'exomes':
+        return [
+            '--exomes-in', file_name(trait_type),
+             '--exomes-gene-col', 'Gene',
+             '--exomes-p-col', 'P-value',
+             '--exomes-beta-col', 'Effect'
+        ]
 
 base_cmd = [
     'python3', f'{downloaded_files}/priors.py', 'gibbs',
@@ -77,9 +86,6 @@ base_cmd = [
     '--background-prior', '0.05',
     '--filter-gene-set-p', '0.005',
     '--max-num-gene-sets', '4000',
-    '--exomes-gene-col', 'Gene',
-    '--exomes-p-col', 'P-value',
-    '--exomes-beta-col', 'Effect',
     '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
     '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
     '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
@@ -106,8 +112,11 @@ def upload(file_name, file_path):
         subprocess.check_call(['aws', 's3', 'cp', file_name, file_path])
         os.remove(file_name)
 
-def upload_data(trait_group, phenotype, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
+def upload_data(trait_type, trait_group, phenotype, gene_set_size):
+    if trait_type == 'exomes':
+        file_path = f'{s3_out}/out/pigean/staging/pigean_exomes/{trait_group}/{phenotype}/{gene_set_size}/'
+    else:
+        file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
     upload('gs.out', file_path)
     upload('gss.out', file_path)
     upload('ggss.out', file_path)
@@ -129,7 +138,7 @@ def main():
     download_data(args.trait_type, args.trait_group, args.phenotype)
     try:
         run_pigean(args.trait_type, args.gene_set_size)
-        upload_data(args.trait_group, args.phenotype, args.gene_set_size)
+        upload_data(args.trait_type, args.trait_group, args.phenotype, args.gene_set_size)
         os.remove(file_name(args.trait_type))
     except:
         print('ERROR')
