@@ -12,7 +12,7 @@ class MetasoftStage(implicit context: Context) extends Stage {
 
   // NOTE: If jobs report a mem_alloc issue bump the instance memory. For disk space errors increase the volume size
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
+    masterInstanceType = Strategy.memoryOptimized(),
     instances = 1,
     applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("metasoft-bootstrap.sh")))

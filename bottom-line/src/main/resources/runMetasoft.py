@@ -11,7 +11,7 @@ import subprocess
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-CPUS = 16
+CPUS = 8
 ANCESTRY_MAP = {
     'AA': 'AFR',
     'AF': 'AFR',
@@ -60,6 +60,7 @@ def get_var_map(ancestry):
                 varId, beta, stdErr = line.strip().split('\t')
                 if float(stdErr) > 0.0:
                     var_map[varId] = (beta, stdErr)
+        os.remove(file)
     return var_map
 
 
@@ -68,17 +69,51 @@ def make_input(var_maps):
     for var_map in var_maps.values():
         all_keys |= var_map.keys()
     ancestries = list(var_maps.keys())
-    with open('./tmp_files/Metasoft.in', 'w') as f:
-        for varId in all_keys:
-            values = '\t'.join(['{}\t{}'.format(*var_maps[ancestry].get(varId, ('NA', 'NA'))) for ancestry in ancestries])
-            f.write(f'{varId}\t{values}\n')
+    idx = 0
+    count = 0
+    f = open(f'./tmp_files/Metasoft_{idx}.in', 'w')
+    for varId in all_keys:
+        count += 1
+        values = '\t'.join(['{}\t{}'.format(*var_maps[ancestry].get(varId, ('NA', 'NA'))) for ancestry in ancestries])
+        f.write(f'{varId}\t{values}\n')
+        if count % 1000000 == 0:
+            idx += 1
+            f.close()
+            f = open(f'./tmp_files/Metasoft_{idx}.in', 'w')
+    f.close()
 
 
-def run_metasoft():
+def process_input(ancestries):
+    var_map = {}
+    for ancestry in ancestries:
+        process_files(ancestry)
+        var_map[ancestry] = get_var_map(ancestry)
+    make_input(var_map)
+
+
+def run_metasoft(file):
+    base, ext = os.path.splitext(file)
     subprocess.check_call(f'java -jar {downloaded_data}/Metasoft/Metasoft.jar '
                           f'-pvalue_table {downloaded_data}/Metasoft/HanEskinPvalueTable.txt '
-                          '-input ./tmp_files/Metasoft.in  '
-                          '-output ./tmp_files/Metasoft.tbl', shell=True)
+                          f'-input {file}  '
+                          f'-output {base}.tbl', shell=True)
+    os.remove(file)
+
+
+def run_metasoft_parallel():
+    with Pool(CPUS) as p:
+        p.map(run_metasoft, glob.glob(f'./tmp_files/Metasoft_*.in'))
+
+
+def combine():
+    with open('./tmp_files/Metasoft.tbl', 'w') as f_out:
+        with open('./tmp_files/Metasoft_0.tbl', 'r') as f_in:
+            f_out.write(f_in.readline())
+        for file in glob.glob(f'./tmp_files/Metasoft_*.tbl'):
+            with open(file, 'r') as f:
+                _ = f.readline() # header
+                for line in f:
+                    f_out.write(line)
 
 
 def upload_data(phenotype):
@@ -87,7 +122,6 @@ def upload_data(phenotype):
     subprocess.check_call(f'aws s3 cp ./tmp_files/Metasoft.tbl.zst {path_out}', shell=True)
     subprocess.check_call('touch ./tmp_files/_SUCCESS', shell=True)
     subprocess.check_call(f'aws s3 cp ./tmp_files/_SUCCESS {path_out}', shell=True)
-    shutil.rmtree('./tmp_files')
 
 
 def main():
@@ -96,13 +130,12 @@ def main():
     args = opts.parse_args()
 
     ancestries = download_data(args.phenotype)
-    var_map = {}
-    for ancestry in ancestries:
-        process_files(ancestry)
-        var_map[ancestry] = get_var_map(ancestry)
-    make_input(var_map)
-    run_metasoft()
-    upload_data(args.phenotype)
+    if len(ancestries) > 1:
+        process_input(ancestries)
+        run_metasoft_parallel()
+        combine()
+        upload_data(args.phenotype)
+    shutil.rmtree('./tmp_files')
 
 
 if __name__ == '__main__':
