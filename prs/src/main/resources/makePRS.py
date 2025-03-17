@@ -200,7 +200,7 @@ def main():
     out_dir = f"{input_full_path}/out"
     out_name = "out"
     pop = "EUR"
-    phi = "1e-02"
+    phi = "1" #"1e-02"
 
     # Ensure output directory exists
     os.makedirs(out_dir, exist_ok=True)
