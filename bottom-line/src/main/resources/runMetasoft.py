@@ -64,6 +64,17 @@ def get_var_map(ancestry):
     return var_map
 
 
+def valid_line(var_maps, varId, ancestries):
+    beta_stdErrs = [var_maps[ancestry][varId] for ancestry in ancestries if varId in var_maps[ancestry]]
+    if len(beta_stdErrs) == 2:
+        beta_1, stdErr_1 = map(float, beta_stdErrs[0])
+        beta_2, stdErr_2 = map(float, beta_stdErrs[1])
+        beta_diff = abs(beta_1 - beta_2) / 2
+        if beta_diff == stdErr_1 and beta_diff == stdErr_2:
+            return False
+    return True
+
+
 def make_input(var_maps):
     all_keys = set()
     for var_map in var_maps.values():
@@ -75,11 +86,14 @@ def make_input(var_maps):
     for varId in all_keys:
         count += 1
         values = '\t'.join(['{}\t{}'.format(*var_maps[ancestry].get(varId, ('NA', 'NA'))) for ancestry in ancestries])
-        f.write(f'{varId}\t{values}\n')
-        if count % 1000000 == 0:
-            idx += 1
-            f.close()
-            f = open(f'./tmp_files/Metasoft_{idx}.in', 'w')
+        if valid_line(var_maps, varId, ancestries):
+            f.write(f'{varId}\t{values}\n')
+            if count % 1000000 == 0:
+                idx += 1
+                f.close()
+                f = open(f'./tmp_files/Metasoft_{idx}.in', 'w')
+        else:
+            print('Skipping line: ', f'{varId}\t{values}')
     f.close()
 
 
