@@ -60,6 +60,8 @@ def process_json_file(input_file, output_prefix,snp_mapping):
             
             # Get the chromosome as a string
             chrom = str(record.get("chromosome"))
+            if chrom == "X" or chrom == "Y":
+                chrom = "23"
             processed_chromosomes.add(chrom)
             
             # If this chromosome hasn't been seen before, open a new file and CSV writer
@@ -157,26 +159,40 @@ def run_all_chromosomes_parallel(chromosomes, ref_dir, bim_prefix, sum_stat, out
             except Exception as e:
                 print(f"Chromosome job failed: {e}")
 
-def combine_results(chromosomes, out_dir, out_name, combined_filename):
 
+def combine_results(chromosomes, out_dir, out_name, combined_filename):
     combined_path = os.path.join(out_dir, combined_filename)
+    column_names = ["chrom", "SNP", "position", "alt", "ref", "posterior_effect"]
     with open(combined_path, 'w', newline='') as outfile:
-        header_written = False
+        # Write the header row once
+        outfile.write("\t".join(column_names) + "\n")
+        all_files = os.listdir(out_dir)
+        matching_files = []
         for chrom in chromosomes:
-            file_path = os.path.join(out_dir, f"{out_name}.chr{chrom}.txt")
+            pattern = f"{out_name}.chr{chrom}_.*\.txt"
+            regex = re.compile(pattern)
+            matching_files += [file for file in all_files if regex.match(file)]
+        for file_name in matching_files:
+            file_path = os.path.join(out_dir, file_name)
+            
             if not os.path.exists(file_path):
                 print(f"Warning: {file_path} not found, skipping.")
                 continue
+            
             with open(file_path, 'r') as infile:
-                lines = infile.readlines()
-                if not lines:
-                    continue
-                if not header_written:
-                    outfile.write(lines[0])
-                    header_written = True
-                outfile.writelines(lines[1:])
-            print(f"Added data from {file_path}")
+                infile.readline()
+                for line in infile:
+                    fields = line.strip().split()
+                    chrom_val = fields[0]
+                    snp = fields[1]
+                    position = fields[2]
+                    alt = fields[3]
+                    ref = fields[4]
+                    posterior_effect = fields[5]
+                    outfile.write(f"{chrom_val}\t{snp}\t{position}\t{alt}\t{ref}\t{posterior_effect}\n")
+            print(f"Added data from {file_path}")    
     print(f"Combined results written to {combined_path}")
+
 
 def main():
     usage = "usage: %prog [options]"
@@ -225,7 +241,7 @@ def main():
     combine_results(chromosomes, out_dir, out_name, combined_filename)
 
     subprocess.check_call(['touch', f'{out_dir}/_SUCCESS'])   
-    subprocess.check_call(['aws', 's3', 'cp', f'{out_dir}/', out_path, '--recursive'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{out_dir}/{out_name}.combined.txt', out_path, '--recursive'])
     safe_remove('input/input.json')
     shutil.rmtree('input')
 
