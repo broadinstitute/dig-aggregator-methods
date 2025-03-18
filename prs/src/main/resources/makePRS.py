@@ -242,7 +242,7 @@ def main():
     combine_results(chromosomes, out_dir, out_name, combined_filename)
 
     subprocess.check_call(['touch', f'{out_dir}/_SUCCESS'])   
-    subprocess.check_call(['aws', 's3', 'cp', f'{out_dir}/{out_name}.combined.txt', out_path])
+    subprocess.check_call(['aws', 's3', 'cp', f'{out_dir}/{out_name}.combined.txt', f'{out_path}/'])
     safe_remove('input/input.json')
     shutil.rmtree('input')
 
