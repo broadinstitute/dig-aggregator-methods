@@ -6,6 +6,7 @@ import os
 import concurrent.futures
 import json
 import csv
+import re
 
 s3_in=os.environ['INPUT_PATH']
 s3_out=os.environ['OUTPUT_PATH']
