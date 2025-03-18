@@ -70,7 +70,7 @@ def valid_line(var_maps, varId, ancestries):
         beta_1, stdErr_1 = map(float, beta_stdErrs[0])
         beta_2, stdErr_2 = map(float, beta_stdErrs[1])
         beta_diff = abs(beta_1 - beta_2) / 2
-        if beta_diff == stdErr_1 and beta_diff == stdErr_2:
+        if abs(beta_diff - stdErr_1) < 1E-8 and abs(beta_diff - stdErr_2) < 1E-8:
             return False
     return True
 
