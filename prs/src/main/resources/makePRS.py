@@ -79,7 +79,7 @@ def process_json_file(input_file, output_prefix,snp_mapping):
             varid = record.get("varId")
             rsid = snp_mapping.get(varid, varid)
             p_value = record.get("pValue")
-            if p_value is not None and p_value < 0.1:
+            if p_value is not None and p_value < 0.05:
                 new_record = {
                     "SNP": rsid,
                     "A1": record.get("alt"),
