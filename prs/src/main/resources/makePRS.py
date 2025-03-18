@@ -76,14 +76,16 @@ def process_json_file(input_file, output_prefix,snp_mapping):
             # "beta" -> "BETA", "pValue" -> "P", "n" -> "N"
             varid = record.get("varId")
             rsid = snp_mapping.get(varid, varid)
-            new_record = {
-                "SNP": rsid,
-                "A1": record.get("alt"),
-                "A2": record.get("reference"),
-                "BETA": record.get("beta"),
-                "P": record.get("pValue"),
-            }
-            csv_writers[chrom].writerow(new_record)
+            p_value = record.get("pValue")
+            if p_value is not None and p_value < 0.01:
+                new_record = {
+                    "SNP": rsid,
+                    "A1": record.get("alt"),
+                    "A2": record.get("reference"),
+                    "BETA": record.get("beta"),
+                    "P": record.get("pValue"),
+                }
+                csv_writers[chrom].writerow(new_record)
     
     # Close all open file handles
     for fh in file_handles.values():
@@ -200,7 +202,7 @@ def main():
     out_dir = f"{input_full_path}/out"
     out_name = "out"
     pop = "EUR"
-    phi = "1" #"1e-02"
+    phi = "1e-02"
 
     # Ensure output directory exists
     os.makedirs(out_dir, exist_ok=True)
