@@ -1,11 +1,11 @@
 {
     "aws": {
-        "project": "bottom-line",
+        "project": "bottom-line-te",
         "input": {
-            "bucket": "bottom-line-paper"
+            "bucket": "bottom-line-paper-te"
         },
         "output": {
-            "bucket": "bottom-line-paper"
+            "bucket": "bottom-line-paper-te"
         },
         "bioindex": {
             "bucket": "bottom-line-paper",
