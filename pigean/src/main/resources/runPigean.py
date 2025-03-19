@@ -8,7 +8,7 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 gene_sets = {
-    'gene_set_list_mouse_2024.txt': ['small', 'large', 'cfde'],
+    'gene_set_list_mouse_2024.txt': ['small', 'large', 'cfde', 'mouse'],
     'gene_set_list_msigdb_nohp.txt': ['small', 'large', 'cfde'],
     'gene_set_list_string_notext_medium_processed.txt': ['large'],
     'gene_set_list_pops_sparse_small.txt': ['large'],
@@ -17,7 +17,8 @@ gene_sets = {
 
 gene_lists = {
     'cfde.gene_sets.list': ['cfde'],
-    'cfde_overlap.gene_sets.list': ['cfde']
+    'cfde_overlap.gene_sets.list': ['cfde'],
+    'mouse.gene_sets.list': ['mouse']
 }
 
 
