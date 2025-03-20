@@ -19,7 +19,9 @@ class ClumpedPlinkStage(implicit context: Context) extends Stage {
     "bottom-line" -> Seq("analysis"),
     "naive" -> Seq("analysis"),
     "min_p" -> Seq("analysis"),
-    "largest" -> Seq("analysis")
+    "largest" -> Seq("analysis"),
+    "metasoft" -> Seq("analysis"),
+    "random-effects" -> Seq("analysis")
   )
 
   /** The output of meta-analysis is the input for top associations. */
