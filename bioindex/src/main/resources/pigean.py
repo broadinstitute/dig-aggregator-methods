@@ -8,7 +8,7 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
-outdir = f'{s3_bioindex}/pigean/{{}}/{{}}'
+outdir = f'{s3_bioindex}/pigean-old/{{}}/{{}}'
 
 clean = udf(lambda s: s.replace(',', ';').encode('utf-8').decode('ascii', errors='ignore'))
 
@@ -39,8 +39,8 @@ def bioindex(df, bioindex_name, bioindices, max_fields):
 def gene(spark):
     srcdir = f'{s3_in}/out/pigean/gene_stats/*/*/*/*.json'
     bioindices = {
-        'gene': [col('gene'), col('gene_set_size'), col('combined').desc()],
-        'phenotype': [col('phenotype'), col('gene_set_size'), col('combined').desc()]
+        'gene': [col('gene'), col('combined').desc()],
+        'phenotype': [col('phenotype'), col('combined').desc()]
     }
 
     df = spark.read.json(srcdir)
@@ -52,8 +52,8 @@ def gene(spark):
 def gene_set(spark):
     srcdir = f'{s3_in}/out/pigean/gene_set_stats/*/*/*/*.json'
     bioindices = {
-        'gene_set': [col('gene_set'), col('gene_set_size'), col('beta_uncorrected').desc()],
-        'phenotype': [col('phenotype'), col('gene_set_size'), col('beta_uncorrected').desc()]
+        'gene_set': [col('gene_set'), col('beta_uncorrected').desc()],
+        'phenotype': [col('phenotype'), col('beta_uncorrected').desc()]
     }
 
     df = spark.read.json(srcdir)
@@ -78,7 +78,7 @@ def gene_set_source(spark):
         .filter(source_df.source != 'gene_set_list_mouse_2024')
     df = df.union(source_df)
 
-    df.orderBy(col('source_index'), col('gene_set_size'), col('beta_uncorrected').desc()) \
+    df.orderBy(col('source_index'), col('beta_uncorrected').desc()) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('gene_set', 'source'))
@@ -87,9 +87,9 @@ def gene_set_source(spark):
 def gene_gene_set(spark):
     srcdir = f'{s3_in}/out/pigean/gene_gene_set_stats/*/*/*/*.json'
     bioindices = {
-        'gene': [col('phenotype'), col('gene'), col('gene_set_size'), col('combined').desc()],
-        'gene_set': [col('phenotype'), col('gene_set'), col('gene_set_size'), col('beta').desc()],
-        'overall_gene': [col('gene'), col('gene_set_size'), col('beta_uncorrected').desc()]
+        'gene': [col('phenotype'), col('gene'), col('combined').desc()],
+        'gene_set': [col('phenotype'), col('gene_set'), col('beta').desc()],
+        'overall_gene': [col('gene'), col('beta_uncorrected').desc()]
     }
     df = spark.read.json(srcdir)
     df = df.filter(df.gene.isNotNull())
