@@ -20,7 +20,7 @@ def process():
             header = f.readline().strip().split('\t')
             for line in f:
                 line_dict = dict(zip(header, line.strip().split('\t')))
-                if line_dict["P-value_association"] != 'NA':
+                if line_dict["P-value_association"] not in ['NA', 'nan']:
                     count += 1
                     f_out.write(f'{{'
                                 f'"varId": "{line_dict["MarkerName"]}", '
