@@ -19,7 +19,7 @@ def process():
             header = f.readline().strip().split('\t')
             for line in f:
                 line_dict = dict(zip(header, line.strip().split('\t')))
-                if line_dict["PVALUE_RE2"] != 'NA':
+                if line_dict["PVALUE_RE2"] not in ['NA', 'NAN']:
                     f_out.write(f'{{'
                                 f'"varId": "{line_dict["RSID"]}", '
                                 f'"pValue": {float(line_dict["PVALUE_RE2"])}}}\n'
