@@ -8,7 +8,7 @@ import shutil
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-meta_types = ['bottom-line', 'largest']
+meta_types = ['bottom-line', 'largest', 'random-effects', 'metasoft']
 
 
 def check_file(path):
