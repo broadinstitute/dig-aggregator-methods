@@ -8,7 +8,7 @@ import shutil
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-meta_types = ['bottom-line', 'largest', 'random-effects', 'metasoft']
+meta_types = ['bottom-line', 'largest']
 
 
 def check_file(path):
@@ -19,7 +19,7 @@ def get_all_variants(phenotype, ancestry):
     for meta_type in meta_types:
         path_in = f'{s3_in}/out/metaanalysis'
         if ancestry == 'TE':
-            path_to_variants = f'staging/clumped/analysis/{phenotype}/variants.json'
+            path_to_variants = f'staging/clumped-eu/analysis/{phenotype}/variants.json'
         else:
             path_to_variants = f'staging/ancestry-clumped/analysis/{phenotype}/ancestry={ancestry}/variants.json'
         path = f'{path_in}/{meta_type}/{path_to_variants}'
@@ -109,7 +109,7 @@ def get_overview(clump_to_meta):
 
 def output_and_upload(freq_type, meta_type, phenotype, ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview):
     if ancestry == 'TE':
-        path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/merged/analysis/{phenotype}/'
+        path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/merged-BL-largest-eu/analysis/{phenotype}/'
     else:
         path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/ancestry-merged/analysis/{phenotype}/ancestry={ancestry}/'
     os.mkdir('output')

@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class ClumpedMergeStage(implicit context: Context) extends Stage {
 
   // Outputs only to bottom-line so only run if bottom-line exists
-  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/clumped/analysis/*/variants.json")
+  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/clumped-eu/analysis/*/variants.json")
   val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/ancestry-clumped/analysis/*/*/variants.json")
 
   override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific)
