@@ -41,8 +41,8 @@ G1000_ANCESTRIES_BY_PORTAL_ANCESTRIES = {
     'EA': {'EA': 'eas'},
     'SA': {'SA': 'sas'},
     'GME': {'GME': 'sas'},
-    'Mixed': TRANS_ETHNIC_ANCESTRIES,
-    'TE': TRANS_ETHNIC_ANCESTRIES
+    'Mixed': {'EU': 'eur'},
+    'TE': {'EU': 'eur'}
 }
 
 
@@ -300,8 +300,8 @@ def main():
     # source data and output location
     if args.ancestry == 'TE':
         srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/trans-ethnic/{args.phenotype}'
-        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/plink/{args.param_type}/{args.phenotype}'
-        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/clumped/{args.param_type}/{args.phenotype}'
+        plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/plink-eu/{args.param_type}/{args.phenotype}'
+        outdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/clumped-eu/{args.param_type}/{args.phenotype}'
     else:
         srcdir = f'{s3_in}/out/metaanalysis/{args.meta_type}/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}'
         plinkdir = f'{s3_out}/out/metaanalysis/{args.meta_type}/staging/ancestry-plink/{args.param_type}/{args.phenotype}/{args.ancestry}'
