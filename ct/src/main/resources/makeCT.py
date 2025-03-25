@@ -89,7 +89,7 @@ def main():
     make_json_files(pheno_path)
 
     json_file = "input.json"
-    var2rs_path = '/mnt/var/prs/snps.csv'
+    var2rs_path = '/mnt/var/ct/snps.csv'
     out_dir = "out"
 
     # Ensure output directory exists
