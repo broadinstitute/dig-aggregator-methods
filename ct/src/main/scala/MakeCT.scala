@@ -10,7 +10,7 @@ import org.broadinstitute.dig.aws.MemorySize
 class MakeCT(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val ancestrySpecific: Input.Source = Input.Source.Success("out/credible_sets/intake/*/EU/bottom-line/*/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/credible_sets/intake/*/EU/bottom-line/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific)
