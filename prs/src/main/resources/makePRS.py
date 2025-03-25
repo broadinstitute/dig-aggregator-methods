@@ -61,8 +61,8 @@ def process_json_file(input_file, output_prefix,snp_mapping):
             
             # Get the chromosome as a string
             chrom = str(record.get("chromosome"))
-            if chrom == "X" or chrom == "Y":
-                chrom = "23"
+            # if chrom == "X" or chrom == "Y":
+            #     chrom = "23"
             processed_chromosomes.add(chrom)
             
             # If this chromosome hasn't been seen before, open a new file and CSV writer
@@ -104,6 +104,8 @@ def run_prscsx_by_chrom(chromosomes, ref_dir,bim_prefix, sum_stat,out_dir, out_n
 
     for chrom in chromosomes:
         chrom_str = str(chrom)
+        if chrom_str == "X" or chrom_str == "Y":
+            chrom_str = "23"
         sst_file = f"{sum_stat}.chr{chrom}.sumstats.txt"  # Adjust prefix if needed
         command = [
             "python3", "/mnt/var/prs/prscsx/PRScsx.py",
