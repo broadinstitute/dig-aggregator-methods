@@ -48,13 +48,11 @@ def combine(gene_set_size):
     if not os.path.exists('out'):
         os.mkdir('out')
     all_files = glob.glob(f'data/*/*/{gene_set_size}/gs.tsv')
-    groups = len(all_files) // 1000 + 1
-    for group in range(groups):
-        with open(f'out/gs_{gene_set_size}_{group}.tsv', 'w') as f_out:
-            f_out.write('trait\tgene\tcombined\thuge\tlog_bf\n')
-            for file in all_files[group*1000:(group+1)*1000]:
-                with open(file, 'r') as f_in:
-                    shutil.copyfileobj(f_in, f_out)
+    with open(f'out/gs_{gene_set_size}.tsv', 'w') as f_out:
+        f_out.write('trait\tgene\tcombined\thuge\tlog_bf\n')
+        for file in all_files:
+            with open(file, 'r') as f_in:
+                shutil.copyfileobj(f_in, f_out)
 
 
 def combine_all():
@@ -67,7 +65,7 @@ def combine_all():
 
 
 def upload_data():
-    subprocess.check_call(['aws', 's3', 'cp', 'out/', f'{s3_out}/out/pigean/staging/combined_gs/split/', '--recursive'])
+    subprocess.check_call(['aws', 's3', 'cp', 'out/', f'{s3_out}/out/pigean/staging/combined_gs/', '--recursive'])
     shutil.rmtree('out')
 
 
