@@ -10,15 +10,15 @@ import org.broadinstitute.dig.aws.MemorySize
 class MakeCT(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val ancestrySpecific: Input.Source = Input.Source.Success("out/credible_sets/intake/*/EU/bottom-line/")
+  val ancestrySpecific: Input.Source = Input.Source.Success("out/credible_sets/intake/*/EU/*/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific)
 
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case ancestrySpecific(phenotype) => Outputs.Named(s"$phenotype/EU")
-    // case ancestrySpecific(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split('=').last}")
+    // case ancestrySpecific(phenotype) => Outputs.Named(s"$phenotype/EU")
+    case ancestrySpecific(phenotype, methods) => Outputs.Named(s"$phenotype/$methods")
     // case mixedDatasets(_, _, phenotype) => Outputs.Named(s"$phenotype/Mixed")
   }
 
@@ -26,7 +26,7 @@ class MakeCT(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
-    masterVolumeSizeInGB = 100,
+    masterVolumeSizeInGB = 32,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-ct.sh")))
   )
 
@@ -39,16 +39,16 @@ class MakeCT(implicit context: Context) extends Stage {
   
 case class MakeCTInput(
   phenotype: String,
-  ancestry: String
+  methods: String
 ) {
 
-  def flags: Seq[String] = Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
+  def flags: Seq[String] = Seq(s"--phenotype=$phenotype", s"--ancestry=EU", s"--methods=$methods")
 }
 
 object MakeCTInput {
   def fromString(output: String): MakeCTInput = {
     output.split("/").toSeq match {
-      case Seq(phenotype, ancestry) => MakeCTInput(phenotype, ancestry)
+      case Seq(phenotype, methods) => MakeCTInput(phenotype, methods)
     }
   }
 }

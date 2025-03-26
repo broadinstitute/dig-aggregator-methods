@@ -80,11 +80,12 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("", "--phenotype", default=None)
     parser.add_option("", "--ancestry", default=None)
+    parser.add_option("", "--methods", default=None)
 
     (args,_) = parser.parse_args()
 
-    pheno_path = f'{s3_in}/out/credible_sets/intake/{args.phenotype}/{args.ancestry}/bottom-line/'
-    out_path = f'{s3_out}/out/ct/staging/{args.phenotype}/ancestry={args.ancestry}/bottom-line' 
+    pheno_path = f'{s3_in}/out/credible_sets/intake/{args.phenotype}/{args.ancestry}/{args.methods}/'
+    out_path = f'{s3_out}/out/ct/staging/{args.phenotype}/ancestry={args.ancestry}/{args.methods}' 
 
     make_json_files(pheno_path)
 
