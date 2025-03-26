@@ -13,7 +13,7 @@ s3_out=os.environ['OUTPUT_PATH']
 
 def make_json_files(directory):
     subprocess.check_call(['aws', 's3', 'cp', directory, 'input/', '--recursive'])
-    subprocess.run('cat input/*.json > input.json', shell=True)
+    subprocess.run('cat input/*/*.json > input.json', shell=True)
     shutil.rmtree('input')
 
 def safe_remove(file_path):
@@ -99,7 +99,7 @@ def main():
     process_json_file(json_file, f"{out_dir}/C_T.txt",snp_mapping)
     
     subprocess.check_call(['touch', f'{out_dir}/_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', '.', out_path,'--recursive'])
+    subprocess.check_call(['aws', 's3', 'cp', 'f'{out_dir}/', 'out_path,'--recursive'])
     safe_remove('input.json')
     shutil.rmtree(out_dir)
 
