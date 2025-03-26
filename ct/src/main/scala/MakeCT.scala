@@ -18,7 +18,7 @@ class MakeCT(implicit context: Context) extends Stage {
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
     // case ancestrySpecific(phenotype) => Outputs.Named(s"$phenotype/EU")
-    case ancestrySpecific(phenotype, methods) => Outputs.Named(s"$phenotype/$methods")
+    case ancestrySpecific(phenotype, method_type) => Outputs.Named(s"$phenotype/$method_type")
     // case mixedDatasets(_, _, phenotype) => Outputs.Named(s"$phenotype/Mixed")
   }
 
@@ -39,16 +39,16 @@ class MakeCT(implicit context: Context) extends Stage {
   
 case class MakeCTInput(
   phenotype: String,
-  methods: String
+  method_type: String
 ) {
 
-  def flags: Seq[String] = Seq(s"--phenotype=$phenotype", s"--ancestry=EU", s"--methods=$methods")
+  def flags: Seq[String] = Seq(s"--phenotype=$phenotype", s"--ancestry=EU", s"--method_type=$method_type")
 }
 
 object MakeCTInput {
   def fromString(output: String): MakeCTInput = {
     output.split("/").toSeq match {
-      case Seq(phenotype, methods) => MakeCTInput(phenotype, methods)
+      case Seq(phenotype, method_type) => MakeCTInput(phenotype, method_type)
     }
   }
 }
