@@ -100,7 +100,7 @@ def main():
     process_json_file(json_file, f"{out_dir}/C_T.txt",snp_mapping)
     
     subprocess.check_call(['touch', f'{out_dir}/_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{out_dir}/', out_path,'--recursive'])
+    subprocess.check_call(['aws', 's3', 'cp', '.', out_path,'--recursive']) #f'{out_dir}/', out_path,'--recursive'])
     safe_remove('input.json')
     shutil.rmtree(out_dir)
 
