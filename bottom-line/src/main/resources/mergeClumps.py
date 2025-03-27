@@ -8,7 +8,7 @@ import shutil
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-meta_types = ['bottom-line', 'largest', 'random-effects']
+meta_types = ['bottom-line', 'largest', 'metasoft']
 
 
 def check_file(path):
@@ -109,7 +109,7 @@ def get_overview(clump_to_meta):
 
 def output_and_upload(freq_type, meta_type, phenotype, ancestry, variants_dict, var_id_to_clump, clump_to_metas, overview):
     if ancestry == 'TE':
-        path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/merged-mrmega-eu/analysis/{phenotype}/'
+        path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/merged-meta-eu/analysis/{phenotype}/'
     else:
         path_out = f'{s3_out}/out/metaanalysis/{meta_type}/staging/ancestry-merged/analysis/{phenotype}/ancestry={ancestry}/'
     os.mkdir('output')
