@@ -57,14 +57,14 @@ def process_json_file(input_file, output_file, snp_mapping, pvalue_threshold=5e-
             if pval is None or pval >= pvalue_threshold:
                 continue
             
-            varid = record.get("varId")
-            rsid = snp_mapping.get(varid, varid)
+            # varid = record.get("varId")
+            # rsid = snp_mapping.get(varid, varid)
 
             writer.writerow({
                 "credibleSetId": record.get("credibleSetId"),
-                "varId": varid,
+                # "varId": varid,
                 "chrom": str(record.get("chromosome")),
-                "SNP": rsid,
+                # "SNP": rsid,
                 "position": record.get("position"),
                 "alt": record.get("alt"),
                 "ref": record.get("reference"),
