@@ -37,7 +37,7 @@ def load_snp_mapping(snp_file):
 
 
 def process_json_file(input_file, output_file, snp_mapping, pvalue_threshold=5e-8):
-    column_names = ["credibleSetId", "chrom", "SNP", "position", "alt", "ref", "beta", "stdErr", "pValue", "posterior_effect"]
+    column_names = ["credibleSetId", "varId", "chrom", "SNP", "position", "alt", "ref", "beta", "stdErr", "pValue", "posterior_effect"]
     
     with open(input_file, 'r') as infile, open(output_file, 'w', newline='') as outfile:
         writer = csv.DictWriter(outfile, fieldnames=column_names, delimiter='\t')
@@ -57,14 +57,14 @@ def process_json_file(input_file, output_file, snp_mapping, pvalue_threshold=5e-
             if pval is None or pval >= pvalue_threshold:
                 continue
             
-            # varid = record.get("varId")
-            # rsid = snp_mapping.get(varid, varid)
+            varid = record.get("varId")
+            rsid = snp_mapping.get(varid, varid)
 
             writer.writerow({
                 "credibleSetId": record.get("credibleSetId"),
-                # "varId": varid,
+                "varId": varid,
                 "chrom": str(record.get("chromosome")),
-                # "SNP": rsid,
+                "SNP": rsid,
                 "position": record.get("position"),
                 "alt": record.get("alt"),
                 "ref": record.get("reference"),
@@ -100,7 +100,7 @@ def main():
     process_json_file(json_file, f"{out_dir}/C_T.txt",snp_mapping)
     
     subprocess.check_call(['touch', f'{out_dir}/_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', '.', out_path,'--recursive']) #f'{out_dir}/', out_path,'--recursive'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{out_dir}/', out_path,'--recursive'])
     safe_remove('input.json')
     shutil.rmtree(out_dir)
 
