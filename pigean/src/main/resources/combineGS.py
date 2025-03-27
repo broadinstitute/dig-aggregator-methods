@@ -48,11 +48,14 @@ def combine(gene_set_size):
     if not os.path.exists('out'):
         os.mkdir('out')
     all_files = glob.glob(f'data/*/*/{gene_set_size}/gs.tsv')
-    with open(f'out/gs_{gene_set_size}.tsv', 'w') as f_out:
+    with open(f'out/gs_{gene_set_size}_huge.tsv', 'w') as f_out:
         f_out.write('trait\tgene\tcombined\thuge\tlog_bf\n')
         for file in all_files:
             with open(file, 'r') as f_in:
-                shutil.copyfileobj(f_in, f_out)
+                for line in f_in:
+                    split_line = line.strip().split('\t')
+                    if float(split_line[3]) > 1.0:
+                        f_out.write(line)
 
 
 def combine_all():
