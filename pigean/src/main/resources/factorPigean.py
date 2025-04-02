@@ -106,8 +106,9 @@ def success(file_path):
 def upload_data(trait_group, phenotype, gene_set_size, phi):
     file_path = f'{s3_out}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}___phi{phi}/'
     for file in ['phs.out', 'f.out', 'fa.out', 'gc.out', 'gac.out', 'pc.out', 'pac.out', 'gsc.out', 'gsac.out', 'p.out']:
-        subprocess.check_call(['aws', 's3', 'cp', file, file_path])
-        os.remove(file)
+        if os.path.exists(file):
+            subprocess.check_call(['aws', 's3', 'cp', file, file_path])
+            os.remove(file)
     success(file_path)
 
 
