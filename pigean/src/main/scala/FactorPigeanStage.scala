@@ -23,10 +23,15 @@ class FactorPigeanStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    val flags: Seq[String] = output.split("/").toSeq match {
+    val flagLists: Seq[Seq[String]] = output.split("/").toSeq match {
       case Seq(traitGroup, phenotype, geneSetSize) =>
-        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--gene-set-size=$geneSetSize")
+        Seq("3", "5").map { phi =>
+          Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--gene-set-size=$geneSetSize", s"--phi=$phi")
+        }
     }
-    new Job(Job.Script(resourceUri("factorPigean.py"), flags:_*))
+    val jobs = flagLists.map { flags =>
+      Job.Script(resourceUri("factorPigean.py"), flags: _*)
+    }
+    new Job(jobs, parallelSteps=true)
   }
 }
