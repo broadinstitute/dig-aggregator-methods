@@ -77,6 +77,7 @@ def run_factor(gene_set_size, phi, openapi_key):
               '--gene-set-phewas-stats-id-col', 'gene_set',
               '--gene-set-phewas-stats-pheno-col', 'trait',
               '--gene-phewas-stats-in', f'combined/gs_{gene_set_size}.tsv',
+              '--run-phewas-from-gene-phewas-stats-in', f'combined/gs_{gene_set_size}.tsv',
               '--gene-phewas-bfs-id-col', 'gene',
               '--gene-phewas-bfs-pheno-col', 'trait',
               '--gene-phewas-bfs-combined-col', 'combined',
