@@ -17,21 +17,18 @@ class FactorPigeanStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(pigean)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(traitGroup, phenotype, geneSetSize) => Outputs.Named(
-      s"$traitGroup/$phenotype/$geneSetSize"
-    )
+    case pigean(traitGroup, phenotype, geneSetSize) =>
+      val outputs: Seq[String] = Seq("3", "5").map { phi =>
+        s"$traitGroup/$phenotype/$geneSetSize/$phi"
+      }
+      Outputs.Named(outputs: _*)
   }
 
   override def make(output: String): Job = {
-    val flagLists: Seq[Seq[String]] = output.split("/").toSeq match {
-      case Seq(traitGroup, phenotype, geneSetSize) =>
-        Seq("3", "5").map { phi =>
-          Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--gene-set-size=$geneSetSize", s"--phi=$phi")
-        }
+    val flags: Seq[String] = output.split("/").toSeq match {
+      case Seq(traitGroup, phenotype, geneSetSize, phi) =>
+        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--gene-set-size=$geneSetSize", s"--phi=$phi")
     }
-    val jobs = flagLists.map { flags =>
-      Job.Script(resourceUri("factorPigean.py"), flags: _*)
-    }
-    new Job(jobs, parallelSteps=true)
+    new Job(Job.Script(resourceUri("factorPigean.py"), flags: _*))
   }
 }
