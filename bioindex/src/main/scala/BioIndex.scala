@@ -57,5 +57,6 @@ object BioIndex extends Method {
     addStage(new SingleCellStage)
     addStage(new SingleCellMetadataStage)
     addStage(new SingleCellBulkStage)
+    addStage(new SingleCellGeneStage)
   }
 }
