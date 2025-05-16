@@ -10,20 +10,20 @@ from scipy.stats import norm
 import shutil
 import subprocess
 
-s3_in = 's3://dig-analysis-data/gene_associations'
-s3_out = 's3://dig-analysis-data/gene_associations/combined'
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
 
 
 def get_file_path(data_type, phenotype):
     if data_type == '600trait':
-        return f'{s3_in}/600k_combined/{phenotype}/'
+        return f'{s3_in}/gene_associations/600k_combined/{phenotype}/'
     elif data_type == 'genebass':
-        return f'{s3_in}/genebass/{phenotype}/'
+        return f'{s3_in}/gene_associations/genebass/{phenotype}/'
     else:
         if phenotype == 'T2D':
-            return f'{s3_in}/52k_T2D/{phenotype}/'
+            return f'{s3_in}/gene_associations/52k_T2D/{phenotype}/'
         else:
-            return f'{s3_in}/52k_QT/{phenotype}/'
+            return f'{s3_in}/gene_associations/52k_QT/{phenotype}/'
 
 
 def get_gene_data(data_type, phenotype):
@@ -141,9 +141,9 @@ def output_and_delete_data(phenotype, data):
     with open('part-00000.json', 'w') as f:
         for gene_data in data.values():
             f.write('{}\n'.format(json.dumps(gene_data)))
-    subprocess.check_call(['aws', 's3', 'cp', 'part-00000.json', f'{s3_out}/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', 'part-00000.json', f'{s3_out}/gene_associations/combined/{phenotype}/'])
     subprocess.check_call(['touch', '_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', f'_SUCCESS', f'{s3_out}/{phenotype}/_SUCCESS'])
+    subprocess.check_call(['aws', 's3', 'cp', f'_SUCCESS', f'{s3_out}/gene_associations/combined/{phenotype}/_SUCCESS'])
     os.remove('_SUCCESS')
     os.remove('part-00000.json')
     shutil.rmtree('./data')

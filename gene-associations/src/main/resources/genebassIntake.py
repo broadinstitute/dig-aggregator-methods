@@ -7,18 +7,18 @@ import os
 import re
 import subprocess
 
+s3_in = os.environ['INPUT_PATH']
+s3_out = os.environ['OUTPUT_PATH']
+
 convert_mask = {
     'LoF_HC': 'LoF_HC',
     'LoF_HC|missense|LC': 'LoF_HC|missense|LC',
     'missense|LC': 'missense|LC'
 }
 
-src_dir = 's3://dig-analysis-data/gene_associations_raw/genebass'
-out_dir = 's3://dig-analysis-data/gene_associations/genebass'
-
 
 def download_phenotype_file(filename):
-    subprocess.check_call(['aws', 's3', 'cp', f'{src_dir}/{filename}', filename])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/gene_associations_raw/genebass/{filename}', filename])
 
 
 def add_optional_field(mask, field, field_out, typ, default=None):
@@ -71,8 +71,8 @@ def upload_output(filename, output):
             f.write(f'{json.dumps(line)}\n')
     with open(f'./{phenotype}/metadata', 'w') as f:
         f.write(f'{{"name": "genebass", "phenotype": "{phenotype}"}}\n')
-    subprocess.check_call(['aws', 's3', 'cp', f'{phenotype}/part-00000.json', f'{out_dir}/{phenotype}/part-00000.json'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{phenotype}/metadata', f'{out_dir}/{phenotype}/metadata'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{phenotype}/part-00000.json', f'{s3_out}/gene_associations/genebass/{phenotype}/part-00000.json'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{phenotype}/metadata', f'{s3_out}/gene_associations/genebass/{phenotype}/metadata'])
     os.remove(f'{phenotype}/part-00000.json')
     os.remove(f'{phenotype}/metadata')
     os.rmdir(phenotype)

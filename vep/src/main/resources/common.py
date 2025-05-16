@@ -10,6 +10,18 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
+def pick_transcript_consequence(row):
+    tc = row.get('transcript_consequences', [])
+    if len(tc) == 1:
+        return {
+            'consequenceGeneId': tc[0].get('gene_id'),
+            'consequenceGeneSymbol': tc[0].get('gene_symbol'),
+            'consequenceImpact': tc[0].get('impact')
+        }
+    else:
+        return {}
+
+
 def colocated_variant(row, ref, alt):
     """
     Find the first colocated variant with a matching allele string or None.
@@ -89,47 +101,41 @@ def common_fields(row):
     # find the correct colocated variant for this allele
     variant = colocated_variant(row, ref, alt)
 
-    # no colocated variant found, just return the common data
-    if not variant:
-        return {
-            'varId': row['id'],
-            'consequence': row['most_severe_consequence'],
-            'nearest': row['nearest'],
-            'dbSNP': None,
-            'minorAllele': None,
-            'maf': None,
-            'af': {
-                'EU': None,
-                'HS': None,
-                'AA': None,
-                'EA': None,
-                'SA': None,
-            },
-        }
-
-    return {
+    out = {
         'varId': row['id'],
         'consequence': row['most_severe_consequence'],
         'nearest': row['nearest'],
-        'dbSNP': dbSNP(variant),
-        'minorAllele': variant.get('minor_allele'),
-        'maf': variant.get('minor_allele_freq'),
-        'af': allele_frequencies(variant, ref, alt),
+        'chromosome': row['seq_region_name'],
+        'position': int(row['start'])
     }
+    for k, v in pick_transcript_consequence(row).items():
+        out[k] = v
+
+    # no colocated variant found, just return the common data
+    if not variant:
+        return out
+
+    out['dbSNP'] = dbSNP(variant)
+    out['minorAllele'] = variant.get('minor_allele')
+    out['maf'] = variant.get('minor_allele_freq')
+    out['af'] = allele_frequencies(variant, ref, alt)
+
+    return out
 
 
 def process_part(srcdir, outdir, part):
-    """
-    Download and process a part file.
-    """
-    _, tmp = tempfile.mkstemp()
+    tmp = tempfile.TemporaryDirectory()
+
+    base_part, part_ext = os.path.splitext(part)
 
     # copy the file into a temp file
-    subprocess.check_call(['aws', 's3', 'cp', f'{srcdir}/{part}', tmp])
+    subprocess.check_call(['aws', 's3', 'cp', f'{srcdir}/{part}', f'{tmp.name}/input/'])
+    subprocess.check_call(f'zstd --rm -d {tmp.name}/input/{part}', shell=True)
 
     # loop over every line, parse, and create common row
-    with open(tmp) as fp:
-        with open(part, mode='w', encoding='utf-8') as out:
+    with open(f'{tmp.name}/input/{base_part}') as fp:
+        os.makedirs(f'{tmp.name}/output', exist_ok=True)
+        with open(f'{tmp.name}/output/{base_part}', mode='w', encoding='utf-8') as out:
             for line in fp:
                 row = json.loads(line)
                 common = common_fields(row)
@@ -147,29 +153,25 @@ def process_part(srcdir, outdir, part):
                     print(file=out)
 
     # copy the output file to S3
-    subprocess.check_call(['aws', 's3', 'cp', part, f'{outdir}/{part}'])
+    subprocess.check_call(f'zstd --rm {tmp.name}/output/{base_part}', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', f'{tmp.name}/output/{part}', f'{outdir}/{part}'])
 
     # cleanup
-    os.remove(tmp)
-    os.remove(part)
+    tmp.cleanup()
 
     # debug output
     print(f'Processed {part} successfully')
 
 
 def main():
-    """
-    Arguments: part-file
-    """
-    opts = argparse.ArgumentParser()
-    opts.add_argument('part')
-
-    # parse cli
-    args = opts.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--part', type=str, required=True, help="part name")
+    parser.add_argument('--data-type', type=str, required=True, help="data type (e.g. variants)")
+    args = parser.parse_args()
 
     # s3 locations
-    srcdir = f'{s3_in}/out/varianteffect/effects'
-    outdir = f'{s3_out}/out/varianteffect/common'
+    srcdir = f'{s3_in}/out/varianteffect/{args.data_type}/common-effects'
+    outdir = f'{s3_out}/out/varianteffect/{args.data_type}/common'
 
     # run
     process_part(srcdir, outdir, args.part)
