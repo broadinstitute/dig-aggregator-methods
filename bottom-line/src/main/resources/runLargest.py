@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 import argparse
-from boto3 import session
+from boto3.session import Session
 import json
 import os
 import sqlalchemy
+import subprocess
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
@@ -30,49 +31,57 @@ variants_schema = StructType(
 
 class BioIndexDB:
     def __init__(self):
-        self.secret_id = 'dig-bio-portal'
+        self.secret_id = os.environ['PORTAL_SECRET']
+        self.db_name = os.environ['PORTAL_DB']
         self.region = 'us-east-1'
         self.config = None
         self.engine = None
 
     def get_config(self):
         if self.config is None:
-            client = session.Session(region_name=self.region).client('secretsmanager')
+            client = Session().client('secretsmanager', region_name=self.region)
             self.config = json.loads(client.get_secret_value(SecretId=self.secret_id)['SecretString'])
         return self.config
 
     def get_engine(self):
         if self.engine is None:
             self.config = self.get_config()
-            print(f'creating engine for {self.config["host"]}:{self.config["port"]}/{self.config["dbname"]}')
             self.engine = sqlalchemy.create_engine('{engine}://{username}:{password}@{host}:{port}/{db}'.format(
                 engine=self.config['engine'] + ('+pymysql' if self.config['engine'] == 'mysql' else ''),
                 username=self.config['username'],
                 password=self.config['password'],
                 host=self.config['host'],
                 port=self.config['port'],
-                db=self.config['dbname']
+                db=self.db_name
             ))
         return self.engine
 
-    def get_largest_dataset(self, phenotype, ancestry):
+    def get_sorted_datasets(self, phenotype, ancestry):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
+            ancestry_addendum = f'AND ancestry="{ancestry}" ' if ancestry != 'TE' else ''
             query = sqlalchemy.text(
-                f'SELECT name FROM Datasets '
+                f'SELECT name, ancestry FROM Datasets '
                 f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
-                f'AND ancestry="{ancestry}" AND tech="GWAS" '
-                f'ORDER BY subjects DESC LIMIT 1'
+                f'{ancestry_addendum}AND tech="GWAS" '
+                f'ORDER BY subjects DESC'
             )
             rows = connection.execute(query).all()
-        print(f'Returned {len(rows)} rows for largest mixed dataset')
-        if len(rows) == 1:
-            return rows[0][0]
+        print(f'Returned {len(rows)} rows for largest dataset')
+        return [(row[0], row[1]) for row in rows]
 
 
-def get_dataset(phenotype, ancestry):
+def check_existence(phenotype, dataset_ancestry):
+    path = f'{s3_in}/out/metaanalysis/variants/{phenotype}/dataset={dataset_ancestry[0]}/ancestry={dataset_ancestry[1]}/'
+    return subprocess.call(['aws', 's3', 'ls', path, '--recursive'])
+
+
+def get_dataset_ancestry(phenotype, ancestry):
     db = BioIndexDB()
-    return db.get_largest_dataset(phenotype, ancestry)
+    dataset_ancestries = db.get_sorted_datasets(phenotype, ancestry)
+    for dataset_ancestry in dataset_ancestries:
+        if not check_existence(phenotype, dataset_ancestry):
+            return dataset_ancestry
 
 
 def main():
@@ -87,13 +96,19 @@ def main():
     spark = SparkSession.builder.appName('bottom-line').getOrCreate()
 
     # get the source and output directories
-    dataset = get_dataset(args.phenotype, args.ancestry)
-    print(f'Largest GWAS dataset for phenotype {args.phenotype}, ancestry {args.ancestry}: {dataset}')
-    if dataset is not None:
-        srcdir = f'{s3_in}/out/metaanalysis/variants/{args.phenotype}/dataset={dataset}/ancestry={args.ancestry}/*/part-*'
-        outdir = f'{s3_out}/out/metaanalysis/largest/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
+    dataset_ancestry = get_dataset_ancestry(args.phenotype, args.ancestry)
+    print(f'Largest GWAS dataset for phenotype {args.phenotype}, ancestry {args.ancestry}: {dataset_ancestry}')
+    if dataset_ancestry is not None:
+        dataset, ancestry = dataset_ancestry
+        srcdir = f'{s3_in}/out/metaanalysis/variants/{args.phenotype}/dataset={dataset}/ancestry={ancestry}/*/part-*'
+        if args.ancestry == 'TE':
+            outdir = f'{s3_out}/out/metaanalysis/largest/trans-ethnic/{args.phenotype}/'
+        else:
+            outdir = f'{s3_out}/out/metaanalysis/largest/ancestry-specific/{args.phenotype}/ancestry={args.ancestry}/'
 
         columns = [col(field.name) for field in variants_schema]
+
+        output_ancestry = args.ancestry if args.ancestry != 'TE' else 'Mixed'
 
         df = spark.read \
             .csv(
@@ -103,7 +118,7 @@ def main():
             schema=variants_schema,
         ) \
             .select(*columns) \
-            .withColumn('ancestry', lit(args.ancestry))
+            .withColumn('ancestry', lit(output_ancestry))
 
         df.write \
             .mode('overwrite') \

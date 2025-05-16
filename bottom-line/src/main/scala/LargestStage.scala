@@ -10,7 +10,6 @@ class LargestStage(implicit context: Context) extends Stage {
   val variants: Input.Source = Input.Source.Success("out/metaanalysis/variants/*/*/")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 6,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("largest-bootstrap.sh")))
   )
 
@@ -38,7 +37,7 @@ class LargestStage(implicit context: Context) extends Stage {
         .flatten
       // if there are no partitions, then we can ignore it
       if (partitions.nonEmpty) {
-        val partitionNames = partitions.map(_.toLargestOutput.toOutput)
+        val partitionNames = partitions.flatMap(_.toLargestOutputs.map(_.toOutput))
         Outputs.Named(partitionNames: _*)
       } else Outputs.Null
   }
@@ -56,7 +55,7 @@ case class LargestPartition(
   dataset: String,
   ancestry: String
 ) {
-  def toLargestOutput: LargestOutput = LargestOutput(phenotype, ancestry)
+  def toLargestOutputs: Seq[LargestOutput] = Seq(LargestOutput(phenotype, ancestry), LargestOutput(phenotype, "TE"))
 }
 
 case class LargestOutput(

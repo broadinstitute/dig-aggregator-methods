@@ -1,9 +1,41 @@
 import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, log2
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
+
+
+def get_q(df):
+    df_gene_annot = df \
+        .withColumn('weightedTpm', df.meanTpm * df.nSamples) \
+        .groupBy(['gene', 'tissue', 'biosample']) \
+        .agg({'weightedTpm': 'sum', 'nSamples': 'sum'})
+    df_gene_annot = df_gene_annot \
+        .withColumn('meanTpm', df_gene_annot['sum(weightedTpm)'] / df_gene_annot['sum(nSamples)']) \
+        .drop('weightedTpm', 'sum(weightedSum)', 'sum(nSamples)')
+    df_gene = df_gene_annot \
+        .groupBy(['gene']) \
+        .agg({'meanTpm': 'sum'})
+    df_joined = df_gene_annot.join(df_gene, 'gene')
+    df_joined = df_joined \
+        .withColumn('p', df_joined['meanTpm'] / df_joined['sum(meanTpm)']) \
+        .drop('sum(meanTpm)')
+    df_joined = df_joined \
+        .withColumn('H', -df_joined.p * log2(df_joined.p))
+    df_joined = df_joined \
+        .withColumn('Q', df_joined.H - log2(df_joined.p))
+    df_joined = df_joined \
+        .filter((df_joined.Q.isNotNull()))
+    max_Q = df_joined.agg({"Q": "max"}).head()["max(Q)"]
+    df_joined = df_joined \
+        .withColumn('mESI', 1 - df_joined.Q / max_Q)
+    df_joined = df_joined \
+        .groupBy(['gene', 'tissue']) \
+        .agg({'mESI': 'max', 'H': 'min'}) \
+        .withColumnRenamed('max(mESI)', 'Q') \
+        .withColumnRenamed('min(H)', 'H')
+    return df_joined
 
 
 def main():
@@ -35,8 +67,11 @@ def main():
         .filter(df.maxTpm.isNotNull()) \
         .filter(df.nSamples.isNotNull())
 
+    df_q = get_q(df)
+
     # sort and write
-    df.orderBy(['gene']) \
+    df.join(df_q, on=['gene', 'tissue']) \
+        .orderBy(['gene']) \
         .write \
         .mode('overwrite') \
         .json(f'{outdir}/gene')
@@ -58,7 +93,8 @@ def main():
         .drop('totalTpm')
 
     # sort and write
-    aggregate_df.orderBy(['tissue']) \
+    aggregate_df.join(df_q, on=['gene', 'tissue']) \
+        .orderBy(['tissue']) \
         .write \
         .mode('overwrite') \
         .json(f'{outdir}/tissue')

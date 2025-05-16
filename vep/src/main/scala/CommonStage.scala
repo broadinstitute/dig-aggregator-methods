@@ -5,24 +5,13 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.emr.configurations.{MapReduce, Spark}
+import software.amazon.awssdk.services.s3.model.S3Object
 
-/** After all the variants across all datasets have had VEP run on them in the
-  * previous step the rsID for each variant is extracted into its own file.
-  *
-  * The input location:
-  *
-  *  s3://dig-analysis-data/out/varianteffect/effects/part-*.json
-  *
-  * The output location:
-  *
-  *  s3://dig-analysis-data/out/varianteffect/common/part-*.json
-  *
-  * The inputs and outputs for this processor are expected to be phenotypes.
-  */
+
 class CommonStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val effects: Input.Source = Input.Source.Success("out/varianteffect/effects/")
+  val effects: Input.Source = Input.Source.Success("out/varianteffect/*/common-effects/")
 
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(effects)
@@ -32,36 +21,38 @@ class CommonStage(implicit context: Context) extends Stage {
     masterVolumeSizeInGB = 400,
     instances = 1,
     applications = Seq.empty,
+    bootstrapScripts = Seq(
+      new BootstrapScript(resourceUri("zstd-bootstrap.sh"))
+    ),
     stepConcurrency = 3
   )
 
   /** Make inputs to the outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case _ => Outputs.Named("common")
+    case effects(dataType) => Outputs.Named(dataType)
   }
 
-  /** All effect results are combined together, so the results list is ignored. */
   override def make(output: String): Job = {
-    val runScript = resourceUri("common.py")
-
     // get all the variant part files to process, use only the part filename
-    val objects = context.s3.ls(s"out/varianteffect/effects/")
-    val parts   = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+    val objects: List[S3Object] = context.s3.ls(s"out/varianteffect/$output/common-effects/")
+    val parts: Seq[String] = objects.map(_.key.split('/').last).filter(_.startsWith("part-"))
+    val scripts: Seq[Job.Script] = parts.map { part =>
+      Job.Script(resourceUri("common.py"), s"--part=$part", s"--data-type=$output")
+    }
 
-    // add a step for each part file
-    new Job(parts.map(Job.Script(runScript, _)), parallelSteps = true)
+    new Job(scripts, parallelSteps = true)
   }
 
   /** Before the jobs actually run, perform this operation.
     */
   override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/varianteffect/common/")
+    context.s3.rm(s"out/varianteffect/$output/common/")
   }
 
   /** Update the success flag of the merged regions.
     */
   override def success(output: String): Unit = {
-    context.s3.touch(s"out/varianteffect/common/_SUCCESS")
+    context.s3.touch(s"out/varianteffect/$output/common/_SUCCESS")
     ()
   }
 }

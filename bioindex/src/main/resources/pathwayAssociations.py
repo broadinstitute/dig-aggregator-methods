@@ -25,7 +25,7 @@ def process_magma(spark):
     non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/pathway_associations/ancestry-specific')
+        .json(f'{s3_bioindex}/pathway_associations/ancestry')
 
 
 def main():

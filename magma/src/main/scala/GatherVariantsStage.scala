@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.emr._
 class GatherVariantsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
+  val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/variants/")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(variants)

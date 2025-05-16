@@ -4,7 +4,7 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
-SRCDIR = f'{s3_in}/out/varianteffect'
+SRCDIR = f'{s3_in}/out/varianteffect/variants'
 OUTDIR = f'{s3_out}/out/magma'
 
 

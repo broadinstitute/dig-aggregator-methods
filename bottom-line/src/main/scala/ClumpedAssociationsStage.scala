@@ -11,45 +11,29 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class ClumpedAssociationsStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/clumped/*/variants.json")
-  val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/*/staging/ancestry-clumped/*/*/variants.json")
-
-  val paramTypes: Map[String, Seq[String]] = Map(
-    "bottom-line" -> Seq("portal", "analysis"),
-    "naive" -> Seq("analysis"),
-    "min_p" -> Seq("analysis"),
-    "largest" -> Seq("analysis")
-  )
+  val transEthnic: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/merged/analysis/*/variants.json")
+  val ancestrySpecific: Input.Source = Input.Source.Raw("out/metaanalysis/bottom-line/staging/ancestry-merged/analysis/*/*/variants.json")
 
   /** The output of meta-analysis is the input for top associations. */
   override val sources: Seq[Input.Source] = Seq(transEthnic, ancestrySpecific)
 
   /** Process top associations for each phenotype. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case transEthnic(metaType, phenotype) =>
-      Outputs.Named(paramTypes(metaType).map { paramType =>
-        s"$metaType/$paramType/$phenotype"
-      }: _*)
-    case ancestrySpecific(metaType, phenotype, ancestry) =>
-      Outputs.Named(paramTypes(metaType).map { paramType =>
-        s"$metaType/$paramType/$phenotype/${ancestry.split("ancestry=").last}"
-      }: _*)
+    case transEthnic(phenotype) => Outputs.Named(s"$phenotype/TE")
+    case ancestrySpecific(phenotype, ancestry) => Outputs.Named(s"$phenotype/${ancestry.split("ancestry=").last}")
   }
 
   /** Simple cluster with more memory. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.generalPurpose(mem = 64.gb),
-    instances = 1
+    instances = 5
   )
 
   /** Build the job. */
   override def make(output: String): Job = {
     // run clumping and then join with bottom line
     val flags = output.split("/").toSeq match {
-      case Seq(metaType, paramType, phenotype) =>
-        Seq(s"--phenotype=$phenotype", s"--ancestry=TE", s"--meta-type=$metaType", s"--param-type=$paramType")
-      case Seq(metaType, paramType, phenotype, ancestry) =>
-        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry", s"--meta-type=$metaType", s"--param-type=$paramType")
+      case Seq(phenotype, ancestry) =>
+        Seq(s"--phenotype=$phenotype", s"--ancestry=$ancestry")
     }
 
     val steps = Seq(

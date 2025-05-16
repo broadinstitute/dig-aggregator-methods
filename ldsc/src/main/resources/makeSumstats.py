@@ -30,6 +30,8 @@ snp_file = f'{downloaded_files}/snps'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
+valid_chromosomes = {str(i) for i in range(1, 23)}
+
 
 class BioIndexDB:
     def __init__(self):
@@ -58,27 +60,25 @@ class BioIndexDB:
             ))
         return self.engine
 
-    def get_largest_mixed_dataset(self, phenotype):
+    def get_largest_mixed_datasets(self, phenotype):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest mixed dataset')
             query = sqlalchemy.text(f'SELECT tech, name FROM Datasets '
                                     f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
                                     f'AND ancestry="Mixed" AND tech="GWAS" '
-                                    f'ORDER BY subjects DESC LIMIT 1')
+                                    f'ORDER BY subjects DESC')
             rows = connection.execute(query).all()
         print(f'Returned {len(rows)} rows for largest mixed dataset')
-        if len(rows) == 1:
-            return f'{rows[0][0]}/{rows[0][1]}'
+        return [f'{row[0]}/{row[1]}' for row in rows]
 
 
-def get_s3_dir(phenotype, ancestry):
+def get_s3_dirs(phenotype, ancestry):
     if ancestry == 'Mixed':
         db = BioIndexDB()
-        tech_dataset = db.get_largest_mixed_dataset(phenotype)
-        if tech_dataset is not None:
-            return f'{s3_in}/variants/{tech_dataset}/{phenotype}/'
+        tech_datasets = db.get_largest_mixed_datasets(phenotype)
+        return [f'{s3_in}/variants/{tech_dataset}/{phenotype}/' for tech_dataset in tech_datasets]
     else:
-        return f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/'
+        return [f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/']
 
 
 def get_single_json_file(s3_dir, phenotype, ancestry):
@@ -94,10 +94,13 @@ def get_single_json_file(s3_dir, phenotype, ancestry):
             os.remove(file)
 
 
-def upload_and_remove_files(phenotype, ancestry):
+def upload(phenotype, ancestry):
     s3_dir = f'{s3_out}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}/'
     subprocess.check_call(['aws', 's3', 'cp', f'{phenotype_files}/{phenotype}_{ancestry}.log', s3_dir])
     subprocess.check_call(['aws', 's3', 'cp', f'{phenotype_files}/{phenotype}_{ancestry}.sumstats.gz', s3_dir])
+
+
+def remove_files(phenotype, ancestry):
     for file in glob.glob(f'{phenotype_files}/{phenotype}_{ancestry}.*'):
         os.remove(file)
 
@@ -122,7 +125,10 @@ def stream_to_txt(phenotype, ancestry, snp_map):
             while len(json_string) > 0:
                 for json_substring in json_string.replace('}{', '}\n{').splitlines():
                     line = json.loads(json_substring)
-                    if 'varId' in line and line['varId'] in snp_map and line['beta'] is not None:
+                    if 'varId' in line and \
+                            line['varId'] in snp_map \
+                            and line['beta'] is not None and \
+                            line['chromosome'] in valid_chromosomes:
                         line_string = line_template.format(
                             snp_map[line['varId']],
                             line['reference'].lower(),
@@ -146,6 +152,18 @@ def create_sumstats(phenotype, ancestry):
     ])
 
 
+def run(phenotype, ancestry, snp_map):
+    for s3_dir in get_s3_dirs(phenotype, ancestry):
+        print(f'Using directory: {s3_dir}')
+        get_single_json_file(s3_dir, phenotype, ancestry)
+        total_lines = stream_to_txt(phenotype, ancestry, snp_map)
+        if total_lines > 0:
+            create_sumstats(phenotype, ancestry)
+            upload(phenotype, ancestry)
+            return True
+        remove_files(phenotype, ancestry)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--phenotype', default=None, required=True, type=str,
@@ -158,16 +176,11 @@ def main():
     if ancestry not in ancestry_map:
         raise Exception(f'Invalid ancestry ({ancestry}), must be one of {", ".join(ancestry_map.keys())}')
 
-    s3_dir = get_s3_dir(phenotype, ancestry)
-    if s3_dir is not None:
-        print(f'Using directory: {s3_dir}')
-        get_single_json_file(s3_dir, phenotype, ancestry)
-        snp_map = get_snp_map()
-        print(f'Created SNP map ({len(snp_map)} variants)')
-        total_lines = stream_to_txt(phenotype, ancestry, snp_map)
-        if total_lines > 0:
-            create_sumstats(phenotype, ancestry)
-            upload_and_remove_files(phenotype, ancestry)
+    snp_map = get_snp_map()
+    print(f'Created SNP map ({len(snp_map)} variants)')
+
+    run(phenotype, ancestry, snp_map)
+    remove_files(phenotype, ancestry)
 
 
 if __name__ == '__main__':

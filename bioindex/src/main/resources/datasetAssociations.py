@@ -23,7 +23,7 @@ def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     # load and output directory
-    common_dir = f'{s3_in}/out/varianteffect/common'
+    common_dir = f'{s3_in}/out/varianteffect/variants/common'
     srcdir = f'{s3_in}/variants/{args.path}/part-*'
     outdir = f'{s3_bioindex}/associations/dataset'
 

@@ -25,5 +25,6 @@ object CredibleSets extends Method {
     addStage(new CredibleSetsStage)
     addStage(new MergeSetsStage)
     addStage(new C2CTStage)
+    addStage(new SpecificityStage)
   }
 }

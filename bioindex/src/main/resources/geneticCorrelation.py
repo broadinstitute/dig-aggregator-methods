@@ -33,7 +33,7 @@ def process_datasets(spark):
     non_mixed_df.orderBy(['phenotype', 'ancestry', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{outdir}/ancestry-specific')
+        .json(f'{outdir}/ancestry')
 
 
 def main():

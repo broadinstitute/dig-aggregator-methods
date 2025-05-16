@@ -7,20 +7,22 @@ VEPDIR="/mnt/var/vep"
 
 # get the name of the part file from the command line; set the output filename
 PART=$(basename -- "$1")
+DATATYPE="$2"
 OUTFILE="${PART%.*}.json"
+COMPRESSED_OUTFILE="${PART%.*}.json.zst"
 WARNINGS="${OUTFILE}_warnings.txt"
 
 # update the path to include samtools and tabix
 PATH="$PATH:$VEPDIR/samtools-1.9/:$VEPDIR/ensembl-vep/htslib"
 
 # copy the part file from S3 to local
-aws s3 cp "$S3_IN/variants/$PART" .
+aws s3 cp "$S3_IN/$DATATYPE/variants/$PART" .
 
 # ensure the file is sorted
 sort -k1,1 -k2,2n "$PART" > "$PART.sorted"
 
 # count the number of processors (used for forking)
-CPUS=$(cat /proc/cpuinfo | grep processor | wc | awk '{print $1}')
+CPUS=4
 
 # run VEP
 perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
@@ -56,15 +58,16 @@ perl -I "$VEPDIR/loftee-0.3-beta" "$VEPDIR/ensembl-vep/vep" \
     --force_overwrite
 
 # copy the output of VEP back to S3
-aws s3 cp "$OUTFILE" "$S3_OUT/effects/$OUTFILE"
+zstd --rm "$OUTFILE" -o "$COMPRESSED_OUTFILE"
+aws s3 cp "$COMPRESSED_OUTFILE" "$S3_OUT/$DATATYPE/cqs-effects/$COMPRESSED_OUTFILE"
 
 # delete the input and output files; keep the cluster clean
 rm "$PART"
 rm "$PART.sorted"
-rm "$OUTFILE"
+rm "$COMPRESSED_OUTFILE"
 
 # check for a warnings file, upload that, too and then delete it
 if [ -e "$WARNINGS" ]; then
-    aws s3 cp "$WARNINGS" "$S3_OUT/warnings/$WARNINGS"
+    aws s3 cp "$WARNINGS" "$S3_OUT/$DATATYPE/cqs-warnings/$WARNINGS"
     rm "$WARNINGS"
 fi

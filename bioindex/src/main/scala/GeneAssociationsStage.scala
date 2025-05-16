@@ -25,6 +25,12 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
     case transcript(phenotype, file) => Outputs.Named("transcript")
   }
 
+  override val cluster: ClusterDef = super.cluster.copy(
+    instances = 6,
+    masterVolumeSizeInGB = 100,
+    slaveVolumeSizeInGB = 100
+  )
+
   /** Output to Job steps. */
   override def make(output: String): Job = {
     val script = resourceUri("geneAssociations.py")
