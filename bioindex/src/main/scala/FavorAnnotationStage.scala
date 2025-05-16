@@ -9,6 +9,7 @@ import org.broadinstitute.dig.aws.emr._
   */
 class FavorAnnotationStage(implicit context: Context) extends Stage {
 
+  override val sources: Seq[Input.Source] = Seq(Input.Source.Raw("annotated_regions/FAVOR_annot/variant_annotations/*"))
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
@@ -17,6 +18,6 @@ class FavorAnnotationStage(implicit context: Context) extends Stage {
 
   /** Output to Job steps. */
   override def make(output: String): Job = {
-    new Job(Job.PySpark(resourceUri("favorAnnotations.py"))
+    new Job(Job.PySpark(resourceUri("favorAnnotations.py")))
   }
 }

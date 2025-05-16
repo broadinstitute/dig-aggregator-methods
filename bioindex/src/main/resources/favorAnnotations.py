@@ -11,10 +11,10 @@ def main():
     """
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = f'{s3_in}/annotated_regions/FAVOR_annot/basic_info'
-    outdir = f'{s3_bioindex}/FAVOR_annot/basic_info'
+    srcdir = f'{s3_in}/annotated_regions/FAVOR_annot/variant_annotations'
+    outdir = f'{s3_bioindex}/FAVOR_annot/variant_annotations'
 
-    df = spark.read.csv(f'{srcdir}/*.tsv.gz')
+    df = spark.read.option("header", "true").option("delimiter", "\t").csv(f'{srcdir}/*.tsv.gz')
 
     # sort and write
     df.orderBy(['varId']) \

@@ -1,14 +1,15 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "igvf-lipids",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-igvf-lipids"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-igvf-lipids"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-igvf-lipids",
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [

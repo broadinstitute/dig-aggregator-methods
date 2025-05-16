@@ -22,6 +22,7 @@ object BioIndex extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
+    addStage(new FavorAnnotationStage)
     addStage(new GenesStage)
     addStage(new GeneSummariesStage)
     addStage(new GeneVariantsStage)
