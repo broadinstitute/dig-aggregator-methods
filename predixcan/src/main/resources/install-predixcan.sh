@@ -59,18 +59,18 @@ pip3 install -U namex
 pip3 install -U networkx
 pip3 install -U nextflow
 pip3 install -U numpy
-pip3 install -U nvidia-cublas-cu12
-pip3 install -U nvidia-cuda-cupti-cu12
-pip3 install -U nvidia-cuda-nvrtc-cu12
-pip3 install -U nvidia-cuda-runtime-cu12
-pip3 install -U nvidia-cudnn-cu12
-pip3 install -U nvidia-cufft-cu12
-pip3 install -U nvidia-curand-cu12
-pip3 install -U nvidia-cusolver-cu12
-pip3 install -U nvidia-cusparse-cu12
-pip3 install -U nvidia-nccl-cu12
-pip3 install -U nvidia-nvjitlink-cu12
-pip3 install -U nvidia-nvtx-cu12
+# pip3 install -U nvidia-cublas-cu12
+# pip3 install -U nvidia-cuda-cupti-cu12
+# pip3 install -U nvidia-cuda-nvrtc-cu12
+# pip3 install -U nvidia-cuda-runtime-cu12
+# pip3 install -U nvidia-cudnn-cu12
+# pip3 install -U nvidia-cufft-cu12
+# pip3 install -U nvidia-curand-cu12
+# pip3 install -U nvidia-cusolver-cu12
+# pip3 install -U nvidia-cusparse-cu12
+# pip3 install -U nvidia-nccl-cu12
+# pip3 install -U nvidia-nvjitlink-cu12
+# pip3 install -U nvidia-nvtx-cu12
 pip3 install -U opt-einsum
 pip3 install -U optree
 pip3 install -U pandas
