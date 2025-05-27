@@ -1,14 +1,14 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "pankbase",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-pankbase"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-pankbase"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-pankbase-bio-index"
         },
         "emr": {
             "subnetIds": [
