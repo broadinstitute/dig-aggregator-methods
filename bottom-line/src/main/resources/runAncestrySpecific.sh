@@ -23,7 +23,7 @@ sudo rm -rf "${OUTDIR}"
 sudo mkdir -p "${OUTDIR}"
 
 # get all the part files for this phenotype
-PARTS=($(hadoop fs -ls -C "${SRCDIR}/*/ancestry=${ANCESTRY}/*/part-*")) || PARTS=()
+readarray -t PARTS < <(aws s3 ls "${SRCDIR}/" --recursive | grep "/ancestry=${ANCESTRY}/" | grep "/part-" | awk -v srcdir="${SRCDIR}" '{$1=$2=$3=""; print srcdir "/" substr($0,4)}' || true)
 
 # bugger out if there are no parts files
 if [[ "${#PARTS[@]}" -eq 0 ]]; then
@@ -34,7 +34,12 @@ ANCESTRY_DIR="${OUTDIR}/ancestry=${ANCESTRY}"
 ANALYSIS_DIR="${ANCESTRY_DIR}/_analysis"
 
 # get all the unique datasets for this ancestry
-DATASETS=($(printf '%s\n' "${PARTS[@]}" | xargs dirname | xargs dirname | xargs dirname | awk -F "=" '{print $NF}' | sort | uniq))
+readarray -t DATASETS < <(printf '%s\n' "${PARTS[@]}" | while IFS= read -r path; do
+    # Extract dataset name from path, handling spaces
+    dataset_path=$(dirname "$(dirname "$(dirname "$path")")")
+    dataset_name="${dataset_path##*/dataset=}"
+    echo "$dataset_name"
+done | sort | uniq)
 
 # collect all the common variants for each dataset together
 for DATASET in "${DATASETS[@]}"; do
