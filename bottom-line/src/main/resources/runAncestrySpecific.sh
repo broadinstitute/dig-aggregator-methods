@@ -23,7 +23,7 @@ sudo rm -rf "${OUTDIR}"
 sudo mkdir -p "${OUTDIR}"
 
 # get all the part files for this phenotype
-readarray -t PARTS < <(aws s3 ls "${SRCDIR}/" --recursive | grep "/ancestry=${ANCESTRY}/" | grep "/part-" | awk -v srcdir="${SRCDIR}" '{$1=$2=$3=""; print srcdir "/" substr($0,4)}' || true)
+readarray -t PARTS < <(aws s3 ls "${SRCDIR}/" --recursive | grep "/ancestry=${ANCESTRY}/" | grep "/part-" | awk '{$1=$2=$3=""; print "s3://dig-data-registry-qa/" substr($0,4)}' || true)
 
 # bugger out if there are no parts files
 if [[ "${#PARTS[@]}" -eq 0 ]]; then
@@ -51,7 +51,7 @@ for DATASET in "${DATASETS[@]}"; do
 done
 
 # collect all the input files together into an array
-INPUT_FILES=($(find "${ANCESTRY_DIR}" -name "common.csv" | xargs realpath))
+readarray -t INPUT_FILES < <(find "${ANCESTRY_DIR}" -name "common.csv" -exec realpath {} \;)
 
 # first run with samplesize (overlap on), then with stderr
 sudo bash "${RUN_METAL}" "SAMPLESIZE" "ON" "${ANALYSIS_DIR}" "${INPUT_FILES[@]}"

@@ -10,7 +10,7 @@ outfile=$2
 
 # download files
 mkdir -p tmp_files
-aws s3 cp $glob ./tmp_files/ --recursive
+aws s3 cp "$glob" ./tmp_files/ --recursive
 zstd -d --rm ./tmp_files/part-*
 
 # merge files
