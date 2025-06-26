@@ -44,10 +44,12 @@ done | sort | uniq)
 # collect all the common variants for each dataset together
 for DATASET in "${DATASETS[@]}"; do
     GLOB="${SRCDIR}/dataset=${DATASET}/ancestry=${ANCESTRY}/rare=false/"
+    DATASET_DIR_NAME="${DATASET// /_}"  # Replace spaces with underscores
+    DATASET_DIR="${ANCESTRY_DIR}/${DATASET_DIR_NAME}"
 
     # create the destination directory and merge variants there
-    sudo mkdir -p "${ANCESTRY_DIR}/${DATASET}"
-    sudo bash "${GET_MERGE}" "${GLOB}" "${ANCESTRY_DIR}/${DATASET}/common.csv"
+    sudo mkdir -p "${DATASET_DIR}"
+    sudo bash "${GET_MERGE}" "${GLOB}" "${DATASET_DIR}/common.csv"
 done
 
 # collect all the input files together into an array
