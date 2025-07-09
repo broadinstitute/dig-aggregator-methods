@@ -24,6 +24,16 @@ def naive(df):
     df = df \
         .withColumn('weight', 1.0 / df.stdErr / df.stdErr) \
         .withColumn('weighted_beta', df.beta / df.stdErr / df.stdErr)
+    
+    # Capture filtered out rows for logging
+    filtered_out = df.filter(df.weight.isNull() | (df.weight == float('inf')))
+    filtered_count = filtered_out.count()
+    if filtered_count > 0:
+        print(f"Warning: Filtered out {filtered_count} rows with invalid weights (stdErr=0 or null)")
+        print("Sample filtered rows:")
+        filtered_out.select("varId", "stdErr", "weight").show(10, truncate=False)
+    
+    df = df.filter(~df.weight.isNull() & (df.weight != float('inf')))
     df = df \
         .groupBy(df.varId, df.chromosome, df.position, df.reference, df.alt, df.phenotype) \
         .agg({'weight': 'sum', 'weighted_beta': 'sum', 'n': 'sum'})
