@@ -23,7 +23,7 @@ class BurdenBinningStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   val ldServer: Input.Source = Input.Source.Success("ld_server/variants/*/")
-  val vep: Input.Source   = Input.Source.Success("out/varianteffect/cqs/")
+  val vep: Input.Source   = Input.Source.Success("out/varianteffect/ld_server/cqs/")
 
   /** The output of variant effects is the input for burden binning results file. */
   override val sources: Seq[Input.Source] = Seq(ldServer, vep)

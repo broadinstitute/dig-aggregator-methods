@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import argparse
-from boto3.session import Session
 import json
 import os
 import subprocess

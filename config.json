@@ -15,9 +15,7 @@
         },
         "emr": {
             "subnetIds": [
-                "subnet-ab89bbf3",
-                "subnet-798ebc21",
-                "subnet-dc89bb84"
+                "subnet-041ed74e61806c6f0"
             ],
             "sshKeyName": "GenomeStore REST",
             "jobFlowRoleId": "dig-aggregator-role",

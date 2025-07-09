@@ -38,18 +38,18 @@ def convert_single_file(file):
 
 
 def combine_and_upload(phenotype):
-    file_out = f'{phenotype}.sumstats.gz'
+    file_out = 'pigean.sumstats.gz'
     with gzip.open(file_out, 'w') as f_out:
         f_out.write(b'CHROM\tPOS\tP\tN\n')
     subprocess.run(f'cat data/*.sumstats.gz >> {file_out}', shell=True)
     shutil.rmtree('data')
-    subprocess.check_call(['aws', 's3', 'cp', file_out, f'{s3_out}/out/pigean/sumstats/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', file_out, f'{s3_out}/out/pigean/inputs/sumstats/portal/{phenotype}/'])
     os.remove(file_out)
 
 
 def success(phenotype):
     subprocess.check_call(['touch', '_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/out/pigean/sumstats/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/out/pigean/inputs/sumstats/portal/{phenotype}/'])
     os.remove('_SUCCESS')
 
 
