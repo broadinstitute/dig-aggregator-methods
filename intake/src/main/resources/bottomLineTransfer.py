@@ -10,6 +10,17 @@ s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
+def directory_exists(spark, path):
+    try:
+        # Try to list the directory - this will fail if it doesn't exist
+        spark._jvm.org.apache.hadoop.fs.FileSystem.get(
+            spark._jsc.hadoopConfiguration()
+        ).exists(spark._jvm.org.apache.hadoop.fs.Path(path))
+        return True
+    except:
+        return False
+
+
 def main():
     opts = argparse.ArgumentParser()
     opts.add_argument('phenotype_ancestry')
@@ -34,14 +45,18 @@ def main():
                                      col("beta").alias("min_p_beta"),
                                      col("n").alias("min_p_n")))
 
-    largest = (spark.read.option("compression", "org.apache.hadoop.io.compress.ZStandardCodec")
-               .json(largest_dir).select(col("varId"),
-                                         col("pValue").alias("largest_pValue"),
-                                         col("beta").alias("largest_beta"),
-                                         col("n").alias("largest_n")))
-    
-    # Join the dataframes
-    df = df.join(min_p, on="varId", how="left").join(largest, on="varId", how="left")
+    if directory_exists(spark, largest_dir):
+        largest = (spark.read.option("compression", "org.apache.hadoop.io.compress.ZStandardCodec")
+                   .json(largest_dir).select(col("varId"),
+                                             col("pValue").alias("largest_pValue"),
+                                             col("beta").alias("largest_beta"),
+                                             col("n").alias("largest_n")))
+
+        df = df.join(min_p, on="varId", how="left").join(largest, on="varId", how="left")
+    else:
+        print(f"Warning: {largest_dir} does not exist, skipping largest join")
+        df = df.join(min_p, on="varId", how="left")
+
     tmp_output_path = f"s3://dig-open-bottom-line-analysis-stg/tmp/{ancestry}_{phenotype}_sumstats"
     df.coalesce(1).write \
         .option("header", "true") \
