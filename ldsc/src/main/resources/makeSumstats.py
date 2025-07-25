@@ -152,6 +152,17 @@ def create_sumstats(phenotype, ancestry):
     ])
 
 
+def check_lines(phenotype, ancestry):
+    count = 0
+    with open(f'{phenotype_files}/{phenotype}_{ancestry}.sumstats.gz', 'r') as f:
+        _ = f.readline()  # ignore header
+        for line in f:
+            split_line = line.split('\t')
+            if split_line[1] != '':
+                count += 1
+    return count
+
+
 def run(phenotype, ancestry, snp_map):
     for s3_dir in get_s3_dirs(phenotype, ancestry):
         print(f'Using directory: {s3_dir}')
@@ -159,8 +170,10 @@ def run(phenotype, ancestry, snp_map):
         total_lines = stream_to_txt(phenotype, ancestry, snp_map)
         if total_lines > 0:
             create_sumstats(phenotype, ancestry)
-            upload(phenotype, ancestry)
-            return True
+            num = check_lines(phenotype, ancestry)
+            if num > 10000:
+                upload(phenotype, ancestry)
+                return True
         remove_files(phenotype, ancestry)
 
 
