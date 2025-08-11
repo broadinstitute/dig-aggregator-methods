@@ -10,7 +10,7 @@ import org.broadinstitute.dig.aws.emr._
 class SingleCellStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val metadata: Input.Source = Input.Source.Raw("single_cell/*/dataset_metadata.tsv")
+  val metadata: Input.Source = Input.Source.Raw("single_cell/*/dataset_metadata.json")
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
