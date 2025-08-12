@@ -32,13 +32,13 @@ def convert_file():
 
 def upload(phenotype):
     file_out = 'exomes.sumstats.gz'
-    subprocess.check_call(['aws', 's3', 'cp', file_out, f'{s3_out}/out/pigean/inputs/exomes/portal/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', file_out, f'{s3_out}/out/pigean/inputs/exomes/portal_exomes/exomes_{phenotype}/'])
     os.remove(file_out)
 
 
 def success(phenotype):
     subprocess.check_call(['touch', '_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/out/pigean/inputs/exomes/portal/{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/out/pigean/inputs/exomes/portal_exomes/exomes_{phenotype}/'])
     os.remove('_SUCCESS')
 
 
