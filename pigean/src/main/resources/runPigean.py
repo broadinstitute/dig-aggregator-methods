@@ -167,10 +167,7 @@ def upload(file_name, file_path):
         os.remove(file_name)
 
 def upload_data(trait_type, trait_group, phenotype, gene_set_size):
-    if trait_type == 'exomes':
-        file_path = f'{s3_out}/out/pigean/staging/pigean_exomes/{trait_group}/{phenotype}/{gene_set_size}/'
-    else:
-        file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
+    file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
     upload('gs.out', file_path)
     upload('gss.out', file_path)
     upload('ggss.out', file_path)
