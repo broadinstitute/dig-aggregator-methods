@@ -23,6 +23,8 @@ def convert_line(phenotype, headers, line):
     line_dict['phenotype'] = phenotype
     if 'positive_control' in line_dict:
         line_dict['huge_score_gwas'] = line_dict['positive_control']
+    if 'huge_score_exomes' in line_dict:
+        line_dict['huge_score_gwas'] = line_dict['huge_score_exomes']
     keys = ['phenotype', 'Gene', 'combined', 'huge_score_gwas', 'log_bf']
     values = [line_dict[key] for key in keys]
     if 'NA' not in values:
