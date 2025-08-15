@@ -120,7 +120,7 @@ def get_gene_sets(gene_set_size):
 
 def run_factor(gene_set_size, phi, openapi_key):
     cmd = [
-              'python3', f'{downloaded_files}/priors-202507.py', 'factor',
+              'python3', f'{downloaded_files}/priors.py', 'factor',
               '--phi', f'0.0{phi}',
               '--gene-set-stats-in', 'gss.out',
               '--gene-stats-in', 'gs.out',
