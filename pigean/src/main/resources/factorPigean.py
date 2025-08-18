@@ -37,7 +37,7 @@ class OpenAPIKey:
 
 
 def download_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
+    file_path = f'{s3_in}/out/old-pigean/staging/pigean/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gs.out', '.'])
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', '.'])
 
@@ -52,7 +52,7 @@ def get_gene_sets(gene_set_size):
 
 def run_factor(gene_set_size, openapi_key):
     cmd = [
-              'python3', f'{downloaded_files}/priors.py', 'factor',
+              'python3', f'{downloaded_files}/priors-202411.py', 'factor',
               '--gene-bfs-in', 'gs.out',
               '--gene-set-stats-in', 'gss.out',
               '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
@@ -83,7 +83,7 @@ def success(file_path):
 
 
 def upload_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/'
+    file_path = f'{s3_out}/out/old-pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/'
     for file in ['f.out', 'gc.out', 'gsc.out']:
         subprocess.check_call(['aws', 's3', 'cp', file, file_path])
         os.remove(file)
