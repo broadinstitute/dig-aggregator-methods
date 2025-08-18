@@ -57,8 +57,7 @@ def get_is_float(example):
 def filter_metadata(index_lists, set_lists, index_dict, max_categories):
     for label in list(index_lists.keys()):
         is_float = get_is_float(next(iter(set_lists[label])))
-        if (is_float and len(set_lists[label]) > max_categories) or \
-                (len(set_lists[label]) <= 1 and ''.join(set_lists[label]) == ''):
+        if (is_float and len(set_lists[label]) > max_categories) or len(set_lists[label]) <= 1:
             print(f'Popping {label}')
             index_lists.pop(label)
             set_lists.pop(label)
@@ -68,16 +67,17 @@ def filter_metadata(index_lists, set_lists, index_dict, max_categories):
 
 def convert_dea():
     with gzip.open('processed/dea.tsv.gz', 'wt') as f_out:
-        f_out.write('datasetId\tcomparison\tcomparison_id\tgene\tlogFoldChange\n')
+        f_out.write('datasetId\tcomparison\tcomparison_id\tgene\tgeneLabel\tlogFoldChange\n')
         with gzip.open('raw/dea.tsv.gz', 'rt') as f_in:
             header = f_in.readline().strip().split('\t')
             for line in f_in:
                 json_line = dict(zip(header, line.strip().split('\t')))
-                f_out.write('{}\t{}\t{}\t{}\t{}\n'.format(
+                f_out.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(
                     json_line['datasetId'],
                     json_line['dea_comp_name'],
                     json_line['dea_comp_id'],
                     json_line['gene'],
+                    json_line['gene_label'],
                     float(json_line['log_fold_change'])
                 ))
 
@@ -106,10 +106,11 @@ def get_diff_exp(infile, dataset, cell_indexes, number_map):
                     json_line = {
                         'dataset': dataset,
                         'gene': split_line[4],
+                        'gene_label': split_line[12],
                         'comparison_field': split_line[1],
                         'comparison': split_line[2],
                         'comparison_id': split_line[3],
-                        'log10FDR': float(split_line[12]),
+                        'p_value_adj': float(split_line[9]),
                         'logFoldChange': float(split_line[5]),
                         'expression': sorted_expression
                     }
@@ -119,7 +120,7 @@ def get_diff_exp(infile, dataset, cell_indexes, number_map):
 
 def sort_and_save_diff_exp_data(diff_exp_data, file_out):
     with open(file_out, 'w') as f:
-        for json_line in sorted(diff_exp_data, key=lambda x: (x['comparison'], -x['log10FDR'], -x['logFoldChange'])):
+        for json_line in sorted(diff_exp_data, key=lambda x: (x['comparison'], x['p_value_adj'], -x['logFoldChange'])):
             f.write(f'{json.dumps(json_line)}\n')
 
 
