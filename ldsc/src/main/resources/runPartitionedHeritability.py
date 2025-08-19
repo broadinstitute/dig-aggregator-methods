@@ -22,7 +22,7 @@ baseline_files = f'{downloaded_files}/baseline'
 weight_files = f'{downloaded_files}/weights'
 frq_files = f'{downloaded_files}/frq'
 
-cmdga_in = 's3://dig-giant-sandbox'
+cmdga_in = 's3://bottom-line-paper'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
