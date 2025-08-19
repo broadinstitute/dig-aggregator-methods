@@ -26,6 +26,10 @@ def make_option(value):
 
 def translate_gs(json_line, trait_group, phenotype, sigma, gene_set_size):
     combined = make_option(json_line["combined"])
+    if 'positive_control' in json_line:
+        json_line['huge_score_gwas'] = json_line['positive_control']
+    if 'huge_score_exomes' in json_line:
+        json_line['huge_score_gwas'] = json_line['huge_score_exomes']
     if combined is not None:
         return f'{{"gene": "{json_line["Gene"]}", ' \
                f'"prior": {make_option(json_line["prior"])}, ' \
