@@ -11,7 +11,7 @@ class CombineGSStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/old-pigean/staging/pigean/*/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
