@@ -11,7 +11,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
+    file_path = f'{s3_in}/out/old-pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/f.out', '.'])
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gc.out', '.'])
 
@@ -46,7 +46,7 @@ def success(file_path):
 
 
 def upload_data(file, trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/graph/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}/'
+    file_path = f'{s3_out}/out/old-pigean/graph/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}/'
     subprocess.check_call(['aws', 's3', 'cp', file, file_path])
     os.remove(file)
     success(file_path)

@@ -12,18 +12,19 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
+    file_path = f'{s3_in}/out/pigean-old/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gc.out', '.'])
 
 
-idxs = {'portal': {'factor': 4, 'idx': 6}, 'gcat_trait': {'factor': 5, 'idx': 7}, 'rare_v2': {'factor': 5, 'idx': 7}}
+idxs = {'portal': {'factor': 4, 'idx': 6}}
+default_idxs = {'factor': 5, 'idx': 7}
 def get_factor_cols(trait_group):
     with open('gc.out', 'r') as f:
         headers = f.readline().strip().split('\t')
         factors_with_genes = set()
         for line in f:
-            factors_with_genes |= {line.strip().split('\t')[idxs[trait_group]['factor']]}
-        return [header for header in headers[idxs[trait_group]['idx']:] if header in factors_with_genes]
+            factors_with_genes |= {line.strip().split('\t')[idxs.get(trait_group, default_idxs)['factor']]}
+        return [header for header in headers[idxs.get(trait_group, default_idxs)['idx']:] if header in factors_with_genes]
 
 
 def run_phewas(trait_group, gs_files):
@@ -65,7 +66,7 @@ def success(file_path):
 
 
 def upload_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/staging/phewas/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/'
+    file_path = f'{s3_out}/out/old-pigean/staging/phewas/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/'
     for file in ['phewas.out', 'phewas.provenance.out', 'phewas.log']:
         subprocess.check_call(['aws', 's3', 'cp', file, file_path])
         os.remove(file)

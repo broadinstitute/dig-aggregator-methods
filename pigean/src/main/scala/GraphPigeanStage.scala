@@ -12,7 +12,7 @@ class GraphPigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 8
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/old-pigean/staging/factor/*/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 

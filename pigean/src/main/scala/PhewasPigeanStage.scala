@@ -16,8 +16,8 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 8
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
-  val gsCombined: Input.Source = Input.Source.Raw("out/pigean/staging/combined_gs/*.tsv")
+  val pigean: Input.Source = Input.Source.Success("out/old-pigean/staging/factor/*/*/*/*/")
+  val gsCombined: Input.Source = Input.Source.Raw("out/old-pigean/staging/combined_gs/*.tsv")
 
   override val sources: Seq[Input.Source] = Seq(pigean, gsCombined)
 

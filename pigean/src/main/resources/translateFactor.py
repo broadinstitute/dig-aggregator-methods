@@ -8,22 +8,23 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 # Temp bodge
-idxs = {'portal': {'gc.out': 6, 'gsc.out': 5}, 'gcat_trait': {'gc.out': 7, 'gsc.out': 6}, 'rare_v2': {'gc.out': 7, 'gsc.out': 6}}
+idxs = {'portal': {'gc.out': 6, 'gsc.out': 5}}
+default_idxs = {'gc.out': 7, 'gsc.out': 6}
 def get_factors(trait_group, filename):
     if filename in idxs[trait_group]:
         with open(filename, 'r') as f:
-            return f.readline().strip().split('\t')[idxs[trait_group][filename]:]
+            return f.readline().strip().split('\t')[idxs.get(trait_group, default_idxs)[filename]:]
     else:
         return []
 
 
 def download_data(trait_group, phenotype, file_name, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/{file_name}'
+    file_path = f'{s3_in}/out/old-pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/{file_name}'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
 
 def upload_data(trait_group, phenotype, data_type, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/{data_type}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}/'
+    file_path = f'{s3_out}/out/old-pigean/{data_type}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}/'
     file_out = f'{data_type}.json'
     subprocess.check_call(['aws', 's3', 'cp', file_out, file_path])
     success(file_path)

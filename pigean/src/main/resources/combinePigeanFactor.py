@@ -58,9 +58,9 @@ def run(trait_group, phenotype, sigma, gene_set_size, data_name, label_name, out
     data_file = f'{data_name}.json'
     out_file = f'{out_name}.json'
 
-    label_path = f'{s3_in}/out/pigean/{label_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
-    data_path = f'{s3_in}/out/pigean/{data_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
-    out_path = f'{s3_out}/out/pigean/{out_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
+    label_path = f'{s3_in}/out/old-pigean/{label_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
+    data_path = f'{s3_in}/out/old-pigean/{data_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
+    out_path = f'{s3_out}/out/old-pigean/{out_name}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}'
 
     download_file(label_file, label_path)
     download_file(data_file, data_path)

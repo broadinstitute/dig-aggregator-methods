@@ -11,8 +11,8 @@ class CombinePigeanFactorStage(implicit context: Context) extends Stage {
     stepConcurrency = 8
   )
 
-  val geneStats: Input.Source = Input.Source.Success("out/pigean/gene_stats/*/*/*/*/")
-  val geneSetStats: Input.Source = Input.Source.Success("out/pigean/gene_set_stats/*/*/*/*/")
+  val geneStats: Input.Source = Input.Source.Success("out/old-pigean/gene_stats/*/*/*/*/")
+  val geneSetStats: Input.Source = Input.Source.Success("out/old-pigean/gene_set_stats/*/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(geneStats, geneSetStats)
 

@@ -10,7 +10,7 @@ class TranslatePhewasStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/phewas/*/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/old-pigean/staging/phewas/*/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 

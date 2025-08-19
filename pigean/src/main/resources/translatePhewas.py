@@ -8,12 +8,12 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download_data(trait_group, phenotype, file_name, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/phewas/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/{file_name}'
+    file_path = f'{s3_in}/out/old-pigean/staging/phewas/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/{file_name}'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
 
 def upload_data(trait_group, phenotype, data_type, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/{data_type}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}/'
+    file_path = f'{s3_out}/out/old-pigean/{data_type}/sigma={sigma}/size={gene_set_size}/{trait_group}/{phenotype}/'
     subprocess.check_call(['aws', 's3', 'cp', 'phewas.json', file_path])
     success(file_path)
     os.remove('phewas.json')
