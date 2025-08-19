@@ -16,10 +16,10 @@ class CombineGSStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(pigean)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(_, _, _, _) => Outputs.Named("combine")
+    case pigean(_, _, _, geneSetSize) => Outputs.Named(geneSetSize.split("size=").last)
   }
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("combineGS.py")))
+    new Job(Job.Script(resourceUri("combineGS.py"), s"--gene-set-size=$output"))
   }
 }
