@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.emr._
 class PigeanGraphStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val graph: Input.Source = Input.Source.Success("out/pigean/graph/*/")
+  val graph: Input.Source = Input.Source.Success("out/old-pigean/graph/*/")
 
   override val sources: Seq[Input.Source] = Seq(graph)
 

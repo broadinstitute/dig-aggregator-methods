@@ -32,7 +32,7 @@ def phewas(df):
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = f'{s3_in}/out/pigean/phewas/*/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/old-pigean/phewas/*/*/*/*/*.json'
     df = spark.read.json(srcdir)
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))

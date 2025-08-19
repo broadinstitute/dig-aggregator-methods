@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.emr._
 class PigeanPhewasStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val phewas: Input.Source = Input.Source.Success("out/pigean/phewas/*/")
+  val phewas: Input.Source = Input.Source.Success("out/old-pigean/phewas/*/")
 
   override val sources: Seq[Input.Source] = Seq(phewas)
 
