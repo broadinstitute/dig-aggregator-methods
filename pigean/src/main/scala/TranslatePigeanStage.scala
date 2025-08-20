@@ -7,7 +7,8 @@ import org.broadinstitute.dig.aws.emr._
 class TranslatePigeanStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 1,
+    stepConcurrency = 5
   )
 
   val pigean: Input.Source = Input.Source.Success("out/old-pigean/staging/pigean/*/*/*/*/")
