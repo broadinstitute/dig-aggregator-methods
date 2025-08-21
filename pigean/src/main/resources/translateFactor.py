@@ -11,11 +11,8 @@ s3_out = os.environ['OUTPUT_PATH']
 idxs = {'portal': {'gc.out': 6, 'gsc.out': 5}}
 default_idxs = {'gc.out': 7, 'gsc.out': 6}
 def get_factors(trait_group, filename):
-    if filename in idxs[trait_group]:
-        with open(filename, 'r') as f:
-            return f.readline().strip().split('\t')[idxs.get(trait_group, default_idxs)[filename]:]
-    else:
-        return []
+    with open(filename, 'r') as f:
+        return f.readline().strip().split('\t')[idxs.get(trait_group, default_idxs)[filename]:]
 
 
 def download_data(trait_group, phenotype, file_name, sigma, gene_set_size):
