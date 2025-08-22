@@ -14,7 +14,7 @@ def check_file(file, file_path):
 
 def download_file(file, file_path):
     if check_file(file, file_path) == 0:
-        subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/{file}', file])
+        subprocess.check_call(['aws', 's3', 'cp', f'"{file_path}/{file}"', file])
 
 
 def get_label_dict(label_file, combine_key):
@@ -47,9 +47,9 @@ def combine(label_file, data_file, out_file, combine_key):
 
 
 def upload(data_file, out_file, out_path):
-    subprocess.check_call(['aws', 's3', 'cp', data_file, f'{out_path}/{out_file}'])
+    subprocess.check_call(['aws', 's3', 'cp', data_file, f'"{out_path}/{out_file}"'])
     subprocess.check_call(['touch', '_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{out_path}/_SUCCESS'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'"{out_path}/_SUCCESS"'])
     os.remove('_SUCCESS')
 
 
