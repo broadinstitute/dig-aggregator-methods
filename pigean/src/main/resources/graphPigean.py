@@ -18,7 +18,7 @@ def download_data(trait_group, phenotype, sigma, gene_set_size):
 
 def run_graph():
     cmd = [
-              'python3', f'{downloaded_files}/factor_graph.py',
+              'python3', f'{downloaded_files}/factor_graph_202411.py',
               '--gene-factors-in', 'gc.out',
               '--factors-in', 'f.out',
               '--json-out', 'graph.json'
