@@ -5,7 +5,7 @@
             "bucket": "dig-analysis-data"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "psmadbec-test"
         },
         "bioindex": {
             "bucket": "dig-bio-index"

@@ -15,6 +15,8 @@ sudo aws s3 cp s3://dig-analysis-bin/pigean/methods/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/misc/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/updated_gene_sets/ . --recursive
 
+sudo aws s3 cp s3://dig-analysis-bin/orphanet/code_to_leaves.tsv .
+
 # install dependencies
 sudo yum install -y python3-devel
 sudo pip3 install -U Cython

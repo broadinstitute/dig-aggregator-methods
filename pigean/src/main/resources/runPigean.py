@@ -128,6 +128,15 @@ def trait_type_command(trait_type):
              '--exomes-beta-col', 'Effect'
         ]
 
+def get_background_prior(phenotype):
+    with open(f'{downloaded_files}/code_to_leaves.tsv', 'r') as f:
+        for line in f:
+            code, leaves_str = line.strip().split('\t')
+            if code == phenotype:
+                return ['--background-prior', str(min(int(leaves_str) * 0.005, 0.05))]
+    return ['--background-prior', '0.05']
+
+
 base_cmd = [
     'python3', f'{downloaded_files}/priors.py', 'gibbs',
     '--first-for-sigma-cond',
@@ -137,7 +146,6 @@ base_cmd = [
     '--num-chains', '10',
     '--num-chains-betas', '4',
     '--max-num-iter', '500',
-    '--background-prior', '0.05',
     '--filter-gene-set-p', '0.005',
     '--max-num-gene-sets', '4000',
     '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
@@ -150,8 +158,8 @@ base_cmd = [
     '--gene-effectors-out', 'ge.out'
 ]
 
-def run_pigean(trait_type, gene_set_size):
-    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(gene_set_size)
+def run_pigean(trait_type, phenotype, gene_set_size):
+    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(gene_set_size) + get_background_prior(phenotype)
     subprocess.check_call(cmd)
 
 
@@ -188,7 +196,7 @@ def main():
     args = parser.parse_args()
     download_data(args.trait_type, args.trait_group, args.phenotype)
     try:
-        run_pigean(args.trait_type, args.gene_set_size)
+        run_pigean(args.trait_type, args.phenotype, args.gene_set_size)
         upload_data(args.trait_type, args.trait_group, args.phenotype, args.gene_set_size)
         os.remove(file_name(args.trait_type))
     except:
