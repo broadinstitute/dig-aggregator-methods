@@ -16,10 +16,10 @@ gene_sets = {
 }
 
 gene_lists = {
-    'cfde.gene_sets.list': ['cfde'],
-    'cfde_overlap.gene_sets.list': ['cfde'],
-    'mouse.gene_sets.list': ['mouse'],
-    'ryank061025.gene_sets.list': ['ryank061025']
+    'cfde/cfde.gene_sets.list': ['cfde'],
+    'cfde_overlap/cfde_overlap.gene_sets.list': ['cfde'],
+    'mouse/mouse.gene_sets.list': ['mouse'],
+    'ryan061025/ryank061025.gene_sets.list': ['ryank061025']
 }
 
 
