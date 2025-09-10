@@ -76,12 +76,13 @@ def trait_type_command(trait_type):
              '--exomes-beta-col', 'Effect'
         ]
 
+# NOTE: Removed as model became unstable
 def get_background_prior(phenotype):
-    with open(f'{downloaded_files}/code_to_leaves.tsv', 'r') as f:
-        for line in f:
-            code, leaves_str = line.strip().split('\t')
-            if code == phenotype:
-                return ['--background-prior', str(min(int(leaves_str) * 0.005, 0.05))]
+    # with open(f'{downloaded_files}/code_to_leaves.tsv', 'r') as f:
+    #     for line in f:
+    #         code, leaves_str = line.strip().split('\t')
+    #         if code == phenotype:
+    #             return ['--background-prior', str(min(int(leaves_str) * 0.005, 0.05))]
     return ['--background-prior', '0.05']
 
 
