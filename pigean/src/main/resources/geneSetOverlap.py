@@ -71,14 +71,13 @@ def get_overlaps(file_list: List) -> Dict:
         main_sets = get_gene_sets(main_file)
         for other_idx in range(main_idx, len(file_list)):
             other_name, other_file = file_list[other_idx]
-            print(main_name, other_name)
             other_sets = get_gene_sets(other_file)
             for main_set_name, main_set in main_sets.items():
                 for other_set_name, other_set in other_sets.items():
                     if main_name != other_name or main_set_name < other_set_name:
                         overlap = main_set & other_set
                         p = get_fisher(main_set, other_set, total_genes)
-                        if p < 1E-3:
+                        if len(overlap) > 0 and p < 1E-3:
                             if (main_name, other_name) not in overlap_gene_sets:
                                 overlap_gene_sets[(main_name, other_name)] = []
                             heapq.heappush(overlap_gene_sets[(main_name, other_name)], (-p, overlap, main_set_name, other_set_name))
