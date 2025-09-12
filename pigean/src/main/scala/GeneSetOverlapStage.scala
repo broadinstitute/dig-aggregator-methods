@@ -7,7 +7,8 @@ import org.broadinstitute.dig.aws.emr._
 class GeneSetOverlapStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 1,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("overlap-bootstrap.sh")))
   )
 
   val geneList: Input.Source = Input.Source.Raw("out/pigean/gene_lists/*/*.list")

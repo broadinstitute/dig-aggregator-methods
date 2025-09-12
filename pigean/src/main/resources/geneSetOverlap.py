@@ -2,18 +2,25 @@ import argparse
 import glob
 import gzip
 import os
+from scipy.stats import fisher_exact
 import shutil
 import subprocess
-from typing import Dict, List
+from typing import Dict, List, Set
 import heapq
 
 
+downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
 def download_data(list_group: str) -> None:
     subprocess.check_call(f'aws s3 cp {s3_in}/out/pigean/gene_lists/{list_group}/ list_files/ --recursive', shell=True)
+
+
+def total_gene_count():
+    with open(f'{downloaded_files}/NCBI37.3.plink.gene.loc', 'r') as f:
+        return len(f.readlines())
 
 
 def get_file_list() -> List:
@@ -40,29 +47,42 @@ def get_gene_sets(file: str) -> Dict:
     return gene_set_to_gene
 
 
+memo = {}
+def get_fisher(gene_set_1: Set[str], gene_set_2: Set[str], total_gene_count: int) -> float:
+    overlap_count = len(gene_set_1 & gene_set_2)
+    gene_set_count_1 = len(gene_set_1)
+    gene_set_count_2 = len(gene_set_2)
+    table = (
+        (overlap_count, gene_set_count_1 - overlap_count),
+        (gene_set_count_2 - overlap_count, total_gene_count - gene_set_count_1 - gene_set_count_2 + overlap_count)
+    )
+    if table not in memo:
+        _, p = fisher_exact(table)
+        memo[table] = p
+    return memo[table]
+
+
 def get_overlaps(file_list: List) -> Dict:
+    total_genes = total_gene_count()
     overlap_gene_sets = {}
     for main_idx in range(len(file_list)):
         main_name, main_file = file_list[main_idx]
         main_sets = get_gene_sets(main_file)
-        for other_idx in range(main_idx + 1, len(file_list)):
+        for other_idx in range(main_idx, len(file_list)):
             other_name, other_file = file_list[other_idx]
             print(main_name, other_name)
-            min_overlap = 10
             other_sets = get_gene_sets(other_file)
             for main_set_name, main_set in main_sets.items():
-                if len(main_set) >= min_overlap:
-                    for other_set_name, other_set in other_sets.items():
+                for other_set_name, other_set in other_sets.items():
+                    if main_name != other_name or main_set_name < other_set_name:
                         overlap = main_set & other_set
-                        if len(overlap) >= min_overlap:
+                        p = get_fisher(main_set, other_set, total_genes)
+                        if p < 1E-3:
                             if (main_name, other_name) not in overlap_gene_sets:
                                 overlap_gene_sets[(main_name, other_name)] = []
-                            heapq.heappush(overlap_gene_sets[(main_name, other_name)], (len(overlap), overlap, main_set_name, other_set_name))
+                            heapq.heappush(overlap_gene_sets[(main_name, other_name)], (-p, overlap, main_set_name, other_set_name))
                             if len(overlap_gene_sets[(main_name, other_name)]) > 5000:
-                                gene_set_size, _, _, _ = heapq.heappop(overlap_gene_sets[(main_name, other_name)])
-                                if gene_set_size > min_overlap:
-                                    min_overlap = gene_set_size
-                                    print(min_overlap)
+                                heapq.heappop(overlap_gene_sets[(main_name, other_name)])
     return overlap_gene_sets
 
 
@@ -73,11 +93,11 @@ def upload_data(list_group: str, overlap_gene_sets: Dict) -> None:
             file_name = f'{main_name}.x.{other_name}.gmt.gz'
             f_list.write(f'{main_name}_x_{other_name}:/mnt/var/pigean/{list_group}_overlap/{file_name}\n')
             with gzip.open(f'overlap_files/{file_name}', 'wt') as f:
-                for (_, gene_set, main_set_name, other_set_name) in overlap_sets:
+                for (p, gene_set, main_set_name, other_set_name) in sorted(overlap_sets, key=lambda x: x[0]):
                     set_name = f'{main_set_name}_{other_set_name}'
                     gene_str = '\t'.join(gene_set)
                     f.write(f'{set_name}\t{gene_str}\n')
-    #subprocess.check_call(f'aws s3 cp overlap_files/ {s3_in}/out/pigean/gene_lists/{list_group}_overlap/ --recursive', shell=True)
+    subprocess.check_call(f'aws s3 cp overlap_files/ {s3_out}/out/pigean/gene_lists/{list_group}_overlap/ --recursive', shell=True)
 
 
 def main():
@@ -88,8 +108,8 @@ def main():
     file_list = get_file_list()
     overlap_gene_sets = get_overlaps(file_list)
     upload_data(args.list_group, overlap_gene_sets)
-    # shutil.rmtree('list_files')
-    # shutil.rmtree('overlap_files')
+    shutil.rmtree('list_files')
+    shutil.rmtree('overlap_files')
 
 
 if __name__ == '__main__':
