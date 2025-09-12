@@ -97,6 +97,7 @@ base_cmd = [
     '--max-num-iter', '500',
     '--filter-gene-set-p', '0.005',
     '--max-num-gene-sets', '4000',
+    '--min-gene-set-size', '5',
     '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
     '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
     '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
