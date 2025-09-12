@@ -11,12 +11,12 @@ class GeneSetOverlapStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("overlap-bootstrap.sh")))
   )
 
-  val geneList: Input.Source = Input.Source.Raw("out/pigean/gene_lists/*/*.list")
+  val geneList: Input.Source = Input.Source.Raw("out/pigean/gene_lists/*/*")
 
   override val sources: Seq[Input.Source] = Seq(geneList)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case genes(listGroup, _) => Outputs.Named(listGroup)
+    case geneList(listGroup, _) => Outputs.Named(listGroup)
   }
 
   override def make(output: String): Job = {

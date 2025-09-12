@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import argparse
 import glob
 import gzip
