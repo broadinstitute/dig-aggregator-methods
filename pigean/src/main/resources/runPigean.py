@@ -87,7 +87,7 @@ def get_background_prior(phenotype):
 
 
 base_cmd = [
-    'python3', f'{downloaded_files}/priors.py', 'gibbs',
+    'python3', f'{downloaded_files}/priors-202507.py', 'gibbs',
     '--first-for-sigma-cond',
     '--sigma-power', f'-2',
     '--gwas-detect-high-power', '100',
