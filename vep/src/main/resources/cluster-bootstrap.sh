@@ -1,7 +1,5 @@
 #!/bin/bash -xe
 
-sudo yum groups mark convert
-
 # check if GCC, make, etc. are installed already
 DEVTOOLS=$(sudo yum grouplist | grep 'Development Tools')
 
@@ -14,7 +12,6 @@ fi
 sudo yum install -y perl-CPAN
 sudo yum install -y perl-DBD-MySQL
 sudo yum install -y htop
-sudo yum install -y curl
 
 # install perlbrew
 curl -L https://install.perlbrew.pl | bash
