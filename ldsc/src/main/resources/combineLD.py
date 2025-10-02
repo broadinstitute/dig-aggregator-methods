@@ -20,11 +20,16 @@ def check_biosample(annotation, tissue, biosample):
 
 def download_files(ancestry, annotation, tissue):
     subprocess.check_call(['aws', 's3', 'cp',
-                           f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation/{annotation}/',
-                           f'ld_files/annotation/{annotation}/', '--recursive'])
+                           f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation/{annotation}/ld_score.zip',
+                           f'ld_files/annotation/{annotation}/'])
+    subprocess.check_call(f'unzip ld_files/annotation/{annotation}/ld_score.zip -d ld_files/annotation/{annotation}/', shell=True)
+    os.remove(f'ld_files/annotation/{annotation}/ld_score.zip')
     subprocess.check_call(['aws', 's3', 'cp',
-                           f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/',
-                           f'ld_files/annotation-tissue/{annotation}___{tissue}/', '--recursive'])
+                           f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/ld_score.zip',
+                           f'ld_files/annotation-tissue/{annotation}___{tissue}/'])
+    subprocess.check_call(f'unzip ld_files/annotation-tissue/{annotation}___{tissue}/ld_score.zip -d ld_files/annotation-tissue/{annotation}___{tissue}/', shell=True)
+    os.remove(f'ld_files/annotation-tissue/{annotation}___{tissue}/ld_score.zip')
+
     biosamples = []
     s3_ls = subprocess.check_output(['aws', 's3', 'ls', f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue-biosample/']).decode()
     for line in s3_ls.strip().split('\n'):
@@ -32,23 +37,25 @@ def download_files(ancestry, annotation, tissue):
         s3_annotation, s3_tissue, s3_biosample = s3_folder.split('___')
         if s3_annotation == annotation and s3_tissue == tissue:
             subprocess.check_call(['aws', 's3', 'cp',
-                                   f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue-biosample/{s3_folder}/',
-                                   f'ld_files/annotation-tissue-biosample/{s3_folder}/', '--recursive'])
+                                   f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue-biosample/{s3_folder}/ld_score.zip',
+                                   f'ld_files/annotation-tissue-biosample/{s3_folder}/'])
+            subprocess.check_call(f'unzip ld_files/annotation-tissue-biosample/{s3_folder}/ld_score.zip -d ld_files/annotation-tissue-biosample/{s3_folder}/', shell=True)
+            os.remove(f'ld_files/annotation-tissue-biosample/{s3_folder}/ld_score.zip')
             if check_biosample(annotation, tissue, s3_biosample):
                 biosamples.append(s3_biosample)
     return biosamples
 
 
 def biosample_to_file(annotation, tissue, biosample):
-    return f'ld_files/annotation-tissue-biosample/{annotation}___{tissue}___{biosample}/{annotation}___{tissue}___{biosample}'
+    return f'ld_files/annotation-tissue-biosample/{annotation}___{tissue}___{biosample}/ld'
 
 
 def tissue_to_file(annotation, tissue):
-    return f'ld_files/annotation-tissue/{annotation}___{tissue}/{annotation}___{tissue}'
+    return f'ld_files/annotation-tissue/{annotation}___{tissue}/ld'
 
 
 def annotation_file(annotation):
-    return f'ld_files/annotation/{annotation}/{annotation}'
+    return f'ld_files/annotation/{annotation}/ld'
 
 
 def get_biosample_files(annotation, tissue, biosamples):
