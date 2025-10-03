@@ -19,27 +19,29 @@ def check_biosample(annotation, tissue, biosample):
 
 
 def download_files(ancestry, annotation, tissue):
-    subprocess.check_call(['aws', 's3', 'cp',
-                           f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation/{annotation}/ld_score.zip',
-                           f'ld_files/annotation/{annotation}/'])
-    subprocess.check_call(f'unzip ld_files/annotation/{annotation}/ld_score.zip -d ld_files/annotation/{annotation}/', shell=True)
+    path_base = f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}'
+    path_in = f'{path_base}/annotation/{annotation}'
+    path = f'ld_files/annotation/{annotation}'
+    subprocess.check_call(f'aws s3 cp "{path_in}"/ld_score.zip "{path}"/', shell=True)
+    subprocess.check_call(f'unzip "{path}"/ld_score.zip -d "{path}"/', shell=True)
     os.remove(f'ld_files/annotation/{annotation}/ld_score.zip')
-    subprocess.check_call(['aws', 's3', 'cp',
-                           f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/ld_score.zip',
-                           f'ld_files/annotation-tissue/{annotation}___{tissue}/'])
-    subprocess.check_call(f'unzip ld_files/annotation-tissue/{annotation}___{tissue}/ld_score.zip -d ld_files/annotation-tissue/{annotation}___{tissue}/', shell=True)
+
+    path_in = f'{path_base}/annotation-tissue/{annotation}___{tissue}'
+    path = f'ld_files/annotation-tissue/{annotation}___{tissue}'
+    subprocess.check_call(f'aws s3 cp "{path_in}"/ld_score.zip "{path}"/', shell=True)
+    subprocess.check_call(f'unzip "{path}"/ld_score.zip -d "{path}"/', shell=True)
     os.remove(f'ld_files/annotation-tissue/{annotation}___{tissue}/ld_score.zip')
 
     biosamples = []
-    s3_ls = subprocess.check_output(['aws', 's3', 'ls', f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue-biosample/']).decode()
+    s3_ls = subprocess.check_output(f'aws s3 ls {path_base}/annotation-tissue-biosample/', shell=True).decode()
     for line in s3_ls.strip().split('\n'):
         s3_folder = line.split(' ')[-1].split('/')[0]
         s3_annotation, s3_tissue, s3_biosample = s3_folder.split('___')
         if s3_annotation == annotation and s3_tissue == tissue:
-            subprocess.check_call(['aws', 's3', 'cp',
-                                   f'{s3_in}/out/ldsc/regions/ld_score/ancestry={ancestry}/annotation-tissue-biosample/{s3_folder}/ld_score.zip',
-                                   f'ld_files/annotation-tissue-biosample/{s3_folder}/'])
-            subprocess.check_call(f'unzip ld_files/annotation-tissue-biosample/{s3_folder}/ld_score.zip -d ld_files/annotation-tissue-biosample/{s3_folder}/', shell=True)
+            path_in = f'{path_base}/annotation-tissue-biosample/{s3_folder}'
+            path = f'ld_files/annotation-tissue-biosample/{s3_folder}'
+            subprocess.check_call(f'aws s3 cp "{path_in}"/ld_score.zip "{path}"/', shell=True)
+            subprocess.check_call(f'unzip "{path}"/ld_score.zip -d "{path}"/', shell=True)
             os.remove(f'ld_files/annotation-tissue-biosample/{s3_folder}/ld_score.zip')
             if check_biosample(annotation, tissue, s3_biosample):
                 biosamples.append(s3_biosample)
@@ -125,14 +127,14 @@ def combine_tissue(annotation, tissue):
 
 
 def upload_and_remove(ancestry, annotation, tissue):
-    subprocess.check_call(['touch', 'ld_files/combined/annotation-tissue/_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp',
-                           'ld_files/combined/annotation-tissue/',
-                           f'{s3_out}/out/ldsc/regions/combined_ld/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/', '--recursive'])
-    subprocess.check_call(['touch', 'ld_files/combined/annotation-tissue-biosample/_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp',
-                           'ld_files/combined/annotation-tissue-biosample/',
-                           f'{s3_out}/out/ldsc/regions/combined_ld/ancestry={ancestry}/annotation-tissue-biosample/{annotation}___{tissue}/', '--recursive'])
+    path = 'ld_files/combined/annotation-tissue'
+    out = f'{s3_out}/out/ldsc/regions/combined_ld/ancestry={ancestry}/annotation-tissue/{annotation}___{tissue}/'
+    subprocess.check_call(f'touch "{path}"/_SUCCESS', shell=True)
+    subprocess.check_call(f'aws s3 cp "{path}"/ "{out}" --recursive', shell=True)
+    path = 'ld_files/combined/annotation-tissue-biosample/'
+    out = f'{s3_out}/out/ldsc/regions/combined_ld/ancestry={ancestry}/annotation-tissue-biosample/{annotation}___{tissue}/'
+    subprocess.check_call(f'touch "{path}"/_SUCCESS', shell=True)
+    subprocess.check_call(f'aws s3 cp "{path}"/ "{out}" --recursive', shell=True)
     shutil.rmtree('ld_files')
 
 
