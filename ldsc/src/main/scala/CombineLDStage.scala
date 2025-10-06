@@ -7,7 +7,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class CombineLDStage(implicit context: Context) extends Stage {
 
-  val ldFiles: Input.Source = Input.Source.Success(s"out/ldsc/regions/ld_score/*/*/*/")
+  val ldFiles: Input.Source = Input.Source.Raw(s"out/ldsc/regions/ld_score/*/*/*/ld_score.zip")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(ldFiles)
