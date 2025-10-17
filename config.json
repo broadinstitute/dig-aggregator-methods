@@ -2,13 +2,16 @@
     "aws": {
         "project": "portal",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_2025_10_17"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_2025_10_17"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_2025_10_17/bioindex"
         },
         "emr": {
             "subnetIds": [
