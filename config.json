@@ -1,6 +1,6 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "satoshi_2025_10_17",
         "input": {
             "bucket": "dig-analysis-private",
             "subdir": "satoshi_2025_10_17"
