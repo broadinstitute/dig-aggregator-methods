@@ -6,13 +6,13 @@ import subprocess
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-def get_gene_set_description_map():
+def get_gene_set_data_map():
     subprocess.check_call('aws s3 cp s3://dig-analysis-bin/pigean/misc/gene_set_map.tsv .', shell=True)
     out = {}
     with open('gene_set_map.tsv', 'r') as f:
         for line in f:
-            gene_set, gene_set_description = line.strip().split('\t')
-            out[gene_set] = gene_set_description
+            gene_set, gene_set_description, program = line.strip().split('\t')
+            out[gene_set] = (gene_set_description, program)
     return out
 
 
@@ -49,13 +49,15 @@ def translate_gs(json_line, trait_group, phenotype, gene_set_size):
 
 
 def get_translate_gss():
-    gene_set_description_map = get_gene_set_description_map()
+    gene_set_data_map = get_gene_set_data_map()
     def translate_gss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
         beta_uncorrected = make_option(json_line["beta_uncorrected"])
         if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
+            description, program = gene_set_data_map[json_line["Gene_Set"]]
             return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
-                   f'"gene_set_description": "{gene_set_description_map[json_line["Gene_Set"]]}", ' \
+                   f'"gene_set_description": "{description}", ' \
+                   f'"gene_set_program": "{program}", ' \
                    f'"source": "{json_line["label"]}", ' \
                    f'"beta": {beta}, ' \
                    f'"beta_uncorrected": {beta_uncorrected}, ' \
