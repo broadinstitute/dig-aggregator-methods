@@ -6,6 +6,15 @@ import subprocess
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
+def get_gene_set_description_map():
+    subprocess.check_call('aws s3 cp s3://dig-analysis-bin/pigean/misc/gene_set_map.tsv .', shell=True)
+    out = {}
+    with open('gene_set_map.tsv', 'r') as f:
+        for line in f:
+            gene_set, gene_set_description = line.strip().split('\t')
+            out[gene_set] = gene_set_description
+    return out
+
 
 def download_data(trait_group, phenotype, file_name, gene_set_size):
     file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/{file_name}'
@@ -39,18 +48,22 @@ def translate_gs(json_line, trait_group, phenotype, gene_set_size):
                f'"gene_set_size": "{gene_set_size}"}}\n'
 
 
-def translate_gss(json_line, trait_group, phenotype, gene_set_size):
-    beta = make_option(json_line["beta"])
-    beta_uncorrected = make_option(json_line["beta_uncorrected"])
-    if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
-        return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
-               f'"source": "{json_line["label"]}", ' \
-               f'"beta": {beta}, ' \
-               f'"beta_uncorrected": {beta_uncorrected}, ' \
-               f'"n": {make_option(json_line["N"])}, ' \
-               f'"trait_group": "{trait_group}", ' \
-               f'"phenotype": "{phenotype}", ' \
-               f'"gene_set_size": "{gene_set_size}"}}\n'
+def get_translate_gss():
+    gene_set_description_map = get_gene_set_description_map()
+    def translate_gss(json_line, trait_group, phenotype, gene_set_size):
+        beta = make_option(json_line["beta"])
+        beta_uncorrected = make_option(json_line["beta_uncorrected"])
+        if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
+            return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
+                   f'"gene_set_description": "{gene_set_description_map[json_line["Gene_Set"]]}", ' \
+                   f'"source": "{json_line["label"]}", ' \
+                   f'"beta": {beta}, ' \
+                   f'"beta_uncorrected": {beta_uncorrected}, ' \
+                   f'"n": {make_option(json_line["N"])}, ' \
+                   f'"trait_group": "{trait_group}", ' \
+                   f'"phenotype": "{phenotype}", ' \
+                   f'"gene_set_size": "{gene_set_size}"}}\n'
+    return translate_gss
 
 
 def get_translate_ggss(trait_group, phenotype, gene_set_size):
@@ -123,7 +136,8 @@ def main():
     args = parser.parse_args()
 
     translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_stats', 'gs.out', translate_gs)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_stats', 'gss.out', translate_gss)
+    translate_gss_func = get_translate_gss()
+    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_stats', 'gss.out', translate_gss_func)
     translate_ggss_func = get_translate_ggss(args.trait_group, args.phenotype, args.gene_set_size)
     translate(args.trait_group, args.phenotype, args.gene_set_size,  'gene_gene_set_stats', 'ggss.out', translate_ggss_func)
 
