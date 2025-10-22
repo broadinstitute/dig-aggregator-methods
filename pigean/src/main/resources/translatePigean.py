@@ -78,7 +78,7 @@ def get_translate_ggss(trait_group, phenotype, gene_set_size):
         if beta is not None and combined is not None:
             beta_uncorrected = beta_uncorrected_map.get((phenotype, json_line['gene_set']), '0.0')
             source = source_map[(phenotype, json_line['gene_set'])]
-            description, program = gene_set_data_map[json_line["Gene_Set"]]
+            description, program = gene_set_data_map[json_line["gene_set"]]
             return f'{{"gene": "{json_line["Gene"]}", ' \
                    f'"gene_set": "{json_line["gene_set"]}", ' \
                    f'"gene_set_description": "{description}", ' \
