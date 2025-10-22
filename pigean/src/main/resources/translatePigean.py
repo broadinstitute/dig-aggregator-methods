@@ -13,6 +13,7 @@ def get_gene_set_data_map():
         for line in f:
             gene_set, gene_set_description, program = line.strip().split('\t')
             out[gene_set] = (gene_set_description, program)
+    os.remove('gene_set_map.tsv')
     return out
 
 
