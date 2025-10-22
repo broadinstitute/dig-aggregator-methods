@@ -71,14 +71,18 @@ def get_translate_gss():
 
 def get_translate_ggss(trait_group, phenotype, gene_set_size):
     beta_uncorrected_map, source_map = get_ggss_maps(trait_group, phenotype, gene_set_size)
+    gene_set_data_map = get_gene_set_data_map()
     def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
         combined = make_option(json_line["combined"])
         if beta is not None and combined is not None:
             beta_uncorrected = beta_uncorrected_map.get((phenotype, json_line['gene_set']), '0.0')
             source = source_map[(phenotype, json_line['gene_set'])]
+            description, program = gene_set_data_map[json_line["Gene_Set"]]
             return f'{{"gene": "{json_line["Gene"]}", ' \
                    f'"gene_set": "{json_line["gene_set"]}", ' \
+                   f'"gene_set_description": "{description}", ' \
+                   f'"gene_set_program": "{program}", ' \
                    f'"source": "{source}", ' \
                    f'"prior": {make_option(json_line["prior"])}, ' \
                    f'"combined": {combined}, ' \
