@@ -126,10 +126,8 @@ def upload(file_name, file_path):
 
 def upload_data(trait_type, trait_group, phenotype, gene_set_size):
     file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
-    upload('gs.out', file_path)
-    upload('gss.out', file_path)
-    upload('ggss.out', file_path)
-    upload('ge.out', file_path)
+    for file in ['gs.out', 'gss.out', 'ggss.out', 'ge.out', 'p.out', 'f.out', 'gc.out', 'gsc.out', 'fa.out', 'gac.out', 'gsac.out']:
+        upload(file, file_path)
     success(file_path)
 
 
