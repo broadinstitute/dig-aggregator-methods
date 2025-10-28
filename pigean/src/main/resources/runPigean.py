@@ -99,13 +99,7 @@ base_cmd = [
     '--gene-set-stats-out', 'gss.out',
     '--gene-gene-set-stats-out', 'ggss.out',
     '--gene-effectors-out', 'ge.out',
-    '--params-out', 'p.out',
-    '--factors-out', 'f.out',
-    '--gene-clusters-out', 'gc.out',
-    '--gene-set-clusters-out', 'gsc.out',
-    '--factors-anchor-out', 'fa.out',
-    '--gene-anchor-clusters-out', 'gac.out',
-    '--gene-set-anchor-clusters-out', 'gsac.out'
+    '--params-out', 'p.out'
 ]
 
 def run_pigean(trait_type, phenotype, gene_set_size):
