@@ -98,7 +98,7 @@ base_cmd = [
     '--gene-stats-out', 'gs.out',
     '--gene-set-stats-out', 'gss.out',
     '--gene-gene-set-stats-out', 'ggss.out',
-    '--gene-effectors-out', 'ge.out'
+    '--gene-effectors-out', 'ge.out',
     '--params-out', 'p.out',
     '--factors-out', 'f.out',
     '--gene-clusters-out', 'gc.out',
