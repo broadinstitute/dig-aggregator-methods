@@ -10,23 +10,19 @@ import org.broadinstitute.dig.aws.emr._
 class SingleCellStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val fields: Input.Source = Input.Source.Raw("single_cell/*/metadata.tsv")
-  val coordinates: Input.Source = Input.Source.Raw("single_cell/*/coordinates.tsv")
-  val geneLogNorm: Input.Source = Input.Source.Raw("single_cell/*/lognorm_counts.tsv.gz")
+  val metadata: Input.Source = Input.Source.Raw("single_cell/*/dataset_metadata.json")
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    masterVolumeSizeInGB = 100
+    masterVolumeSizeInGB = 500
   )
 
   /** Input sources. */
-  override val sources: Seq[Input.Source] = Seq(fields, coordinates, geneLogNorm)
+  override val sources: Seq[Input.Source] = Seq(metadata)
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case fields(dataset) => Outputs.Named(dataset)
-    case coordinates(dataset) => Outputs.Named(dataset)
-    case geneLogNorm(dataset) => Outputs.Named(dataset)
+    case metadata(dataset) => Outputs.Named(dataset)
   }
 
   /** Output to Job steps. */
