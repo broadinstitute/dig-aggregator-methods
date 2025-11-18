@@ -12,9 +12,26 @@ sudo chmod 775 $VEP_ROOT
 # install to the VEP directory
 cd $VEP_ROOT
 
-# download the VEP program + data and extract it
-sudo aws s3 cp s3://dig-analysis-bin/vep/vep-97.tar.gz .
-sudo tar zxf vep-97.tar.gz
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-v115.zip .
+sudo unzip vep-v115.zip
+sudo rm vep-v115.zip
 
-# The index file will be recreated at runtime and has the match the system
-sudo rm fasta/GRCh37.primary_assembly.genome.fa.index
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-homo_sapiens-115-GRCh37.zip .
+sudo unzip vep-homo_sapiens-115-GRCh37.zip
+sudo rm vep-homo_sapiens-115-GRCh37.zip
+
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-dbNSFP5.3a_grch37.zip .
+sudo unzip vep-dbNSFP5.3a_grch37.zip
+sudo rm vep-dbNSFP5.3a_grch37.zip
+
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-loftee-1.0.zip .
+sudo unzip vep-loftee-1.0.zip
+sudo rm vep-loftee-1.0.zip
+
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-fasta-GRCh37.zip .
+sudo unzip vep-fasta-GRCh37.zip
+sudo rm vep-fasta-GRCh37.zip
+
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-revel-GRCh37.zip .
+sudo unzip vep-revel-GRCh37.zip
+sudo rm vep-revel-GRCh37.zip

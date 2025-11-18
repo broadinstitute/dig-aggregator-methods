@@ -33,10 +33,9 @@ def exploded_consequences(row):
         record['chromosome'] = row['seq_region_name']
         record['position'] = int(row['start'])
 
-        # apend all the consequence fields; ignore some
+        # apend all the consequence fields
         for k, v in cqs.items():
-            if k not in ['domains']:
-                record[rename_cqs_field(k)] = v
+            record[rename_cqs_field(k)] = v
 
         # add the record to the returned values
         yield record

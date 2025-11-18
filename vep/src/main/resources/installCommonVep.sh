@@ -12,6 +12,10 @@ sudo chmod 775 $VEP_ROOT
 # install to the VEP directory
 cd $VEP_ROOT
 
-# download the VEP program + data and extract it
-sudo aws s3 cp s3://dig-analysis-bin/vep/vep-97-common.zip .
-sudo unzip vep-97-common.zip
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-v115.zip .
+sudo unzip vep-v115.zip
+sudo rm vep-v115.zip
+
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-homo_sapiens-115-GRCh37.zip .
+sudo unzip vep-homo_sapiens-115-GRCh37.zip
+sudo rm vep-homo_sapiens-115-GRCh37.zip
