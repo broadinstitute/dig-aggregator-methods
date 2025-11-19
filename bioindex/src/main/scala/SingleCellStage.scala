@@ -14,7 +14,8 @@ class SingleCellStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    masterVolumeSizeInGB = 500
+    masterVolumeSizeInGB = 500,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   /** Input sources. */

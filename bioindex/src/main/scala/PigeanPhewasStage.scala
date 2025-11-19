@@ -16,7 +16,8 @@ class PigeanPhewasStage(implicit context: Context) extends Stage {
   }
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 1,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
   /** Output to Job steps. */
