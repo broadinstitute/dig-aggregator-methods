@@ -30,7 +30,6 @@ def main():
         .withColumn('ancestry', lit(args.ancestry))
     df = df \
         .withColumn('clump', df.credibleSetId) \
-        .filter(df.source != 'credible_set') \
         .drop('credibleSetId')
 
     # load the top-association, lead SNPs for every phenotype
