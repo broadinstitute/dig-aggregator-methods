@@ -88,12 +88,14 @@ def output_coordinates(index_lists, coordinates):
             f.write(f'{coords_line}\n')
 
 
-def format_p_values(p_value, p_value_adj):
+def format_p_values(p_value, p_value_adj, log_fold_change):
     if p_value == 0.0:
         p_value = np.nextafter(0, 1)
     if p_value_adj == 0.0:
         p_value_adj = np.nextafter(0, 1)
-    return p_value, p_value_adj
+    if log_fold_change == math.inf:
+        log_fold_change = 100.0
+    return p_value, p_value_adj, log_fold_change
 
 
 def format_marker_genes_data(json_data):
@@ -103,9 +105,10 @@ def format_marker_genes_data(json_data):
     cell_type = json_data['cell_type__kp']
     json_data['cell_type'] = cell_type
     json_data.pop('cell_type__kp')
-    p_value, p_value_adj = format_p_values(json_data['p_value'], json_data['p_value_adj'])
+    p_value, p_value_adj, log_fold_change = format_p_values(json_data['p_value'], json_data['p_value_adj'], json_data['log_fold_change'])
     json_data['p_value'] = p_value
     json_data['p_value_adj'] = p_value_adj
+    json_data['log_fold_change'] = log_fold_change
     return json_data
 
 
