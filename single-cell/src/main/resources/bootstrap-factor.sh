@@ -10,7 +10,7 @@ sudo chmod 775 "${PIGEAN_ROOT}"
 cd "${PIGEAN_ROOT}"
 
 sudo aws s3 cp s3://dig-analysis-bin/pigean/methods/ . --recursive
-sudo aws s3 cp s3://dig-analysis-data/out/old-pigean/staging/combined_gs/ . --recursive
+sudo aws s3 cp s3://dig-analysis-data/out/pigean/staging/combined/ . --recursive
 
 # install dependencies
 sudo yum install -y python3-devel
