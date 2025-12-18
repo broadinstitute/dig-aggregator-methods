@@ -41,7 +41,7 @@ def run_factor_matrix(cell_type, model):
 
 def upload(dataset, cell_type, model):
     path_out = f'{s3_out}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}'
-    subprocess.check_call(['aws', 's3', 'cp', f'output/{cell_type}/{model}/', f'"{path_out}"', '--recursive'])
+    subprocess.check_call(['aws', 's3', 'cp', f'output/{cell_type}/{model}/', f'{path_out}', '--recursive'])
 
 
 def main():
