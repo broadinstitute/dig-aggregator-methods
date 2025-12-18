@@ -84,39 +84,39 @@ def run(model, openapi_key):
         t = time.time()
         make_positive_controls(idx)
         output = f'factor_{idx-1}'
-        subprocess.run(f'python {downloaded_files}/priors-251215-mod.py naive_factor '
-                       f'--gene-map-in {downloaded_files}/portal_gencode.gene.map '
-                       f'--max-num-gene-sets 5000 '
-                       '--gene-filter-value 1 '
-                       '--gene-set-filter-value 0.01 '
-                       '--positive-controls-in positive_controls_in.txt '
-                       '--positive-controls-id-col gene '
-                       '--positive-controls-prob-col prob '
-                       f'--positive-controls-all-in {downloaded_files}/NCBI37.3.plink.gene.loc '
-                       '--positive-controls-all-id-col 6 '
-                       '--positive-controls-all-no-header '
-                       f'--gene-stats-out staging/gs.{output}.out '
-                       f'--gene-set-stats-out staging/gss.{output}.out '
-                       f'--factors-out staging/f.{output}.out '
-                       f'--gene-clusters-out staging/gc.{output}.out '
-                       f'--pheno-clusters-out staging/pc.{output}.out '
-                       f'--gene-set-clusters-out staging/gsc.{output}.out '
-                       f'--params-out staging/p.{output}.out '
-                       f'--factor-phewas-stats-out staging/fphs.{output}.out '
-                       f'--phewas-stats-out staging/phs.{output}.out '
-                       f'--gene-set-phewas-stats-in {downloaded_files}/gss_{model_to_gene_stats[model]}.tsv '
-                       '--gene-set-phewas-stats-id-col gene_set '
-                       '--gene-set-phewas-stats-pheno-col trait '
-                       '--gene-set-phewas-stats-beta-uncorrected-col beta_uncorrected '
-                       f'--gene-phewas-stats-in {downloaded_files}/gs_{model_to_gene_stats[model]}.tsv '
-                       '--gene-phewas-bfs-id-col gene '
-                       '--gene-phewas-bfs-pheno-col trait '
-                       '--gene-phewas-bfs-combined-col combined '
-                       '--gene-phewas-bfs-log-bf-col log_bf '
-                       f'--run-phewas-from-gene-phewas-stats-in {downloaded_files}/gs_{model_to_gene_stats[model]}.tsv '
-                       f'--factor-phewas-from-gene-phewas-stats-in {downloaded_files}/gs_{model_to_gene_stats[model]}.tsv '
-                       + (f'--lmm-auth-key {openapi_key} ' if openapi_key is not None else '')
-                       + ' '.join(get_gene_sets(model_to_gene_stats[model])), shell=True)
+        subprocess.run(['python', f'{downloaded_files}/priors-251215-mod.py naive_factor',
+                       '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
+                       '--max-num-gene-sets', '5000',
+                       '--gene-filter-value', '1',
+                       '--gene-set-filter-value', '0.01',
+                       '--positive-controls-in', 'positive_controls_in.txt',
+                       '--positive-controls-id-col', 'gene',
+                       '--positive-controls-prob-col', 'prob',
+                       '--positive-controls-all-in', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
+                       '--positive-controls-all-id-col', '6',
+                       '--positive-controls-all-no-header',
+                       '--gene-stats-out', f'staging/gs.{output}.out',
+                       '--gene-set-stats-out', f'staging/gss.{output}.out',
+                       '--factors-out', f'staging/f.{output}.out',
+                       '--gene-clusters-out', f'staging/gc.{output}.out',
+                       '--pheno-clusters-out', f'staging/pc.{output}.out',
+                       '--gene-set-clusters-out', f'staging/gsc.{output}.out',
+                       '--params-out', f'staging/p.{output}.out',
+                       '--factor-phewas-stats-out', f'staging/fphs.{output}.out',
+                       '--phewas-stats-out', f'staging/phs.{output}.out',
+                       '--gene-set-phewas-stats-in', f'{downloaded_files}/gss_{model_to_gene_stats[model]}.tsv',
+                       '--gene-set-phewas-stats-id-col', 'gene_set',
+                       '--gene-set-phewas-stats-pheno-col', 'trait',
+                       '--gene-set-phewas-stats-beta-uncorrected-col', 'beta_uncorrected',
+                       '--gene-phewas-stats-in', f'{downloaded_files}/gs_{model_to_gene_stats[model]}.tsv',
+                       '--gene-phewas-bfs-id-col', 'gene',
+                       '--gene-phewas-bfs-pheno-col', 'trait',
+                       '--gene-phewas-bfs-combined-col', 'combined',
+                       '--gene-phewas-bfs-log-bf-col', 'log_bf',
+                       '--run-phewas-from-gene-phewas-stats-in', f'{downloaded_files}/gs_{model_to_gene_stats[model]}.tsv',
+                       '--factor-phewas-from-gene-phewas-stats-in', f'{downloaded_files}/gs_{model_to_gene_stats[model]}.tsv']
+                       + (['--lmm-auth-key', f'{openapi_key}'] if openapi_key is not None else [])
+                       + get_gene_sets(model_to_gene_stats[model]))
         print(time.time() - t)
     print(time.time() - t_tot)
     os.remove('positive_controls_in.txt')
@@ -155,11 +155,11 @@ def combine_gene_sets():
 
 def upload(dataset, cell_type, model):
     staging_output = f'{s3_out}/out/single_cell/staging/pigean/{dataset}/{cell_type}/{model}'
-    subprocess.check_call('zip factor.results.zip staging/*.out', shell=True)
-    subprocess.check_call(f'aws s3 cp pigean.results.zip {staging_output}/', shell=True)
+    subprocess.check_call(['zip', 'factor.results.zip', 'staging/*.out'])
+    subprocess.check_call(['aws', 's3', 'cp', 'pigean.results.zip', f'{staging_output}/'])
 
     output = f'{s3_out}/out/single_cell/pigean/{dataset}/{cell_type}/{model}'
-    subprocess.check_call(f'aws s3 cp output/ {output}/ --recursive', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', 'output/', f'{output}/', '--recursive'])
 
 
 def main():

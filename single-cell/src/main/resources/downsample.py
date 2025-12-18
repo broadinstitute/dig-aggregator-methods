@@ -12,8 +12,9 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download(dataset):
-    subprocess.check_call(f'aws s3 cp "{s3_in}/single_cell/{dataset}/sample_metadata.tsv.gz" input/', shell=True)
-    subprocess.check_call(f'aws s3 cp "{s3_in}/single_cell/{dataset}/norm_counts.tsv.gz" input/', shell=True)
+    path_in = f'{s3_in}/single_cell/{dataset}'
+    subprocess.check_call(['aws', 's3', 'cp', f'"{path_in}/sample_metadata.tsv.gz"', 'input/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'"{path_in}/norm_counts.tsv.gz"', 'input/'])
 
 
 def format_cell_type(cell_type):
@@ -84,8 +85,8 @@ def write_lognorm_counts(cell_type_cells):
 
 
 def upload(dataset):
-    subprocess.check_call(f'aws s3 rm "{s3_out}/out/single_cell/staging/downsample/{dataset}/" --recursive', shell=True)
-    subprocess.check_call(f'aws s3 cp output/ "{s3_out}/out/single_cell/staging/downsample/{dataset}/" --recursive', shell=True)
+    subprocess.check_call(['aws', 's3', 'rm', f'"{s3_out}/out/single_cell/staging/downsample/{dataset}/"', '--recursive'])
+    subprocess.check_call(['aws', 's3', 'cp', 'output/', f'"{s3_out}/out/single_cell/staging/downsample/{dataset}/"', '--recursive'])
 
 
 def main():

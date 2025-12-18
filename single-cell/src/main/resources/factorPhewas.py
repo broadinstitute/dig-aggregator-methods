@@ -21,7 +21,7 @@ model_to_gene_stats = {
 
 def download(dataset, cell_type, model):
     path_in = f'{s3_out}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}'
-    subprocess.check_call(f'aws s3 cp {path_in} input/{cell_type}/{model}/ --recursive', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}', f'input/{cell_type}/{model}/', '--recursive'])
 
 
 def run_phewas(cell_type, model):
@@ -29,21 +29,21 @@ def run_phewas(cell_type, model):
     with open(f'input/{cell_type}/{model}/factor_matrix_gene_loadings.tsv', 'r') as f:
         factor_str = ','.join(f.readline().strip().split('\t')[1:])
 
-    subprocess.check_call(f'python {downloaded_files}/factor_phewas.py '
-                          f'--factors-in input/{cell_type}/{model}/factor_matrix_gene_loadings.tsv '
-                          '--factors-gene-id-col gene '
-                          f'--factors-gene-factor-cols {factor_str} '
-                          '--pheno-batch-size 2400 '
-                          f'--gene-stats-in {downloaded_files}/gs_{model_to_gene_stats[model]}.tsv '
-                          '--gene-stats-id-col gene '
-                          '--gene-stats-pheno-col trait '
-                          '--gene-stats-assoc-stat-col combined '
-                          f'--output-file output/{cell_type}/{model}/phewas_gene_loadings.txt', shell=True)
+    subprocess.check_call(['python', f'{downloaded_files}/factor_phewas.py',
+                          '--factors-in', f'input/{cell_type}/{model}/factor_matrix_gene_loadings.tsv',
+                          '--factors-gene-id-col', 'gene',
+                          '--factors-gene-factor-cols', f'{factor_str}',
+                          '--pheno-batch-size', '300',
+                          '--gene-stats-in', f'{downloaded_files}/gs_{model_to_gene_stats[model]}.tsv',
+                          '--gene-stats-id-col', 'gene',
+                          '--gene-stats-pheno-col', 'trait',
+                          '--gene-stats-assoc-stat-col', 'combined',
+                          '--output-file', f'output/{cell_type}/{model}/phewas_gene_loadings.txt'])
 
 
 def upload(dataset, cell_type, model):
     path_out = f'{s3_out}/out/single_cell/staging/factor_phewas/{dataset}/{cell_type}/{model}'
-    subprocess.check_call(f'aws s3 cp output/{cell_type}/{model}/ "{path_out}" --recursive', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', f'output/{cell_type}/{model}/', f'"{path_out}"', '--recursive'])
 
 
 def main():

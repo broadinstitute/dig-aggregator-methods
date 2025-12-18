@@ -58,14 +58,14 @@ def get_column_labels(label_set, total_donors):
 
 def run_regressions(labels):
     for label_idx, label in enumerate(labels):
-        subprocess.check_call(f'python {downloaded_files}/donor_factor_regression.py '
-                              '--loadings input/factor_matrix_cell_loadings.tsv '
-                              '--metadata input/sample_metadata.sample.tsv.gz '
-                              f'--donor-col {DONOR_ID} '
-                              f'--phenotype-col "{label}" '
-                              '--collapse mean '
-                              '--min-cells 1 '
-                              f'--out "staging/donor_factor.{label_idx}.regression"', shell=True)
+        subprocess.check_call(['python', f'{downloaded_files}/donor_factor_regression.py',
+                              '--loadings', 'input/factor_matrix_cell_loadings.tsv',
+                              '--metadata', 'input/sample_metadata.sample.tsv.gz',
+                              '--donor-col', f'{DONOR_ID}',
+                              '--phenotype-col', f'"{label}"',
+                              '--collapse', 'mean',
+                              '--min-cells', '1',
+                              '--out', f'"staging/donor_factor.{label_idx}.regression"'])
 
 
 def combine_regressions(labels):
@@ -81,11 +81,11 @@ def combine_regressions(labels):
 
 def upload(dataset, cell_type, model):
     staging_output = f'{s3_out}/out/single_cell/staging/regression/{dataset}/{cell_type}/{model}'
-    subprocess.check_call('zip donor_factor.regression.results.zip staging/*.tsv', shell=True)
-    subprocess.check_call(f'aws s3 cp donor_factor.regression.results.zip {staging_output}/', shell=True)
+    subprocess.check_call(['zip', 'donor_factor.regression.results.zip', 'staging/*.tsv'])
+    subprocess.check_call(['aws', 's3', 'cp', 'donor_factor.regression.results.zip', f'{staging_output}/'])
 
     output = f'{s3_out}/out/single_cell/regression/{dataset}/{cell_type}/{model}'
-    subprocess.check_call(f'aws s3 cp output/donor_factor.regression.results.tsv {output}/', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', 'output/donor_factor.regression.results.tsv', f'{output}/'])
 
 
 def main():
