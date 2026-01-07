@@ -9,7 +9,7 @@ class FactorPhewasStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-factor.sh"))),
-    stepConcurrency = 4
+    stepConcurrency = 3
   )
 
   val factorMatrix: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/*/factor_matrix_gene_loadings.tsv")
