@@ -77,7 +77,7 @@ def make_positive_controls(idx):
                 f_out.write(f'{split_line[0]}\t{prob}\n')
 
 
-def run(model, openapi_key):
+def run_all(model, openapi_key):
     with open('input/factor_matrix_gene_probs.tsv', 'r') as f:
         num_cols = len(f.readline().strip().split('\t'))
     for idx in range(1, num_cols):
@@ -96,8 +96,15 @@ def run(model, openapi_key):
                        '--positive-controls-all-no-header',
                        '--gene-stats-out', f'staging/gs.{output}.out',
                        '--gene-set-stats-out', f'staging/gss.{output}.out',
-                        '--gene-gene-set-stats-out', f'staging/ggss.{output}.out',
-                        '--gene-effectors-out', f'staging/ge.{output}.out',
+                       '--gene-gene-set-stats-out', f'staging/ggss.{output}.out',
+                       '--gene-effectors-out', f'staging/ge.{output}.out',
+                       '--factors-out', f'staging/f.{output}.out',
+                       '--gene-clusters-out', f'staging/gc.{output}.out',
+                       '--pheno-clusters-out', f'staging/pc.{output}.out',
+                       '--gene-set-clusters-out', f'staging/gsc.{output}.out',
+                       '--params-out', f'staging/p.{output}.out',
+                       '--factor-phewas-stats-out', f'staging/fphs.{output}.out',
+                       '--phewas-stats-out', f'staging/phs.{output}.out',
                        '--gene-set-phewas-stats-in', f'{downloaded_files}/gss_{model_to_gene_stats[model]}.tsv',
                        '--gene-set-phewas-stats-id-col', 'gene_set',
                        '--gene-set-phewas-stats-pheno-col', 'trait',
@@ -113,6 +120,31 @@ def run(model, openapi_key):
                        + get_gene_sets(model_to_gene_stats[model]))
     os.remove('positive_controls_in.txt')
     return num_cols
+
+def run(model):
+    with open('input/factor_matrix_gene_probs.tsv', 'r') as f:
+        num_cols = len(f.readline().strip().split('\t'))
+    for idx in range(1, num_cols):
+        make_positive_controls(idx)
+        output = f'factor_{idx-1}'
+        subprocess.run(['python', f'{downloaded_files}/priors.py', 'naive_factor',
+                        '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
+                        '--max-num-gene-sets', '5000',
+                        '--gene-filter-value', '1',
+                        '--gene-set-filter-value', '0.01',
+                        '--positive-controls-in', 'positive_controls_in.txt',
+                        '--positive-controls-id-col', 'gene',
+                        '--positive-controls-prob-col', 'prob',
+                        '--positive-controls-all-in', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
+                        '--positive-controls-all-id-col', '6',
+                        '--positive-controls-all-no-header',
+                        '--gene-stats-out', f'staging/gs.{output}.out',
+                        '--gene-set-stats-out', f'staging/gss.{output}.out',
+                        '--gene-gene-set-stats-out', f'staging/ggss.{output}.out',
+                        '--gene-effectors-out', f'staging/ge.{output}.out']
+                       + get_gene_sets(model_to_gene_stats[model]))
+    os.remove('positive_controls_in.txt')
+    return
 
 
 def combine_top_gene_sets():
@@ -167,7 +199,7 @@ def main():
     download_files(args.dataset, args.cell_type, args.model)
 
     os.makedirs('staging', exist_ok=True)
-    run(args.model, open_api_key)
+    run(args.model)
 
     combine_top_gene_sets()
     combine_gene_sets()
