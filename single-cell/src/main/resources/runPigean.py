@@ -201,12 +201,13 @@ def main():
     os.makedirs('staging', exist_ok=True)
     run(args.model)
 
-    combine_top_gene_sets()
-    combine_gene_sets()
-    upload(args.dataset, args.cell_type, args.model)
+    if len(glob.glob('staging/gs.*')) > 0:
+        combine_top_gene_sets()
+        combine_gene_sets()
+        upload(args.dataset, args.cell_type, args.model)
+        shutil.rmtree('output')
     shutil.rmtree('input')
     shutil.rmtree('staging')
-    shutil.rmtree('output')
 
 
 if __name__ == '__main__':
