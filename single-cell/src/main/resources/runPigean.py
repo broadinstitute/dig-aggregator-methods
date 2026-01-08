@@ -126,7 +126,7 @@ def run(model, openapi_key):
 
 
 def combine_top_gene_sets():
-    with open('input/factor_matrix_gene_loadings.tsv', 'r') as f:
+    with open('input/factor_matrix_gene_probs.tsv', 'r') as f:
         num_cols = len(f.readline().strip().split('\t'))
 
     with open('output/pigean.top_gene_sets.tsv', 'w') as f_out:
@@ -138,7 +138,7 @@ def combine_top_gene_sets():
 
 
 def combine_gene_sets():
-    with open('input/factor_matrix_gene_loadings.tsv', 'r') as f:
+    with open('input/factor_matrix_gene_probs.tsv', 'r') as f:
         num_cols = len(f.readline().strip().split('\t'))
 
     with open('output/pigean.gene_sets.tsv', 'w') as f_out:
