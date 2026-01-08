@@ -86,7 +86,7 @@ def run(model, openapi_key):
         t = time.time()
         make_positive_controls(idx)
         output = f'factor_{idx-1}'
-        subprocess.run(['python', f'{downloaded_files}/priors-251215-mod.py naive_factor',
+        subprocess.run(['python', f'{downloaded_files}/priors-251215-mod.py', 'naive_factor',
                        '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
                        '--max-num-gene-sets', '5000',
                        '--gene-filter-value', '1',
