@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 import argparse
 from boto3.session import Session
+import glob
 import json
 import os
 import shutil
 import subprocess
+import zipfile
 
 
 downloaded_files = '/mnt/var/pigean'
@@ -155,7 +157,9 @@ def combine_gene_sets():
 
 def upload(dataset, cell_type, model):
     staging_output = f'{s3_out}/out/single_cell/staging/pigean/{dataset}/{cell_type}/{model}'
-    subprocess.check_call(['zip', 'factor.results.zip', 'staging/*.out'])
+    with zipfile.ZipFile('pigean.results.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+        for file in glob.glob('staging/*.out'):
+            z.write(file)
     subprocess.check_call(['aws', 's3', 'cp', 'pigean.results.zip', f'{staging_output}/'])
 
     output = f'{s3_out}/out/single_cell/pigean/{dataset}/{cell_type}/{model}'
