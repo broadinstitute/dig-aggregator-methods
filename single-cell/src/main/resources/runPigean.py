@@ -127,7 +127,7 @@ def run(model):
     for idx in range(1, num_cols):
         make_positive_controls(idx)
         output = f'factor_{idx-1}'
-        subprocess.run(['python', f'{downloaded_files}/priors.py', 'naive_factor',
+        subprocess.run(['python', f'{downloaded_files}/priors.py', 'run_naive_priors',
                         '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
                         '--max-num-gene-sets', '5000',
                         '--gene-filter-value', '1',
