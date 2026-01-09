@@ -202,6 +202,7 @@ def main():
     run(args.model)
 
     if len(glob.glob('staging/gs.*')) > 0:
+        os.makedirs('output', exist_ok=True)
         combine_top_gene_sets()
         combine_gene_sets()
         upload(args.dataset, args.cell_type, args.model)
