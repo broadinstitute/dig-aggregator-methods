@@ -168,6 +168,7 @@ def combine_gene_sets():
         for idx in range(1, num_cols):
             with open(f'staging/gss.factor_{idx-1}.out', 'r') as f:
                 header = f.readline()
+                print(header)
                 for line in f:
                     line_dict = dict(zip(header, line.strip().split('\t')))
                     f_out.write('{}\t{}\t{}\n'.format(
