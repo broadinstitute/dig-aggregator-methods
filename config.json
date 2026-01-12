@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "satoshi_ukb",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_ukb_20260107"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_ukb_20260107"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-private",
+            "subdir": "satoshi_ukb_20260107/bioindex"
         },
         "emr": {
             "subnetIds": [
