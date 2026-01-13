@@ -149,8 +149,8 @@ class IntakeUtilities:
     def from_metadata_file(data_path, db):
         with open('metadata', 'r') as f:
             metadata = json.load(f)
-        metadata['dichotomous'] = db.get_is_dichotomous(metadata['phenotype'])
-        dataset_data = db.get_dataset_data(metadata['dataset'])
+        metadata['dichotomous'] = metadata.get('is_dichotomous', db.get_is_dichotomous(metadata['phenotype']))
+        dataset_data = metadata.get('dataset_data', db.get_dataset_data(metadata['dataset']))
         metadata['ancestry'] = dataset_data['ancestry']
         return IntakeUtilities(metadata, FaFinder(data_path), G1000Reference(data_path, metadata['ancestry']))
 
