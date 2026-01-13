@@ -76,7 +76,7 @@ def get_is_dichotomous(path, phenotype):
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/{path}/metadata', 'metadata'])
     with open('metadata', 'r') as f:
         metadata = json.load(f)
-    return metadata.get('is_dichotomous', PortalDB().get_is_dichotomous(phenotype))
+    return metadata['is_dichotomous'] if 'is_dichotomous' in metadata else PortalDB().get_is_dichotomous(phenotype)
 
 
 class ScalingLogger:
