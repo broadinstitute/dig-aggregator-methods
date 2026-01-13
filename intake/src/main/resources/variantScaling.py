@@ -72,8 +72,8 @@ class PortalDB:
         return {'name': rows[0][0], 'ancestry': rows[0][1]}
 
 
-def get_is_dichotomous(path, phenotype):
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/{path}/metadata', 'metadata'])
+def get_is_dichotomous(src_dir, phenotype):
+    subprocess.check_call(['aws', 's3', 'cp', f'{src_dir}/metadata', 'metadata'])
     with open('metadata', 'r') as f:
         metadata = json.load(f)
     return metadata['is_dichotomous'] if 'is_dichotomous' in metadata else PortalDB().get_is_dichotomous(phenotype)
@@ -181,11 +181,11 @@ def main():
     opts.add_argument('method_dataset_phenotype')
     args = opts.parse_args()
 
-    tech, dataset, phenotype = args.method_dataset_phenotype.split('/')
-    is_dichotomous = get_is_dichotomous(args.method_dataset_phenotype, phenotype)
-
     srcdir = f'{s3_in}/variants_qc/{args.method_dataset_phenotype}/pass'
     outdir = f'{s3_out}/variants/{args.method_dataset_phenotype}'
+
+    tech, dataset, phenotype = args.method_dataset_phenotype.split('/')
+    is_dichotomous = get_is_dichotomous(srcdir, phenotype)
 
     logger = ScalingLogger('scaling.log')
     logger.log(f'Reading from {srcdir}')
