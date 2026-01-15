@@ -6,7 +6,7 @@ import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 import org.broadinstitute.dig.aws.MemorySize
 
-class BassetStage(implicit context: Context) extends Stage {
+class BassetVariantsStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.computeOptimized(),
@@ -16,7 +16,8 @@ class BassetStage(implicit context: Context) extends Stage {
     applications = Seq.empty,
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("bassetBootstrap.sh"))
-    )
+    ),
+    releaseLabel = ReleaseLabel("emr-6.7.0")
   )
 
   val variants: Input.Source = Input.Source.Success("out/varianteffect/variants/")
@@ -46,11 +47,11 @@ class BassetStage(implicit context: Context) extends Stage {
   }
 
   override def prepareJob(output: String): Unit = {
-    context.s3.rm("out/basset/")
+    context.s3.rm("out/basset/variants/")
   }
 
   override def success(output: String): Unit = {
-    context.s3.touch("out/basset/_SUCCESS")
+    context.s3.touch("out/basset/variants/_SUCCESS")
     ()
   }
 }
