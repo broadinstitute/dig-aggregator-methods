@@ -14,7 +14,8 @@ class TransEthnicStage(implicit context: Context) extends Stage {
     masterInstanceType = Strategy.memoryOptimized(),
     instances = 1,
     applications = Seq.empty,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh"))),
+    masterVolumeSizeInGB = 100
   )
 
   override val sources: Seq[Input.Source] = Seq(ancestrySpecific)
