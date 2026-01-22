@@ -25,8 +25,8 @@ class GeneVariantsStage(implicit context: Context) extends Stage {
 
   /** Use latest EMR release. */
   override val cluster: ClusterDef = super.cluster.copy(
-    masterVolumeSizeInGB = 100,
-    slaveVolumeSizeInGB = 100,
+    masterVolumeSizeInGB = 200,
+    slaveVolumeSizeInGB = 200,
     instances = 6
   )
 
