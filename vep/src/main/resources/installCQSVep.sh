@@ -36,6 +36,6 @@ sudo aws s3 cp s3://dig-analysis-bin/vep/vep-revel-GRCh37.zip .
 sudo unzip vep-revel-GRCh37.zip
 sudo rm vep-revel-GRCh37.zip
 
-sudo aws s3 cp s3://dig-analysis-bin/vep/vep-spliceai-GRCh37.zip .
+sudo aws s3 cp s3://dig-analysis-bin/vep/vep-splice_ai-GRCh37.zip .
 sudo unzip vep-splice_ai-GRCh37.zip
 sudo rm vep-splice_ai-GRCh37.zip
