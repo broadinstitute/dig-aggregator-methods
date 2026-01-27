@@ -1,18 +1,20 @@
+import argparse
 import os
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, lit
 
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 def main():
-    """
-    Arguments: none
-    """
-    srcdir = f's3://dig-analysis-bin/genes/GRCh37/part-*'
-    outdir = f'{s3_bioindex}/genes'
+    opts = argparse.ArgumentParser()
+    opts.add_argument('--build', type=str, required=True)
+    args = opts.parse_args()
+
+    srcdir = f's3://dig-analysis-bin/genes/{args.build}/part-*'
+    outdir = f'{s3_bioindex}/genes/{{}}/{args.build}'
 
     # all valid chromosomes
     chromosomes = list(map(str, range(1, 23))) + ['X', 'Y', 'XY', 'MT']
@@ -22,14 +24,16 @@ def main():
 
     # load the genes and write them sorted
     df = spark.read.json(srcdir) \
-        .filter(col('chromosome').isin(*chromosomes))
+        .filter(col('chromosome').isin(*chromosomes)) \
+        .withColumn('build', lit(args.build))
 
-    # index by position
-    df.coalesce(1) \
-        .orderBy(['chromosome', 'start']) \
-        .write \
-        .mode('overwrite') \
-        .json(outdir)
+    # save into two places for different bioindices
+    for bioindex_type in ['default', 'build']:
+        df.coalesce(1) \
+            .orderBy(['chromosome', 'start']) \
+            .write \
+            .mode('overwrite') \
+            .json(outdir.format(bioindex_type))
 
     # done
     spark.stop()
