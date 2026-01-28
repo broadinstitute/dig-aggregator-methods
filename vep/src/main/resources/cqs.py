@@ -33,9 +33,14 @@ def exploded_consequences(row):
         record['chromosome'] = row['seq_region_name']
         record['position'] = int(row['start'])
 
-        # apend all the consequence fields
+        # append all the consequence fields
+        # allow sub-dictionaries (but explode)
         for k, v in cqs.items():
-            record[rename_cqs_field(k)] = v
+            if type(v) is dict:
+                for kk, vv in v.items():
+                    record[rename_cqs_field(k) + '_' + kk] = vv
+            else:
+                record[rename_cqs_field(k)] = v
 
         # add the record to the returned values
         yield record
