@@ -22,27 +22,18 @@ params_by_type = {
     'analysis': {'p1': 5E-8, 'p2': 5E-6, 'r2': 0.01, 'kb': 5000}
 }
 
-# Each of the ancestries should only be run once. Runs against trans-ethnic results
-TRANS_ETHNIC_ANCESTRIES = {
-    'AA': 'afr',
-    'EU': 'eur',
-    'HS': 'amr',
-    'EA': 'eas',
-    'SA': 'sas'
-}
-
 # ancestry mapping portal -> g1000 for all possible ancestries
 G1000_ANCESTRIES_BY_PORTAL_ANCESTRIES = {
-    'AA': {'AA': 'afr'},
-    'AF': {'AF': 'afr'},
-    'SSAF': {'SSAF': 'afr'},
-    'EU': {'EU': 'eur'},
-    'HS': {'HS': 'amr'},
-    'EA': {'EA': 'eas'},
-    'SA': {'SA': 'sas'},
-    'GME': {'GME': 'sas'},
-    'Mixed': TRANS_ETHNIC_ANCESTRIES,
-    'TE': TRANS_ETHNIC_ANCESTRIES
+    'AA': ('AA', 'afr'),
+    'AF': ('AF', 'afr'),
+    'SSAF': ('SSAF', 'afr'),
+    'EU': ('EU', 'eur'),
+    'HS': ('HS', 'amr'),
+    'EA': ('EA', 'eas'),
+    'SA': ('SA', 'sas'),
+    'GME': ('GME', 'sas'),
+    'Mixed': ('EU', 'eur'),
+    'TE': ('EU', 'eur')
 }
 
 
@@ -114,34 +105,34 @@ def run_plink(assoc_file, outdir, ancestries, params):
     """
     Run plink for each ancestry. Uploads results to S3.
     """
-    for ancestry, g1000_ancestry in ancestries.items():
-        g1000=f'g1000_{g1000_ancestry}'
+    ancestry, g1000_ancestry = ancestries
+    g1000=f'g1000_{g1000_ancestry}'
 
-        # process this ancestry; ignore errors
-        subprocess.run([
-            f'{CLUMPING_ROOT}/plink',
-            '--bfile',
-            f'{CLUMPING_ROOT}/{g1000}/{g1000}',
-            '--clump-p1',
-            str(params['p1']),
-            '--clump-p2',
-            str(params['p2']),
-            '--clump-r2',
-            str(params['r2']),
-            '--clump-kb',
-            str(params['kb']),
-            '--clump',
-            assoc_file,
-        ])
+    # process this ancestry; ignore errors
+    subprocess.run([
+        f'{CLUMPING_ROOT}/plink',
+        '--bfile',
+        f'{CLUMPING_ROOT}/{g1000}/{g1000}',
+        '--clump-p1',
+        str(params['p1']),
+        '--clump-p2',
+        str(params['p2']),
+        '--clump-r2',
+        str(params['r2']),
+        '--clump-kb',
+        str(params['kb']),
+        '--clump',
+        assoc_file,
+    ])
 
-        # upload the log if it exists
-        if os.path.isfile('plink.log'):
-            upload('plink.log', f'{outdir}/plink.{ancestry}.log')
+    # upload the log if it exists
+    if os.path.isfile('plink.log'):
+        upload('plink.log', f'{outdir}/plink.{ancestry}.log')
 
-        # upload and rename the clumped file if it exists
-        if os.path.isfile('plink.clumped'):
-            os.rename('plink.clumped', f'plink.{ancestry}.clumped')
-            upload(f'plink.{ancestry}.clumped', f'{outdir}/plink.{ancestry}.clumped')
+    # upload and rename the clumped file if it exists
+    if os.path.isfile('plink.clumped'):
+        os.rename('plink.clumped', f'plink.{ancestry}.clumped')
+        upload(f'plink.{ancestry}.clumped', f'{outdir}/plink.{ancestry}.clumped')
 
 
 def fix_clump(sp2):
