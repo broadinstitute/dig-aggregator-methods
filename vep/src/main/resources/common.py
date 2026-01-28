@@ -28,19 +28,11 @@ def colocated_variant(row, ref, alt):
     """
     co = row.get('colocated_variants', [])
 
-    # if there is only a single co-located variant, return it
-    if len(co) == 1:
-        return co[0]
-
-    # only keep colocated variants where the minor allele is ref or alt
-    variants = [v for v in co if v.get('minor_allele') in [ref, alt]]
-
-    # fail if no colocated variants
-    if not variants:
-        return None
-
-    # find the first with an rsID or default to the first variant
-    return next((v for v in variants if v.get('id', '').startswith('rs')), variants[0])
+    # only keep colocated variants where the minor allele can be ref or alt
+    variants = [v for v in co if len(v.get('frequencies', {}).keys() & {ref, alt}) > 0]
+    # Prefer variants with rs ID defined
+    rs_variants = [v for v in variants if v.get('id', '').startswith('rs')]
+    return next(iter(rs_variants + variants + co), None)
 
 
 def dbSNP(v):
@@ -84,11 +76,11 @@ def allele_frequencies(v, ref, alt):
 
     # try gnomad, if not there use 1kg
     return {
-        'EU': get_freq('gnomad_nfe', 'eur'),
-        'HS': get_freq('gnomad_amr', 'amr'),
-        'AA': get_freq('gnomad_afr', 'afr'),
-        'EA': get_freq('gnomad_eas', 'eas'),
-        'SA': get_freq('gnomad_sas', 'sas'),
+        'EU': get_freq('gnomade_nfe', 'gnomade_nfe', 'eur'),
+        'HS': get_freq('gnomade_amr', 'gnomadg_amr', 'amr'),
+        'AA': get_freq('gnomade_afr', 'gnomadg_afr', 'afr'),
+        'EA': get_freq('gnomade_eas', 'gnomadg_eas', 'eas'),
+        'SA': get_freq('gnomade_sas', 'gnomadg_sas', 'sas'),
     }
 
 
@@ -116,9 +108,15 @@ def common_fields(row):
         return out
 
     out['dbSNP'] = dbSNP(variant)
-    out['minorAllele'] = variant.get('minor_allele')
-    out['maf'] = variant.get('minor_allele_freq')
     out['af'] = allele_frequencies(variant, ref, alt)
+    freq_ancestry = next((ancestry for ancestry in ['EU', 'HS', 'AA', 'EA', 'SA'] if out['af'][ancestry] is not None), None)
+    if freq_ancestry is not None:
+        if out['af'][freq_ancestry] <= 0.5:
+            out['minorAllele'] = alt
+            out['maf'] = out['af'][freq_ancestry]
+        else:
+            out['minorAllele'] = ref
+            out['maf'] = 1 - out['af'][freq_ancestry]
 
     return out
 
