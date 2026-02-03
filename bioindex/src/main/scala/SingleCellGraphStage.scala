@@ -13,8 +13,8 @@ class SingleCellGraphStage(implicit context: Context) extends Stage {
   val edges: Input.Source = Input.Source.Raw("out/single_cell/graph/*/*/*/*.json.gz")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 3,
-    masterVolumeSizeInGB = 100,
+    instances = 5,
+    masterVolumeSizeInGB = 500,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 

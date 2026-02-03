@@ -201,7 +201,7 @@ def process_cell(dataset, cell_type, model):
         for f_out in outputs.values():
             f_out.close()
 
-# TODO: Probably should filter out anything with P = 1
+
 def process_phewas(dataset, cell_type, model):
     file_in = f'{s3_in}/out/single_cell/staging/factor_phewas/{dataset}/{cell_type}/{model}/phewas_gene_loadings.txt'
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
@@ -215,26 +215,27 @@ def process_phewas(dataset, cell_type, model):
             for line in f:
                 json_line = dict(zip(header, line.strip().split('\t')))
                 p = max([float(json_line['P']), float(json_line['P_robust'])])
-                outputs['factor_to_traits'].write(json.dumps({
-                    'dataset': dataset,
-                    'cell_type': cell_type,
-                    'model': model,
-                    'n1_type': 'factor',
-                    'n2_type': 'trait',
-                    'n1': json_line['Factor'],
-                    'n2': json_line['Pheno'],
-                    'value': -math.log10(p) if p > 0 else np.nextafter(0, 1)
-                }) + '\n')
-                outputs['trait_to_factors'].write(json.dumps({
-                    'dataset': dataset,
-                    'cell_type': cell_type,
-                    'model': model,
-                    'n1_type': 'trait',
-                    'n2_type': 'factor',
-                    'n1': json_line['Pheno'],
-                    'n2': json_line['Factor'],
-                    'value': -math.log10(p) if p > 0 else np.nextafter(0, 1)
-                }) + '\n')
+                if p < 0.5:
+                    outputs['factor_to_traits'].write(json.dumps({
+                        'dataset': dataset,
+                        'cell_type': cell_type,
+                        'model': model,
+                        'n1_type': 'factor',
+                        'n2_type': 'trait',
+                        'n1': json_line['Factor'],
+                        'n2': json_line['Pheno'],
+                        'value': -math.log10(p) if p > 0 else np.nextafter(0, 1)
+                    }) + '\n')
+                    outputs['trait_to_factors'].write(json.dumps({
+                        'dataset': dataset,
+                        'cell_type': cell_type,
+                        'model': model,
+                        'n1_type': 'trait',
+                        'n2_type': 'factor',
+                        'n1': json_line['Pheno'],
+                        'n2': json_line['Factor'],
+                        'value': -math.log10(p) if p > 0 else np.nextafter(0, 1)
+                    }) + '\n')
         for f_out in outputs.values():
             f_out.close()
 
@@ -274,7 +275,7 @@ def process_regression(dataset, cell_type, model):
         for f_out in outputs.values():
             f_out.close()
 
-# TODO: Probably want to filter on beta here (<= 0.01 maybe, at least >0 to reduce by an order of magnitude)
+
 def process_pigean(dataset, cell_type, model):
     file_in = f'{s3_in}/out/single_cell/pigean/{dataset}/{cell_type}/{model}/pigean.gene_sets.tsv'
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
@@ -287,26 +288,28 @@ def process_pigean(dataset, cell_type, model):
             _ = f.readline().strip().split('\t')
             for line in f:
                 factor_num, gene_set, beta = line.strip().split('\t')
-                outputs['factor_to_gene_sets'].write(json.dumps({
-                    'dataset': dataset,
-                    'cell_type': cell_type,
-                    'model': model,
-                    'n1_type': 'factor',
-                    'n2_type': 'gene_set',
-                    'n1': 'Factor_{}'.format(factor_num),
-                    'n2': gene_set,
-                    'value': float(beta)
-                }) + '\n')
-                outputs['gene_set_to_factors'].write(json.dumps({
-                    'dataset': dataset,
-                    'cell_type': cell_type,
-                    'model': model,
-                    'n1_type': 'gene_set',
-                    'n2_type': 'factor',
-                    'n1': gene_set,
-                    'n2': 'Factor_{}'.format(factor_num),
-                    'value': float(beta)
-                }) + '\n')
+                # Will want to filter, but check on how
+                if float(beta) > 0.01:
+                    outputs['factor_to_gene_sets'].write(json.dumps({
+                        'dataset': dataset,
+                        'cell_type': cell_type,
+                        'model': model,
+                        'n1_type': 'factor',
+                        'n2_type': 'gene_set',
+                        'n1': 'Factor_{}'.format(factor_num),
+                        'n2': gene_set,
+                        'value': float(beta)
+                    }) + '\n')
+                    outputs['gene_set_to_factors'].write(json.dumps({
+                        'dataset': dataset,
+                        'cell_type': cell_type,
+                        'model': model,
+                        'n1_type': 'gene_set',
+                        'n2_type': 'factor',
+                        'n1': gene_set,
+                        'n2': 'Factor_{}'.format(factor_num),
+                        'value': float(beta)
+                    }) + '\n')
         for f_out in outputs.values():
             f_out.close()
 
