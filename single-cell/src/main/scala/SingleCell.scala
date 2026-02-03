@@ -12,5 +12,6 @@ object SingleCell extends Method {
     addStage(new FactorPhewasStage)
     addStage(new RegressionStage)
     addStage(new PigeanStage)
+    addStage(new GraphStage)
   }
 }
