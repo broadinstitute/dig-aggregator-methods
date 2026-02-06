@@ -27,7 +27,7 @@ def download(dataset, cell_type):
 def run_factor_matrix(cell_type, model):
     os.makedirs(f'output/{cell_type}/{model}', exist_ok=True)
     try:
-        subprocess.check_call(['python', f'{downloaded_files}/factor_matrix.py',
+        subprocess.check_call(['python', f'{downloaded_files}/factor_matrix_psmadbec.py',
                                '--matrix_file', f'input/{cell_type}/norm_counts.sample.tsv.gz',
                                '--output_prefix', f'output/{cell_type}/{model}/factor_matrix',
                                '--row_name', 'gene',
