@@ -10,7 +10,7 @@ import org.broadinstitute.dig.aws.emr._
 class SingleCellGraphStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val edges: Input.Source = Input.Source.Raw("out/single_cell/graph/*/*/*/*.json.gz")
+  val edges: Input.Source = Input.Source.Raw("out/single_cell/graph/*.json.gz")
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 5,
@@ -23,7 +23,7 @@ class SingleCellGraphStage(implicit context: Context) extends Stage {
 
   /** Rules for mapping input to outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case edges(_, _, _, _) => Outputs.Named("graph")
+    case edges(_) => Outputs.Named("graph")
   }
 
   /** Output to Job steps. */
