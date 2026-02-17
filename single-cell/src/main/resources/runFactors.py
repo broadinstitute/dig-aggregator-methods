@@ -4,6 +4,7 @@ from boto3.session import Session
 import json
 import os
 import requests
+import shutil
 import subprocess
 
 s3_in = os.environ['INPUT_PATH']
@@ -26,6 +27,94 @@ class OpenAPIKey:
         if self.config is None:
             self.config = self.get_config()
         return self.config['apiKey']
+
+
+def translate_gene_loading_data(dataset, cell_type, model):
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_gene_loadings.tsv'
+    if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
+        subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
+        with open('inputs/factor_matrix_gene_loadings.tsv', 'r') as f:
+            header = f.readline().strip().split('\t')
+            factor_values = {factor: [] for factor in header[1:]}
+            for line in f:
+                gene, factor_data = line.strip().split('\t', 1)
+                json_line = dict(zip(header[1:], factor_data.split('\t')))
+                for factor in json_line:
+                    factor_values[factor].append((float(json_line[factor]), gene))
+
+        if len(factor_values) > 0:
+            with open('outputs/factor_genes.json', 'w') as f_out:
+                for factor, data in factor_values.items():
+                    max_value = max(data)[0]
+                    for output_value, gene in data:
+                        if output_value > max_value * 0.1:
+                            f_out.write(json.dumps(
+                                {
+                                    'dataset': dataset,
+                                    'cell_type': cell_type,
+                                    'model': model,
+                                    'factor': factor,
+                                    'gene': gene,
+                                    'value': output_value
+                                }
+                            ) + '\n')
+
+
+def translate_cell_loading_data(dataset, cell_type, model):
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_cell_loadings.tsv'
+    if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
+        subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
+        with open('outputs/factor_cells.json', 'w') as f_out:
+            with open('inputs/factor_matrix_cell_loadings.tsv', 'r') as f:
+                header = f.readline().strip().split('\t')
+                for line in f:
+                    cell, _, factor_data = line.strip().split('\t', 2)
+                    json_line = dict(zip(header[2:], factor_data.split('\t')))
+                    for factor in json_line:
+                        if float(json_line[factor]) > 0:
+                            f_out.write(json.dumps(
+                                {
+                                    'dataset': dataset,
+                                    'cell_type': cell_type,
+                                    'model': model,
+                                    'factor': factor,
+                                    'cell': cell,
+                                    'value': float(json_line[factor])
+                                }
+                            ) + '\n')
+
+
+def translate_factors(dataset, cell_type, model, factor_data):
+    description_map = {factor['factor']: factor['labels'].get('overall', '') for factor in factor_data}
+    label_map = {factor['factor']: factor['labels'].get('label', '') for factor in factor_data}
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_factors.tsv'
+    if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
+        subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
+        with open('outputs/factors.json', 'w') as f_out:
+            with open('inputs/factor_matrix_factors.tsv', 'r') as f:
+                header = f.readline().strip().split('\t')
+                for line in f:
+                    json_line = dict(zip(header, line.strip().split('\t')))
+                    factor = 'Factor_{}'.format(json_line['factor_index'])
+                    f_out.write(json.dumps(
+                        {
+                            'dataset': dataset,
+                            'cell_type': cell_type,
+                            'model': model,
+                            'factor': factor,
+                            'importance': float(json_line['exp_lambdak']),
+                            'top_genes': json_line['top_genes'],
+                            'top_cells': json_line['top_cells'],
+                            'description': description_map[factor],
+                            'label': label_map[factor]
+                        }
+                    ) + '\n')
+
+
+def translate_data(dataset, cell_type, model, factor_data):
+    translate_gene_loading_data(dataset, cell_type, model)
+    translate_cell_loading_data(dataset, cell_type, model)
+    translate_factors(dataset, cell_type, model, factor_data)
 
 
 def get_gene_data(dataset, cell_type, model):
@@ -132,6 +221,16 @@ def query_lmm(query, auth_key, lmm_model):
         return None
 
 
+def format_response(response):
+    return response \
+        .strip() \
+        .replace('\n', ' ') \
+        .replace('\u2013', '-') \
+        .replace('\u2014', '-') \
+        .encode('utf-8') \
+        .decode('ascii', errors='ignore')
+
+
 def label_factor_by_type(dataset, cell_type, model, factor_data, llm_auth_key, llm_model):
     for label_type in ['genes', 'gene_sets', 'traits']:
         filtered_data = [data for data in factor_data if len(data['top_{}'.format(label_type)]) > 0]
@@ -152,10 +251,7 @@ def label_factor_by_type(dataset, cell_type, model, factor_data, llm_auth_key, l
                       'factor being explored. Print only the description, one per line, label number followed by text: {}').format(
                 '\n' + '\n\n'.join(prompt_data)
             )
-
-            print(prompt)
             response = query_lmm(prompt, llm_auth_key, lmm_model=llm_model)
-            print(response)
             if response is not None:
                 try:
                     responses = response.strip('\n').split('\n')
@@ -170,13 +266,52 @@ def label_factor_by_type(dataset, cell_type, model, factor_data, llm_auth_key, l
                                     cur_response = ' '.join(cur_response_tokens[1:])
                                 except ValueError:
                                     pass
-                            factor_data[i]['labels'][label_type] = cur_response
+                            factor_data[i]['labels'][label_type] = format_response(cur_response)
                     else:
                         raise Exception
                 except Exception:
                     print("Couldn't decode LMM response %s; using simple label" % response)
                     pass
     return factor_data
+
+
+def combine_descriptions(factor_data, llm_auth_key, llm_model):
+    for i in range(len(factor_data)):
+        descriptions = list(factor_data[i]['labels'].values())
+        if len(descriptions) > 0:
+            if len(descriptions) == 1:
+                factor_data[i]['labels']['overall'] = descriptions[0]
+            else:
+                prompt = ('Here are multiple short paragraph descriptions for a factor group. '
+                          'Output a single overall paragraph description based off of these descriptions. '
+                          'Print only a single paragraph, no line breaks, and do not simply summarize each description, '
+                          'but rather produce a new description reflecting the underlying mechanism the group as a whole represents. '
+                          'The individual descriptions are:\n\n{}'.format(
+                    '\n\n'.join(descriptions)
+                ))
+                response = query_lmm(prompt, llm_auth_key, lmm_model=llm_model)
+                factor_data[i]['labels']['overall'] = format_response(response)
+
+    return factor_data
+
+def label_description(factor_data, llm_auth_key, llm_model):
+    for i in range(len(factor_data)):
+        overall_description = factor_data[i]['labels'].get('overall')
+        if overall_description is not None:
+            prompt = ('Here is a short paragraph description for a factor group. '
+                      'Output a short at most 5 word label based on this description. '
+                      'Print only the label. The description is:\n\n{}'.format(
+                overall_description
+            ))
+            response = query_lmm(prompt, llm_auth_key, lmm_model=llm_model)
+            factor_data[i]['labels']['label'] = format_response(response)
+
+    return factor_data
+
+
+def upload_data(dataset, cell_type, model):
+    path = f'{s3_out}/out/single_cell/factors/{dataset}/{cell_type}/{model}/'
+    subprocess.check_call(['aws', 's3', 'cp', 'outputs/', path, '--recursive'])
 
 
 def main():
@@ -189,7 +324,14 @@ def main():
     open_api_key = OpenAPIKey().get_key()
     factor_data = get_data(args.dataset, args.cell_type, args.model)
     factor_data = label_factor_by_type(args.dataset, args.cell_type, args.model, factor_data, open_api_key, 'gpt-5-nano')
-    print(factor_data)
+    factor_data = combine_descriptions(factor_data, open_api_key, 'gpt-5-nano')
+    factor_data = label_description(factor_data, open_api_key, 'gpt-5-nano')
+
+    os.makedirs('outputs', exist_ok=True)
+    translate_data(args.dataset, args.cell_type, args.model, factor_data)
+    upload_data(args.dataset, args.cell_type, args.model)
+    shutil.rmtree('inputs')
+    shutil.rmtree('outputs')
 
 
 if __name__ == '__main__':
