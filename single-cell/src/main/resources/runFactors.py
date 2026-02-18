@@ -38,9 +38,11 @@ def translate_gene_loading_data(dataset, cell_type, model):
             factor_values = {factor: [] for factor in header[1:]}
             for line in f:
                 gene, factor_data = line.strip().split('\t', 1)
-                json_line = dict(zip(header[1:], factor_data.split('\t')))
-                for factor in json_line:
-                    factor_values[factor].append((float(json_line[factor]), gene))
+                v = list(map(float, factor_data.split('\t')))
+                if sum(v) > 0:
+                    json_line = dict(zip(header[1:], [a / sum(v) for a in v]))
+                    for factor in json_line:
+                        factor_values[factor].append((json_line[factor], gene))
 
         if len(factor_values) > 0:
             with open('outputs/factor_genes.json', 'w') as f_out:
@@ -69,19 +71,21 @@ def translate_cell_loading_data(dataset, cell_type, model):
                 header = f.readline().strip().split('\t')
                 for line in f:
                     cell, _, factor_data = line.strip().split('\t', 2)
-                    json_line = dict(zip(header[2:], factor_data.split('\t')))
-                    for factor in json_line:
-                        if float(json_line[factor]) > 0:
-                            f_out.write(json.dumps(
-                                {
-                                    'dataset': dataset,
-                                    'cell_type': cell_type,
-                                    'model': model,
-                                    'factor': factor,
-                                    'cell': cell,
-                                    'value': float(json_line[factor])
-                                }
-                            ) + '\n')
+                    v = list(map(float, factor_data.split('\t')))
+                    if sum(v) > 0:
+                        json_line = dict(zip(header[2:], [a / sum(v) for a in v]))
+                        for factor in json_line:
+                            if json_line[factor] > 0:
+                                f_out.write(json.dumps(
+                                    {
+                                        'dataset': dataset,
+                                        'cell_type': cell_type,
+                                        'model': model,
+                                        'factor': factor,
+                                        'cell': cell,
+                                        'value': json_line[factor]
+                                    }
+                                ) + '\n')
 
 
 def translate_factors(dataset, cell_type, model, factor_data):
