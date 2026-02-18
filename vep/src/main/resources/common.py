@@ -72,7 +72,7 @@ def allele_frequencies(v, ref, alt):
         freq = next((f for f in freqs if f), None)
 
         # flip the frequency if this is the reference allele
-        return 1.0 - freq if allele == ref else freq
+        return 1.0 - freq if freq is not None and allele == ref else freq
 
     # try gnomad, if not there use 1kg
     return {
