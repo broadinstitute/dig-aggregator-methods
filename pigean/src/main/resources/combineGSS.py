@@ -14,18 +14,14 @@ cpus = 8
 
 def download_all_data(gene_set_size):
     cmd = ['aws', 's3', 'cp', f'{s3_in}/out/pigean/staging/pigean/', './data/', '--recursive',
-           '--exclude="*"', f'--include="*/*/{gene_set_size}/gs.out"']
+           '--exclude="*"', f'--include="*/*/{gene_set_size}/gss.out"']
     subprocess.check_call(' '.join(cmd), shell=True)
 
 
 def convert_line(phenotype, headers, line):
     line_dict = dict(zip(headers, line.strip().split('\t')))
     line_dict['phenotype'] = phenotype
-    if 'positive_control' in line_dict:
-        line_dict['huge_score_gwas'] = line_dict['positive_control']
-    if 'huge_score_exomes' in line_dict:
-        line_dict['huge_score_gwas'] = line_dict['huge_score_exomes']
-    keys = ['phenotype', 'Gene', 'combined', 'huge_score_gwas', 'log_bf']
+    keys = ['phenotype', 'Gene_Set', 'beta', 'beta_uncorrected']
     values = [line_dict[key] for key in keys]
     if 'NA' not in values:
         return '\t'.join(values) + '\n'
@@ -45,24 +41,25 @@ def convert(file):
 
 def convert_all_data(gene_set_size):
     with Pool(cpus) as p:
-        p.map(convert, glob.glob(f'data/*/*/{gene_set_size}/gs.out'))
+        p.map(convert, glob.glob(f'data/*/*/{gene_set_size}/gss.out'))
 
 
 def combine(gene_set_size):
-    os.makedirs('out', exist_ok=True)
-    all_files = glob.glob(f'data/*/*/{gene_set_size}/gs.tsv')
-    with open(f'out/gs_{gene_set_size}.tsv', 'w') as f_out:
-        f_out.write('trait\tgene\tcombined\thuge\tlog_bf\n')
+    if not os.path.exists('out'):
+        os.mkdir('out')
+    all_files = glob.glob(f'data/*/*/{gene_set_size}/gss.tsv')
+    with open(f'out/gss_{gene_set_size}.tsv', 'w') as f_out:
+        f_out.write('trait\tgene_set\tbeta\tbeta_uncorrected\n')
         for file in all_files:
             with open(file, 'r') as f_in:
                 for line in f_in:
                     split_line = line.strip().split('\t')
-                    if float(split_line[2]) > 1.0:
+                    if float(split_line[3]) > 0.01:
                         f_out.write(line)
 
 
 def upload_data(gene_set_size):
-    subprocess.check_call(['aws', 's3', 'cp', f'out/gs_{gene_set_size}.tsv', f'{s3_out}/out/pigean/staging/combined/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'out/gss_{gene_set_size}.tsv', f'{s3_out}/out/pigean/staging/combined/'])
     shutil.rmtree('out')
 
 

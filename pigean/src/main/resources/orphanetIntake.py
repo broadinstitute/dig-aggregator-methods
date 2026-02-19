@@ -66,6 +66,7 @@ def get_gene_data():
 
 def add_classifications(name_map, gene_map):
     disorder_map = {k: v for k, v in gene_map.items()}
+    leaf_map = {}
     for file in glob.glob('classifications/*.xml'):
         with open(file, 'r', encoding='ISO-8859-1') as f:
             soup = BeautifulSoup(f, features='xml')
@@ -75,6 +76,8 @@ def add_classifications(name_map, gene_map):
             disorder = node.find('Disorder')
             disorder_name = process_name(disorder.find('Name').text)
             disorder_code = int(disorder.find('OrphaCode').text)
+            if disorder_code not in leaf_map:
+                leaf_map[disorder_code] = len(node.find_all('ClassificationNodeChildList', {'count': '0'}))
             classification = node.find('ClassificationNodeChildList')
             if disorder_code not in disorder_map:
                 disorder_map[disorder_code] = {}
@@ -85,17 +88,19 @@ def add_classifications(name_map, gene_map):
                         if gene not in disorder_map[disorder_code] or disorder_map[disorder_code][gene] < prob:
                             disorder_map[disorder_code][gene] = prob
             name_map[disorder_code] = disorder_name
-    return name_map, disorder_map
+    return name_map, disorder_map, leaf_map
 
 
-def filter_by_size(name_map, gene_map):
+def filter_by_size(name_map, gene_map, leaf_map):
     filtered_name_map = {}
     filtered_gene_map = {}
+    filtered_leaf_map = {}
     for code_id, genes in gene_map.items():
         if len(genes) >= 2:
             filtered_name_map[code_id] = name_map[code_id]
             filtered_gene_map[code_id] = gene_map[code_id]
-    return filtered_name_map, filtered_gene_map
+            filtered_leaf_map[code_id] = leaf_map.get(code_id, 1)
+    return filtered_name_map, filtered_gene_map, filtered_leaf_map
 
 
 def check_file(path):
@@ -138,8 +143,17 @@ def save_names(name_map):
     os.remove('code_to_name.tsv')
 
 
-def save_data(name_map, gene_map, new_or_altered_ids):
+def save_leaves(leaf_map):
+    with open('code_to_leaves.tsv', 'w') as f:
+        for code_id in sorted(leaf_map):
+            f.write(f'Orphanet_{code_id}\t{leaf_map[code_id]}\n')
+    subprocess.check_call('aws s3 cp code_to_leaves.tsv s3://dig-analysis-bin/orphanet/', shell=True)
+    os.remove('code_to_leaves.tsv')
+
+
+def save_data(name_map, gene_map, leaf_map, new_or_altered_ids):
     save_names(name_map)
+    save_leaves(leaf_map)
     os.makedirs('output', exist_ok=True)
     for new_or_altered_id in new_or_altered_ids:
         file_name = f'Orphanet_{new_or_altered_id}'
@@ -155,15 +169,15 @@ def save_data(name_map, gene_map, new_or_altered_ids):
 def run():
     download_orphanet_xml()
     name_map, gene_map = get_gene_data()
-    name_map, gene_map = add_classifications(name_map, gene_map)
-    name_map, gene_map = filter_by_size(name_map, gene_map)
+    name_map, gene_map, leaf_map = add_classifications(name_map, gene_map)
+    name_map, gene_map, leaf_map = filter_by_size(name_map, gene_map, leaf_map)
 
     download_all_gene_lists()
     old_gene_map = get_old_gene_map()
 
     new_or_altered_ids = get_new_or_altered_ids(gene_map, old_gene_map)
 
-    save_data(name_map, gene_map, new_or_altered_ids)
+    save_data(name_map, gene_map, leaf_map, new_or_altered_ids)
     shutil.rmtree('classifications')
     shutil.rmtree('genes')
     shutil.rmtree('gene_lists')
