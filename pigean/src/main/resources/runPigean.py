@@ -8,16 +8,18 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 gene_sets = {
-    'gene_set_list_mouse_2024.txt': ['small', 'large', 'cfde'],
-    'gene_set_list_msigdb_nohp.txt': ['small', 'large', 'cfde'],
+    'gene_set_list_mouse_2024.txt': ['small', 'large', 'cfde', 'mouse'],
+    'gene_set_list_msigdb_nohp.txt': ['small', 'large', 'cfde', 'ryank061025'],
     'gene_set_list_string_notext_medium_processed.txt': ['large'],
     'gene_set_list_pops_sparse_small.txt': ['large'],
     'gene_set_list_mesh_processed.txt': ['large']
 }
 
 gene_lists = {
-    'cfde.gene_sets.list': ['cfde'],
-    'cfde_overlap.gene_sets.list': ['cfde']
+    'cfde/cfde.gene_sets.list': ['cfde'],
+    'cfde_overlap/cfde_overlap.gene_sets.list': ['cfde'],
+    'mouse/mouse.gene_sets.list': ['mouse'],
+    'ryan061025/ryank061025.gene_sets.list': ['ryank061025']
 }
 
 
@@ -26,6 +28,8 @@ def file_name(trait_type):
         return 'pigean.sumstats.gz'
     elif trait_type == 'gene_lists':
         return 'gene_list.tsv'
+    elif trait_type == 'exomes':
+        return 'exomes.sumstats.gz'
     else:
         raise ValueError(f'Invalid trait_type: {trait_type}')
 
@@ -64,6 +68,23 @@ def trait_type_command(trait_type):
             '--positive-controls-all-no-header', 'True',
             '--positive-controls-all-id-col', '1'
         ]
+    elif trait_type == 'exomes':
+        return [
+            '--exomes-in', file_name(trait_type),
+             '--exomes-gene-col', 'Gene',
+             '--exomes-p-col', 'P-value',
+             '--exomes-beta-col', 'Effect'
+        ]
+
+# NOTE: Removed as model became unstable
+def get_background_prior(phenotype):
+    # with open(f'{downloaded_files}/code_to_leaves.tsv', 'r') as f:
+    #     for line in f:
+    #         code, leaves_str = line.strip().split('\t')
+    #         if code == phenotype:
+    #             return ['--background-prior', str(min(int(leaves_str) * 0.005, 0.05))]
+    return ['--background-prior', '0.05']
+
 
 base_cmd = [
     'python3', f'{downloaded_files}/priors.py', 'gibbs',
@@ -74,12 +95,9 @@ base_cmd = [
     '--num-chains', '10',
     '--num-chains-betas', '4',
     '--max-num-iter', '500',
-    '--background-prior', '0.05',
     '--filter-gene-set-p', '0.005',
     '--max-num-gene-sets', '4000',
-    '--exomes-gene-col', 'Gene',
-    '--exomes-p-col', 'P-value',
-    '--exomes-beta-col', 'Effect',
+    '--min-gene-set-size', '5',
     '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
     '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
     '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
@@ -90,8 +108,8 @@ base_cmd = [
     '--gene-effectors-out', 'ge.out'
 ]
 
-def run_pigean(trait_type, gene_set_size):
-    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(gene_set_size)
+def run_pigean(trait_type, phenotype, gene_set_size):
+    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(gene_set_size) + get_background_prior(phenotype)
     subprocess.check_call(cmd)
 
 
@@ -106,7 +124,7 @@ def upload(file_name, file_path):
         subprocess.check_call(['aws', 's3', 'cp', file_name, file_path])
         os.remove(file_name)
 
-def upload_data(trait_group, phenotype, gene_set_size):
+def upload_data(trait_type, trait_group, phenotype, gene_set_size):
     file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
     upload('gs.out', file_path)
     upload('gss.out', file_path)
@@ -128,8 +146,8 @@ def main():
     args = parser.parse_args()
     download_data(args.trait_type, args.trait_group, args.phenotype)
     try:
-        run_pigean(args.trait_type, args.gene_set_size)
-        upload_data(args.trait_group, args.phenotype, args.gene_set_size)
+        run_pigean(args.trait_type, args.phenotype, args.gene_set_size)
+        upload_data(args.trait_type, args.trait_group, args.phenotype, args.gene_set_size)
         os.remove(file_name(args.trait_type))
     except:
         print('ERROR')
