@@ -6,6 +6,7 @@ import os
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType
 import sqlalchemy
+import subprocess
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
@@ -38,27 +39,32 @@ class BioIndexDB:
             ))
         return self.engine
 
-    def get_largest_mixed_dataset(self, phenotype):
+    def get_sorted_datasets(self, phenotype):
         with self.get_engine().connect() as connection:
-            print(f'Querying db for phenotype {phenotype} for largest mixed dataset')
+            print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
             query = sqlalchemy.text(
-                f'SELECT tech, name FROM Datasets '
+                f'SELECT name FROM Datasets '
                 f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
                 f'AND ancestry="Mixed" AND tech="GWAS" '
-                f'ORDER BY subjects DESC LIMIT 1'
+                f'ORDER BY subjects DESC'
             )
             rows = connection.execute(query).all()
-        print(f'Returned {len(rows)} rows for largest mixed dataset')
-        if len(rows) == 1:
-            return f'{rows[0][0]}/{rows[0][1]}'
+        print(f'Returned {len(rows)} rows for largest dataset')
+        return [row[0] for row in rows]
+
+
+def check_existence(phenotype, dataset):
+    path = f'{s3_in}/out/metaanalysis/variants/{phenotype}/dataset={dataset}/ancestry=Mixed/'
+    return subprocess.call(['aws', 's3', 'ls', path, '--recursive'])
 
 
 def get_s3_dir(phenotype, ancestry):
     if ancestry == 'Mixed':
         db = BioIndexDB()
-        tech_dataset = db.get_largest_mixed_dataset(phenotype)
-        if tech_dataset is not None:
-            return f'{s3_in}/variants/{tech_dataset}/{phenotype}/'
+        datasets = db.get_sorted_datasets(phenotype)
+        for dataset in datasets:
+            if not check_existence(phenotype, dataset):
+                return f'{s3_in}/variants/GWAS/{dataset}/{phenotype}/'
     else:
         return f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry={ancestry}/'
 
