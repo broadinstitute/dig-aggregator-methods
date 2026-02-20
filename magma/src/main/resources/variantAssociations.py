@@ -41,7 +41,7 @@ class BioIndexDB:
 
     def get_sorted_datasets(self, phenotype):
         with self.get_engine().connect() as connection:
-            print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
+            print(f'Querying db for phenotype {phenotype} for largest Mixed dataset')
             query = sqlalchemy.text(
                 f'SELECT name FROM Datasets '
                 f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
