@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "trang_440k_mask_paper",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "trang_440k_mask_paper"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "trang_440k_mask_paper"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-private",
+            "subdir": "trang_440k_mask_paper/bioindex"
         },
         "emr": {
             "subnetIds": [

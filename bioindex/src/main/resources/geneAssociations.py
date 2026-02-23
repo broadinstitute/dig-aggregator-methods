@@ -48,7 +48,7 @@ def process_600trait_datasets(spark):
     Load all 600trait results and write them out both sorted by gene and by
     phenotype, so they may be queried either way.
     """
-    df = spark.read.json(f'{s3_in}/gene_associations/600k_600traits/*/*/part-*')
+    df = spark.read.json(f'{s3_in}/gene_associations/440K_MaskPaper/*/*/*/part-*')
 
     df = df.withColumn('pValue_rare', when(df.pValue_rare == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_rare))
     df = df.withColumn('pValue', df.pValue_rare)
@@ -72,14 +72,14 @@ def process_600trait_datasets(spark):
     df.orderBy(['ancestry', 'cohort', 'gene', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/gene_associations/600trait')
+        .json(f'{s3_bioindex}/gene_associations/440K_MaskPaper')
 
     # sort by phenotype, then by p-value for the gene finder
     df.drop('masks') \
         .orderBy(['ancestry', 'cohort', 'phenotype', 'pValue']) \
         .write \
         .mode('overwrite') \
-        .json(f'{s3_bioindex}/finder/600trait')
+        .json(f'{s3_bioindex}/finder/440K_MaskPaper')
 
 
 def process_transcript_datasets(spark):

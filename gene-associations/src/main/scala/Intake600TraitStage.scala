@@ -12,7 +12,7 @@ class Intake600TraitStage(implicit context: Context) extends Stage {
     stepConcurrency = 10
   )
 
-  val traits600: Input.Source = Input.Source.Raw("gene_associations_raw/600k_600traits/*/*/all/*")
+  val traits600: Input.Source = Input.Source.Raw("gene_associations_raw/440K_MaskPaper/*/*/all/*")
 
   override val sources: Seq[Input.Source] = Seq(traits600)
 
