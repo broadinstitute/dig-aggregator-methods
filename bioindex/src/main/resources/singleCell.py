@@ -143,7 +143,7 @@ def save_marker_genes(marker_genes, filename):
 def file_iter(dataset, infile, outfile, cell_indexes, number_map):
     with gzip.open(infile, 'rt') as f_in:
         header = f_in.readline().strip().split('\t')[1:]
-        genex_indexes = {cell_indexes[column_cell]: matrix_idx for matrix_idx, column_cell in enumerate(header)}
+        genex_indexes = {cell_indexes[column_cell]: matrix_idx for matrix_idx, column_cell in enumerate(header) if column_cell in cell_indexes}
         part_num = 0
         part_count = 0
         f_out = open(f'raw/count_files/part-{str(part_num).zfill(5)}', 'w')
