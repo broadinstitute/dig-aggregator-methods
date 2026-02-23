@@ -206,7 +206,7 @@ def main():
     subprocess.check_call(['aws', 's3', 'cp', f_in, 'raw', '--recursive'])
 
     metadata = fetch_dataset_metadata()
-    max_categories = max(metadata['totalBiosamples'], metadata['totalDonors'])
+    max_categories = 100#max(metadata['totalBiosamples'], metadata['totalDonors'])
 
     os.makedirs('processed', exist_ok=True)
     index_lists, set_lists, index_dict = fetch_metadata()
