@@ -7,6 +7,7 @@ import org.broadinstitute.dig.aws.emr._
 object SingleCell extends Method {
 
   override def initStages(implicit context: Context) = {
+    addStage(new LigerStage)
     addStage(new DownsampleStage)
     addStage(new FactorMatrixStage)
     addStage(new FactorPhewasStage)
