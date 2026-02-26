@@ -15,7 +15,8 @@ s3_out = os.environ['OUTPUT_PATH']
 
 model_to_gene_stats = {
     'mouse_msigdb_phi1': 'mouse_msigdb',
-    'mouse_msigdb_phi5': 'mouse_msigdb'
+    'mouse_msigdb_phi5': 'mouse_msigdb',
+    'mouse_msigdb': 'mouse_msigdb'
 }
 
 

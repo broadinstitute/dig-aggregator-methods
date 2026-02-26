@@ -182,15 +182,15 @@ def format_cell_type(cell_type):
 
 
 def get_cell_map():
-    files = glob.glob('inputs/output/*/metadata.txt')
-    cell_types = [re.findall('inputs/output/(.*)/metadata.txt', file)[0] for file in files]
+    files = glob.glob('inputs/outputs/*/metadata.txt')
+    cell_types = [re.findall('inputs/outputs/(.*)/metadata.txt', file)[0] for file in files]
     print(cell_types)
     return {format_cell_type(cell_type): cell_type for cell_type in cell_types}
 
 
 def convert_cell_loadings(cell_type, cell_type_name):
     with open(f'outputs/{cell_type}/factor_matrix_cell_loadings.tsv', 'w') as f_out:
-        with open(f'inputs/output/{cell_type_name}/cell_scores.tsv', 'r') as f_in:
+        with open(f'inputs/outputs/{cell_type_name}/cell_scores.tsv', 'r') as f_in:
             header = f_in.readline()
             f_out.write('cell\tindep\t{}'.format(header))
             for line in f_in:
@@ -201,7 +201,7 @@ def convert_cell_loadings(cell_type, cell_type_name):
 
 def convert_gene_loadings(cell_type, cell_type_name):
     with open(f'outputs/{cell_type}/factor_matrix_gene_loadings.tsv', 'w') as f_out:
-        with open(f'inputs/output/{cell_type_name}/gene_loadings.tsv', 'r') as f_in:
+        with open(f'inputs/outputs/{cell_type_name}/gene_loadings.tsv', 'r') as f_in:
             header = f_in.readline()
             f_out.write('gene\t{}'.format(header))
             for line in f_in:
@@ -209,7 +209,7 @@ def convert_gene_loadings(cell_type, cell_type_name):
 
 
 def convert_gene_probabilities(cell_type, cell_type_name):
-    with open(f'inputs/output/{cell_type_name}/gene_loadings.tsv', 'r') as f_in:
+    with open(f'inputs/outputs/{cell_type_name}/gene_loadings.tsv', 'r') as f_in:
         factors = f_in.readline().strip().split('\t')
         genes = []
         W = []
@@ -254,7 +254,7 @@ def get_top_cells(cell_type):
 def convert_gene_programs(cell_type, cell_type_name):
     top_genes = get_top_genes(cell_type)
     top_cells = get_top_cells(cell_type)
-    with open(f'inputs/output/{cell_type_name}/gene_programs.txt', 'r') as f:
+    with open(f'inputs/outputs/{cell_type_name}/gene_programs.txt', 'r') as f:
         factors = f.readline().strip().split('\t')
     with open(f'outputs/{cell_type}/factor_matrix_factors.tsv', 'w') as f_out:
         f_out.write('factor_index\texp_lambdak\ttop_genes\ttop_cells\n')

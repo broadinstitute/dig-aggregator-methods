@@ -40,7 +40,5 @@ sudo R -e "install.packages('reticulate', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('anndata', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')"
 sudo R -e "install.packages('http://cran.r-project.org/src/contrib/Archive/ggrepel/ggrepel_0.9.0.tar.gz', repos=NULL, type='source')"
-sudo R -e "install.packages('Seurat', repos='http://cran.rstudio.com/')" # 5.4.0 when generated
-sudo R -e "install.packages('rliger', repos='http://cran.rstudio.com/')" # 2.2.1 when generated
 
 sudo aws s3 cp s3://dig-analysis-bin/single_cell/inmf_liger_mod.R ./

@@ -185,15 +185,15 @@ def get_trait_data(dataset, cell_type, model):
 
 def get_data(dataset, cell_type, model):
     gene_data = get_gene_data(dataset, cell_type, model)
-    gene_set_data = get_gene_set_data(dataset, cell_type, model)
-    trait_data = get_trait_data(dataset, cell_type, model)
-    factors = list(gene_data.keys() | gene_set_data.keys() | trait_data.keys())
+    # gene_set_data = get_gene_set_data(dataset, cell_type, model)
+    # trait_data = get_trait_data(dataset, cell_type, model)
+    factors = list(gene_data.keys())# | gene_set_data.keys() | trait_data.keys())
     return [{
         'factor': factor,
         'importance': gene_data.get(factor, {}).get('importance'),
         'top_genes': gene_data.get(factor, {}).get('top_genes', []),
-        'top_gene_sets': gene_set_data.get(factor, []),
-        'top_traits': trait_data.get(factor, []),
+        # 'top_gene_sets': gene_set_data.get(factor, []),
+        # 'top_traits': trait_data.get(factor, []),
         'labels': {}
     } for factor in factors]
 
@@ -233,6 +233,47 @@ def format_response(response):
         .replace('\u2014', '-') \
         .encode('utf-8') \
         .decode('ascii', errors='ignore')
+
+
+def label_factor(dataset, cell_type, model, factor_data, llm_auth_key, llm_model):
+    ' %s'
+    filtered_data = [data for data in factor_data if len(data['top_genes']) > 0]
+    if len(filtered_data) > 0:
+        prompt_data = []
+        for i, data in enumerate(filtered_data):
+            prompt_data.append('{}. {} {} {} - Top Genes: {}'.format(
+                i + 1,
+                dataset,
+                cell_type,
+                model,
+                ', '.join(data['top_genes'])
+            ))
+            prompt = ('Print a label, five words maximum, for each group. '
+                      'Print only labels, one per line, label number followed by text: {}').format(
+                '\n' + '\n\n'.join(prompt_data)
+            )
+        response = query_lmm(prompt, llm_auth_key, lmm_model=llm_model)
+        if response is not None:
+            try:
+                responses = response.strip('\n').split('\n')
+                responses = [x for x in responses if len(x) > 0]
+
+                if len(responses) == len(factor_data):
+                    for i in range(len(factor_data)):
+                        cur_response = responses[i]
+                        cur_response_tokens = cur_response.split()
+                        if len(cur_response_tokens) > 1 and cur_response_tokens[0][-1] == '.':
+                            try:
+                                cur_response = ' '.join(cur_response_tokens[1:])
+                            except ValueError:
+                                pass
+                        factor_data[i]['labels']['label'] = format_response(cur_response)
+                else:
+                    raise Exception
+            except Exception:
+                print("Couldn't decode LMM response %s; using simple label" % response)
+                pass
+    return factor_data
 
 
 def label_factor_by_type(dataset, cell_type, model, factor_data, llm_auth_key, llm_model):
@@ -327,9 +368,11 @@ def main():
 
     open_api_key = OpenAPIKey().get_key()
     factor_data = get_data(args.dataset, args.cell_type, args.model)
-    factor_data = label_factor_by_type(args.dataset, args.cell_type, args.model, factor_data, open_api_key, 'gpt-5-nano')
-    factor_data = combine_descriptions(factor_data, open_api_key, 'gpt-5-nano')
-    factor_data = label_description(factor_data, open_api_key, 'gpt-5-nano')
+    # factor_data = label_factor_by_type(args.dataset, args.cell_type, args.model, factor_data, open_api_key, 'gpt-5-nano')
+    # factor_data = combine_descriptions(factor_data, open_api_key, 'gpt-5-nano')
+    # factor_data = label_description(factor_data, open_api_key, 'gpt-5-nano')
+
+    factor_data = label_factor(args.dataset, args.cell_type, args.model, factor_data, open_api_key, 'gpt-5-nano')
 
     os.makedirs('outputs', exist_ok=True)
     translate_data(args.dataset, args.cell_type, args.model, factor_data)
