@@ -28,7 +28,7 @@ def run_liger():
 
 
 def upload(dataset):
-    zip_cmd = ['zip', '-r', 'liger.zip', './outputs/']
+    zip_cmd = ['zip', '-r', 'liger.zip', './output/']
     subprocess.check_call(zip_cmd)
     path = f'{s3_out}/out/single_cell/staging/liger/{dataset}/'
     cmd = ['aws', 's3', 'cp', 'liger.zip', path]

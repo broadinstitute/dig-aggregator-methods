@@ -14,7 +14,7 @@ class LigerStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-liger.sh")))
   )
 
-  val singleCell: Input.Source = Input.Source.Raw("single_cell/*/dataset_metadata.json")
+  val singleCell: Input.Source = Input.Source.Raw("single_cell/*/data.h5ad")
 
   override val sources: Seq[Input.Source] = Seq(singleCell)
 
