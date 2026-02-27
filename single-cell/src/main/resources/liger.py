@@ -11,7 +11,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 def download(dataset):
     path = f'{s3_in}/single_cell/{dataset}/data.h5ad'
-    cmd = ['aws', 's3', 'cp', path, f'inputs/{dataset}/']
+    cmd = ['aws', 's3', 'cp', path, f'{downloaded_files}/inputs/{dataset}/']
     subprocess.check_call(cmd)
 
 
@@ -43,11 +43,8 @@ def main():
                         help="Dataset name")
     args = parser.parse_args()
 
-    import time
-    time.sleep(12 * 3600)
-
     download(args.dataset)
-    run_liger()
+    run_liger(args.dataset)
     upload(args.dataset)
 
 

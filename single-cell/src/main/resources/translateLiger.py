@@ -256,11 +256,17 @@ def convert_gene_programs(cell_type, cell_type_name):
     top_cells = get_top_cells(cell_type)
     with open(f'inputs/outputs/{cell_type_name}/gene_programs.txt', 'r') as f:
         factors = f.readline().strip().split('\t')
+    with open(f'inputs/outputs/{cell_type_name}/factor_importance.txt', 'r') as f:
+        _ = f.readline()
+        importances = []
+        for line in f:
+            importances.append(float(line.strip()))
     with open(f'outputs/{cell_type}/factor_matrix_factors.tsv', 'w') as f_out:
         f_out.write('factor_index\texp_lambdak\ttop_genes\ttop_cells\n')
-        for factor in factors:
-            f_out.write('{}\t1.0\t{}\t{}\n'.format(
+        for factor, importance in zip(factors, importances):
+            f_out.write('{}\t{}\t{}\t{}\n'.format(
                 re.findall(r'Factor_([0-9]*)', factor)[0],
+                importance,
                 ','.join(top_genes[factor]),
                 ','.join(top_cells[factor])
             ))

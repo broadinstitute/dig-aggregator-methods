@@ -33,33 +33,28 @@ def translate_gene_loading_data(dataset, cell_type, model):
     file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_gene_loadings.tsv'
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
         subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
-        with open('inputs/factor_matrix_gene_loadings.tsv', 'r') as f:
-            header = f.readline().strip().split('\t')
-            factor_values = {factor: [] for factor in header[1:]}
-            for line in f:
-                gene, factor_data = line.strip().split('\t', 1)
-                v = list(map(float, factor_data.split('\t')))
-                if sum(v) > 0:
-                    json_line = dict(zip(header[1:], [a / sum(v) for a in v]))
-                    for factor in json_line:
-                        factor_values[factor].append((json_line[factor], gene))
-
-        if len(factor_values) > 0:
-            with open('outputs/factor_genes.json', 'w') as f_out:
-                for factor, data in factor_values.items():
-                    max_value = max(data)[0]
-                    for output_value, gene in data:
-                        if output_value > max_value * 0.1:
-                            f_out.write(json.dumps(
-                                {
-                                    'dataset': dataset,
-                                    'cell_type': cell_type,
-                                    'model': model,
-                                    'factor': factor,
-                                    'gene': gene,
-                                    'value': output_value
-                                }
-                            ) + '\n')
+        with open('outputs/factor_genes.json', 'w') as f_out:
+            with open('inputs/factor_matrix_gene_loadings.tsv', 'r') as f:
+                header = f.readline().strip().split('\t')
+                factor_values = {factor: [] for factor in header[1:]}
+                for line in f:
+                    gene, factor_data = line.strip().split('\t', 1)
+                    v = list(map(float, factor_data.split('\t')))
+                    if sum(v) > 0:
+                        json_line = dict(zip(header[1:], v))
+                        for factor in json_line:
+                            if json_line[factor] > 0:
+                                f_out.write(json.dumps(
+                                    {
+                                        'dataset': dataset,
+                                        'cell_type': cell_type,
+                                        'model': model,
+                                        'factor': factor,
+                                        'gene': gene,
+                                        'value': json_line[factor]
+                                    }
+                                ) + '\n')
+                            factor_values[factor].append((json_line[factor], gene))
 
 
 def translate_cell_loading_data(dataset, cell_type, model):
@@ -73,7 +68,7 @@ def translate_cell_loading_data(dataset, cell_type, model):
                     cell, _, factor_data = line.strip().split('\t', 2)
                     v = list(map(float, factor_data.split('\t')))
                     if sum(v) > 0:
-                        json_line = dict(zip(header[2:], [a / sum(v) for a in v]))
+                        json_line = dict(zip(header[2:], v))
                         for factor in json_line:
                             if json_line[factor] > 0:
                                 f_out.write(json.dumps(
@@ -249,6 +244,7 @@ def label_factor(dataset, cell_type, model, factor_data, llm_auth_key, llm_model
                 ', '.join(data['top_genes'])
             ))
             prompt = ('Print a label, five words maximum, for each group. '
+                      'Do not just restate the genes, but provide a description of its function or mechanism. '
                       'Print only labels, one per line, label number followed by text: {}').format(
                 '\n' + '\n\n'.join(prompt_data)
             )
