@@ -10,7 +10,7 @@ class LigerStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    masterInstanceType = Strategy.generalPurpose(vCPUs = 16),
+    masterInstanceType = Strategy.memoryOptimized(),
     bootstrapSteps = Seq(Job.Script(resourceUri("bootstrap-liger.sh")))
   )
 

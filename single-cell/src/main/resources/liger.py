@@ -11,25 +11,24 @@ s3_out = os.environ['OUTPUT_PATH']
 
 def download(dataset):
     path = f'{s3_in}/single_cell/{dataset}/data.h5ad'
-    cmd = ['aws', 's3', 'cp', path, f'{downloaded_files}/inputs/{dataset}/']
+    cmd = ['aws', 's3', 'cp', path, 'inputs/']
     subprocess.check_call(cmd)
 
 
-def run_liger(dataset):
+def run_liger():
     cmd = [
         'Rscript',
         f'{downloaded_files}/inmf_liger_mod.R',
-        f'{downloaded_files}/inputs/{dataset}/data.h5ad',
-        f'{downloaded_files}/outputs/{dataset}',
+        'inputs/data.h5ad',
+        'outputs',
         'donor_id',
         'cell_type__kp',
         '50000'
     ]
-    subprocess.check_call(cmd, cwd=downloaded_files)
+    subprocess.check_call(cmd)
 
 
 def upload(dataset):
-    shutil.copytree(f'{downloaded_files}/outputs/{dataset}', './outputs')
     zip_cmd = ['zip', '-r', 'liger.zip', './outputs/']
     subprocess.check_call(zip_cmd)
     path = f'{s3_out}/out/single_cell/staging/liger/{dataset}/'
@@ -44,8 +43,12 @@ def main():
     args = parser.parse_args()
 
     download(args.dataset)
-    run_liger(args.dataset)
+    run_liger()
     upload(args.dataset)
+
+    shutil.rmtree('inputs')
+    shutil.rmtree('outputs')
+    os.remove('liger.zip')
 
 
 if __name__ == '__main__':
