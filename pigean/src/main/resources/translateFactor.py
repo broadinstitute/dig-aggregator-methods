@@ -14,14 +14,14 @@ def get_rs_score_fnc():
             out.append(tuple(map(float, line.strip().split('\t'))))
     return out
 
-rs_score = get_rs_score_fnc()
 
-def get_rs_score(beta_uncorrected):
-    right_idx = next(idx for idx, x in enumerate(rs_score) if x[0] > beta_uncorrected)
-    left_thresh, left_rs = rs_score[right_idx - 1]
-    right_thresh, right_rs = rs_score[right_idx]
+def get_rs_score(beta_uncorrected, rs_score_fnc):
+    right_idx = next(idx for idx, x in enumerate(rs_score_fnc) if x[0] > beta_uncorrected)
+    left_thresh, left_rs = rs_score_fnc[right_idx - 1]
+    right_thresh, right_rs = rs_score_fnc[right_idx]
     m = (right_rs - left_rs) / (right_thresh - left_thresh)
     return left_rs + m * (beta_uncorrected - left_thresh)
+
 
 # Temp bodge
 idxs = {'gc.out': 7, 'gsc.out': 6}
@@ -78,23 +78,26 @@ def translate_gc(json_line, trait_group, phenotype, gene_set_size, factors):
     return out
 
 
-def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
-    out = []
-    for factor in factors:
-        if float(json_line[factor]) > 0:
-            rs_score = get_rs_score(float(json_line["beta_uncorrected"]))
-            out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
-                       f'"label_factor": "{json_line["cluster"]}", '
-                       f'"label": "{json_line["label"]}", '
-                       f'"factor": "{factor}", '
-                       f'"factor_value": {json_line[factor]}, '
-                       f'"beta": {json_line["beta"]}, '
-                       f'"beta_uncorrected": {json_line["beta_uncorrected"]}, '
-                       f'"rs_score": {rs_score},'
-                       f'"trait_group": "{trait_group}", '
-                       f'"phenotype": "{phenotype}", '
-                       f'"gene_set_size": "{gene_set_size}"}}\n')
-    return out
+def get_translate_gsc():
+    rs_score_fnc = get_rs_score_fnc()
+    def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
+        out = []
+        for factor in factors:
+            if float(json_line[factor]) > 0:
+                rs_score = get_rs_score(float(json_line["beta_uncorrected"]), rs_score_fnc)
+                out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
+                           f'"label_factor": "{json_line["cluster"]}", '
+                           f'"label": "{json_line["label"]}", '
+                           f'"factor": "{factor}", '
+                           f'"factor_value": {json_line[factor]}, '
+                           f'"beta": {json_line["beta"]}, '
+                           f'"beta_uncorrected": {json_line["beta_uncorrected"]}, '
+                           f'"rs_score": {rs_score},'
+                           f'"trait_group": "{trait_group}", '
+                           f'"phenotype": "{phenotype}", '
+                           f'"gene_set_size": "{gene_set_size}"}}\n')
+        return out
+    return translate_gsc
 
 
 def translate(trait_group, phenotype, gene_set_size, data_type, file_name, line_fnc):
@@ -130,7 +133,7 @@ def main():
 
     translate(args.trait_group, args.phenotype, args.gene_set_size, 'factor', 'f.out', translate_f)
     translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_factor', 'gc.out', translate_gc)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_factor', 'gsc.out', translate_gsc)
+    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_factor', 'gsc.out', get_translate_gsc())
 
 
 if __name__ == '__main__':
