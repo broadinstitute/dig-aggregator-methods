@@ -8,7 +8,8 @@ class TranslatePigeanStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    stepConcurrency = 5
+    stepConcurrency = 5,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("translate-bootstrap.sh")))
   )
 
   val pigean: Input.Source = Input.Source.Success("out/pigean/staging/pigean/*/*/*/")

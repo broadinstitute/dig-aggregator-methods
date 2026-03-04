@@ -3,13 +3,13 @@ import argparse
 import os
 import subprocess
 
+downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 def get_gene_set_data_map():
-    subprocess.check_call('aws s3 cp s3://dig-analysis-bin/pigean/misc/gene_set_map.tsv .', shell=True)
     out = {}
-    with open('gene_set_map.tsv', 'r') as f:
+    with open(f'{downloaded_files}/gene_set_map.tsv', 'r') as f:
         for line in f:
             gene_set, gene_set_description, program = line.strip().split('\t')
             out[gene_set] = (gene_set_description, program)
@@ -20,6 +20,22 @@ def get_gene_set_data_map():
 def download_data(trait_group, phenotype, file_name, gene_set_size):
     file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/{file_name}'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
+
+
+def get_rs_score_fnc():
+    out = []
+    with open(f'{downloaded_files}/rs_score_fnc.tsv', 'r') as f:
+        for line in f:
+            out.append(tuple(map(float, line.strip().split('\t'))))
+    return out
+
+
+def get_rs_score(beta_uncorrected, rs_score_fnc):
+    right_idx = next(idx for idx, x in enumerate(rs_score_fnc) if x[0] > beta_uncorrected)
+    left_thresh, left_rs = rs_score_fnc[right_idx - 1]
+    right_thresh, right_rs = rs_score_fnc[right_idx]
+    m = (right_rs - left_rs) / (right_thresh - left_thresh)
+    return left_rs + m * (beta_uncorrected - left_thresh)
 
 
 def upload_data(trait_group, phenotype, data_type, gene_set_size):
@@ -51,17 +67,20 @@ def translate_gs(json_line, trait_group, phenotype, gene_set_size):
 
 def get_translate_gss():
     gene_set_data_map = get_gene_set_data_map()
+    rs_score_fnc = get_rs_score_fnc()
     def translate_gss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
         beta_uncorrected = make_option(json_line["beta_uncorrected"])
         if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
             description, program = gene_set_data_map[json_line["Gene_Set"]]
+            rs_score = get_rs_score(float(beta_uncorrected), rs_score_fnc)
             return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
                    f'"gene_set_description": "{description}", ' \
                    f'"gene_set_program": "{program}", ' \
                    f'"source": "{json_line["label"]}", ' \
                    f'"beta": {beta}, ' \
                    f'"beta_uncorrected": {beta_uncorrected}, ' \
+                   f'"rs_score": {rs_score},' \
                    f'"n": {make_option(json_line["N"])}, ' \
                    f'"trait_group": "{trait_group}", ' \
                    f'"phenotype": "{phenotype}", ' \
@@ -72,11 +91,13 @@ def get_translate_gss():
 def get_translate_ggss(trait_group, phenotype, gene_set_size):
     beta_uncorrected_map, source_map = get_ggss_maps(trait_group, phenotype, gene_set_size)
     gene_set_data_map = get_gene_set_data_map()
+    rs_score_fnc = get_rs_score_fnc()
     def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
         combined = make_option(json_line["combined"])
         if beta is not None and combined is not None:
             beta_uncorrected = beta_uncorrected_map.get((phenotype, json_line['gene_set']), '0.0')
+            rs_score = get_rs_score(float(beta_uncorrected), rs_score_fnc)
             source = source_map[(phenotype, json_line['gene_set'])]
             description, program = gene_set_data_map[json_line["gene_set"]]
             return f'{{"gene": "{json_line["Gene"]}", ' \
@@ -88,6 +109,7 @@ def get_translate_ggss(trait_group, phenotype, gene_set_size):
                    f'"combined": {combined}, ' \
                    f'"beta": {beta}, ' \
                    f'"beta_uncorrected": {beta_uncorrected}, ' \
+                   f'"rs_score": {rs_score},' \
                    f'"log_bf": {make_option(json_line["log_bf"])}, ' \
                    f'"trait_group": "{trait_group}", ' \
                    f'"phenotype": "{phenotype}", ' \

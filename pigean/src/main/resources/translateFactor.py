@@ -3,9 +3,25 @@ import argparse
 import os
 import subprocess
 
+downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
+def get_rs_score_fnc():
+    out = []
+    with open(f'{downloaded_files}/rs_score_fnc.tsv', 'r') as f:
+        for line in f:
+            out.append(tuple(map(float, line.strip().split('\t'))))
+    return out
+
+rs_score = get_rs_score_fnc()
+
+def get_rs_score(beta_uncorrected):
+    right_idx = next(idx for idx, x in enumerate(rs_score) if x[0] > beta_uncorrected)
+    left_thresh, left_rs = rs_score[right_idx - 1]
+    right_thresh, right_rs = rs_score[right_idx]
+    m = (right_rs - left_rs) / (right_thresh - left_thresh)
+    return left_rs + m * (beta_uncorrected - left_thresh)
 
 # Temp bodge
 idxs = {'gc.out': 7, 'gsc.out': 6}
@@ -66,6 +82,7 @@ def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
     out = []
     for factor in factors:
         if float(json_line[factor]) > 0:
+            rs_score = get_rs_score(float(json_line["beta_uncorrected"]))
             out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
                        f'"label_factor": "{json_line["cluster"]}", '
                        f'"label": "{json_line["label"]}", '
@@ -73,6 +90,7 @@ def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
                        f'"factor_value": {json_line[factor]}, '
                        f'"beta": {json_line["beta"]}, '
                        f'"beta_uncorrected": {json_line["beta_uncorrected"]}, '
+                       f'"rs_score": {rs_score},'
                        f'"trait_group": "{trait_group}", '
                        f'"phenotype": "{phenotype}", '
                        f'"gene_set_size": "{gene_set_size}"}}\n')
