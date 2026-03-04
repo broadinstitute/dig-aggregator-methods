@@ -7,6 +7,15 @@ downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
+def get_gene_set_data_map():
+    out = {}
+    with open(f'{downloaded_files}/gene_set_map.tsv', 'r') as f:
+        for line in f:
+            gene_set, gene_set_description, program = line.strip().split('\t')
+            out[gene_set] = (gene_set_description, program)
+    return out
+
+
 def get_rs_score_fnc():
     out = []
     with open(f'{downloaded_files}/rs_score_fnc.tsv', 'r') as f:
@@ -80,12 +89,16 @@ def translate_gc(json_line, trait_group, phenotype, gene_set_size, factors):
 
 def get_translate_gsc():
     rs_score_fnc = get_rs_score_fnc()
+    gene_set_data_map = get_gene_set_data_map()
     def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
         out = []
         for factor in factors:
             if float(json_line[factor]) > 0:
                 rs_score = get_rs_score(float(json_line["beta_uncorrected"]), rs_score_fnc)
+                description, program = gene_set_data_map[json_line["Gene_Set"]]
                 out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
+                           f'"gene_set_description": "{description}", '
+                           f'"gene_set_program": "{program}", '
                            f'"label_factor": "{json_line["cluster"]}", '
                            f'"label": "{json_line["label"]}", '
                            f'"factor": "{factor}", '
@@ -100,8 +113,9 @@ def get_translate_gsc():
     return translate_gsc
 
 
-def translate(trait_group, phenotype, gene_set_size, data_type, file_name, line_fnc):
-    download_data(trait_group, phenotype, file_name, gene_set_size)
+def translate(trait_group, phenotype, model, data_type, file_name, line_fnc):
+    gene_set_size, phi = model.split('___')
+    download_data(trait_group, phenotype, file_name, model)
     factors = get_factors(file_name)
     with open(f'{data_type}.json', 'w') as f_out:
         with open(file_name, 'r') as f_in:
@@ -127,13 +141,13 @@ def main():
                         help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
-    parser.add_argument('--gene-set-size', default=None, required=True, type=str,
-                        help="gene-set-size (small, medium, or large).")
+    parser.add_argument('--model', default=None, required=True, type=str,
+                        help="model (model___phiN).")
     args = parser.parse_args()
 
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'factor', 'f.out', translate_f)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_factor', 'gc.out', translate_gc)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_factor', 'gsc.out', get_translate_gsc())
+    translate(args.trait_group, args.phenotype, args.model, 'factor', 'f.out', translate_f)
+    translate(args.trait_group, args.phenotype, args.model, 'gene_factor', 'gc.out', translate_gc)
+    translate(args.trait_group, args.phenotype, args.model, 'gene_set_factor', 'gsc.out', get_translate_gsc())
 
 
 if __name__ == '__main__':
