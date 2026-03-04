@@ -68,7 +68,7 @@ def get_gene_sets(gene_set_size):
 
 def run_factor(gene_set_size, phi, openapi_key):
     cmd = [
-              'python3', f'{downloaded_files}/priors.py', 'factor',
+              'python3', f'{downloaded_files}/priors-251215-mod.py', 'factor',
               '--phi', f'0.0{phi}',
               '--gene-set-stats-in', 'gss.out',
               '--gene-stats-in', 'gs.out',
@@ -85,13 +85,9 @@ def run_factor(gene_set_size, phi, openapi_key):
               '--max-num-gene-sets', '5000',
               '--phewas-stats-out', 'phs.out',
               '--factors-out', 'f.out',
-              '--factors-anchor-out', 'fa.out',
               '--gene-clusters-out', 'gc.out',
-              '--gene-anchor-clusters-out', 'gac.out',
               '--pheno-clusters-out', 'pc.out',
-              '--pheno-anchor-clusters-out', 'pac.out',
               '--gene-set-clusters-out', 'gsc.out',
-              '--gene-set-anchor-clusters-out', 'gsac.out',
               '--params-out', 'p.out'
           ] + get_gene_sets(gene_set_size) + \
           (['--lmm-auth-key', openapi_key] if openapi_key is not None else [])
@@ -106,7 +102,7 @@ def success(file_path):
 
 def upload_data(trait_group, phenotype, gene_set_size, phi):
     file_path = f'{s3_out}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}___phi{phi}/'
-    for file in ['phs.out', 'f.out', 'fa.out', 'gc.out', 'gac.out', 'pc.out', 'pac.out', 'gsc.out', 'gsac.out', 'p.out']:
+    for file in ['phs.out', 'f.out', 'gc.out', 'pc.out', 'gsc.out', 'p.out']:
         if os.path.exists(file):
             subprocess.check_call(['aws', 's3', 'cp', file, file_path])
             os.remove(file)

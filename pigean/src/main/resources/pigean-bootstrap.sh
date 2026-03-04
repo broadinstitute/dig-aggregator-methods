@@ -23,6 +23,5 @@ sudo pip3 install -U Cython
 sudo pip3 install -U pybind11
 sudo pip3 install -U pythran
 sudo pip3 install -U scipy
-sudo pip3 install -U requests
 sudo pip3 install -U networkx
 sudo pip3 install -U matplotlib
