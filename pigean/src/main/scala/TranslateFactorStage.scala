@@ -11,7 +11,7 @@ class TranslateFactorStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("translate-bootstrap.sh")))
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/")
+  val pigean: Input.Source = Input.Source.Raw("out/pigean/staging/factor/*/*/*/f.out")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
