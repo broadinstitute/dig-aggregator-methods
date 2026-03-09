@@ -24,7 +24,7 @@ def factor(spark):
     df = df.withColumn('cluster', df.factor)
     df = df.withColumn('top_genes', clean(df.top_genes))
     df = df.withColumn('top_gene_sets', clean(df.top_gene_sets))
-    bioindex_order = [col('phenotype'), col('gene_set_size'), col('gene_set_score').desc()]
+    bioindex_order = [col('phenotype'), col('gene_set_size'), col('lambda').desc()]
     bioindex(df, 'factor', bioindex_order)
 
 
