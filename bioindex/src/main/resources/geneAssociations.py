@@ -48,7 +48,7 @@ def process_600trait_datasets(spark):
     Load all 600trait results and write them out both sorted by gene and by
     phenotype, so they may be queried either way.
     """
-    df = spark.read.json(f'{s3_in}/gene_associations/jurgens_phewas_freeze2/*/*/part-*')
+    df = spark.read.json(f'{s3_in}/gene_associations/jurgens_phewas_freeze2/*/*/*/part-*')
 
     df = df.withColumn('pValue_rare', when(df.pValue_rare == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_rare))
     df = df.withColumn('pValue', df.pValue_rare)
