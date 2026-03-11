@@ -145,7 +145,7 @@ def get_scaling_factor(df, tech, logger):
             return regression_scaling_factor
         else:
             return 1.0
-    elif tech == 'GWAS':
+    elif tech == 'GWAS' and fallback_scaling_factor is not None:
         logger.log(f'Using threshold {FALLBACK_SCALING_THRESHOLD}')
         if not (1 / FALLBACK_SCALING_THRESHOLD < fallback_scaling_factor < FALLBACK_SCALING_THRESHOLD):
             return fallback_scaling_factor

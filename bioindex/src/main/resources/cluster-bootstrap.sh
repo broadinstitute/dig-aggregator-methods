@@ -1,10 +1,5 @@
 #!/bin/bash -xe
 
-sudo yum install -y git
-
-# bioindex to get access to shared library functions
-sudo pip3 install git+https://github.com/broadinstitute/dig-bioindex.git@master#egg=bioindex
-
 #Fix versions to make this more deterministic (latest as of September 15, 2025)
 sudo pip3 install -U numpy==1.26.4
 sudo pip3 install -U matplotlib==3.9.4
