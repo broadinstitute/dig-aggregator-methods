@@ -27,8 +27,8 @@ class GeneAssociationsStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 6,
-    masterVolumeSizeInGB = 100,
-    slaveVolumeSizeInGB = 100,
+    masterVolumeSizeInGB = 200,
+    slaveVolumeSizeInGB = 200,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
