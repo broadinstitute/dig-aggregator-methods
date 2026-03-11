@@ -13,7 +13,7 @@ import scipy.stats
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-base_url = f'{s3_in}/gene_associations_raw/600k_600traits'
+base_url = f'{s3_in}/gene_associations_raw/jurgens_phewas_freeze2'
 def download_phecode_files(ancestry, cohort, phecode):
     all_file = f'{phecode}.all_masks_formatted.tsv.gz'
     cauchy_file = f'{phecode}.cauchy_formatted.tsv.gz'
@@ -112,7 +112,7 @@ def upload_output(ancestry, cohort, phecode, output):
             f.write(f'{json.dumps(line)}\n')
     with open(f'{phecode}/metadata', 'w') as f:
         f.write(f'{{"name": "600k_600traits", "ancestry": "{ancestry}", "phenotype": "{phecode}"}}\n')
-    outdir = f'{s3_out}/gene_associations/600k_600traits/{ancestry}/{cohort}/{phecode}'
+    outdir = f'{s3_out}/gene_associations/jurgens_phewas_freeze2/{ancestry}/{cohort}/{phecode}'
     subprocess.check_call(['aws', 's3', 'cp', f'{phecode}/part-00000.json', f'{outdir}/part-00000.json'])
     subprocess.check_call(['aws', 's3', 'cp', f'{phecode}/metadata', f'{outdir}/metadata'])
     os.remove(f'{phecode}/part-00000.json')

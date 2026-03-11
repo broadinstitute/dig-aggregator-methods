@@ -11,7 +11,7 @@ import org.broadinstitute.dig.aws.emr._
 class GeneAssociationsStage(implicit context: Context) extends Stage {
   val magma   = Input.Source.Success("out/magma/gene-associations/*/")
   val combined = Input.Source.Success("gene_associations/combined/*/")
-  val traits_600 = Input.Source.Dataset("gene_associations/600k_600traits/*/")
+  val traits_600 = Input.Source.Dataset("gene_associations/jurgens_phewas_freeze2/*/")
   val transcript = Input.Source.Raw("transcript_associations/55k/*/part-*")
 
   /** Input sources. */
