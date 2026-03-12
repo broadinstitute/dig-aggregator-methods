@@ -11,9 +11,9 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-class OpenAPIKey:
+class LLMAPIKey:
     def __init__(self):
-        self.secret_id = 'openapi-key'
+        self.secret_id = 'ollama-key'
         self.region = 'us-east-1'
         self.config = None
 
@@ -193,28 +193,19 @@ def get_data(dataset, cell_type, model):
     } for factor in factors]
 
 
-def query_lmm(query, auth_key, lmm_model):
+def query_lmm(query, auth_key):
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer %s' % auth_key,
+        'X-API-Key': auth_key
     }
 
     json_data = {
-        'model': lmm_model,
-        'messages': [
-            {
-                'role': 'user',
-                'content': '%s' % query,
-            },
-        ],
+        'userPrompt': query,
+        'systemPrompt': 'You are a computational biologist. Be concise.'
     }
     try:
-        response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data).json()
-        if "choices" in response and len(response["choices"]) > 0 and "message" in response["choices"][0] and "content" in response["choices"][0]["message"]:
-            return response["choices"][0]["message"]["content"]
-        else:
-            print("LMM response did not match the expected format; returning none. Response: %s" % response);
-            return None
+        response = requests.post('https://llm.hugeamp.org/ollama', headers=headers, json=json_data).json()
+        return response['data'][0]['ollama_response'].strip()
     except Exception:
         print("LMM call failed; returning None")
         return None
@@ -226,12 +217,12 @@ def format_response(response):
         .replace('\n', ' ') \
         .replace('\u2013', '-') \
         .replace('\u2014', '-') \
+        .replace('*', '') \
         .encode('utf-8') \
         .decode('ascii', errors='ignore')
 
 
-def label_factor(dataset, cell_type, model, factor_data, llm_auth_key, llm_model):
-    ' %s'
+def label_factor(dataset, cell_type, model, factor_data, llm_auth_key):
     filtered_data = [data for data in factor_data if len(data['top_genes']) > 0]
     if len(filtered_data) > 0:
         prompt_data = []
@@ -243,32 +234,11 @@ def label_factor(dataset, cell_type, model, factor_data, llm_auth_key, llm_model
                 model,
                 ', '.join(data['top_genes'])
             ))
-            prompt = ('Print a label, five words maximum, for each group. '
-                      'Do not just restate the genes, but provide a description of its function or mechanism. '
-                      'Print only labels, one per line, label number followed by text: {}').format(
-                '\n' + '\n\n'.join(prompt_data)
-            )
-        response = query_lmm(prompt, llm_auth_key, lmm_model=llm_model)
-        if response is not None:
-            try:
-                responses = response.strip('\n').split('\n')
-                responses = [x for x in responses if len(x) > 0]
-
-                if len(responses) == len(factor_data):
-                    for i in range(len(factor_data)):
-                        cur_response = responses[i]
-                        cur_response_tokens = cur_response.split()
-                        if len(cur_response_tokens) > 1 and cur_response_tokens[0][-1] == '.':
-                            try:
-                                cur_response = ' '.join(cur_response_tokens[1:])
-                            except ValueError:
-                                pass
-                        factor_data[i]['labels']['label'] = format_response(cur_response)
-                else:
-                    raise Exception
-            except Exception:
-                print("Couldn't decode LMM response %s; using simple label" % response)
-                pass
+            prompt = ('Create a concise biological label (2–6 words) for this gene-set group. '
+                      'Return ONLY the label summary. Top Genes: {}').format(', '.join(data['top_genes']))
+            response = query_lmm(prompt, llm_auth_key)
+            if response is not None:
+                factor_data[i]['labels']['label'] = format_response(response)
     return factor_data
 
 
@@ -362,13 +332,13 @@ def main():
     opts.add_argument('--model', type=str, required=True)
     args = opts.parse_args()
 
-    open_api_key = OpenAPIKey().get_key()
+    llm_api_key = LLMAPIKey().get_key()
     factor_data = get_data(args.dataset, args.cell_type, args.model)
     # factor_data = label_factor_by_type(args.dataset, args.cell_type, args.model, factor_data, open_api_key, 'gpt-5-nano')
     # factor_data = combine_descriptions(factor_data, open_api_key, 'gpt-5-nano')
     # factor_data = label_description(factor_data, open_api_key, 'gpt-5-nano')
 
-    factor_data = label_factor(args.dataset, args.cell_type, args.model, factor_data, open_api_key, 'gpt-5-nano')
+    factor_data = label_factor(args.dataset, args.cell_type, args.model, factor_data, llm_api_key)
 
     os.makedirs('outputs', exist_ok=True)
     translate_data(args.dataset, args.cell_type, args.model, factor_data)
