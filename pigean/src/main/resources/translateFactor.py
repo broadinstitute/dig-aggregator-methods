@@ -62,6 +62,7 @@ def translate_f(json_line, trait_group, phenotype, gene_set_size, factors):
         f'"top_genes": "{json_line["top_genes"].replace(",", ";")}", '
         f'"top_gene_sets": "{json_line["top_gene_sets"].replace(",", ";")}", '
         f'"lambda": {json_line["lambda"]}, '
+        f'"any_relevance": {json_line["any_relevance"]}, '
         f'"trait_group": "{trait_group}", '
         f'"phenotype": "{phenotype}", '
         f'"gene_set_size": "{gene_set_size}"}}\n'
