@@ -9,6 +9,7 @@ class TranslateLigerStage(implicit context: Context) extends Stage {
   val models = Seq("mouse_msigdb")
 
   override val cluster: ClusterDef = super.cluster.copy(
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-translate.sh"))),
     instances = 1
   )
 
