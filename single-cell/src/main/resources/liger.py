@@ -9,9 +9,9 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download(dataset):
-    path = f'{s3_in}/single_cell/{dataset}/data.h5ad'
-    cmd = ['aws', 's3', 'cp', path, 'inputs/']
+def download(dataset, cell_type):
+    path = f'{s3_in}/out/single_cell/staging/h5ad/{dataset}/{cell_type}.h5ad'
+    cmd = ['aws', 's3', 'cp', path, 'inputs/data.h5ad']
     subprocess.check_call(cmd)
 
 
@@ -29,10 +29,8 @@ def run_liger():
 
 
 def upload(dataset):
-    zip_cmd = ['zip', '-r', 'liger.zip', './outputs/']
-    subprocess.check_call(zip_cmd)
     path = f'{s3_out}/out/single_cell/staging/liger/{dataset}/'
-    cmd = ['aws', 's3', 'cp', 'liger.zip', path]
+    cmd = ['aws', 's3', 'cp', './outputs/', path, '--recursive']
     subprocess.check_call(cmd)
 
 
@@ -40,15 +38,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default=None, required=True, type=str,
                         help="Dataset name")
+    parser.add_argument('--cell-type', default=None, required=True, type=str,
+                        help="Cell type name")
     args = parser.parse_args()
 
-    download(args.dataset)
+    download(args.dataset, args.cell_type)
     run_liger()
     upload(args.dataset)
 
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')
-    os.remove('liger.zip')
 
 
 if __name__ == '__main__':

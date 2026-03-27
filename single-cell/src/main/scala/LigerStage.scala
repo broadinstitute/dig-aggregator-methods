@@ -14,15 +14,22 @@ class LigerStage(implicit context: Context) extends Stage {
     bootstrapSteps = Seq(Job.Script(resourceUri("bootstrap-liger.sh")))
   )
 
-  val singleCell: Input.Source = Input.Source.Raw("single_cell/*/data.h5ad")
+  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/h5ad/*/*.h5ad")
 
   override val sources: Seq[Input.Source] = Seq(singleCell)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case singleCell(dataset) => Outputs.Named(dataset)
+    case singleCell(dataset, cellType) => Outputs.Named(s"$dataset/$cellType")
   }
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("liger.py"), s"--dataset=$output"))
+    val flags: Seq[String] = output.split("/").toSeq match {
+      case Seq(dataset, cellType) =>
+        Seq(
+          s"--dataset=$dataset",
+          s"--cell-type=$cellType"
+        )
+    }
+    new Job(Job.Script(resourceUri("liger.py"), flags:_*))
   }
 }

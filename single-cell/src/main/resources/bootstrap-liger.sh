@@ -7,7 +7,7 @@ cd "$ROOT_DIR"
 
 # install yum dependencies
 sudo yum groupinstall -y "Development Tools"
-sudo yum install -y python3-devel libcurl-devel gmp-devel R
+sudo yum install -y python3-devel libcurl-devel gmp-devel R libuv-devel hwloc-devel
 
 # maybe
 sudo wget https://github.com/HDFGroup/hdf5/releases/download/hdf5_1.14.4.3/hdf5-1.14.4-3.tar.gz
