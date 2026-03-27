@@ -102,21 +102,8 @@ def run(ancestry, phenotypes, sub_region, regions):
     get_regions(ancestry, sub_region, regions)
     gathered_phenotypes = get_sumstats(ancestry, phenotypes)
     if len(gathered_phenotypes) > 0:
-        try:
-            partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions)
-            upload_and_remove_files(ancestry, gathered_phenotypes, sub_region, regions)
-        except subprocess.CalledProcessError as e:
-            error_info = {
-                "error_type": "LDSC_ERROR",
-                "error_message": str(e),
-                "ancestry": ancestry,
-                "phenotypes": gathered_phenotypes,
-                "sub_region": sub_region,
-                "regions": regions,
-                "timestamp": subprocess.check_output(["date"]).decode().strip()
-            }
-            print("LDSC_ERROR_DETAILS: " + str(error_info))
-            print("Error when running partitioned heritability. This may be due to a singular matrix in the LDSC calculation. Skipping this run.")
+        partitioned_heritability(ancestry, gathered_phenotypes, sub_region, regions)
+        upload_and_remove_files(ancestry, gathered_phenotypes, sub_region, regions)
 
 
 def main():

@@ -38,7 +38,7 @@ sudo pip3 uninstall -y numpy
 pip3 install numpy
 
 # install rest of python dependencies
-pip3 install -U bitarray
+pip3 install -U bitarray==1.9.2
 pip3 install -U boto3
 pip3 install -U sqlalchemy
 pip3 install -U pymysql

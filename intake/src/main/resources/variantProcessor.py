@@ -272,6 +272,7 @@ class VarId:
 
     @staticmethod
     def normalize_chromosomes(value):
+        value = value.replace('chr', '')
         if value == "23":
             return "X"
         elif value == "24":

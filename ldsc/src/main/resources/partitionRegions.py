@@ -2,6 +2,7 @@
 import argparse
 import os
 import platform
+import subprocess
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
 from pyspark.sql.functions import col, concat_ws, lit, lower, regexp_replace, udf, when
@@ -58,6 +59,12 @@ def get_optional_column(df, col_name):
         return df.withColumn(col_name, regexp_replace(df[col_name], ',', ';'))
 
 
+def get_part_exists(dataset):
+    path = f'{s3_in}/annotated_regions/cis-regulatory_elements/{dataset}/'
+    output = subprocess.check_output(f'aws s3 ls {path}', shell=True).decode()
+    return len(output.strip().split('\n')) > 1
+
+
 def main():
     """
     Arguments: type/dataset, partitions
@@ -72,63 +79,64 @@ def main():
 
     partitions = ['annotation', 'tissue', 'biosample', 'dataset']
 
-    # get the source and output directories
-    srcdir = f'{s3_in}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
-    outdir = f'{s3_out}/out/ldsc/regions/partitioned/{args.dataset}'
-
     # create a spark session
     spark = SparkSession.builder.appName('ldsc').getOrCreate()
 
-    # read all the fields needed across the regions for the dataset
-    df = spark.read.json(srcdir)
+    if get_part_exists(args.dataset):
+        # get the source and output directories
+        srcdir = f'{s3_in}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
+        outdir = f'{s3_out}/out/ldsc/regions/partitioned/{args.dataset}'
 
-    df = get_optional_column(df, 'state')
-    df = get_optional_column(df, 'biosample')
-    df = get_optional_column(df, 'method')
-    df = get_optional_column(df, 'source')
-    df = get_optional_column(df, 'diseaseTermName')
-    df = get_optional_column(df, 'dataset')
+        # read all the fields needed across the regions for the dataset
+        df = spark.read.json(srcdir)
 
-    # rename enhancer, other and promoter states, if not, make null
-    df = df.withColumn('annotation', harmonized_state(df.annotation, df.state))
-   
-    # remove null annotations
-    df = df.filter(df.annotation.isNotNull())
+        df = get_optional_column(df, 'state')
+        df = get_optional_column(df, 'biosample')
+        df = get_optional_column(df, 'method')
+        df = get_optional_column(df, 'source')
+        df = get_optional_column(df, 'diseaseTermName')
+        df = get_optional_column(df, 'dataset')
 
-    # fill empty partitions
-    for partition in partitions:
-        df = df.fillna({partition: f'no_{partition}'})
+        # rename enhancer, other and promoter states, if not, make null
+        df = df.withColumn('annotation', harmonized_state(df.annotation, df.state))
 
-    # fix any whitespace issues
-    partition_strs = []
-    for partition in partitions:
-        partition_strs.append(regexp_replace(df[partition], ' ', '_'))
-    # build the partition name
-    partition_name = concat_ws('___', *partition_strs)
+        # remove null annotations
+        df = df.filter(df.annotation.isNotNull())
 
-    # remove invalid chromosomes rows add a sort value and bed filename
-    df = df.filter(df.chromosome.isin(CHROMOSOMES)) \
-        .withColumn('partition', partition_name)
-    # final output
-    df = df.select(
-        df.partition,
-        df.chromosome,
-        df.start,
-        df.end,
-        df.state,
-        df.biosample,
-        df.method,
-        df.source,
-        col('diseaseTermName').alias('disease'),
-        df.dataset
-    )
+        # fill empty partitions
+        for partition in partitions:
+            df = df.fillna({partition: f'no_{partition}'})
 
-    df.orderBy(['chromosome', 'start', 'end']) \
-        .coalesce(1) \
-        .write \
-        .mode('overwrite') \
-        .partitionBy('partition') \
-        .csv(outdir, sep='\t', header=False)
+        # fix any whitespace issues
+        partition_strs = []
+        for partition in partitions:
+            partition_strs.append(regexp_replace(df[partition], ' ', '_'))
+        # build the partition name
+        partition_name = concat_ws('___', *partition_strs)
+
+        # remove invalid chromosomes rows add a sort value and bed filename
+        df = df.filter(df.chromosome.isin(CHROMOSOMES)) \
+            .withColumn('partition', partition_name)
+        # final output
+        df = df.select(
+            df.partition,
+            df.chromosome,
+            df.start,
+            df.end,
+            df.state,
+            df.biosample,
+            df.method,
+            df.source,
+            col('diseaseTermName').alias('disease'),
+            df.dataset
+        )
+
+        df.orderBy(['chromosome', 'start', 'end']) \
+            .coalesce(1) \
+            .write \
+            .mode('overwrite') \
+            .partitionBy('partition') \
+            .csv(outdir, sep='\t', header=False)
 
     # done
     spark.stop()

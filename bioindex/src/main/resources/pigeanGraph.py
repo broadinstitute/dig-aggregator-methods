@@ -12,9 +12,9 @@ outdir = f'{s3_bioindex}/pigean/{{}}/'
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = f'{s3_in}/out/pigean/graph/*/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/graph/*/*/*/*.json'
     df = spark.read.json(srcdir)
-    df.orderBy([col('phenotype'), col('sigma'), col('gene_set_size')]) \
+    df.orderBy([col('phenotype'), col('gene_set_size')]) \
         .write \
         .mode('overwrite') \
         .json(outdir.format('graph'))

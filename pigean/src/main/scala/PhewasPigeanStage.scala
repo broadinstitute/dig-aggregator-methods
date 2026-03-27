@@ -16,7 +16,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 8
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/")
   val gsCombined: Input.Source = Input.Source.Raw("out/pigean/staging/combined_gs/*.tsv")
 
   override val sources: Seq[Input.Source] = Seq(pigean, gsCombined)
@@ -24,15 +24,15 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
   var outputSet: Set[String] = Set[String]()
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(traitGroup, phenotype, sigmaPower, geneSetSize) =>
-      outputSet += s"$traitGroup/$phenotype/${sigmaPower.split("sigma=").last}/${geneSetSize.split("size=").last}"
+    case pigean(traitGroup, phenotype, geneSetSize) =>
+      outputSet += s"$traitGroup/$phenotype/$geneSetSize"
       Outputs.Null
     case gsCombined(_) => Outputs.Named("phewas")
   }
 
   def toFlags(output: String): Seq[String] = output.split("/").toSeq match {
-    case Seq(traitGroup, phenotype, sigmaPower, geneSetSize) =>
-      Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--sigma=$sigmaPower", s"--gene-set-size=$geneSetSize")
+    case Seq(traitGroup, phenotype, geneSetSize) =>
+      Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--gene-set-size=$geneSetSize")
   }
 
   def filterByTrait(traitGroup: String): String => Boolean = {
@@ -52,7 +52,7 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    val steps: Seq[Job.Script] = outputSet.filter(filterByTrait("portal")).map { output =>
+    val steps: Seq[Job.Script] = outputSet.map { output =>
       Job.Script(resourceUri("phewasPigean.py"), toFlags(output):_*)
     }.toSeq
     new Job(steps, parallelSteps = true)

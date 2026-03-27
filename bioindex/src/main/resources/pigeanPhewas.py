@@ -20,19 +20,19 @@ def bioindex(df, bioindex_name, bioindex_order):
 
 def top_phewas(df):
     filtered_df = df[df.pValue < PVALUE_THRESHOLD]
-    bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('pValue').asc()]
+    bioindex_order = [col('phenotype'), col('gene_set_size'), col('pValue').asc()]
     bioindex(filtered_df, 'top_phewas', bioindex_order)
 
 
 def phewas(df):
-    bioindex_order = [col('phenotype'), col('sigma'), col('gene_set_size'), col('factor'), col('pValue').asc()]
+    bioindex_order = [col('phenotype'), col('gene_set_size'), col('factor'), col('pValue').asc()]
     bioindex(df, 'phewas', bioindex_order)
 
 
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
-    srcdir = f'{s3_in}/out/pigean/phewas/*/*/*/*/*.json'
+    srcdir = f'{s3_in}/out/pigean/phewas/*/*/*/*.json'
     df = spark.read.json(srcdir)
 
     df = df.withColumn('pValue', when(df.pValue == 0.0, np.nextafter(0, 1)).otherwise(df.pValue))

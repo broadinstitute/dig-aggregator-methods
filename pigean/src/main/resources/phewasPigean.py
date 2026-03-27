@@ -11,19 +11,19 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}'
+def download_data(trait_group, phenotype, gene_set_size):
+    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gc.out', '.'])
 
 
-idxs = {'portal': {'factor': 4, 'idx': 6}, 'gcat_trait': {'factor': 5, 'idx': 7}, 'rare_v2': {'factor': 5, 'idx': 7}}
-def get_factor_cols(trait_group):
+idxs = {'factor': 5, 'idx': 7}
+def get_factor_cols():
     with open('gc.out', 'r') as f:
         headers = f.readline().strip().split('\t')
         factors_with_genes = set()
         for line in f:
-            factors_with_genes |= {line.strip().split('\t')[idxs[trait_group]['factor']]}
-        return [header for header in headers[idxs[trait_group]['idx']:] if header in factors_with_genes]
+            factors_with_genes |= {line.strip().split('\t')[idxs['factor']]}
+        return [header for header in headers[idxs['idx']:] if header in factors_with_genes]
 
 
 def run_phewas(trait_group, gs_files):
@@ -65,7 +65,7 @@ def success(file_path):
 
 
 def upload_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/staging/phewas/{trait_group}/{phenotype}/sigma={sigma}/size={gene_set_size}/'
+    file_path = f'{s3_out}/out/pigean/staging/phewas/{trait_group}/{phenotype}/{gene_set_size}/'
     for file in ['phewas.out', 'phewas.provenance.out', 'phewas.log']:
         subprocess.check_call(['aws', 's3', 'cp', file, file_path])
         os.remove(file)
@@ -78,18 +78,16 @@ def main():
                         help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
-    parser.add_argument('--sigma', default=None, required=True, type=str,
-                        help="Sigma power (0, 2, 4).")
     parser.add_argument('--gene-set-size', default=None, required=True, type=str,
                         help="gene-set-size (small, medium, or large).")
     args = parser.parse_args()
 
-    download_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
-    gs_files = glob.glob(f'{downloaded_files}/gs_{args.sigma}_{args.gene_set_size}_*.tsv')
+    download_data(args.trait_group, args.phenotype, args.gene_set_size)
+    gs_files = glob.glob(f'{downloaded_files}/gs_{args.gene_set_size}_*.tsv')
     try:
         run_phewas(args.trait_group, gs_files)
         combine_phewas()
-        upload_data(args.trait_group, args.phenotype, args.sigma, args.gene_set_size)
+        upload_data(args.trait_group, args.phenotype, args.gene_set_size)
     except Exception as e:
         print(e)
         print('Error')

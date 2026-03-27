@@ -49,9 +49,9 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   )
 
   override def make(ancestry: String): Job = {
-    val jobs = phenotypeMap.getOrElse(ancestry, Set()).grouped(100).flatMap { groupedPhenotypes =>
+    val jobs = phenotypeMap.getOrElse(ancestry, Set()).grouped(50).flatMap { groupedPhenotypes =>
       annotationMap.flatMap { case (subRegion, regions) =>
-        regions.grouped(40).map { groupedRegion =>
+        regions.grouped(20).map { groupedRegion =>
           println(s"creating Job for ${groupedPhenotypes.size} phenotypes in ancestry $ancestry " +
             s"and region ${groupedRegion.size} in sub-region $subRegion")
           Job.Script(

@@ -14,7 +14,7 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 
 cpus = 8
 
-metadata_cell_key = 'sample_id'
+metadata_cell_key = 'biosample_id'
 
 number_maps = {
     'int': int,
@@ -22,8 +22,13 @@ number_maps = {
 }
 
 
+def fetch_dataset_metadata():
+    with open('raw/dataset_metadata.json', 'r') as f:
+        return json.load(f)
+
+
 def fetch_metadata(cells):
-    with open('raw/metadata.tsv', 'r') as f:
+    with gzip.open('raw/sample_metadata.tsv.gz', 'rt') as f:
         header = f.readline().strip().split('\t')
         possible_label_dict = {label: idx for idx, label in enumerate(header)}
         index_lists = {label: [] for label in possible_label_dict}
@@ -41,11 +46,19 @@ def fetch_metadata(cells):
         return index_lists, set_lists, index_dict
 
 
-def filter_metadata(index_lists, set_lists, index_dict):
-    max_numb = 100
+def get_is_float(example):
+    try:
+        _ = float(example)
+        return True
+    except:
+        return False
+
+
+def filter_metadata(index_lists, set_lists, index_dict, max_categories):
     for label in list(index_lists.keys()):
-        if (len(set_lists[label]) >= max_numb and label != metadata_cell_key) or \
-                (len(set_lists[label]) <= 1 and ''.join(set_lists[label]) == ''):
+        is_float = get_is_float(next(iter(set_lists[label])))
+        if (is_float and len(set_lists[label]) > max_categories) or len(set_lists[label]) <= 1:
+            print(f'Popping {label}')
             index_lists.pop(label)
             set_lists.pop(label)
             index_dict.pop(label)
@@ -54,7 +67,7 @@ def filter_metadata(index_lists, set_lists, index_dict):
 
 def convert_dea():
     with gzip.open('processed/dea.tsv.gz', 'wt') as f_out:
-        f_out.write('datasetId\tcomparison\tcomparison_id\tgene\tlogFoldChange\t-log10P\n')
+        f_out.write('datasetId\tcomparison\tcomparison_id\tgene\tgeneLabel\tlogFoldChange\n')
         with gzip.open('raw/dea.tsv.gz', 'rt') as f_in:
             header = f_in.readline().strip().split('\t')
             for line in f_in:
@@ -63,9 +76,9 @@ def convert_dea():
                     json_line['datasetId'],
                     json_line['dea_comp_name'],
                     json_line['dea_comp_id'],
-                    json_line['Gene'],
-                    float(json_line['log_fold_change']),
-                    float(json_line['-log10(p_value_adj)'])
+                    json_line['gene'],
+                    json_line['gene_label'],
+                    float(json_line['log_fold_change'])
                 ))
 
 
@@ -93,10 +106,11 @@ def get_diff_exp(infile, dataset, cell_indexes, number_map):
                     json_line = {
                         'dataset': dataset,
                         'gene': split_line[4],
+                        'gene_label': split_line[12],
                         'comparison_field': split_line[1],
                         'comparison': split_line[2],
                         'comparison_id': split_line[3],
-                        'log10FDR': float(split_line[12]),
+                        'p_value_adj': float(split_line[9]),
                         'logFoldChange': float(split_line[5]),
                         'expression': sorted_expression
                     }
@@ -106,7 +120,7 @@ def get_diff_exp(infile, dataset, cell_indexes, number_map):
 
 def sort_and_save_diff_exp_data(diff_exp_data, file_out):
     with open(file_out, 'w') as f:
-        for json_line in sorted(diff_exp_data, key=lambda x: (x['comparison'], -x['log10FDR'], -x['logFoldChange'])):
+        for json_line in sorted(diff_exp_data, key=lambda x: (x['comparison'], x['p_value_adj'], -x['logFoldChange'])):
             f.write(f'{json.dumps(json_line)}\n')
 
 
@@ -137,6 +151,7 @@ def upload(dataset):
     for bioindex in ['diff_exp', 'melted']:
         bioindex_path = f'{s3_bioindex}/single_cell/bulk/{bioindex}/{dataset}'
         if os.path.exists(f'processed/{bioindex}/part-00000.json'):
+            subprocess.check_call(['aws', 's3', 'rm', f'{bioindex_path}/', '--recursive'])
             subprocess.check_call(['aws', 's3', 'cp', f'processed/{bioindex}/part-00000.json', f'{bioindex_path}/'])
     shutil.rmtree('raw')
     shutil.rmtree('processed')
@@ -150,6 +165,9 @@ def main():
     f_in = f'{s3_in}/bulk_rna/{args.dataset}/'
     subprocess.check_call(['aws', 's3', 'cp', f_in, 'raw', '--recursive'])
 
+    metadata = fetch_dataset_metadata()
+    max_categories = max(metadata['totalBiosamples'], metadata['totalDonors'])
+
     cells = set()
     if os.path.exists('raw/dea_for_heatmap.tsv.gz'):
         with gzip.open('raw/dea_for_heatmap.tsv.gz', 'rt') as f_in:
@@ -157,7 +175,7 @@ def main():
 
     os.makedirs('processed', exist_ok=True)
     index_lists, set_lists, index_dict = fetch_metadata(cells)
-    index_lists, set_lists, index_dict = filter_metadata(index_lists, set_lists, index_dict)
+    index_lists, set_lists, index_dict = filter_metadata(index_lists, set_lists, index_dict, max_categories)
     output_metadata(set_lists, index_lists)
 
     if os.path.exists('raw/dea.tsv.gz'):

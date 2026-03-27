@@ -9,10 +9,12 @@ sudo chmod 775 "${PIGEAN_ROOT}"
 # install to the metal directory
 cd "${PIGEAN_ROOT}"
 
-sudo aws s3 cp s3://dig-analysis-bin/pigean/gene_lists/ . --recursive
+sudo aws s3 cp s3://dig-analysis-data/out/pigean/gene_lists/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/gene_sets/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/methods/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/misc/ . --recursive
+
+sudo aws s3 cp s3://dig-analysis-bin/orphanet/code_to_leaves.tsv .
 
 # install dependencies
 sudo yum install -y python3-devel

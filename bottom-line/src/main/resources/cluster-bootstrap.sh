@@ -31,3 +31,5 @@ sudo chmod +x /home/hadoop/bin/runMETAL.sh
 # install jq to convert from json to tsv
 sudo yum install -y jq
 sudo yum install -y zstd
+
+sudo pip3 install -U numpy==1.26.4

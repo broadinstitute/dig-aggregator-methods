@@ -22,15 +22,18 @@ object Pigean extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
+    addStage(new GeneSetOverlapStage)
     addStage(new OrphanetIntakeStage)
+    addStage(new HpoIntakeStage)
     addStage(new GcatIntakeStage)
     addStage(new MakeSumstatsStage)
+    addStage(new ExomeIntakeStage)
     addStage(new PigeanStage)
     addStage(new TranslatePigeanStage)
     addStage(new FactorPigeanStage)
     addStage(new TranslateFactorStage)
     addStage(new CombinePigeanFactorStage)
-    addStage(new CombineGSStage)
+    addStage(new CombineStage)
     addStage(new PhewasPigeanStage)
     addStage(new TranslatePhewasStage)
     addStage(new GraphPigeanStage)

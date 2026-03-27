@@ -10,19 +10,19 @@ class TranslateFactorStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/*/")
+  val pigean: Input.Source = Input.Source.Success("out/pigean/staging/factor/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(traitGroup, phenotype, sigma, geneSetSize) =>
-      Outputs.Named(s"$traitGroup/$phenotype/${sigma.split("=").last}/${geneSetSize.split("=").last}")
+    case pigean(traitGroup, phenotype, geneSetSize) =>
+      Outputs.Named(s"$traitGroup/$phenotype/$geneSetSize")
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(traitGroup, phenotype, sigma, geneSetSize) =>
-        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--sigma=$sigma", s"--gene-set-size=$geneSetSize")
+      case Seq(traitGroup, phenotype, geneSetSize) =>
+        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--gene-set-size=$geneSetSize")
       case _ => throw new Exception("output must take form <phenotype>/<sigma>")
     }
 

@@ -14,6 +14,7 @@ from pyspark.sql.functions import col, isnan, lit, when  # pylint: disable=E0611
 input_path = os.environ['INPUT_PATH']
 output_path = os.environ['OUTPUT_PATH']
 s3_in = f'{input_path}/out/metaanalysis/bottom-line/staging'
+rare_in = f'{input_path}/out/metaanalysis/variants'
 s3_out = f'{input_path}/out/metaanalysis/bottom-line'
 
 
@@ -208,8 +209,7 @@ def load_ancestry_specific_analysis(phenotype, ancestry):
         .withColumn('phenotype', lit(phenotype)) \
         .select(*columns)
 
-    # rare variants across all datasets for this phenotype and ancestry
-    rare_path = f'{s3_in}/variants/{phenotype}/*/ancestry={ancestry}/rare=true'
+    rare_path = f'{rare_in}/{phenotype}/*/ancestry={ancestry}/rare=true'
 
     # are there rare variants to merge with the analysis?
     if hadoop_test(rare_path):
