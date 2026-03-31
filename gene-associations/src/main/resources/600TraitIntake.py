@@ -5,6 +5,7 @@ import gzip
 import json
 import os
 import re
+import shutil
 import subprocess
 
 import numpy as np
@@ -24,7 +25,7 @@ def download_phecode_files(ancestry, cohort, phecode):
 
 pattern = re.compile('[\W]+')
 def convert_phenotype(raw_phenotype):
-    return pattern.sub("", raw_phenotype)
+    return pattern.sub("_", raw_phenotype)
 
 
 expected_95th_percentile = scipy.stats.chi2.ppf(0.95, 1)
@@ -110,14 +111,13 @@ def upload_output(ancestry, cohort, phecode, output):
     with open(f'{phecode}/part-00000.json', 'w') as f:
         for line in output.values():
             f.write(f'{json.dumps(line)}\n')
+    subprocess.check_call(['zstd', '--rm', f'{phecode}/part-00000.json'])
     with open(f'{phecode}/metadata', 'w') as f:
         f.write(f'{{"name": "600k_600traits", "ancestry": "{ancestry}", "phenotype": "{phecode}"}}\n')
     outdir = f'{s3_out}/gene_associations/jurgens_phewas_freeze2/{ancestry}/{cohort}/{phecode}'
-    subprocess.check_call(['aws', 's3', 'cp', f'{phecode}/part-00000.json', f'{outdir}/part-00000.json'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{phecode}/part-00000.json.zst', f'{outdir}/part-00000.json.zst'])
     subprocess.check_call(['aws', 's3', 'cp', f'{phecode}/metadata', f'{outdir}/metadata'])
-    os.remove(f'{phecode}/part-00000.json')
-    os.remove(f'{phecode}/metadata')
-    os.rmdir(phecode)
+    shutil.rmtree(phecode)
 
 
 def main():
