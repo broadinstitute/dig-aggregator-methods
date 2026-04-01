@@ -10,7 +10,7 @@ class ExomeIntakeStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val geneAssociations: Input.Source = Input.Source.Success("gene_associations/combined/*/")
+  val geneAssociations: Input.Source = Input.Source.Dataset("gene_associations/jurgens_phewas_freeze2/Mixed/UKB_AoUv8_MGB/*/")
 
   override val sources: Seq[Input.Source] = Seq(geneAssociations)
 

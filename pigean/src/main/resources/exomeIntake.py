@@ -10,21 +10,23 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download_data(phenotype):
-    path_in = f'{s3_in}/gene_associations/combined/{phenotype}/part-00000.json'
+    path_in = f'{s3_in}/gene_associations/jurgens_phewas_freeze2/Mixed/UKB_AoUv8_MGB/{phenotype}/part-00000.json.zst'
     subprocess.check_call(['aws', 's3', 'cp', path_in, 'data/'])
+    subprocess.check_call(['zstd', '-d', '--rm', 'data/part-00000.json.zst'])
 
 
 def convert_file():
     file_out = f'exomes.sumstats.gz'
-    with gzip.open(file_out, 'wt') as f_out:
+    with (gzip.open(file_out, 'wt') as f_out):
         f_out.write('Gene\tP-value\tEffect\n')
         with open('./data/part-00000.json', 'r') as f_in:
             for line in f_in:
                 json_line = json.loads(line)
-                if type(json_line['gene']) == str and json_line['gene'] != '':
+                if type(json_line['gene']) == str and json_line['gene'] != '' and \
+                    json_line['beta'] is not None and json_line['pValue_low_freq'] is not None:
                     f_out.write('\t'.join([
                         json_line['gene'],
-                        str(json_line['pValue']),
+                        str(json_line['pValue_low_freq']),
                         str(json_line['beta'])
                     ]) + '\n')
     os.remove('./data/part-00000.json')
@@ -32,13 +34,13 @@ def convert_file():
 
 def upload(phenotype):
     file_out = 'exomes.sumstats.gz'
-    subprocess.check_call(['aws', 's3', 'cp', file_out, f'{s3_out}/out/pigean/inputs/exomes/portal_exomes/exomes_{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', file_out, f'{s3_out}/out/pigean/inputs/exomes/jurgens_exomes/{phenotype}/'])
     os.remove(file_out)
 
 
 def success(phenotype):
     subprocess.check_call(['touch', '_SUCCESS'])
-    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/out/pigean/inputs/exomes/portal_exomes/exomes_{phenotype}/'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{s3_out}/out/pigean/inputs/exomes/jurgens_exomes/{phenotype}/'])
     os.remove('_SUCCESS')
 
 
