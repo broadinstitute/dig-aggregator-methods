@@ -11,7 +11,7 @@ class LigerStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterInstanceType = Strategy.memoryOptimized(),
-    bootstrapSteps = Seq(Job.Script(resourceUri("bootstrap-liger.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-liger.sh")))
   )
 
   val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/h5ad/*/*.h5ad")
