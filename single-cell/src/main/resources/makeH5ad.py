@@ -23,8 +23,8 @@ def get_metadata_maps():
         header = f.readline().strip().split('\t')
         for line in f:
             json_line = dict(zip(header, line.strip().split('\t')))
-            cell_type_map[json_line['ID']] = json_line['cell_type__kp']
-            donor_map[json_line['ID']] = json_line['donor_id']
+            cell_type_map[json_line['ID']] = json_line['Cell_Type']
+            donor_map[json_line['ID']] = json_line['study']
     return cell_type_map, donor_map
 
 

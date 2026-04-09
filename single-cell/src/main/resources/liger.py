@@ -21,8 +21,8 @@ def run_liger():
         f'{downloaded_files}/inmf_liger_mod.R',
         'inputs/data.h5ad',
         'outputs',
-        'study',
-        'Cell_Type',
+        'donor_id',
+        'cell_type__kp',
         '50000'
     ]
     subprocess.check_call(cmd)
