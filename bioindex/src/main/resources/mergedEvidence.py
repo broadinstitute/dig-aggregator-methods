@@ -9,7 +9,7 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
-outdir = f'{s3_bioindex}/merged_evidence'
+outdir = f'{s3_bioindex}/merged_evidence/{{}}'
 
 schema = StructType([
     StructField('gene', StringType(), nullable=False),
@@ -55,7 +55,12 @@ def main():
     df.orderBy(['phenotype', 'ancestry', 'tissue', col('posteriorProbability').desc()]) \
         .write \
         .mode('overwrite') \
-        .json(outdir)
+        .json(outdir.format('tissue'))
+
+    df.orderBy(['phenotype', 'ancestry', 'tissue', 'gene', col('posteriorProbability').desc()]) \
+        .write \
+        .mode('overwrite') \
+        .json(outdir.format('tissue-gene'))
 
     spark.stop()
 
