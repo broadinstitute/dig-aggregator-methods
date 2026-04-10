@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import hdf5plugin
 import anndata as ad
 import gzip
 import os
@@ -86,11 +87,11 @@ def get_sparse_array(cell_type_map, donor_map):
 
 
 def upload(dataset, adata, cell_type_adata_map):
-    adata.write_h5ad('data.h5ad')
+    adata.write_h5ad('data.h5ad', compression=hdf5plugin.FILTERS["zstd"])
     subprocess.check_call(['aws', 's3', 'cp', 'data.h5ad', f'{s3_out}/out/single_cell/staging/h5ad/{dataset}/'])
     os.remove('data.h5ad')
     for cell_type, adata in cell_type_adata_map.items():
-        adata.write_h5ad(f'{cell_type}.h5ad')
+        adata.write_h5ad(f'{cell_type}.h5ad', compression=hdf5plugin.FILTERS["zstd"])
         subprocess.check_call(['aws', 's3', 'cp', f'{cell_type}.h5ad', f'{s3_out}/out/single_cell/staging/h5ad/{dataset}/'])
         os.remove(f'{cell_type}.h5ad')
     shutil.rmtree('inputs')

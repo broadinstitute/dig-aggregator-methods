@@ -16,3 +16,4 @@ sudo pip3 install exceptiongroup
 sudo pip3 install natsort
 sudo pip3 install array-api-compat
 sudo pip3 install pytz
+sudo pip3 install hdf5plugin
