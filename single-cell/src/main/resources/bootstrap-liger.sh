@@ -22,4 +22,4 @@ cd ../
 sudo rm hdf5-1.14.4-3.tar.gz
 sudo rm -r hdf5-1.14.4-3
 
-sudo aws s3 cp s3://dig-analysis-bin/single_cell/inmf_liger_mod.R ./
+sudo aws s3 cp s3://dig-analysis-bin/single_cell/inmf_liger_v2-3.R ./

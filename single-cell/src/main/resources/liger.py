@@ -9,21 +9,22 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download(dataset, cell_type):
-    path = f'{s3_in}/out/single_cell/staging/h5ad/{dataset}/{cell_type}.h5ad'
-    cmd = ['aws', 's3', 'cp', path, 'inputs/data.h5ad']
+def download(dataset):
+    path = f'{s3_in}/single_cell/{dataset}/02072026_scRNA_v3.4.rds'
+    cmd = ['aws', 's3', 'cp', path, 'inputs/']
     subprocess.check_call(cmd)
 
 
 def run_liger():
     cmd = [
         'Rscript',
-        f'{downloaded_files}/inmf_liger_mod.R',
-        'inputs/data.h5ad',
+        f'{downloaded_files}/inmf_liger_v2-3.R',
+        'inputs/02072026_scRNA_v3.4.rds',
         'outputs',
-        'donor_id',
-        'cell_type__kp',
-        '50000'
+        'study',
+        'Cell_Type',
+        '5000',
+        '50'
     ]
     subprocess.check_call(cmd)
 
@@ -38,11 +39,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default=None, required=True, type=str,
                         help="Dataset name")
-    parser.add_argument('--cell-type', default=None, required=True, type=str,
-                        help="Cell type name")
     args = parser.parse_args()
 
-    download(args.dataset, args.cell_type)
+    download(args.dataset)
     run_liger()
     upload(args.dataset)
 

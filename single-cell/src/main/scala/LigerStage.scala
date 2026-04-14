@@ -10,24 +10,23 @@ class LigerStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    masterInstanceType = Strategy.memoryOptimized(),
+    masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-liger.sh")))
   )
 
-  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/h5ad/*/*.h5ad")
+  val singleCell: Input.Source = Input.Source.Raw("single_cell/*/02072026_scRNA_v3.4.rds")
 
   override val sources: Seq[Input.Source] = Seq(singleCell)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case singleCell(dataset, cellType) => Outputs.Named(s"$dataset/$cellType")
+    case singleCell(dataset) => Outputs.Named(dataset)
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(dataset, cellType) =>
+      case Seq(dataset) =>
         Seq(
-          s"--dataset=$dataset",
-          s"--cell-type=$cellType"
+          s"--dataset=$dataset"
         )
     }
     new Job(Job.Script(resourceUri("liger.py"), flags:_*))
