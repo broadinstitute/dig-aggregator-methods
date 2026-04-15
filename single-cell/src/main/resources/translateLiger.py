@@ -170,10 +170,8 @@ def loadings_to_probabilities(
 
 
 def download(dataset):
-    path = f'{s3_in}/out/single_cell/staging/liger/{dataset}/liger.zip'
-    cmd = ['aws', 's3', 'cp', path, 'inputs/']
-    subprocess.check_call(cmd)
-    cmd = ['unzip', 'inputs/liger.zip', '-d', 'inputs/']
+    path = f'{s3_in}/out/single_cell/staging/liger/{dataset}/'
+    cmd = ['aws', 's3', 'cp', path, 'inputs/', '-recursive']
     subprocess.check_call(cmd)
 
 

@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "inmf_test",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "inmf_test"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "inmf_test"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-private",
+            "subdir": "inmf_test/bioindex"
         },
         "emr": {
             "subnetIds": [

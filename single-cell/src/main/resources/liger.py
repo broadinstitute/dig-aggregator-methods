@@ -18,12 +18,13 @@ def download(dataset, cell_type):
 def run_liger():
     cmd = [
         'Rscript',
-        f'{downloaded_files}/inmf_liger_mod.R',
+        f'{downloaded_files}/inmf_liger_v2-3_mod.R',
         'inputs/data.h5ad',
         'outputs',
         'donor_id',
         'cell_type__kp',
-        '50000'
+        '5000',
+        '50'
     ]
     subprocess.check_call(cmd)
 
