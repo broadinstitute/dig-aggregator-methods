@@ -18,7 +18,7 @@ def download(dataset, cell_type):
 def run_liger():
     cmd = [
         'Rscript',
-        f'{downloaded_files}/inmf_liger_v2-3_mod.R',
+        f'{downloaded_files}/inmf_liger_v2-3_mod_v2.R',
         'inputs/data.h5ad',
         'outputs',
         'donor_id',
