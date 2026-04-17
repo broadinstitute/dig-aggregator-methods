@@ -231,7 +231,6 @@ def format_response(response):
 
 
 def label_factor(dataset, cell_type, model, factor_data, llm_auth_key, llm_model):
-    ' %s'
     filtered_data = [data for data in factor_data if len(data['top_genes']) > 0]
     if len(filtered_data) > 0:
         prompt_data = []

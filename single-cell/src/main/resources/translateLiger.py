@@ -1,5 +1,5 @@
+#!/usr/bin/python3
 import argparse
-import glob
 import numpy as np
 import os
 import re
@@ -169,26 +169,15 @@ def loadings_to_probabilities(
     return P
 
 
-def download(dataset):
-    path = f'{s3_in}/out/single_cell/staging/liger/{dataset}/'
-    cmd = ['aws', 's3', 'cp', path, 'inputs/', '-recursive']
+def download(dataset, cell_type):
+    path = f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/'
+    cmd = ['aws', 's3', 'cp', path, 'inputs/', '--recursive']
     subprocess.check_call(cmd)
 
 
-def format_cell_type(cell_type):
-    return re.sub(r'[^a-zA-Z0-9_-]', '', cell_type.replace(' ', '_').lower())
-
-
-def get_cell_map():
-    files = glob.glob('inputs/outputs/*/metadata.txt')
-    cell_types = [re.findall('inputs/outputs/(.*)/metadata.txt', file)[0] for file in files]
-    print(cell_types)
-    return {format_cell_type(cell_type): cell_type for cell_type in cell_types}
-
-
-def convert_cell_loadings(cell_type, cell_type_name):
+def convert_cell_loadings(cell_type):
     with open(f'outputs/{cell_type}/factor_matrix_cell_loadings.tsv', 'w') as f_out:
-        with open(f'inputs/outputs/{cell_type_name}/cell_scores.tsv', 'r') as f_in:
+        with open(f'inputs/cell_scores.tsv', 'r') as f_in:
             header = f_in.readline()
             f_out.write('cell\tindep\t{}'.format(header))
             for line in f_in:
@@ -197,17 +186,17 @@ def convert_cell_loadings(cell_type, cell_type_name):
                 f_out.write('{}\tTrue\t{}'.format(cell, data))
 
 
-def convert_gene_loadings(cell_type, cell_type_name):
+def convert_gene_loadings(cell_type):
     with open(f'outputs/{cell_type}/factor_matrix_gene_loadings.tsv', 'w') as f_out:
-        with open(f'inputs/outputs/{cell_type_name}/gene_loadings.tsv', 'r') as f_in:
+        with open(f'inputs/gene_loadings.tsv', 'r') as f_in:
             header = f_in.readline()
             f_out.write('gene\t{}'.format(header))
             for line in f_in:
                 f_out.write(line)
 
 
-def convert_gene_probabilities(cell_type, cell_type_name):
-    with open(f'inputs/outputs/{cell_type_name}/gene_loadings.tsv', 'r') as f_in:
+def convert_gene_probabilities(cell_type):
+    with open(f'inputs/gene_loadings.tsv', 'r') as f_in:
         factors = f_in.readline().strip().split('\t')
         genes = []
         W = []
@@ -249,12 +238,12 @@ def get_top_cells(cell_type):
     return {factor: [a[1] for a in sorted(top_cells[factor], reverse=True)[:5]] for factor in top_cells}
 
 
-def convert_gene_programs(cell_type, cell_type_name):
+def convert_gene_programs(cell_type):
     top_genes = get_top_genes(cell_type)
     top_cells = get_top_cells(cell_type)
-    with open(f'inputs/outputs/{cell_type_name}/gene_programs.txt', 'r') as f:
+    with open(f'inputs/gene_programs.txt', 'r') as f:
         factors = f.readline().strip().split('\t')
-    with open(f'inputs/outputs/{cell_type_name}/factor_importance.txt', 'r') as f:
+    with open(f'inputs/factor_importance.txt', 'r') as f:
         _ = f.readline()
         importances = []
         for line in f:
@@ -270,12 +259,12 @@ def convert_gene_programs(cell_type, cell_type_name):
             ))
 
 
-def convert(cell_type, cell_type_name):
+def convert(cell_type):
     os.makedirs(f'outputs/{cell_type}/', exist_ok=True)
-    convert_cell_loadings(cell_type, cell_type_name)
-    convert_gene_loadings(cell_type, cell_type_name)
-    convert_gene_probabilities(cell_type, cell_type_name)
-    convert_gene_programs(cell_type, cell_type_name)
+    convert_cell_loadings(cell_type)
+    convert_gene_loadings(cell_type)
+    convert_gene_probabilities(cell_type)
+    convert_gene_programs(cell_type)
 
 
 def upload(dataset, cell_type, model):
@@ -288,15 +277,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default=None, required=True, type=str,
                         help="Dataset name")
+    parser.add_argument('--cell-type', default=None, required=True, type=str,
+                        help="Cell Type")
     parser.add_argument('--model', default=None, required=True, type=str,
                         help="Model")
     args = parser.parse_args()
 
-    download(args.dataset)
-    cell_map = get_cell_map()
-    for cell_type, cell_type_name in cell_map.items():
-        convert(cell_type, cell_type_name)
-        upload(args.dataset, cell_type, args.model)
+    download(args.dataset, args.cell_type)
+    convert(args.cell_type)
+    upload(args.dataset, args.cell_type, args.model)
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')
 

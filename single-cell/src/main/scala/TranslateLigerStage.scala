@@ -9,24 +9,26 @@ class TranslateLigerStage(implicit context: Context) extends Stage {
   val models = Seq("mouse_msigdb")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 1,
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-translate-liger.sh")))
   )
 
-  val liger: Input.Source = Input.Source.Raw("out/single_cell/staging/liger/*/liger.zip")
+  val liger: Input.Source = Input.Source.Raw("out/single_cell/staging/liger/*/*/metadata.txt")
 
   override val sources: Seq[Input.Source] = Seq(liger)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case liger(dataset) => Outputs.Named(models.map { model =>
-      s"$dataset/$model"
+    case liger(dataset, cellType) => Outputs.Named(models.map { model =>
+      s"$dataset/$cellType/$model"
     }: _*)
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(dataset, model) =>
+      case Seq(dataset, cellType, model) =>
         Seq(
           s"--dataset=$dataset",
+          s"--cell-type=$cellType",
           s"--model=$model")
     }
     new Job(Job.Script(resourceUri("translateLiger.py"), flags:_*))
