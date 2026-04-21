@@ -11,7 +11,6 @@ class LigerStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
-    masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-liger.sh")))
   )
 
