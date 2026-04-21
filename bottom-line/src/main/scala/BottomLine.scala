@@ -35,5 +35,6 @@ object BottomLine extends Method {
     addStage(new ClumpedPlinkStage)
     addStage(new ClumpedMergeStage)
     addStage(new ClumpedAssociationsStage)
+    addStage(new OpenDataTransferStage)
   }
 }
