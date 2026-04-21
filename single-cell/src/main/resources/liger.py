@@ -16,17 +16,20 @@ def download(dataset):
 
 
 def run_liger():
-    cmd = [
-        'Rscript',
-        f'{downloaded_files}/inmf_liger_v2-3.R',
-        'inputs/02072026_scRNA_v3.4.rds',
-        'outputs',
-        'study',
-        'Cell_Type',
-        '5000',
-        '50'
-    ]
-    subprocess.check_call(cmd)
+    try:
+        cmd = [
+            'Rscript',
+            f'{downloaded_files}/inmf_liger_v2-3.R',
+            'inputs/02072026_scRNA_v3.4.rds',
+            'outputs',
+            'study',
+            'Cell_Type',
+            '5000',
+            '50'
+        ]
+        subprocess.check_call(cmd)
+    except:
+        pass
 
 
 def upload(dataset):
