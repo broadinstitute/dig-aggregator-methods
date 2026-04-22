@@ -11,7 +11,7 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-class LLMAPIKey:
+class LLMSecrets:
     def __init__(self):
         self.secret_id = 'ollama-key'
         self.region = 'us-east-1'
@@ -27,6 +27,11 @@ class LLMAPIKey:
         if self.config is None:
             self.config = self.get_config()
         return self.config['apiKey']
+
+    def get_endpoint(self):
+        if self.config is None:
+            self.config = self.get_config()
+        return self.config['internalEndpoint']
 
 
 def translate_gene_loading_data(dataset, cell_type, model):
@@ -193,22 +198,27 @@ def get_data(dataset, cell_type, model):
     } for factor in factors]
 
 
-def query_lmm(query, auth_key):
-    headers = {
-        'Content-Type': 'application/json',
-        'X-API-Key': auth_key
-    }
+class LLMEndpoint:
+    def __init__(self, llm_endpoint, auth_key):
+        self.llm_endpoint = llm_endpoint
+        self.auth_key = auth_key
 
-    json_data = {
-        'userPrompt': query,
-        'systemPrompt': 'You are a computational biologist. Be concise.'
-    }
-    try:
-        response = requests.post('https://llm.hugeamp.org/ollama', headers=headers, json=json_data).json()
-        return response['data'][0]['ollama_response'].strip()
-    except Exception:
-        print("LMM call failed; returning None")
-        return None
+    def query(self, query):
+        headers = {
+            'Content-Type': 'application/json',
+            'X-API-Key': self.auth_key
+        }
+
+        json_data = {
+            'userPrompt': query,
+            'systemPrompt': 'You are a computational biologist. Be concise.'
+        }
+        try:
+            response = requests.post(f'{self.llm_endpoint}/ollama', headers=headers, json=json_data).json()
+            return response['data'][0]['ollama_response'].strip()
+        except Exception:
+            print("LMM call failed; returning None")
+            return None
 
 
 def format_response(response):
@@ -222,7 +232,7 @@ def format_response(response):
         .decode('ascii', errors='ignore')
 
 
-def label_factor(dataset, cell_type, model, factor_data, llm_auth_key):
+def label_factor(dataset, cell_type, model, factor_data, llm_endpoint):
     filtered_data = [data for data in factor_data if len(data['top_genes']) > 0]
     if len(filtered_data) > 0:
         prompt_data = []
@@ -236,13 +246,13 @@ def label_factor(dataset, cell_type, model, factor_data, llm_auth_key):
             ))
             prompt = ('Create a concise biological label (2–6 words) for this gene-set group. '
                       'Return ONLY the label summary. Top Genes: {}').format(', '.join(data['top_genes']))
-            response = query_lmm(prompt, llm_auth_key)
+            response = llm_endpoint.query(prompt)
             if response is not None:
                 factor_data[i]['labels']['label'] = format_response(response)
     return factor_data
 
 
-def label_factor_by_type(dataset, cell_type, model, factor_data, llm_auth_key, llm_model):
+def label_factor_by_type(dataset, cell_type, model, factor_data, llm_endpoint):
     for label_type in ['genes', 'gene_sets', 'traits']:
         filtered_data = [data for data in factor_data if len(data['top_{}'.format(label_type)]) > 0]
         if len(filtered_data) > 0:
@@ -262,7 +272,7 @@ def label_factor_by_type(dataset, cell_type, model, factor_data, llm_auth_key, l
                       'factor being explored. Print only the description, one per line, label number followed by text: {}').format(
                 '\n' + '\n\n'.join(prompt_data)
             )
-            response = query_lmm(prompt, llm_auth_key, lmm_model=llm_model)
+            response = llm_endpoint.query(prompt)
             if response is not None:
                 try:
                     responses = response.strip('\n').split('\n')
@@ -286,7 +296,7 @@ def label_factor_by_type(dataset, cell_type, model, factor_data, llm_auth_key, l
     return factor_data
 
 
-def combine_descriptions(factor_data, llm_auth_key, llm_model):
+def combine_descriptions(factor_data, llm_endpoint):
     for i in range(len(factor_data)):
         descriptions = list(factor_data[i]['labels'].values())
         if len(descriptions) > 0:
@@ -300,12 +310,12 @@ def combine_descriptions(factor_data, llm_auth_key, llm_model):
                           'The individual descriptions are:\n\n{}'.format(
                     '\n\n'.join(descriptions)
                 ))
-                response = query_lmm(prompt, llm_auth_key, lmm_model=llm_model)
+                response = llm_endpoint.query(prompt)
                 factor_data[i]['labels']['overall'] = format_response(response)
 
     return factor_data
 
-def label_description(factor_data, llm_auth_key, llm_model):
+def label_description(factor_data, llm_endpoint):
     for i in range(len(factor_data)):
         overall_description = factor_data[i]['labels'].get('overall')
         if overall_description is not None:
@@ -314,7 +324,7 @@ def label_description(factor_data, llm_auth_key, llm_model):
                       'Print only the label. The description is:\n\n{}'.format(
                 overall_description
             ))
-            response = query_lmm(prompt, llm_auth_key, lmm_model=llm_model)
+            response = llm_endpoint.query(prompt)
             factor_data[i]['labels']['label'] = format_response(response)
 
     return factor_data
@@ -332,13 +342,14 @@ def main():
     opts.add_argument('--model', type=str, required=True)
     args = opts.parse_args()
 
-    llm_api_key = LLMAPIKey().get_key()
+    llm_secrets = LLMSecrets()
+    llm_endpoint = LLMEndpoint(llm_secrets.get_endpoint(), llm_secrets.get_key())
     factor_data = get_data(args.dataset, args.cell_type, args.model)
-    # factor_data = label_factor_by_type(args.dataset, args.cell_type, args.model, factor_data, open_api_key, 'gpt-5-nano')
-    # factor_data = combine_descriptions(factor_data, open_api_key, 'gpt-5-nano')
-    # factor_data = label_description(factor_data, open_api_key, 'gpt-5-nano')
+    # factor_data = label_factor_by_type(args.dataset, args.cell_type, args.model, factor_data, llm_endpoint)
+    # factor_data = combine_descriptions(factor_data, llm_endpoint)
+    # factor_data = label_description(factor_data, llm_endpoint)
 
-    factor_data = label_factor(args.dataset, args.cell_type, args.model, factor_data, llm_api_key)
+    factor_data = label_factor(args.dataset, args.cell_type, args.model, factor_data, llm_endpoint)
 
     os.makedirs('outputs', exist_ok=True)
     translate_data(args.dataset, args.cell_type, args.model, factor_data)
