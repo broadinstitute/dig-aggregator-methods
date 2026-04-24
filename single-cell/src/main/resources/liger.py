@@ -43,6 +43,8 @@ def main():
     parser.add_argument('--dataset', default=None, required=True, type=str,
                         help="Dataset name")
     args = parser.parse_args()
+    import time
+    time.sleep(12 * 3600)
 
     download(args.dataset)
     run_liger()

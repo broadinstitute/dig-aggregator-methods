@@ -136,6 +136,23 @@ def get_gene_data(dataset, cell_type, model):
                 }
     return factor_data
 
+def get_gene_loading_data(dataset, cell_type, model):
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_gene_loadings.tsv'
+    gene_loading_data = {}
+    if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
+        subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
+        with open('inputs/factor_matrix_gene_loadings.tsv', 'r') as f:
+            header = f.readline().strip().split('\t')
+            for factor_key in header[1:]:
+                gene_loading_data[factor_key] = []
+            for line in f:
+                gene, factor_data = line.strip().split('\t', 1)
+                for factor_key, factor_value in dict(zip(header[1:], factor_data.split('\t'))).items():
+                    gene_loading_data[factor_key].append((float(factor_value), gene))
+    top_50_genes = {}
+    for factor_key, gene_data in gene_loading_data.items():
+        top_50_genes[factor_key] = [gene_datum[1] for gene_datum in sorted(gene_data, reverse=True)[:50]]
+    return top_50_genes
 
 def get_gene_set_data(dataset, cell_type, model):
     file_in = f'{s3_in}/out/single_cell/pigean/{dataset}/{cell_type}/{model}/pigean.gene_sets.tsv'
@@ -185,6 +202,7 @@ def get_trait_data(dataset, cell_type, model):
 
 def get_data(dataset, cell_type, model):
     gene_data = get_gene_data(dataset, cell_type, model)
+    gene_loading_data = get_gene_loading_data(dataset, cell_type, model)
     # gene_set_data = get_gene_set_data(dataset, cell_type, model)
     # trait_data = get_trait_data(dataset, cell_type, model)
     factors = list(gene_data.keys())# | gene_set_data.keys() | trait_data.keys())
@@ -192,6 +210,7 @@ def get_data(dataset, cell_type, model):
         'factor': factor,
         'importance': gene_data.get(factor, {}).get('importance'),
         'top_genes': gene_data.get(factor, {}).get('top_genes', []),
+        'label_genes': gene_loading_data.get(factor, []),
         # 'top_gene_sets': gene_set_data.get(factor, []),
         # 'top_traits': trait_data.get(factor, []),
         'labels': {}
@@ -232,20 +251,14 @@ def format_response(response):
         .decode('ascii', errors='ignore')
 
 
-def label_factor(dataset, cell_type, model, factor_data, llm_endpoint):
-    filtered_data = [data for data in factor_data if len(data['top_genes']) > 0]
+def label_factor(dataset, cell_type, factor_data, llm_endpoint):
+    filtered_data = [data for data in factor_data if len(data['label_genes']) > 0]
     if len(filtered_data) > 0:
-        prompt_data = []
         for i, data in enumerate(filtered_data):
-            prompt_data.append('{}. {} {} {} - Top Genes: {}'.format(
-                i + 1,
-                dataset,
-                cell_type,
-                model,
-                ', '.join(data['top_genes'])
-            ))
-            prompt = ('Create a concise biological label (2–6 words) for this gene-set group. '
-                      'Return ONLY the label summary. Top Genes: {}').format(', '.join(data['top_genes']))
+            prompt_data = '{} {} - Top Genes: {}'.format(dataset, cell_type, ', '.join(data['label_genes']))
+            prompt = 'Create a concise biological label (2–6 words) for this gene-set group. ' \
+                     'Do not just restate the genes, but provide a description of its function or mechanism. ' \
+                     f'Return ONLY the label summary.\n\n{prompt_data}'
             response = llm_endpoint.query(prompt)
             if response is not None:
                 factor_data[i]['labels']['label'] = format_response(response)
@@ -349,7 +362,7 @@ def main():
     # factor_data = combine_descriptions(factor_data, llm_endpoint)
     # factor_data = label_description(factor_data, llm_endpoint)
 
-    factor_data = label_factor(args.dataset, args.cell_type, args.model, factor_data, llm_endpoint)
+    factor_data = label_factor(args.dataset, args.cell_type, factor_data, llm_endpoint)
 
     os.makedirs('outputs', exist_ok=True)
     translate_data(args.dataset, args.cell_type, args.model, factor_data)
