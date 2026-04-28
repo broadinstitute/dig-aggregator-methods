@@ -9,7 +9,7 @@
         },
         "bioindex": {
             "bucket": "jurgens-paper",
-            "subdir": "jurgens-paper/bioindex"
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [
