@@ -19,12 +19,12 @@ def run_liger():
     try:
         cmd = [
             'Rscript',
-            f'{downloaded_files}/inmf_liger_v2-3.R',
+            f'{downloaded_files}/inmf_liger_v2-4.R',
             'inputs/02072026_scRNA_v3.4.rds',
             'outputs',
             'study',
             'Cell_Type',
-            '5000',
+            '50000',
             '50'
         ]
         subprocess.check_call(cmd)
@@ -43,8 +43,6 @@ def main():
     parser.add_argument('--dataset', default=None, required=True, type=str,
                         help="Dataset name")
     args = parser.parse_args()
-    import time
-    time.sleep(12 * 3600)
 
     download(args.dataset)
     run_liger()
