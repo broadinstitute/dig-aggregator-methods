@@ -7,7 +7,8 @@ import org.broadinstitute.dig.aws.emr._
 class SpecificityStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 1
+    instances = 1,
+    masterVolumeSizeInGB = 100
   )
 
   val c2ct: Input.Source = Input.Source.Success("out/credible_sets/c2ct/*/*/")

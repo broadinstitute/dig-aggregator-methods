@@ -123,7 +123,7 @@ def get_output(project_annotation_tissue_biosamples, credible_set_map):
 
 
 def write_output(phenotype, ancestry, overlap, credible_set_data, annotation_sizes):
-    path_out = f'{s3_out}/out/credible_sets/c2ct_var/{phenotype}/{ancestry}'
+    path_out = f'{s3_out}/out/credible_sets/c2ct-gene_var/{phenotype}/{ancestry}'
     tmp_file = f'part-00000.json'
     with open(tmp_file, 'w') as f:
         for credible_set_id, data in overlap.items():
