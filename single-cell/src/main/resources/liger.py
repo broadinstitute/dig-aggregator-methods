@@ -34,7 +34,7 @@ def run_liger():
 
 def upload(dataset):
     if os.path.exists('./outputs/'):
-        path = f'{s3_out}/out/single_cell/staging/liger/{dataset}/'
+        path = f'{s3_out}/out/single_cell/staging/liger/{dataset}_norm/'
         cmd = ['aws', 's3', 'cp', './outputs/', path, '--recursive']
         subprocess.check_call(cmd)
         shutil.rmtree('outputs')
