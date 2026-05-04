@@ -16,23 +16,28 @@ def download(dataset, cell_type):
 
 
 def run_liger():
-    cmd = [
-        'Rscript',
-        f'{downloaded_files}/inmf_liger_v2-3_mod_v2.R',
-        'inputs/data.h5ad',
-        'outputs',
-        'donor_id',
-        'cell_type__kp',
-        '5000',
-        '50'
-    ]
-    subprocess.check_call(cmd)
+    try:
+        cmd = [
+            'Rscript',
+            f'{downloaded_files}/inmf_liger_v2-4_mod.R',
+            'inputs/data.h5ad',
+            'outputs',
+            'donor_id',
+            'cell_type__kp',
+            '50000',
+            '50'
+        ]
+        subprocess.check_call(cmd)
+    except:
+        pass
 
 
 def upload(dataset):
-    path = f'{s3_out}/out/single_cell/staging/liger/{dataset}/'
-    cmd = ['aws', 's3', 'cp', './outputs/', path, '--recursive']
-    subprocess.check_call(cmd)
+    if os.path.exists('./outputs/'):
+        path = f'{s3_out}/out/single_cell/staging/liger/{dataset}/'
+        cmd = ['aws', 's3', 'cp', './outputs/', path, '--recursive']
+        subprocess.check_call(cmd)
+        shutil.rmtree('outputs')
 
 
 def main():
@@ -48,7 +53,6 @@ def main():
     upload(args.dataset)
 
     shutil.rmtree('inputs')
-    shutil.rmtree('outputs')
 
 
 if __name__ == '__main__':
