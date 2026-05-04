@@ -19,7 +19,7 @@ def run_liger():
     try:
         cmd = [
             'Rscript',
-            f'{downloaded_files}/inmf_liger_v2-4.R',
+            f'{downloaded_files}/inmf_liger_v2-4_norm.R',
             'inputs/02072026_scRNA_v3.4.rds',
             'outputs',
             'study',
