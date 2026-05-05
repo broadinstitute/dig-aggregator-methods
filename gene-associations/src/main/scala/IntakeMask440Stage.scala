@@ -12,7 +12,7 @@ class IntakeMask440Stage(implicit context: Context) extends Stage {
     stepConcurrency = 10
   )
 
-  val mask440 = Input.Source = Input.Source.Raw("gene_associations_raw/440K_MaskPaper/*/*/all/*")
+  val mask440 = Input.Source.Raw("gene_associations_raw/440K_MaskPaper/*/*/all/*")
 
   override val sources: Seq[Input.Source] = Seq(mask440)
 

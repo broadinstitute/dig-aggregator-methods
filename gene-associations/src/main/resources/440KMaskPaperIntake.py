@@ -13,6 +13,20 @@ import scipy.stats
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
+def get_phenotype_map():
+    path = 's3://dig-analysis-bin/gene_associations/paper_440k_mask_phenotypes.tsv'
+    subprocess.check_call(['aws', 's3', 'cp', path, '.'])
+    phenotype_map = {}
+    with open('paper_440k_mask_phenotypes.tsv', 'r') as f:
+        _ = f.readline().strip().split('\t')
+        for line in f:
+            split_line = line.strip().split('\t')
+            if len(split_line) >= 4:
+                phenotype_map[split_line[2]] = split_line[3]
+    os.remove('paper_440k_mask_phenotypes.tsv')
+    return phenotype_map
+
+
 base_url = f'{s3_in}/gene_associations_raw/440K_MaskPaper'
 def download_phecode_files(ancestry, cohort, phecode):
     all_file = f'{phecode}.all_masks_formatted.tsv.gz'
@@ -133,14 +147,16 @@ def main():
 
     # parse command line
     args = opts.parse_args()
+    phenotype_map = get_phenotype_map()
     phecode = args.filename.split('.all_masks_formatted.')[0]
-    all_file, minp_file = download_phecode_files(args.ancestry, args.cohort, phecode)
-    minp_output = get_converted_phenotype_minp(args.ancestry, args.cohort, minp_file)
-    phenotype_output = get_full_phenotype_output(all_file, minp_output)
-    output_with_lambda = get_output_with_lambda(phenotype_output)
-    upload_output(args.ancestry, args.cohort, phecode, output_with_lambda)
-    os.remove(all_file)
-    os.remove(minp_file)
+    if phecode in phenotype_map:
+        all_file, minp_file = download_phecode_files(args.ancestry, args.cohort, phecode)
+        minp_output = get_converted_phenotype_minp(args.ancestry, args.cohort, minp_file)
+        phenotype_output = get_full_phenotype_output(all_file, minp_output)
+        output_with_lambda = get_output_with_lambda(phenotype_output)
+        upload_output(args.ancestry, args.cohort, phenotype_map[phecode], output_with_lambda)
+        os.remove(all_file)
+        os.remove(minp_file)
 
 
 if __name__ == '__main__':
