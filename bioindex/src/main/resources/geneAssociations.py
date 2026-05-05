@@ -82,6 +82,45 @@ def process_600trait_datasets(spark):
         .json(f'{s3_bioindex}/finder/600trait')
 
 
+def process_440k_mask_paper_datasets(spark):
+    """
+    Load all 600trait results and write them out both sorted by gene and by
+    phenotype, so they may be queried either way.
+    """
+    df = spark.read.json(f'{s3_in}/gene_associations/440K_MaskPaper/*/*/*/part-*')
+
+    df = df.withColumn('pValue_rare', when(df.pValue_rare == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_rare))
+    df = df.withColumn('pValue', df.pValue_rare)
+    df = df.withColumn('pValue_low_freq', when(df.pValue_low_freq == 0.0, np.nextafter(0, 1)).otherwise(df.pValue_low_freq))
+    genes = spark.read.json('s3://dig-analysis-bin/genes/GRCh37/part-*')
+
+    # fix for join
+    genes = genes \
+        .filter(genes.source == 'ensembl') \
+        .select(
+        genes.name.alias('ensemblId'),
+        genes.chromosome,
+        genes.start,
+        genes.end,
+        genes.type,
+    )
+
+    df = df.join(genes, on='ensemblId', how='inner')
+
+    # sort by gene, then by p-value
+    df.orderBy(['ancestry', 'cohort', 'gene', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{s3_bioindex}/gene_associations/440K_MaskPaper')
+
+    # sort by phenotype, then by p-value for the gene finder
+    df.drop('masks') \
+        .orderBy(['ancestry', 'cohort', 'phenotype', 'pValue']) \
+        .write \
+        .mode('overwrite') \
+        .json(f'{s3_bioindex}/finder/440K_MaskPaper')
+
+
 def process_transcript_datasets(spark):
     """
     Load all 52k results and write them out both sorted by gene and by
@@ -153,6 +192,7 @@ def main():
     opts = argparse.ArgumentParser()
     opts.add_argument('--combined', action='store_true', dest='flag_combined')
     opts.add_argument('--600trait', action='store_true', dest='flag_600trait')
+    opts.add_argument('--440kmask', action='store_true', dest='flag_440kmask')
     opts.add_argument('--magma', action='store_true')
     opts.add_argument('--transcript', action='store_true')
 
@@ -166,6 +206,8 @@ def main():
         process_gene_datasets(spark)
     if args.flag_600trait:
         process_600trait_datasets(spark)
+    if args.flag_440kmask:
+        process_440k_mask_paper_datasets(spark)
     if args.magma:
         process_magma(spark)
     if args.transcript:

@@ -10,6 +10,7 @@ object GeneAssociations extends Method {
    * order they should be serially executed.
    */
   override def initStages(implicit context: Context) = {
+    addStage(new IntakeMask440Stage)
     addStage(new Intake600TraitStage)
     addStage(new IntakeGenebassStage)
     addStage(new Combine600TraitStage)
