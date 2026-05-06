@@ -178,19 +178,19 @@ def download(dataset, cell_type):
 def convert_cell_loadings(cell_type):
     with open(f'outputs/{cell_type}/factor_matrix_cell_loadings.tsv', 'w') as f_out:
         with open(f'inputs/cell_scores.tsv', 'r') as f_in:
-            header = f_in.readline()
-            f_out.write('cell\tindep\t{}'.format(header))
+            factors = f_in.readline().strip().split('\t')
+            f_out.write('Cell\t{}\n'.format('\t'.join([f'Factor{idx + 1}' for idx in range(len(factors))])))
             for line in f_in:
                 batch_plus_cell, data = line.split('\t', 1)
                 batch, cell = batch_plus_cell.split('_', 1)  # Will have to actually do right somehow?
-                f_out.write('{}\tTrue\t{}'.format(cell, data))
+                f_out.write('{}\t{}'.format(cell, data))
 
 
 def convert_gene_loadings(cell_type):
     with open(f'outputs/{cell_type}/factor_matrix_gene_loadings.tsv', 'w') as f_out:
         with open(f'inputs/gene_loadings.tsv', 'r') as f_in:
-            header = f_in.readline()
-            f_out.write('gene\t{}'.format(header))
+            factors = f_in.readline().strip().split('\t')
+            f_out.write('Gene\t{}\n'.format('\t'.join([f'Factor{idx + 1}' for idx in range(len(factors))])))
             for line in f_in:
                 f_out.write(line)
 
@@ -206,7 +206,7 @@ def convert_gene_probabilities(cell_type):
             genes.append(gene)
         P = loadings_to_probabilities(W, alpha=0.5)
     with open(f'outputs/{cell_type}/factor_matrix_gene_probs.tsv', 'w') as f_out:
-        f_out.write('gene\t{}\n'.format('\t'.join(factors)))
+        f_out.write('Gene\t{}\n'.format('\t'.join([f'Factor{idx + 1}' for idx in range(len(factors))])))
         for gene_idx, gene in enumerate(genes):
             f_out.write('{}\t{}\n'.format(
                 gene,
@@ -217,45 +217,43 @@ def convert_gene_probabilities(cell_type):
 def get_top_genes(cell_type):
     with open(f'outputs/{cell_type}/factor_matrix_gene_loadings.tsv', 'r') as f_in:
         header = f_in.readline().strip().split('\t')[1:]
-        top_genes = {factor: [] for factor in header}
+        top_genes = {f'Factor{idx + 1}': [] for idx in range(len(header))}
         for line in f_in:
             gene, data = line.strip().split('\t', 1)
             factor_data = list(map(float, data.split('\t')))
-            for factor, factor_datum in zip(header, factor_data):
-                top_genes[factor].append((factor_datum, gene))
+            for idx, factor_datum in enumerate(factor_data):
+                top_genes[f'Factor{idx + 1}'].append((factor_datum, gene))
     return {factor: [a[1] for a in sorted(top_genes[factor], reverse=True)[:5]] for factor in top_genes}
 
 
 def get_top_cells(cell_type):
     with open(f'outputs/{cell_type}/factor_matrix_cell_loadings.tsv', 'r') as f_in:
-        header = f_in.readline().strip().split('\t')[2:]
-        top_cells = {factor: [] for factor in header}
+        header = f_in.readline().strip().split('\t')[1:]
+        top_cells = {f'Factor{idx + 1}': [] for idx in range(len(header))}
         for line in f_in:
-            cell, indep, data = line.strip().split('\t', 2)
+            cell, data = line.strip().split('\t', 1)
             factor_data = list(map(float, data.split('\t')))
-            for factor, factor_datum in zip(header, factor_data):
-                top_cells[factor].append((factor_datum, cell))
+            for idx, factor_datum in enumerate(factor_data):
+                top_cells[f'Factor{idx + 1}'].append((factor_datum, cell))
     return {factor: [a[1] for a in sorted(top_cells[factor], reverse=True)[:5]] for factor in top_cells}
 
 
 def convert_gene_programs(cell_type):
     top_genes = get_top_genes(cell_type)
     top_cells = get_top_cells(cell_type)
-    with open(f'inputs/gene_programs.txt', 'r') as f:
-        factors = f.readline().strip().split('\t')
     with open(f'inputs/factor_importance.txt', 'r') as f:
         _ = f.readline()
         importances = []
         for line in f:
             importances.append(float(line.strip()))
     with open(f'outputs/{cell_type}/factor_matrix_factors.tsv', 'w') as f_out:
-        f_out.write('factor_index\texp_lambdak\ttop_genes\ttop_cells\n')
-        for factor, importance in zip(factors, importances):
+        f_out.write('factor\texp_lambdak\ttop_genes\ttop_cells\n')
+        for idx, importance in enumerate(importances):
             f_out.write('{}\t{}\t{}\t{}\n'.format(
-                re.findall(r'Factor_([0-9]*)', factor)[0],
+                f'Factor{idx + 1}',
                 importance,
-                ','.join(top_genes[factor]),
-                ','.join(top_cells[factor])
+                ','.join(top_genes[f'Factor{idx + 1}']),
+                ','.join(top_cells[f'Factor{idx + 1}'])
             ))
 
 

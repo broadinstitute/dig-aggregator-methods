@@ -27,19 +27,15 @@ def download(dataset, cell_type, model):
 
 def run_phewas(cell_type, model):
     os.makedirs(f'output/{cell_type}/{model}', exist_ok=True)
-    with open(f'input/{cell_type}/{model}/factor_matrix_gene_loadings.tsv', 'r') as f:
-        factor_str = ','.join(f.readline().strip().split('\t')[1:])
-
-    subprocess.check_call(['python', f'{downloaded_files}/factor_phewas.py',
-                          '--factors-in', f'input/{cell_type}/{model}/factor_matrix_gene_loadings.tsv',
-                          '--factors-gene-id-col', 'gene',
-                          '--factors-gene-factor-cols', f'{factor_str}',
-                          '--pheno-batch-size', '300',
-                          '--gene-stats-in', f'{downloaded_files}/gs_{model_to_gene_stats[model]}.tsv',
-                          '--gene-stats-id-col', 'gene',
-                          '--gene-stats-pheno-col', 'trait',
-                          '--gene-stats-assoc-stat-col', 'combined',
-                          '--output-file', f'output/{cell_type}/{model}/phewas_gene_loadings.txt'])
+    subprocess.check_call(['python3.11', '-m', 'eaggl', 'factor', '--run-factor-phewas',
+                           '--factor-phewas-anchor-covariate', 'none',
+                           '--factor-gene-clusters-in', os.path.abspath(f'input/{cell_type}/{model}/factor_matrix_gene_loadings.tsv'),
+                           '--gene-phewas-stats-in', f'{downloaded_files}/gs_{model_to_gene_stats[model]}.tsv',
+                           '--gene-phewas-stats-id-col', 'gene',
+                           '--gene-phewas-stats-pheno-col', 'trait',
+                           '--gene-phewas-stats-combined-col', 'combined',
+                           '--factor-phewas-stats-out', os.path.abspath(f'./output/{cell_type}/{model}/phewas_gene_loadings.txt')],
+                          cwd=f'{downloaded_files}/pigean/src')
 
 
 def upload(dataset, cell_type, model):

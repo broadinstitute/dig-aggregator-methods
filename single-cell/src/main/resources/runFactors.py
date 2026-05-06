@@ -99,7 +99,7 @@ def translate_factors(dataset, cell_type, model, factor_data):
                 header = f.readline().strip().split('\t')
                 for line in f:
                     json_line = dict(zip(header, line.strip().split('\t')))
-                    factor = 'Factor_{}'.format(json_line['factor_index'])
+                    factor = json_line['factor']
                     f_out.write(json.dumps(
                         {
                             'dataset': dataset,
@@ -130,7 +130,7 @@ def get_gene_data(dataset, cell_type, model):
             header = f.readline().strip().split('\t')
             for line in f:
                 json_line = dict(zip(header, line.strip().split('\t')))
-                factor_data['Factor_{}'.format(json_line['factor_index'])] = {
+                factor_data[json_line['factor']] = {
                     'importance': float(json_line['exp_lambdak']),
                     'top_genes': json_line['top_genes'].split(',')
                 }
@@ -197,7 +197,7 @@ def get_trait_data(dataset, cell_type, model):
                     factor_data[json_line['Factor']] = []
                 trait = trait_display_map.get(json_line['Pheno'], json_line['Pheno'])
                 factor_data[json_line['Factor']].append((p, trait))
-    return {factor: [trait for value, trait in sorted(values)[:5]] for factor, values in factor_data.items()}
+    return {factor: [trait for value, trait in sorted(values)[:20]] for factor, values in factor_data.items()}
 
 
 def get_data(dataset, cell_type, model):
