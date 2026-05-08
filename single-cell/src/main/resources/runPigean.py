@@ -63,17 +63,6 @@ def run(model):
         header = f.readline().strip().split('\t')
     for idx in range(1, len(header)):
         make_positive_controls(idx)
-        print(' '.join(['python3.11', '-m', 'pigean', 'gibbs',
-                        '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
-                        '--max-num-gene-sets', '5000',
-                        '--positive-controls-in', os.path.abspath('positive_controls_in.txt'),
-                        '--positive-controls-id-col', 'gene',
-                        '--positive-controls-prob-col', 'prob',
-                        '--positive-controls-all-in', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
-                        '--positive-controls-all-id-col', '6',
-                        '--positive-controls-all-no-header',
-                        '--gene-set-stats-out', os.path.abspath(f'staging/gss.{header[idx]}.out')]
-                       + get_gene_sets(model_to_gene_stats[model])))
         subprocess.run(['python3.11', '-m', 'pigean', 'gibbs',
                         '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
                         '--max-num-gene-sets', '5000',
