@@ -14,8 +14,10 @@ object SingleCell extends Method {
     addStage(new DownsampleStage)
     addStage(new FactorMatrixStage)
     addStage(new FactorPhewasStage)
+    addStage(new TranslatePhewasStage)
     addStage(new RegressionStage)
     addStage(new PigeanStage)
+    addStage(new TranslatePigeanStage)
     addStage(new GraphStage)
     addStage(new FactorStage)
   }

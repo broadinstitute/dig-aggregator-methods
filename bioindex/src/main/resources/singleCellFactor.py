@@ -21,8 +21,6 @@ def bioindex(df, bioindex_name, bioindex_order):
 def factor(spark):
     srcdir = f'{s3_in}/out/single_cell/factors/*/*/*/factors.json'
     df = spark.read.json(srcdir)
-    df = df.withColumn('top_genes', clean(df.top_genes))
-    df = df.withColumn('top_cells', clean(df.top_cells))
     bioindex_order = [col('dataset'), col('cell_type'), col('model'), col('importance').desc()]
     bioindex(df, 'factor', bioindex_order)
 
@@ -35,7 +33,7 @@ def gene_factor(spark):
     bioindex(df, 'gene', bioindex_order)
 
 
-def gene_set_factor(spark):
+def cell_factor(spark):
     srcdir = f'{s3_in}/out/single_cell/factors/*/*/*/factor_cells.json'
     df = spark.read.json(srcdir)
     df = df.withColumn('cell', clean(df.cell))
@@ -43,12 +41,31 @@ def gene_set_factor(spark):
     bioindex(df, 'cell', bioindex_order)
 
 
+def gene_set_factor(spark):
+    srcdir = f'{s3_in}/out/single_cell/pigean/*/*/*/gene_set_stats.json'
+    df = spark.read.json(srcdir)
+    df = df.withColumn('gene_set', clean(df.gene_set))
+    bioindex_order = [col('dataset'), col('cell_type'), col('model'), col('factor'), col('beta').desc()]
+    bioindex(df, 'gene_set', bioindex_order)
+
+
+def trait_factor(spark):
+    srcdir = f'{s3_in}/out/single_cell/phewas/*/*/*/phewas.json'
+    df = spark.read.json(srcdir)
+    df = df.withColumn('trait', clean(df.trait))
+    df = df.withColumn('trait_name', clean(df.trait_name))
+    bioindex_order = [col('dataset'), col('cell_type'), col('model'), col('factor'), col('pValue')]
+    bioindex(df, 'trait', bioindex_order)
+
+
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     factor(spark)
     gene_factor(spark)
+    cell_factor(spark)
     gene_set_factor(spark)
+    trait_factor(spark)
 
     spark.stop()
 
