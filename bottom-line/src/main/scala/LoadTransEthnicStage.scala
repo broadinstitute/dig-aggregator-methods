@@ -17,7 +17,7 @@ class LoadTransEthnicStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.computeOptimized(vCPUs = 8, mem = 16.gb),
     slaveInstanceType = Strategy.computeOptimized(vCPUs = 8, mem = 16.gb),
-    instances = 4,
+    instances = 6,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))
   )
 
