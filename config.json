@@ -1,14 +1,15 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "jurgen-paper",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "jurgens-paper"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "jurgens-paper"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "jurgens-paper",
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [
