@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class PigeanStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val geneSetSizes = Seq("small", "large", "cfde", "mouse", "ryank061025")
+  val geneSetSizes = Seq("mouse_msigdb")
 
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
@@ -23,8 +23,8 @@ class PigeanStage(implicit context: Context) extends Stage {
 
   override val rules: PartialFunction[Input, Outputs] = {
     case inputs(traitType, traitGroup, phenotype) => Outputs.Named(geneSetSizes.map { geneSetSize =>
-        s"$traitType/$traitGroup/$phenotype/$geneSetSize"
-      }: _*)
+      s"$traitType/$traitGroup/$phenotype/$geneSetSize"
+    }: _*)
   }
 
   override def make(output: String): Job = {

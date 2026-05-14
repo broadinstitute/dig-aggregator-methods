@@ -11,17 +11,13 @@ cd "${PIGEAN_ROOT}"
 
 sudo aws s3 cp s3://dig-analysis-data/out/pigean/gene_lists/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/gene_sets/ . --recursive
-sudo aws s3 cp s3://dig-analysis-bin/pigean/methods/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/misc/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/models/ . --recursive
 
-sudo aws s3 cp s3://dig-analysis-bin/orphanet/code_to_leaves.tsv .
+sudo yum -y install git
+sudo git clone https://github.com/flannick/pigean.git
+sudo aws s3 cp s3://dig-analysis-data/out/pigean/staging/combined/ . --recursive
 
 # install dependencies
-sudo yum install -y python3-devel
-sudo pip3 install -U Cython
-sudo pip3 install -U pybind11
-sudo pip3 install -U pythran
-sudo pip3 install -U scipy
-sudo pip3 install -U networkx
-sudo pip3 install -U matplotlib
+sudo pip3.11 install numpy
+sudo pip3.11 install scipy

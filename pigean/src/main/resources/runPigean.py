@@ -17,11 +17,11 @@ def get_model_data():
 
 def file_name(trait_type):
     if trait_type == 'sumstats':
-        return 'pigean.sumstats.gz'
+        return os.path.abspath('pigean.sumstats.gz')
     elif trait_type == 'gene_lists':
-        return 'gene_list.tsv'
+        return os.path.abspath('gene_list.tsv')
     elif trait_type == 'exomes':
-        return 'exomes.sumstats.gz'
+        return os.path.abspath('exomes.sumstats.gz')
     else:
         raise ValueError(f'Invalid trait_type: {trait_type}')
 
@@ -77,35 +77,24 @@ def trait_type_command(trait_type):
 
 
 base_cmd = [
-    'python3',  f'{downloaded_files}/priors.py', 'gibbs',
-    '--first-for-hyper',
-    '--sigma-power', '-2',
-    '--gwas-detect-high-power', '100',
-    '--gwas-detect-low-power', '10',
-    '--num-chains', '10',
-    '--num-chains-betas', '4',
-    '--max-num-iter', '500',
-    '--filter-gene-set-p', '0.005',
-    '--max-num-gene-sets', '5000',
-    '--gene-filter-value', '1.0',
-    '--gene-set-filter-value', '0.01',
-    '--s2g-normalize-values', '0.95',
-    '--update-hyper', 'none',
+    'python3.11', '-m', 'pigean', 'gibbs',
     '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
     '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
     '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
     '--exons-loc-file-huge', f'{downloaded_files}/NCBI37.3.plink.gene.exons.loc',
-    '--gene-stats-out', 'gs.out',
-    '--gene-set-stats-out', 'gss.out',
-    '--gene-gene-set-stats-out', 'ggss.out',
-    '--gene-effectors-out', 'ge.out',
-    '--params-out', 'p.out'
+    '--gene-universe-in', f'{downloaded_files}/gene-universe.txt',
+    '--gene-stats-out', os.path.abspath('outputs/gs.out'),
+    '--gene-set-stats-out', os.path.abspath('outputs/gss.out'),
+    '--gene-gene-set-stats-out', os.path.abspath('outputs/ggss.out'),
+    '--gene-effectors-out', os.path.abspath('outputs/ge.out'),
+    '--params-out', os.path.abspath('outputs/p.out')
 ]
 
 
 def run_pigean(trait_type, phenotype, gene_set_size):
+    os.makedirs('outputs', exist_ok=True)
     cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(gene_set_size)
-    subprocess.check_call(cmd)
+    subprocess.check_call(cmd, cwd=f'{downloaded_files}/pigean/src')
 
 
 def success(file_path):
