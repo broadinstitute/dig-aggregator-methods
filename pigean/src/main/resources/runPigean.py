@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import json
 import os
 import subprocess
 
@@ -7,20 +8,11 @@ downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-gene_sets = {
-    'gene_set_list_mouse_2024.txt': ['small', 'large', 'cfde', 'mouse'],
-    'gene_set_list_msigdb_nohp.txt': ['small', 'large', 'cfde', 'ryank061025'],
-    'gene_set_list_string_notext_medium_processed.txt': ['large'],
-    'gene_set_list_pops_sparse_small.txt': ['large'],
-    'gene_set_list_mesh_processed.txt': ['large']
-}
-
-gene_lists = {
-    'cfde/cfde.gene_sets.list': ['cfde'],
-    'cfde_overlap/cfde_overlap.gene_sets.list': ['cfde'],
-    'mouse/mouse.gene_sets.list': ['mouse'],
-    'ryan061025/ryank061025.gene_sets.list': ['ryank061025']
-}
+def get_model_data():
+    with open(f'{downloaded_files}/aws_pigean_models_s3.json', 'r') as f:
+        models = json.load(f)
+    return ({model['name']: model for model in models['models']},
+            {gene_set['name']: gene_set for gene_set in models['gene_sets']})
 
 
 def file_name(trait_type):
@@ -40,12 +32,19 @@ def download_data(trait_type, trait_group, phenotype):
 
 
 def get_gene_sets(gene_set_size):
-    size_gene_sets = [gene_set for gene_set, sizes in gene_sets.items() if gene_set_size in sizes]
-    size_gene_lists = [gene_list for gene_list, sizes in gene_lists.items() if gene_set_size in sizes]
-    all_inputs = ([cmd for gene_set in size_gene_sets for cmd in ('--X-in', f'{downloaded_files}/{gene_set}')] +
-                  [cmd for gene_set_list in size_gene_lists for cmd in ('--X-list', f'{downloaded_files}/{gene_set_list}')])
-    if len(all_inputs) > 0:
-        return all_inputs
+    models, gene_sets = get_model_data()
+    model_info = models[gene_set_size]
+    inputs = []
+    p_infs = []
+    for gene_set in model_info['gene_sets']:
+        gene_set_info = gene_sets[gene_set]
+        if gene_set_info['type'] == 'set':
+            inputs += ['--X-in', f'{downloaded_files}/{gene_set_info["file"]}']
+        else:
+            inputs += ['--X-list', f'{downloaded_files}/{gene_set_info["name"]}/{gene_set_info["file"]}']
+        p_infs += ['--p-noninf', str(gene_set_info['p-inf'])]
+    if len(inputs) > 0:
+        return inputs + p_infs
     else:
         raise Exception(f'Invalid gene set size {gene_set_size}')
 
