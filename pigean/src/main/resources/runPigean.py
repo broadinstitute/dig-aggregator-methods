@@ -70,45 +70,41 @@ def trait_type_command(trait_type):
     elif trait_type == 'exomes':
         return [
             '--exomes-in', file_name(trait_type),
-             '--exomes-gene-col', 'Gene',
-             '--exomes-p-col', 'P-value',
-             '--exomes-beta-col', 'Effect'
+            '--exomes-gene-col', 'Gene',
+            '--exomes-p-col', 'P-value',
+            '--exomes-beta-col', 'Effect'
         ]
-
-# NOTE: Removed as model became unstable
-def get_background_prior(phenotype):
-    # with open(f'{downloaded_files}/code_to_leaves.tsv', 'r') as f:
-    #     for line in f:
-    #         code, leaves_str = line.strip().split('\t')
-    #         if code == phenotype:
-    #             return ['--background-prior', str(min(int(leaves_str) * 0.005, 0.05))]
-    return ['--background-prior', '0.05']
 
 
 base_cmd = [
-    'python3', f'{downloaded_files}/priors.py', 'gibbs',
-    '--first-for-sigma-cond',
-    '--sigma-power', f'-2',
+    'python3',  f'{downloaded_files}/priors.py', 'gibbs',
+    '--first-for-hyper',
+    '--sigma-power', '-2',
     '--gwas-detect-high-power', '100',
     '--gwas-detect-low-power', '10',
     '--num-chains', '10',
     '--num-chains-betas', '4',
     '--max-num-iter', '500',
     '--filter-gene-set-p', '0.005',
-    '--max-num-gene-sets', '4000',
-    '--min-gene-set-size', '5',
+    '--max-num-gene-sets', '5000',
+    '--gene-filter-value', '1.0',
+    '--gene-set-filter-value', '0.01',
+    '--s2g-normalize-values', '0.95',
+    '--update-hyper', 'none',
     '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
-    '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
+    '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
     '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
     '--exons-loc-file-huge', f'{downloaded_files}/NCBI37.3.plink.gene.exons.loc',
     '--gene-stats-out', 'gs.out',
     '--gene-set-stats-out', 'gss.out',
     '--gene-gene-set-stats-out', 'ggss.out',
-    '--gene-effectors-out', 'ge.out'
+    '--gene-effectors-out', 'ge.out',
+    '--params-out', 'p.out'
 ]
 
+
 def run_pigean(trait_type, phenotype, gene_set_size):
-    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(gene_set_size) + get_background_prior(phenotype)
+    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(gene_set_size)
     subprocess.check_call(cmd)
 
 
