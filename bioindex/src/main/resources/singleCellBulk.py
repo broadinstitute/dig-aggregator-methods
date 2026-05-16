@@ -14,7 +14,7 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 
 cpus = 8
 
-metadata_cell_key = 'biosample_id'
+metadata_cell_key = 'sample_id_geo'
 
 number_maps = {
     'int': int,
@@ -28,7 +28,7 @@ def fetch_dataset_metadata():
 
 
 def fetch_metadata(cells):
-    with gzip.open('raw/sample_metadata.tsv.gz', 'rt') as f:
+    with open('raw/metadata.tsv', 'rt') as f:
         header = f.readline().strip().split('\t')
         possible_label_dict = {label: idx for idx, label in enumerate(header)}
         index_lists = {label: [] for label in possible_label_dict}
@@ -97,23 +97,23 @@ def output_metadata(set_lists, index_lists):
 def get_diff_exp(infile, dataset, cell_indexes, number_map):
     lognorm_data = []
     with gzip.open(infile, 'rt') as f_in:
-        cell_header = f_in.readline().strip().split('\t')[13:]
-        genex_indexes = {cell_indexes[column_cell]: matrix_idx for matrix_idx, column_cell in enumerate(cell_header)}
+        cell_header = f_in.readline().strip().split('\t')
+        genex_indexes = {cell_indexes[column_cell]: matrix_idx for matrix_idx, column_cell in enumerate(cell_header) if column_cell in cell_indexes}
         for line in f_in:
             split_line = line.strip().split('\t')
-            expression = list(map(number_maps[number_map], split_line[13:]))
-            if len(expression) == len(genex_indexes):
-                sorted_expression = [expression[genex_indexes[i]] for i in range(len(genex_indexes))]
-                if len(split_line[2].strip()) > 0:
+            if len(split_line) > max(genex_indexes.values()):
+                line_dict = dict(zip(cell_header, split_line))
+                sorted_expression = [number_maps[number_map](split_line[genex_indexes[i]]) for i in range(len(genex_indexes))]
+                if len(line_dict['p_value_adj'].strip()) > 0:
                     json_line = {
                         'dataset': dataset,
-                        'gene': split_line[4],
-                        'gene_label': split_line[12],
-                        'comparison_field': split_line[1],
-                        'comparison': split_line[2],
-                        'comparison_id': split_line[3],
-                        'p_value_adj': float(split_line[9]),
-                        'logFoldChange': float(split_line[5]),
+                        'gene': line_dict['gene'],
+                        'gene_label': line_dict['gene_label'],
+                        'comparison_field': line_dict['dea_comp_field'],
+                        'comparison': line_dict['dea_comp_name'],
+                        'comparison_id': line_dict['dea_comp_id'],
+                        'p_value_adj': float(line_dict['p_value_adj']),
+                        'logFoldChange': float(line_dict['log_fold_change']),
                         'expression': sorted_expression
                     }
                     lognorm_data.append(json_line)
