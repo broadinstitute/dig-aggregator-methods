@@ -168,7 +168,7 @@ def main():
     subprocess.check_call(['aws', 's3', 'cp', f_in, 'raw', '--recursive'])
 
     metadata = fetch_dataset_metadata()
-    max_categories = max(metadata['totalBiosamples'], metadata['totalDonors'])
+    max_categories = max(metadata.get('totalBiosamples', 100), metadata.get('totalDonors', 100))
 
     cells = set()
     if os.path.exists('raw/dea_for_heatmap.tsv.gz'):
