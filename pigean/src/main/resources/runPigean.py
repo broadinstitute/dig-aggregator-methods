@@ -17,11 +17,11 @@ def get_model_data():
 
 def file_name(trait_type):
     if trait_type == 'sumstats':
-        return os.path.abspath('pigean.sumstats.gz')
+        return 'pigean.sumstats.gz'
     elif trait_type == 'gene_lists':
-        return os.path.abspath('gene_list.tsv')
+        return 'gene_list.tsv'
     elif trait_type == 'exomes':
-        return os.path.abspath('exomes.sumstats.gz')
+        return 'exomes.sumstats.gz'
     else:
         raise ValueError(f'Invalid trait_type: {trait_type}')
 
@@ -51,7 +51,7 @@ def get_gene_sets(gene_set_size):
 
 def trait_type_command(trait_type):
     if trait_type == 'sumstats':
-        return ['--gwas-in', file_name(trait_type),
+        return ['--gwas-in', os.path.abspath(file_name(trait_type)),
                 '--gwas-chrom-col', 'CHROM',
                 '--gwas-pos-col', 'POS',
                 '--gwas-p-col', 'P',
@@ -59,7 +59,7 @@ def trait_type_command(trait_type):
                 ]
     elif trait_type == 'gene_lists':
         return [
-            '--positive-controls-in', file_name(trait_type),
+            '--positive-controls-in', os.path.abspath(file_name(trait_type)),
             '--positive-controls-id-col', '1',
             '--positive-controls-prob-col', '2',
             '--positive-controls-no-header', 'True',
@@ -69,7 +69,7 @@ def trait_type_command(trait_type):
         ]
     elif trait_type == 'exomes':
         return [
-            '--exomes-in', file_name(trait_type),
+            '--exomes-in', os.path.abspath(file_name(trait_type)),
             '--exomes-gene-col', 'Gene',
             '--exomes-p-col', 'P-value',
             '--exomes-beta-col', 'Effect'
