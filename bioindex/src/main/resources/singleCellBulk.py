@@ -14,7 +14,7 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 
 cpus = 8
 
-metadata_cell_key = 'sample_id_geo'
+metadata_cell_key = 'sample_id'
 
 number_maps = {
     'int': int,
