@@ -23,11 +23,16 @@ def upload_data(trait_group, phenotype, data_type, gene_set_size):
 def make_option(value):
     return value if value != 'NA' else 'null'
 
+def get_huge_score(json_line):
+    for field in ['huge_score', 'huge_score_gwas', 'huge_score_exomes', 'positive_control']:
+        if field in json_line:
+            return json_line[field]
+
 
 def translate_gs(json_line, trait_group, phenotype, gene_set_size):
     combined = make_option(json_line["combined"])
-    huge_score = json_line["huge_score_gwas"] if 'huge_score_gwas' in json_line else json_line["positive_control"]
-    if combined is not None:
+    huge_score = get_huge_score(json_line)
+    if combined != 'null':
         return f'{{"gene": "{json_line["Gene"]}", ' \
                f'"prior": {make_option(json_line["prior"])}, ' \
                f'"combined": {combined}, ' \
@@ -42,7 +47,7 @@ def translate_gs(json_line, trait_group, phenotype, gene_set_size):
 def translate_gss(json_line, trait_group, phenotype, gene_set_size):
     beta = make_option(json_line["beta"])
     beta_uncorrected = make_option(json_line["beta_uncorrected"])
-    if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
+    if beta != 'null' and beta_uncorrected != 'null' and float(beta_uncorrected) != 0.0:
         return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
                f'"source": "{json_line["label"]}", ' \
                f'"beta": {beta}, ' \
@@ -58,7 +63,7 @@ def get_translate_ggss(trait_group, phenotype, gene_set_size):
     def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
         combined = make_option(json_line["combined"])
-        if beta is not None and combined is not None:
+        if beta != 'null' and combined != 'null':
             beta_uncorrected = beta_uncorrected_map.get((phenotype, json_line['gene_set']), '0.0')
             source = source_map[(phenotype, json_line['gene_set'])]
             return f'{{"gene": "{json_line["Gene"]}", ' \
