@@ -63,8 +63,9 @@ class BioIndexDB:
     def get_largest_mixed_datasets(self, phenotype):
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest mixed dataset')
+            escaped_phenotype = phenotype.replace('(', '\\\\(').replace(')', '\\\\)')
             query = sqlalchemy.text(f'SELECT tech, name FROM Datasets '
-                                    f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
+                                    f'WHERE REGEXP_LIKE(phenotypes, "(^|,){escaped_phenotype}($|,)") '
                                     f'AND ancestry="Mixed" AND tech="GWAS" '
                                     f'ORDER BY subjects DESC')
             rows = connection.execute(query).all()

@@ -9,7 +9,7 @@ import org.broadinstitute.dig.aws.MemorySize
 class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val sumstats: Input.Source = Input.Source.Raw("out/ldsc/sumstats/*/*/*.sumstats.gz")
+  val sumstats: Input.Source = Input.Source.Raw("out/ldsc/sumstats/*/*/*")
   val portalBucket: S3.Bucket = new S3.Bucket("dig-analysis-data", None)
   val annotations: Input.Source = Input.Source.Success(
     s"out/ldsc/regions/combined_ld/*/*/*/",
@@ -30,12 +30,13 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
 
   // TODO: At the moment this will always rerun everything which isn't ideal
   override val rules: PartialFunction[Input, Outputs] = {
-    case sumstats(phenotype, ancestry, _) =>
+    case sumstats(phenotype, ancestry, file) if file.contains("sumstats.gz") =>
       allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
       Outputs.Named(ancestry.split('=').last)
     case annotations(_, subRegion, region) =>
       allAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
       Outputs.All
+    case _ => Outputs.Null
   }
 
   /** Just need a single machine with no applications, but a good drive. */

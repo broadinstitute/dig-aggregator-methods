@@ -9,13 +9,14 @@ import org.broadinstitute.dig.aws.MemorySize
 class GeneticCorrelationStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val sumstats: Input.Source = Input.Source.Raw("out/ldsc/sumstats/*/*/*.sumstats.gz")
+  val sumstats: Input.Source = Input.Source.Raw("out/ldsc/sumstats/*/*/*")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(sumstats)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case sumstats(_, ancestry, _) => Outputs.Named(ancestry.split('=').last)
+    case sumstats(_, ancestry, file) if file.contains("sumstats.gz") => Outputs.Named(ancestry.split('=').last)
+    case _ => Outputs.Null
   }
 
   /** Just need a single machine with no applications, but a good drive. */
