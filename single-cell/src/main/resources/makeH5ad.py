@@ -23,8 +23,10 @@ def get_metadata_maps():
         header = f.readline().strip().split('\t')
         for line in f:
             json_line = dict(zip(header, line.strip().split('\t')))
-            cell_type_map[json_line['ID']] = json_line['cell_type__kp']
-            donor_map[json_line['ID']] = json_line['Dataset']
+            n_count = float(json_line['nCount_RNA'])
+            if float(n_count) % 0 == 0:
+                cell_type_map[json_line['ID']] = json_line['cell_type__kp']
+                donor_map[json_line['ID']] = json_line['Dataset']
     return cell_type_map, donor_map
 
 
@@ -32,7 +34,7 @@ def get_sparse_array(cell_type_map, donor_map):
     cell_types = list(set(cell_type_map.values()))
     with gzip.open('inputs/norm_counts.tsv.gz', 'rt') as f:
         cells = f.readline().strip().split('\t')[1:]
-        cells_idx_dict = {cell_type: [idx for idx, cell in enumerate(cells) if cell_type_map[cell] == cell_type] for cell_type in cell_types}
+        cells_idx_dict = {cell_type: [idx for idx, cell in enumerate(cells) if cell in cell_type_map and cell_type_map[cell] == cell_type] for cell_type in cell_types}
         gene, data = f.readline().strip().split('\t', 1)
         genes = [gene]
         formatted_data = list(map(float, data.split('\t')))
