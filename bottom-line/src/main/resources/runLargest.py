@@ -60,9 +60,10 @@ class BioIndexDB:
         with self.get_engine().connect() as connection:
             print(f'Querying db for phenotype {phenotype} for largest {ancestry} dataset')
             ancestry_addendum = f'AND ancestry="{ancestry}" ' if ancestry != 'TE' else ''
+            escaped_phenotype = phenotype.replace('(', '\\\\(').replace(')', '\\\\)')
             query = sqlalchemy.text(
                 f'SELECT name, ancestry FROM Datasets '
-                f'WHERE REGEXP_LIKE(phenotypes, "(^|,){phenotype}($|,)") '
+                f'WHERE REGEXP_LIKE(phenotypes, "(^|,){escaped_phenotype}($|,)") '
                 f'{ancestry_addendum}AND tech="GWAS" '
                 f'ORDER BY subjects DESC'
             )

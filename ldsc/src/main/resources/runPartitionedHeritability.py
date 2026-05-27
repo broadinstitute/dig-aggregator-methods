@@ -74,20 +74,13 @@ def partitioned_heritability(ancestry, phenotypes, sub_region, regions):
     ])
 
 
-def make_path(split_path):
-    for i in range(len(split_path)):
-        path = '/'.join(split_path[:(i+1)])
-        if not os.path.exists(path):
-            os.mkdir(path)
-
-
 def upload_and_remove_files(ancestry, phenotypes, sub_region, regions):
     for phenotype in phenotypes:
         for region in regions:
             annotation, tissue = region.split('___')
             file = f'{ancestry}.{phenotype}.{annotation}.{tissue}.results'
-            make_path(['data', 'out', phenotype, f'ancestry={ancestry}', sub_region, region])
             out_path = f'data/out/{phenotype}/ancestry={ancestry}/{sub_region}/{region}'
+            os.makedirs(out_path, exist_ok=True)
             os.rename(f'./{ancestry}_{phenotype}/{file}', f'{out_path}/{file}')
         shutil.rmtree(f'./{ancestry}_{phenotype}')
         subprocess.check_call(['touch', f'data/out/{phenotype}/_SUCCESS'])

@@ -12,7 +12,7 @@ meta_types = ['bottom-line', 'min_p', 'largest']
 
 
 def check_file(path):
-    return subprocess.call(f'aws s3 ls {path}', shell=True)
+    return subprocess.call(['aws', 's3', 'ls', f'{path}'])
 
 
 def get_all_variants(phenotype, ancestry):

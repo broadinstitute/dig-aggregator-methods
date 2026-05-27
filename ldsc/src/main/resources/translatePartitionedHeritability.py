@@ -23,7 +23,8 @@ def get_annot_map(phenotype):
         results_search = re.findall('./[^/]+/[^/]+/(.+)/[^/]+/(.+).results', file)
         if len(results_search) > 0:
             sub_region, result = results_search[0]
-            ancestry, _, annotation, tissue = result.split('.')
+            ancestry, result_minus_ancestry = result.split('.', 1)
+            annotation, tissue = result_minus_ancestry.split('.')[-2:]
             annot = f'{annotation}.{tissue}'
             if sub_region not in out:
                 out[sub_region] = {}
