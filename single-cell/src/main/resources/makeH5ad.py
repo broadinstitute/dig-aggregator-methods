@@ -29,7 +29,7 @@ def get_metadata_maps():
             if len(n_count) > 0 and float(n_count) % 1 == 0:
                 cell_type_map[json_line['ID']] = json_line['cell_type__kp']
                 donor_map[json_line['ID']] = json_line['DI:Dataset']
-                ncount_map[json_line['ID']] = n_count
+                ncount_map[json_line['ID']] = int(n_count)
     return cell_type_map, donor_map, ncount_map
 
 
@@ -37,13 +37,12 @@ def get_sparse_array(cell_type_map, donor_map, ncount_map):
     cell_types = list(set(cell_type_map.values()))
     with gzip.open('inputs/norm_counts.tsv.gz', 'rt') as f:
         cells = f.readline().strip().split('\t')[1:]
-        cells_idx_dict = {cell_type: [idx for idx, cell in enumerate(cells) if cell in cell_type_map and cell_type_map[cell] == cell_type] for cell_type in cell_types}
-        ncount_idx_dict = {cell_type: [ncount_map[cell] for cell in cells if cell in cell_type_map and cell_type_map[cell] == cell_type] for cell_type in cell_types}
+        cells_idx_dict = {cell_type: [(idx, ncount_map[cell]) for idx, cell in enumerate(cells) if cell in cell_type_map and cell_type_map[cell] == cell_type] for cell_type in cell_types}
         gene, data = f.readline().strip().split('\t', 1)
         genes = [gene]
         formatted_data = list(map(float, data.split('\t')))
         # A = csc_matrix([formatted_data])
-        A_dict = {cell_type: csc_matrix([[int(round((math.exp(formatted_data[idx]) - 1) * ncount_idx_dict[cell_type][vector_idx] / 1E4)) for vector_idx, idx in enumerate(cells_idx_dict[cell_type])]]) for cell_type in cell_types}
+        A_dict = {cell_type: csc_matrix([[int(round((math.exp(formatted_data[idx]) - 1) * ncount / 1E4)) for idx, ncount in cells_idx_dict[cell_type]]]) for cell_type in cell_types}
         count = 1
         idx = 0
         # B = []
@@ -63,7 +62,7 @@ def get_sparse_array(cell_type_map, donor_map, ncount_map):
                 line_to_append = list(map(float, data.split('\t')))
                 # B.append(line_to_append)
                 for cell_type in cell_types:
-                    B_dict[cell_type].append([int(round((math.exp(line_to_append[idx]) - 1) * ncount_idx_dict[cell_type][vector_idx] / 1E4)) for vector_idx, idx in enumerate(cells_idx_dict[cell_type])])
+                    B_dict[cell_type].append([int(round((math.exp(line_to_append[idx]) - 1) * ncount / 1E4)) for idx, ncount in cells_idx_dict[cell_type]])
                 count += 1
                 genes.append(gene)
         # A = vstack([A, csc_matrix(B)])
