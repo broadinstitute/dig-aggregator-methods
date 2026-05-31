@@ -43,7 +43,7 @@ def get_sparse_array(cell_type_map, donor_map, ncount_map):
         genes = [gene]
         formatted_data = list(map(float, data.split('\t')))
         # A = csc_matrix([formatted_data])
-        A_dict = {cell_type: csc_matrix([[int(round((math.exp(formatted_data[idx]) - 1) * ncount_idx_dict[cell_type][idx] / 1E4)) for idx in cells_idx_dict[cell_type]]]) for cell_type in cell_types}
+        A_dict = {cell_type: csc_matrix([[int(round((math.exp(formatted_data[idx]) - 1) * ncount_idx_dict[cell_type][vector_idx] / 1E4)) for vector_idx, idx in enumerate(cells_idx_dict[cell_type])]]) for cell_type in cell_types}
         count = 1
         idx = 0
         # B = []
@@ -63,7 +63,7 @@ def get_sparse_array(cell_type_map, donor_map, ncount_map):
                 line_to_append = list(map(float, data.split('\t')))
                 # B.append(line_to_append)
                 for cell_type in cell_types:
-                    B_dict[cell_type].append([int(round((math.exp(line_to_append[idx]) - 1) * ncount_idx_dict[cell_type][idx] / 1E4)) for idx in cells_idx_dict[cell_type]])
+                    B_dict[cell_type].append([int(round((math.exp(line_to_append[idx]) - 1) * ncount_idx_dict[cell_type][vector_idx] / 1E4)) for vector_idx, idx in enumerate(cells_idx_dict[cell_type])])
                 count += 1
                 genes.append(gene)
         # A = vstack([A, csc_matrix(B)])
