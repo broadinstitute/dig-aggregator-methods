@@ -84,9 +84,9 @@ def get_sparse_array(cell_type_map, donor_map, ncount_map):
             cell_type: ad.AnnData(
                 A_dict[cell_type].T,
                 obs={
-                    'obs_names': [cells[idx] for idx in cells_idx_dict[cell_type]],
-                    'cell_type__kp': [cell_type_map[cells[idx]] for idx in cells_idx_dict[cell_type]],
-                    'donor_id': [donor_map[cells[idx]] for idx in cells_idx_dict[cell_type]]
+                    'obs_names': [cells[idx] for idx, _ in cells_idx_dict[cell_type]],
+                    'cell_type__kp': [cell_type_map[cells[idx]] for idx, _ in cells_idx_dict[cell_type]],
+                    'donor_id': [donor_map[cells[idx]] for idx, _ in cells_idx_dict[cell_type]]
                 },
                 var={
                     'var_names': genes
