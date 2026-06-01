@@ -3,6 +3,7 @@ import argparse
 import anndata as ad
 import gzip
 import math
+import numpy as np
 import os
 from scipy.sparse import csc_matrix, vstack
 import shutil
@@ -37,22 +38,19 @@ def get_sparse_array(cell_type_map, donor_map, ncount_map):
     cell_types = list(set(cell_type_map.values()))
     with gzip.open('inputs/norm_counts.tsv.gz', 'rt') as f:
         cells = f.readline().strip().split('\t')[1:]
-        cells_idx_dict = {cell_type: [(idx, ncount_map[cell]) for idx, cell in enumerate(cells) if cell in cell_type_map and cell_type_map[cell] == cell_type] for cell_type in cell_types}
+        p_map = {cell_type: 100000 / len([cell for cell in cells if cell_type_map.get(cell, '') == cell_type]) for cell_type in cell_types}
+        cells_idx_dict = {cell_type: [(idx, ncount_map[cell]) for idx, cell in enumerate(cells) if cell_type_map.get(cell, '') == cell_type and np.random.rand() < p_map[cell_type]] for cell_type in cell_types}
         gene, data = f.readline().strip().split('\t', 1)
         genes = [gene]
         formatted_data = list(map(float, data.split('\t')))
-        # A = csc_matrix([formatted_data])
         A_dict = {cell_type: csc_matrix([[int(round((math.exp(formatted_data[idx]) - 1) * ncount / 1E4)) for idx, ncount in cells_idx_dict[cell_type]]]) for cell_type in cell_types}
         count = 1
         idx = 0
-        # B = []
         B_dict = {cell_type: [] for cell_type in cell_types}
         for line in f:
             if count == 100:  # Just sufficiently small to reduce max memory load
-                # A = vstack([A, csc_matrix(B)])
                 for cell_type in cell_types:
                     A_dict[cell_type] = vstack([A_dict[cell_type], csc_matrix(B_dict[cell_type])])
-                # B = []
                 B_dict = {cell_type: [] for cell_type in cell_types}
                 count = 0
                 idx += 1
@@ -60,26 +58,13 @@ def get_sparse_array(cell_type_map, donor_map, ncount_map):
             gene, data = line.strip().split('\t', 1)
             if gene not in genes:
                 line_to_append = list(map(float, data.split('\t')))
-                # B.append(line_to_append)
                 for cell_type in cell_types:
                     B_dict[cell_type].append([int(round((math.exp(line_to_append[idx]) - 1) * ncount / 1E4)) for idx, ncount in cells_idx_dict[cell_type]])
                 count += 1
                 genes.append(gene)
-        # A = vstack([A, csc_matrix(B)])
         for cell_type in cell_types:
             A_dict[cell_type] = vstack([A_dict[cell_type], csc_matrix(B_dict[cell_type])])
     return (
-        # ad.AnnData(
-        #     A.T,
-        #     obs={
-        #         'obs_names': cells,
-        #         'cell_type__kp': [cell_type_map[cell] for cell in cells],
-        #         'donor_id': [donor_map[cell] for cell in cells]
-        #     },
-        #     var={
-        #         'var_names': genes
-        #     }
-        # ),
         {
             cell_type: ad.AnnData(
                 A_dict[cell_type].T,
