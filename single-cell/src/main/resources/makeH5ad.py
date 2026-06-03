@@ -28,7 +28,7 @@ def get_metadata_maps():
             json_line = dict(zip(header, line.strip().split('\t')))
             n_count = json_line['QC:nCount_RNA']
             if len(n_count) > 0 and float(n_count) % 1 == 0:
-                cell_type_map[json_line['ID']] = json_line['cell_type__kp']
+                cell_type_map[json_line['ID']] = json_line['cell_type__kp'].replace('/', ' ')
                 donor_map[json_line['ID']] = json_line['DI:Dataset']
                 ncount_map[json_line['ID']] = int(n_count)
     return cell_type_map, donor_map, ncount_map
