@@ -10,6 +10,7 @@ class MakeH5adStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
+    masterVolumeSizeInGB = 100,
     masterInstanceType = Strategy.memoryOptimized(mem = 256.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-h5ad.sh")))
   )
