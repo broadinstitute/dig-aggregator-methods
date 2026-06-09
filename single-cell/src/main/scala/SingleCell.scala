@@ -11,8 +11,6 @@ object SingleCell extends Method {
     addStage(new MakeH5adStage)
     addStage(new LigerStage)
     addStage(new TranslateLigerStage)
-    addStage(new DownsampleStage)
-    addStage(new FactorMatrixStage)
     addStage(new FactorScoringStage)
     addStage(new FactorPhewasStage)
     addStage(new TranslatePhewasStage)
