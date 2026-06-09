@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import argparse
-from boto3.session import Session
 import glob
 import json
 import os
@@ -18,24 +17,6 @@ model_to_gene_stats = {
     'mouse_msigdb_phi1': 'mouse_msigdb',
     'mouse_msigdb_phi5': 'mouse_msigdb'
 }
-
-
-class OpenAPIKey:
-    def __init__(self):
-        self.secret_id = 'openapi-key'
-        self.region = 'us-east-1'
-        self.config = None
-
-    def get_config(self):
-        if self.config is None:
-            client = Session().client('secretsmanager', region_name=self.region)
-            self.config = json.loads(client.get_secret_value(SecretId=self.secret_id)['SecretString'])
-        return self.config
-
-    def get_key(self):
-        if self.config is None:
-            self.config = self.get_config()
-        return self.config['apiKey']
 
 
 def download_files(dataset, cell_type, model):
@@ -195,7 +176,6 @@ def main():
     opts.add_argument('--model', type=str, required=True)
     args = opts.parse_args()
 
-    open_api_key = OpenAPIKey().get_key()
     download_files(args.dataset, args.cell_type, args.model)
 
     os.makedirs('staging', exist_ok=True)
