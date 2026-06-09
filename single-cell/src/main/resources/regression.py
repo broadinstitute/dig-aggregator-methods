@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 import argparse
+import glob
 import gzip
 import os
 import shutil
 import subprocess
+import zipfile
 
 downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
@@ -58,14 +60,14 @@ def get_column_labels(label_set, total_donors):
 
 def run_regressions(labels):
     for label_idx, label in enumerate(labels):
-        subprocess.check_call(f'python {downloaded_files}/donor_factor_regression.py '
-                              '--loadings input/factor_matrix_cell_loadings.tsv '
-                              '--metadata input/sample_metadata.sample.tsv.gz '
-                              f'--donor-col {DONOR_ID} '
-                              f'--phenotype-col "{label}" '
-                              '--collapse mean '
-                              '--min-cells 1 '
-                              f'--out "staging/donor_factor.{label_idx}.regression"', shell=True)
+        subprocess.check_call(['python', f'{downloaded_files}/donor_factor_regression.py',
+                              '--loadings', 'input/factor_matrix_cell_loadings.tsv',
+                              '--metadata', 'input/sample_metadata.sample.tsv.gz',
+                              '--donor-col', f'{DONOR_ID}',
+                              '--phenotype-col', f'{label}',
+                              '--collapse', 'mean',
+                              '--min-cells', '1',
+                              '--out', f'staging/donor_factor.{label_idx}.regression'])
 
 
 def combine_regressions(labels):
@@ -81,11 +83,13 @@ def combine_regressions(labels):
 
 def upload(dataset, cell_type, model):
     staging_output = f'{s3_out}/out/single_cell/staging/regression/{dataset}/{cell_type}/{model}'
-    subprocess.check_call('zip donor_factor.regression.results.zip staging/*.tsv', shell=True)
-    subprocess.check_call(f'aws s3 cp donor_factor.regression.results.zip {staging_output}/', shell=True)
+    with zipfile.ZipFile('donor_factor.regression.results.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+        for file in glob.glob('staging/*.tsv'):
+            z.write(file)
+    subprocess.check_call(['aws', 's3', 'cp', 'donor_factor.regression.results.zip', f'{staging_output}/'])
 
     output = f'{s3_out}/out/single_cell/regression/{dataset}/{cell_type}/{model}'
-    subprocess.check_call(f'aws s3 cp output/donor_factor.regression.results.tsv {output}/', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', 'output/donor_factor.regression.results.tsv', f'{output}/'])
 
 
 def main():
@@ -99,18 +103,18 @@ def main():
 
     label_set = fetch_metadata()
     labels = get_column_labels(label_set, len(label_set[DONOR_ID]))
+    if len(labels) > 0:
+        os.makedirs('staging', exist_ok=True)
+        run_regressions(labels)
 
-    os.makedirs('staging', exist_ok=True)
-    run_regressions(labels)
+        os.makedirs('output', exist_ok=True)
+        combine_regressions(labels)
 
-    os.makedirs('output', exist_ok=True)
-    combine_regressions(labels)
-
-    upload(args.dataset, args.cell_type, args.model)
+        upload(args.dataset, args.cell_type, args.model)
+        shutil.rmtree('staging')
+        shutil.rmtree('output')
+        os.remove('donor_factor.regression.results.zip')
     shutil.rmtree('input')
-    shutil.rmtree('staging')
-    shutil.rmtree('output')
-    os.remove('donor_factor.regression.results.zip')
 
 
 if __name__ == '__main__':

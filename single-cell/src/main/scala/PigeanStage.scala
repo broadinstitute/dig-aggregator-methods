@@ -8,7 +8,8 @@ class PigeanStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-pigean.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-pigean.sh"))),
+    stepConcurrency = 4
   )
 
   val factorMatrix: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/*/factor_matrix_gene_probs.tsv")
