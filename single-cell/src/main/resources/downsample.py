@@ -53,8 +53,9 @@ def get_cells():
 def write_metadata(cell_type_cells):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/sample_metadata.sample.tsv.gz', 'wt') for cell_type in cell_type_cells}
     with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f:
+        header = f.readline()
         for f_out in f_outs.values():
-            f_out.write(f.readline())
+            f_out.write(header)
         for line in f:
             cell, _ = line.strip().split('\t', 1)
             for cell_type, cells in cell_type_cells.items():
@@ -80,6 +81,7 @@ def write_lognorm_counts(cell_type_cells):
                 f_out.write(f'{stripped_line}\n')
     for f_out in f_outs.values():
         f_out.close()
+
 
 def upload(dataset):
     subprocess.check_call(f'aws s3 rm "{s3_out}/out/single_cell/staging/downsample/{dataset}/" --recursive', shell=True)
