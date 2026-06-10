@@ -18,7 +18,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   val projectAnnotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/combined_ld/*/*/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(sumstats, portalAnnotations, projectAnnotations)
+  override val sources: Seq[Input.Source] = Seq(sumstats, portalAnnotations)
 
   var allPhenotypeAncestries: Set[PartitionedHeritabilityPhenotype] = Set()
   lazy val phenotypeMap: Map[String, Set[String]] = allPhenotypeAncestries.groupBy(_.ancestry).map {
@@ -33,8 +33,8 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
     case (subRegion, regions) => subRegion -> regions.map(_.region)
   }
   lazy val annotationMap: Map[String, Map[String, Set[String]]] = Map(
-    //"portal" -> allPortalAnnotationMap,
-    context.project -> allProjectAnnotationMap
+    "portal" -> allPortalAnnotationMap,
+    //context.project -> allProjectAnnotationMap
   )
 
   // TODO: At the moment this will always rerun everything which isn't ideal
@@ -42,13 +42,10 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
     case sumstats(phenotype, ancestry, _) =>
       allPhenotypeAncestries ++= Set(PartitionedHeritabilityPhenotype(phenotype, ancestry.split('=').last))
       Outputs.Named(ancestry.split('=').last)
-    case projectAnnotations(_, subRegion, region) => if (context.project != "portal") {
-      allProjectAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
-      Outputs.All
-    } else Outputs.Null
-    case portalAnnotations(_, subRegion, region) =>
+    case portalAnnotations(_, subRegion, region) if !region.startsWith("uniform") =>
       allPortalAnnotations ++= Set(PartitionedHeritabilityRegion(subRegion, region))
       Outputs.All
+    case _ => Outputs.Null
   }
 
   /** Just need a single machine with no applications, but a good drive. */
