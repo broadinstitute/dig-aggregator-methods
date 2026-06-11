@@ -58,8 +58,8 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
         resourceUri("downloadAnnotFiles.py"), s"--input-path=s3://${context.s3.path}", s"--project=${context.project}"
       )
     ),
-    masterInstanceType = Strategy.generalPurpose(vCPUs = 16),
-    masterVolumeSizeInGB = 100
+    masterInstanceType = Strategy.generalPurpose(vCPUs = 32),
+    masterVolumeSizeInGB = 200
   )
 
   override def make(ancestry: String): Job = {
