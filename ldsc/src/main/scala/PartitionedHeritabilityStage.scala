@@ -18,7 +18,7 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
   val projectAnnotations: Input.Source = Input.Source.Success(s"out/ldsc/regions/combined_ld/*/*/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(sumstats, portalAnnotations)
+  override val sources: Seq[Input.Source] = Seq(sumstats, projectAnnotations)
 
   var allPhenotypeAncestries: Set[PartitionedHeritabilityPhenotype] = Set()
   lazy val phenotypeMap: Map[String, Set[String]] = allPhenotypeAncestries.groupBy(_.ancestry).map {
@@ -33,8 +33,8 @@ class PartitionedHeritabilityStage(implicit context: Context) extends Stage {
     case (subRegion, regions) => subRegion -> regions.map(_.region)
   }
   lazy val annotationMap: Map[String, Map[String, Set[String]]] = Map(
-    "portal" -> allPortalAnnotationMap,
-    //context.project -> allProjectAnnotationMap
+    //"portal" -> allPortalAnnotationMap,
+    context.project -> allPortalAnnotationMap
   )
 
   // TODO: At the moment this will always rerun everything which isn't ideal
