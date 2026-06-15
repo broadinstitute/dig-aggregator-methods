@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.emr._
  * outputs are to the dig-bio-index bucket in S3.
  */
 class HistoricalTopAssociationsStage(implicit context: Context) extends Stage {
-  val bioindexNames: Seq[String] = Seq("dig-bio-index-20260325024233", "dig-bio-index")
+  val bioindexNames: Seq[String] = Seq("dig-bio-index-20251011144019", "dig-bio-index-20260325024233", "dig-bio-index-20260604230320", "dig-bio-index")
   val buckets: Seq[S3.Bucket] = bioindexNames.map(bioindexName => new S3.Bucket(bioindexName, None))
   val transEthnic: Seq[Input.Source] = buckets.map { bucket =>
     Input.Source.Success("associations/global/trans-ethnic/", s3BucketOverride = Some(bucket))
