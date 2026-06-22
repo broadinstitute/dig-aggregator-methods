@@ -18,8 +18,12 @@ sudo aws s3 cp s3://dig-analysis-bin/single-cell/scoring/ . --recursive
 
 sudo yum -y install git
 sudo git clone https://github.com/flannick/pigean.git
-sudo git clone https://github.com/flannick/dig-cell-state-scoring.git
+sudo aws s3 cp s3://psmadbec-test/scoring.zip .
+sudo unzip scoring.zip
+#sudo git clone https://github.com/flannick/dig-cell-state-scoring.git
 
 # install dependencies
 sudo pip3.11 install numpy
 sudo pip3.11 install scipy
+sudo pip3.11 install pandas
+sudo pip3.11 install pyyaml
