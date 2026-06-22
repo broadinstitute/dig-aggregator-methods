@@ -10,11 +10,11 @@ class LigerStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    masterInstanceType = Strategy.memoryOptimized(mem=128.gb),
+    masterInstanceType = Strategy.memoryOptimized(),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-liger.sh")))
   )
 
-  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/h5ad/*/*.h5ad")
+  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/h5ad/*/*/data.h5ad")
 
   override val sources: Seq[Input.Source] = Seq(singleCell)
 

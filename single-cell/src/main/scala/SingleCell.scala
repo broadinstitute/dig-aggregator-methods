@@ -8,10 +8,11 @@ object SingleCell extends Method {
 
   override def initStages(implicit context: Context) = {
     addStage(new GenerateLigerBootstrapStage)
+    addStage(new DownsampleStage)
     addStage(new MakeH5adStage)
     addStage(new LigerStage)
     addStage(new TranslateLigerStage)
-    addStage(new FactorScoringStage)
+    addStage(new CellStateScoringStage)
     addStage(new FactorPhewasStage)
     addStage(new TranslatePhewasStage)
     addStage(new RegressionStage)
