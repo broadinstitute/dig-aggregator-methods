@@ -9,7 +9,7 @@
         },
         "bioindex": {
             "bucket": "dig-analysis-matkp",
-            "subdir": "bioindex"
+            "subdir": "bioindex-dev"
         },
         "emr": {
             "subnetIds": [
