@@ -29,6 +29,7 @@ object Pigean extends Method {
     addStage(new MakeSumstatsStage)
     addStage(new ExomeIntakeStage)
     addStage(new PigeanStage)
+    addStage(new BetasStage)
     addStage(new TranslatePigeanStage)
     addStage(new FactorPigeanStage)
     addStage(new TranslateFactorStage)
