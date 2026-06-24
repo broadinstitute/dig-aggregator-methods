@@ -14,15 +14,21 @@ class CellStateScoringStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-scoring.sh")))
   )
 
-  val singleCell: Input.Source = Input.Source.Raw("single_cell/*/dataset_metadata.json")
+  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/downsample/*/*/*")
 
   override val sources: Seq[Input.Source] = Seq(singleCell)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case singleCell(dataset) => Outputs.Named(dataset)
+    case singleCell(dataset, cellType, _) => Outputs.Named(s"$dataset/$cellType")
   }
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("cellStateScoring.py"), s"--dataset=$output"))
+    val flags: Seq[String] = output.split("/").toSeq match {
+      case Seq(dataset, cellType) =>
+        Seq(
+          s"--dataset=$dataset",
+          s"--cell-type=$cellType")
+    }
+    new Job(Job.Script(resourceUri("cellStateScoring.py"), flags:_*))
   }
 }

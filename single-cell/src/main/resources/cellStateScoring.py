@@ -12,23 +12,40 @@ dataset_to_tissue = {
     'FNIH_Kidney_scRNA_v2.2': 'kidney'
 }
 
+
+def download(dataset, cell_type):
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/raw_counts.sample.tsv.gz', 'inputs/']
+    subprocess.check_call(cmd)
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/sample_metadata.sample.tsv.gz', 'inputs/']
+    subprocess.check_call(cmd)
+
+sample_metadata_cmd = [
+    'METADATA=inputs/sample_metadata.sample.tsv.gz',
+    'CELL_ID_COL=ID',
+    'TISSUE_COL=tissue__ontology_label',  # Will need to fix
+    'CELL_TYPE_COL=cell_type__kp',
+    'DONOR_COL=donor_id',
+    'SAMPLE_COL=biosample_id',
+    'MAP_ID_COL=DI:Dataset',
+]
+
+
 def run_dataset(dataset):
     cmd = [
         'PYTHON_CMD=python3.11',
         'TISSUE_ROOT=tissue_data',
         f'TISSUE_ID={dataset_to_tissue[dataset]}',
-        'EXPRESSION_TSV=inputs/norm_counts.tsv.gz',
-        'EXPRESSION_VALUE_TYPE=auto',
-        'METADATA=inputs/sample_metadata.tsv.gz',
-        f'STATES_GMT={downloaded_files}/dig-cell-state-scoring/dat/${dataset_to_tissue[dataset]}/${dataset_to_tissue[dataset]}_cell_state_markers.gmt',
+        'EXPRESSION_TSV=inputs/raw_counts.sample.tsv.gz',
+        'EXPRESSION_VALUE_TYPE=raw_counts',
+        f'STATES_GMT={downloaded_files}/dig-cell-state-scoring/dat/{dataset_to_tissue[dataset]}/{dataset_to_tissue[dataset]}_cell_state_markers.gmt',
         f'STATE_MANIFEST={downloaded_files}/dig-cell-state-scoring/dat/api/curated_cell_state_manifest.tsv',
         f'QC_GMT={downloaded_files}/dig-cell-state-scoring/dat/qc/cmdkp_all_tissues_minimal_bad_cell_qc_signatures.gmt',
         f'PIGEAN_PYTHONPATH={downloaded_files}/pigean/src',
         f'PIGEAN_MULTI_Y_IN={downloaded_files}/gs_mouse_msigdb.tsv',
         f'PIGEAN_GENE_UNIVERSE={downloaded_files}/NCBI37.3.plink.gene.loc',
-        f'{downloaded_files}/dig-cell-state-scoring/scripts/run_tissue_api_data_pipeline.sh'
     ]
-    subprocess.check_call(cmd)
+    output = [f'{downloaded_files}/dig-cell-state-scoring/scripts/run_tissue_api_data_pipeline.sh']
+    subprocess.check_call(cmd + sample_metadata_cmd + output)
 
 # Steps
 # 1. Downsample (5000 total, or max(5000) per cell_type) - output h5ad file for Liger and the intermediate mtx files for scoring, also normalized metadata file
@@ -44,7 +61,10 @@ def run_dataset(dataset):
 def main():
     opts = argparse.ArgumentParser()
     opts.add_argument('--dataset', type=str, required=True)
+    opts.add_argument('--cell-type', type=str, required=True)
     args = opts.parse_args()
+
+    download(args.dataset, args.cell_type)
 
     import time
     time.sleep(10*3600)
