@@ -40,8 +40,7 @@ gs_commands = ['--gene-stats-in', os.path.abspath('gs.out'),
                '--gene-stats-id-col', 'Gene',
                '--gene-stats-combined-col', 'combined',
                '--gene-stats-log-bf-col', 'log_bf',
-               '--gene-stats-prior-col', 'prior',
-               '--gene-stats-prob-col', ''
+               '--gene-stats-prior-col', 'prior'
                ]
 
 
