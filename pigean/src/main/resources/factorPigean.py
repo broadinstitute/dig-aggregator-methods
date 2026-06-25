@@ -42,55 +42,35 @@ def download_data(trait_group, phenotype, gene_set_size):
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', '.'])
 
 
-def download_combined_data(gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/combined'
-    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gs_{gene_set_size}.tsv', 'combined/'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss_{gene_set_size}.tsv', 'combined/'])
-
-
 def get_gene_sets(gene_set_size):
     models, gene_sets = get_model_data()
     model_info = models[gene_set_size]
     inputs = []
-    p_infs = []
     for gene_set in model_info['gene_sets']:
         gene_set_info = gene_sets[gene_set]
         if gene_set_info['type'] == 'set':
             inputs += ['--X-in', f'{downloaded_files}/{gene_set_info["file"]}']
         else:
             inputs += ['--X-list', f'{downloaded_files}/{gene_set_info["name"]}/{gene_set_info["file"]}']
-        p_infs += ['--p-noninf', str(gene_set_info['p-inf'])]
     if len(inputs) > 0:
-        return inputs + p_infs
+        return inputs
     else:
         raise Exception(f'Invalid gene set size {gene_set_size}')
 
 
 def run_factor(gene_set_size, phi, openapi_key):
     cmd = [
-              'python3', f'{downloaded_files}/priors-251215-mod.py', 'factor',
-              '--phi', f'0.0{phi}',
-              '--gene-set-stats-in', 'gss.out',
-              '--gene-stats-in', 'gs.out',
-              '--gene-map-in', f'{downloaded_files}/gencode.gene.map',
-              '--gene-set-phewas-stats-in', f'combined/gss_{gene_set_size}.tsv',
-              '--gene-set-phewas-stats-id-col', 'gene_set',
-              '--gene-set-phewas-stats-pheno-col', 'trait',
-              '--gene-phewas-stats-in', f'combined/gs_{gene_set_size}.tsv',
-              '--run-phewas-from-gene-phewas-stats-in', f'combined/gs_{gene_set_size}.tsv',
-              '--gene-phewas-bfs-id-col', 'gene',
-              '--gene-phewas-bfs-pheno-col', 'trait',
-              '--gene-phewas-bfs-combined-col', 'combined',
-              '--gene-phewas-bfs-log-bf-col', 'log_bf',
-              '--max-num-gene-sets', '5000',
-              '--phewas-stats-out', 'phs.out',
+              'python3.11', '-m', 'eaggl', 'factor',
+              '--learn-phi',
+              '--gene-set-stats-in', 'gss.out', # need combine
+              '--gene-stats-in', 'gs.out', # base model
+              '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
+              '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
               '--factors-out', 'f.out',
               '--gene-clusters-out', 'gc.out',
-              '--pheno-clusters-out', 'pc.out',
               '--gene-set-clusters-out', 'gsc.out',
               '--params-out', 'p.out'
-          ] + get_gene_sets(gene_set_size) + \
-          (['--lmm-auth-key', openapi_key] if openapi_key is not None else [])
+          ] + get_gene_sets(gene_set_size)
     subprocess.check_call(cmd)
 
 
@@ -117,8 +97,6 @@ def main():
                         help="Input phenotype.")
     parser.add_argument('--gene-set-size', default=None, required=True, type=str,
                         help="gene-set-size (e.g. small)")
-    parser.add_argument('--phi', default=None, required=True, type=str,
-                        help="phi (e.g. 3 corresponding to 0.03).")
     args = parser.parse_args()
 
     open_api_key = OpenAPIKey().get_key()
