@@ -79,6 +79,7 @@ def upload(file_name, file_path):
 
 def upload_data(trait_group, phenotype, gene_set_size):
     file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
+    upload('outputs/p.out', file_path)
     upload('outputs/gs.out', file_path)
     upload('outputs/gss.out', file_path)
     upload('outputs/ggss.out', file_path)
