@@ -11,7 +11,6 @@ class BetasStage(implicit context: Context) extends Stage {
   val geneSetSizes = Seq("cfde-inc")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
     instances = 1,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
     stepConcurrency = 10
