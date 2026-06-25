@@ -16,7 +16,7 @@ def get_model_data():
 
 
 def download_data(trait_group, phenotype):
-    model_input = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/gs.out'
+    model_input = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/mouse_msigdb/gs.out'
     subprocess.check_call(['aws', 's3', 'cp', model_input, '.'])
 
 
