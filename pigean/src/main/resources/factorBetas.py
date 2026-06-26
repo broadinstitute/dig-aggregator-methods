@@ -35,30 +35,46 @@ def get_model_data():
     return ({model['name']: model for model in models['models']},
             {gene_set['name']: gene_set for gene_set in models['gene_sets']})
 
+def combine_gss():
+    if not os.path.exists('gss.out'):
+        os.rename('gss.baseline.out', 'gss.combined.out')
+    else:
+        with open('gss.combined.out', 'w') as f_out:
+            for file_in in ['gss.out', 'gss.baseline.out']:
+                with open(file_in, 'r') as f_in:
+                    header = f_in.readline()
+                    if file_in == 'gss.out':
+                        f_out.write(header)
+                    for line in f_in:
+                        f_out.write(line)
+        os.remove('gss.out')
+        os.remove('gss.baseline.out')
+
 
 def download_data(trait_group, phenotype, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}'
-    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gs.out', '.'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', '.'])
+    if gene_set_size != 'mouse_msigdb':
+        file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}'
+        subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', '.'])
+    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/mouse_msigdb'
+    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gs.out', 'gs.baseline.out'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', 'gss.baseline.out'])
+    combine_gss()
 
 
 def get_gene_sets(gene_set_size):
     models, gene_sets = get_model_data()
     model_info = models[gene_set_size]
     inputs = []
-    p_infs = []
     for gene_set in model_info['gene_sets']:
         gene_set_info = gene_sets[gene_set]
         if gene_set_info['type'] == 'set':
             inputs += ['--X-in', f'{downloaded_files}/{gene_set_info["file"]}']
         else:
             inputs += ['--X-list', f'{downloaded_files}/{gene_set_info["name"]}/{gene_set_info["file"]}']
-        p_infs += ['--p-noninf', str(gene_set_info['p-inf'])]
     if len(inputs) > 0:
-        return inputs + p_infs
+        return inputs
     else:
         raise Exception(f'Invalid gene set size {gene_set_size}')
-
 
 def open_ai_cmd(openapi_key):
     if openapi_key is not None:
@@ -71,8 +87,8 @@ def run_factor(gene_set_size, openapi_key):
     cmd = [
               'python3.11', '-m', 'eaggl', 'factor',
               '--learn-phi',
-              '--gene-set-stats-in', os.path.abspath('gss.out'),
-              '--gene-stats-in', os.path.abspath('gs.out'),
+              '--gene-set-stats-in', os.path.abspath('gss.combined.out'),
+              '--gene-stats-in', os.path.abspath('gs.baseline.out'),
               '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
               '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
               '--factors-out', os.path.abspath('f.out'),
@@ -89,8 +105,8 @@ def success(file_path):
     os.remove('_SUCCESS')
 
 
-def upload_data(trait_group, phenotype, gene_set_size, phi):
-    file_path = f'{s3_out}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}___phi{phi}/'
+def upload_data(trait_group, phenotype, gene_set_size):
+    file_path = f'{s3_out}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}/'
     for file in ['phs.out', 'f.out', 'gc.out', 'pc.out', 'gsc.out', 'p.out']:
         if os.path.exists(file):
             subprocess.check_call(['aws', 's3', 'cp', file, file_path])
@@ -112,11 +128,11 @@ def main():
     download_data(args.trait_group, args.phenotype, args.gene_set_size)
     try:
         run_factor(args.gene_set_size, open_api_key)
-        upload_data(args.trait_group, args.phenotype, args.gene_set_size, args.phi)
+        upload_data(args.trait_group, args.phenotype, args.gene_set_size)
     except Exception:
         print('Error')
-    os.remove('gs.out')
-    os.remove('gss.out')
+    os.remove('gs.baseline.out')
+    os.remove('gss.combined.out')
 
 
 if __name__ == '__main__':
