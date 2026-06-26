@@ -39,14 +39,17 @@ def combine_gss():
     if not os.path.exists('gss.out'):
         os.rename('gss.baseline.out', 'gss.combined.out')
     else:
+        with open('gss.out', 'r') as f:
+            output_header = f.readline().strip().split('\t')
         with open('gss.combined.out', 'w') as f_out:
+            f_out.write('{}\n'.format('\t'.join(output_header)))
             for file_in in ['gss.out', 'gss.baseline.out']:
                 with open(file_in, 'r') as f_in:
-                    header = f_in.readline()
-                    if file_in == 'gss.out':
-                        f_out.write(header)
+                    header = f_in.readline().strip().split('\t')
                     for line in f_in:
-                        f_out.write(line)
+                        line_dict = dict(zip(header, line.strip().split('\t')))
+                        line_dict['filter_reason'] = line_dict.get('filter_reason', '')
+                        f_out.write('{}\n'.format('\t'.join([line_dict[key] for key in output_header])))
         os.remove('gss.out')
         os.remove('gss.baseline.out')
 
