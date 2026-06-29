@@ -36,9 +36,11 @@ def get_model_data():
             {gene_set['name']: gene_set for gene_set in models['gene_sets']})
 
 def combine_gss():
-    if not os.path.exists('gss.out'):
+    if not os.path.exists('gss.out') and os.path.exists('gss.baseline.out'):
         os.rename('gss.baseline.out', 'gss.combined.out')
-    else:
+    elif os.path.exists('gss.out') and not os.path.exists('gss.baseline.out'):
+        os.rename('gss.out', 'gss.combined.out')
+    elif os.path.exists('gss.out') and os.path.exists('gss.baseline.out'):
         with open('gss.out', 'r') as f:
             output_header = f.readline().strip().split('\t')
         with open('gss.combined.out', 'w') as f_out:
@@ -54,13 +56,19 @@ def combine_gss():
         os.remove('gss.baseline.out')
 
 
+def check_file(file_in):
+    return subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0
+
+
 def download_data(trait_group, phenotype, gene_set_size):
+    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}'
     if gene_set_size != 'mouse_msigdb':
-        file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}'
-        subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', '.'])
-    file_path = f'{s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/mouse_msigdb'
-    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gs.out', 'gs.baseline.out'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gss.out', 'gss.baseline.out'])
+        if check_file(f'{file_path}/{gene_set_size}/gss.out'):
+            subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/{gene_set_size}/gss.out', '.'])
+    if check_file(f'{file_path}/mouse_msigdb/gs.out'):
+        subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/mouse_msigdb/gs.out', 'gs.baseline.out'])
+    if check_file(f'{file_path}/mouse_msigdb/gss.out'):
+        subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/mouse_msigdb/gss.out', 'gss.baseline.out'])
     combine_gss()
 
 
@@ -129,13 +137,16 @@ def main():
 
     open_api_key = OpenAPIKey().get_key()
     download_data(args.trait_group, args.phenotype, args.gene_set_size)
-    try:
-        run_factor(args.gene_set_size, open_api_key)
-        upload_data(args.trait_group, args.phenotype, args.gene_set_size)
-    except Exception:
-        print('Error')
-    os.remove('gs.baseline.out')
-    os.remove('gss.combined.out')
+    if os.path.exists('gss.combined.out') and os.path.exists('gs.baseline.out'):
+        try:
+            run_factor(args.gene_set_size, open_api_key)
+            upload_data(args.trait_group, args.phenotype, args.gene_set_size)
+        except Exception:
+            print('Error')
+    if os.path.exists('gs.baseline.out'):
+        os.remove('gs.baseline.out')
+    if os.path.exists('gss.combined.out'):
+        os.remove('gss.combined.out')
 
 
 if __name__ == '__main__':
