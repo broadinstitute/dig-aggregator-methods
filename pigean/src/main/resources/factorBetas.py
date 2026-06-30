@@ -74,14 +74,15 @@ def download_data(trait_group, phenotype, gene_set_size):
 
 def get_gene_sets(gene_set_size):
     models, gene_sets = get_model_data()
-    model_info = models[gene_set_size]
+    model_infos = [models[gene_set_size]] if gene_set_size == 'mouse_msigdb' else [models[gene_set_size], models['mouse_msigdb']]
     inputs = []
-    for gene_set in model_info['gene_sets']:
-        gene_set_info = gene_sets[gene_set]
-        if gene_set_info['type'] == 'set':
-            inputs += ['--X-in', f'{downloaded_files}/{gene_set_info["file"]}']
-        else:
-            inputs += ['--X-list', f'{downloaded_files}/{gene_set_info["name"]}/{gene_set_info["file"]}']
+    for model_info in model_infos:
+        for gene_set in model_info['gene_sets']:
+            gene_set_info = gene_sets[gene_set]
+            if gene_set_info['type'] == 'set':
+                inputs += ['--X-in', f'{downloaded_files}/{gene_set_info["file"]}']
+            else:
+                inputs += ['--X-list', f'{downloaded_files}/{gene_set_info["name"]}/{gene_set_info["file"]}']
     if len(inputs) > 0:
         return inputs
     else:
