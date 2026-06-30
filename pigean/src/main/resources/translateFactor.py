@@ -7,14 +7,13 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-# Temp bodge
-idxs = {'gc.out': 7, 'gsc.out': 6}
-def get_factors(filename):
-    if filename in idxs:
-        with open(filename, 'r') as f:
-            return f.readline().strip().split('\t')[idxs[filename]:]
-    else:
-        return []
+def get_factors():
+    factors = []
+    with open('f.out', 'r') as f:
+        _ = f.readline()
+        for line in f:
+            factors.append(line.strip().split('\t', 1)[0])
+    return factors
 
 
 def download_data(trait_group, phenotype, file_name, gene_set_size):
@@ -36,8 +35,8 @@ def translate_f(json_line, trait_group, phenotype, gene_set_size, factors):
         f'"label": "{json_line["label"]}", '
         f'"top_genes": "{json_line["top_genes"].replace(",", ";")}", '
         f'"top_gene_sets": "{json_line["top_gene_sets"].replace(",", ";")}", '
-        f'"gene_score": {json_line["gene_score"]}, '
-        f'"gene_set_score": {json_line["gene_set_score"]}, '
+        f'"anchor_any_joint": {json_line["anchor_any_joint"]}, '
+        f'"anchor_any_marginal": {json_line["anchor_any_marginal"]}, '
         f'"trait_group": "{trait_group}", '
         f'"phenotype": "{phenotype}", '
         f'"gene_set_size": "{gene_set_size}"}}\n'
@@ -81,7 +80,7 @@ def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
 
 def translate(trait_group, phenotype, gene_set_size, data_type, file_name, line_fnc):
     download_data(trait_group, phenotype, file_name, gene_set_size)
-    factors = get_factors(file_name)
+    factors = get_factors()
     with open(f'{data_type}.json', 'w') as f_out:
         with open(file_name, 'r') as f_in:
             header = f_in.readline().strip().split('\t')

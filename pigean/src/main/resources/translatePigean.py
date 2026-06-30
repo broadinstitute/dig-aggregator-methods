@@ -6,6 +6,7 @@ import subprocess
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
+# need
 def get_gene_set_data_map():
     subprocess.check_call('aws s3 cp s3://dig-analysis-bin/pigean/misc/gene_set_map.tsv .', shell=True)
     out = {}
@@ -36,12 +37,10 @@ def make_option(value):
 
 def translate_gs(json_line, trait_group, phenotype, gene_set_size):
     combined = make_option(json_line["combined"])
-    huge_score = json_line["huge_score_gwas"] if 'huge_score_gwas' in json_line else json_line["positive_control"]
     if combined is not None:
         return f'{{"gene": "{json_line["Gene"]}", ' \
                f'"prior": {make_option(json_line["prior"])}, ' \
                f'"combined": {combined}, ' \
-               f'"huge_score": {make_option(huge_score)}, ' \
                f'"log_bf": {make_option(json_line["log_bf"])}, ' \
                f'"n": {make_option(json_line["N"])}, ' \
                f'"trait_group": "{trait_group}", ' \
@@ -54,8 +53,8 @@ def get_translate_gss():
     def translate_gss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
         beta_uncorrected = make_option(json_line["beta_uncorrected"])
-        if beta is not None and beta_uncorrected is not None and float(beta_uncorrected) != 0.0:
-            description, program = gene_set_data_map[json_line["Gene_Set"]]
+        if beta != 'null' and beta_uncorrected != 'null' and float(beta_uncorrected) != 0.0:
+            description, program = gene_set_data_map.get(json_line["Gene_Set"], json_line["Gene_Set"])
             return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
                    f'"gene_set_description": "{description}", ' \
                    f'"gene_set_program": "{program}", ' \
@@ -75,7 +74,7 @@ def get_translate_ggss(trait_group, phenotype, gene_set_size):
     def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
         combined = make_option(json_line["combined"])
-        if beta is not None and combined is not None:
+        if beta != 'null' and combined != 'null':
             beta_uncorrected = beta_uncorrected_map.get((phenotype, json_line['gene_set']), '0.0')
             source = source_map[(phenotype, json_line['gene_set'])]
             description, program = gene_set_data_map[json_line["gene_set"]]
