@@ -7,18 +7,20 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def get_factors():
+def download_data(trait_group, phenotype, file_name, gene_set_size):
+    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}/{file_name}'
+    subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
+
+
+def get_factors(trait_group, phenotype, gene_set_size):
+    download_data(trait_group, phenotype, 'f.out', gene_set_size)
     factors = []
     with open('f.out', 'r') as f:
         _ = f.readline()
         for line in f:
             factors.append(line.strip().split('\t', 1)[0])
+    os.remove('f.out')
     return factors
-
-
-def download_data(trait_group, phenotype, file_name, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}/{file_name}'
-    subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
 
 def upload_data(trait_group, phenotype, data_type, gene_set_size):
@@ -78,9 +80,8 @@ def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
     return out
 
 
-def translate(trait_group, phenotype, gene_set_size, data_type, file_name, line_fnc):
+def translate(trait_group, phenotype, gene_set_size, data_type, file_name, factors, line_fnc):
     download_data(trait_group, phenotype, file_name, gene_set_size)
-    factors = get_factors()
     with open(f'{data_type}.json', 'w') as f_out:
         with open(file_name, 'r') as f_in:
             header = f_in.readline().strip().split('\t')
@@ -109,9 +110,10 @@ def main():
                         help="gene-set-size (small, medium, or large).")
     args = parser.parse_args()
 
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'factor', 'f.out', translate_f)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_factor', 'gc.out', translate_gc)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_factor', 'gsc.out', translate_gsc)
+    factors = get_factors(args.trait_group, args.phenotype, args.gene_set_size)
+    translate(args.trait_group, args.phenotype, args.gene_set_size, 'factor', 'f.out', factors, translate_f)
+    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_factor', 'gc.out', factors, translate_gc)
+    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_factor', 'gsc.out', factors, translate_gsc)
 
 
 if __name__ == '__main__':

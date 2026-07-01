@@ -54,7 +54,7 @@ def get_translate_gss():
         beta = make_option(json_line["beta"])
         beta_uncorrected = make_option(json_line["beta_uncorrected"])
         if beta != 'null' and beta_uncorrected != 'null' and float(beta_uncorrected) != 0.0:
-            description, program = gene_set_data_map.get(json_line["Gene_Set"], json_line["Gene_Set"])
+            description, program = gene_set_data_map.get(json_line["Gene_Set"], (json_line["Gene_Set"], json_line["label"]))
             return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
                    f'"gene_set_description": "{description}", ' \
                    f'"gene_set_program": "{program}", ' \
@@ -77,7 +77,7 @@ def get_translate_ggss(trait_group, phenotype, gene_set_size):
         if beta != 'null' and combined != 'null':
             beta_uncorrected = beta_uncorrected_map.get((phenotype, json_line['gene_set']), '0.0')
             source = source_map[(phenotype, json_line['gene_set'])]
-            description, program = gene_set_data_map[json_line["gene_set"]]
+            description, program = gene_set_data_map.get(json_line["gene_set"], (json_line["gene_set"], source))
             return f'{{"gene": "{json_line["Gene"]}", ' \
                    f'"gene_set": "{json_line["gene_set"]}", ' \
                    f'"gene_set_description": "{description}", ' \
