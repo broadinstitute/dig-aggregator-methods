@@ -3,6 +3,7 @@ import argparse
 import os
 import subprocess
 
+downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
