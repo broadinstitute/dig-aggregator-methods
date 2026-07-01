@@ -8,13 +8,11 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 def get_gene_set_data_map():
-    subprocess.check_call(['aws', 's3', 'cp', 's3://dig-analysis-bin/pigean/misc/gene_set_map.tsv', '.'])
     out = {}
-    with open('gene_set_map.tsv', 'r') as f:
+    with open(f'{downloaded_files}/gene_set_map.tsv', 'r') as f:
         for line in f:
             gene_set, gene_set_description, program = line.strip().split('\t')
             out[gene_set] = (gene_set_description, program)
-    os.remove('gene_set_map.tsv')
     return out
 
 

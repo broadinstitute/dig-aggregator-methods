@@ -32,19 +32,20 @@ def get_rs_score(beta_uncorrected, rs_score_fnc):
     return left_rs + m * (beta_uncorrected - left_thresh)
 
 
-# Temp bodge
-idxs = {'gc.out': 7, 'gsc.out': 6}
-def get_factors(filename):
-    if filename in idxs:
-        with open(filename, 'r') as f:
-            return f.readline().strip().split('\t')[idxs[filename]:]
-    else:
-        return []
-
-
 def download_data(trait_group, phenotype, file_name, gene_set_size):
     file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}/{file_name}'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
+
+
+def get_factors(trait_group, phenotype, gene_set_size):
+    download_data(trait_group, phenotype, 'f.out', gene_set_size)
+    factors = []
+    with open('f.out', 'r') as f:
+        _ = f.readline()
+        for line in f:
+            factors.append(line.strip().split('\t', 1)[0])
+    os.remove('f.out')
+    return factors
 
 
 def upload_data(trait_group, phenotype, data_type, gene_set_size):
@@ -62,7 +63,8 @@ def translate_f(json_line, trait_group, phenotype, gene_set_size, factors):
         f'"top_genes": "{json_line["top_genes"].replace(",", ";")}", '
         f'"top_gene_sets": "{json_line["top_gene_sets"].replace(",", ";")}", '
         f'"lambda": {json_line["lambda"]}, '
-        f'"any_relevance": {json_line["any_relevance"]}, '
+        f'"anchor_any_joint": {json_line["anchor_any_joint"]}, '
+        f'"anchor_any_marginal": {json_line["anchor_any_marginal"]}, '
         f'"trait_group": "{trait_group}", '
         f'"phenotype": "{phenotype}", '
         f'"gene_set_size": "{gene_set_size}"}}\n'
@@ -113,10 +115,8 @@ def get_translate_gsc():
     return translate_gsc
 
 
-def translate(trait_group, phenotype, model, data_type, file_name, line_fnc):
-    gene_set_size, phi = model.split('___')
-    download_data(trait_group, phenotype, file_name, model)
-    factors = get_factors(file_name)
+def translate(trait_group, phenotype, gene_set_size, data_type, file_name, factors, line_fnc):
+    download_data(trait_group, phenotype, file_name, gene_set_size)
     with open(f'{data_type}.json', 'w') as f_out:
         with open(file_name, 'r') as f_in:
             header = f_in.readline().strip().split('\t')
@@ -142,12 +142,13 @@ def main():
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
     parser.add_argument('--model', default=None, required=True, type=str,
-                        help="model (model___phiN).")
+                        help="model")
     args = parser.parse_args()
 
-    translate(args.trait_group, args.phenotype, args.model, 'factor', 'f.out', translate_f)
-    translate(args.trait_group, args.phenotype, args.model, 'gene_factor', 'gc.out', translate_gc)
-    translate(args.trait_group, args.phenotype, args.model, 'gene_set_factor', 'gsc.out', get_translate_gsc())
+    factors = get_factors(args.trait_group, args.phenotype, args.model)
+    translate(args.trait_group, args.phenotype, args.model, 'factor', 'f.out', factors, translate_f)
+    translate(args.trait_group, args.phenotype, args.model, 'gene_factor', 'gc.out', factors, translate_gc)
+    translate(args.trait_group, args.phenotype, args.model, 'gene_set_factor', 'gsc.out', factors, get_translate_gsc())
 
 
 if __name__ == '__main__':
