@@ -10,8 +10,8 @@
             "subdir": "catalog_v2"
         },
         "bioindex": {
-            "bucket": "dig-analysis-cfde",
-            "subdir": "bioindex-dev/catalog_v2"
+            "bucket": "dig-analysis-private",
+            "subdir": "cfde-inc-test"
         },
         "emr": {
             "subnetIds": [
