@@ -8,6 +8,7 @@ class TranslateFactorStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
+    stepConcurrency = 5,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("translate-bootstrap.sh")))
   )
 
