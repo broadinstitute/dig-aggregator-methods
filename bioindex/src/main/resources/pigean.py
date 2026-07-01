@@ -10,8 +10,6 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 
 outdir = f'{s3_bioindex}/pigean/{{}}/{{}}'
 
-clean = udf(lambda s: s.replace(',', ';').encode('utf-8').decode('ascii', errors='ignore'))
-
 def attach_max_values(df, fields):
     max_values = df \
         .select('phenotype', 'gene_set_size', *fields) \
@@ -45,7 +43,6 @@ def gene(spark):
 
     df = spark.read.json(srcdir)
     df = df.filter(df.gene.isNotNull())
-    df = df.withColumn('gene', clean(df.gene))
     bioindex(df, 'gene', bioindices, ['prior', 'combined', 'log_bf'])
 
 
@@ -58,7 +55,6 @@ def gene_set(spark):
 
     df = spark.read.json(srcdir)
     df = df.filter(df.gene_set.isNotNull())
-    df = df.withColumn('gene_set', clean(df.gene_set))
     bioindex(df, 'gene_set', bioindices, ['beta', 'beta_uncorrected'])
 
 
@@ -67,15 +63,12 @@ def gene_set_source(spark):
 
     df = spark.read.json(srcdir)
     df = df.filter(df.gene_set.isNotNull())
-    df = df.withColumn('gene_set', clean(df.gene_set))
     df = df.withColumn('source_index', df.source)
 
     source_partition = Window.partitionBy('source').orderBy(col('beta_uncorrected').desc())
     source_df = df.withColumn('rank', rank().over(source_partition))
     source_df = source_df.filter(source_df.rank <= 1000).drop('rank')
-    source_df = source_df.withColumn('source_index', lit('all')) \
-        .filter(source_df.source != 'gene_set_list_msigdb_nohp') \
-        .filter(source_df.source != 'gene_set_list_mouse_2024')
+    source_df = source_df.withColumn('source_index', lit('all'))
     df = df.union(source_df)
 
     df.orderBy(col('source_index'), col('gene_set_size'), col('beta_uncorrected').desc()) \
@@ -93,9 +86,7 @@ def gene_gene_set(spark):
     }
     df = spark.read.json(srcdir)
     df = df.filter(df.gene.isNotNull())
-    df = df.withColumn('gene', clean(df.gene))
     df = df.filter(df.gene_set.isNotNull())
-    df = df.withColumn('gene_set', clean(df.gene_set))
     bioindex(df, 'gene_gene_set', bioindices, [])
 
 
