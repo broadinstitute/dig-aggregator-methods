@@ -97,20 +97,21 @@ def get_translate_gsc():
         for factor in factors:
             if float(json_line[factor]) > 0:
                 rs_score = get_rs_score(float(json_line["beta_uncorrected"]), rs_score_fnc)
-                description, program = gene_set_data_map[json_line["Gene_Set"]]
-                out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
-                           f'"gene_set_description": "{description}", '
-                           f'"gene_set_program": "{program}", '
-                           f'"label_factor": "{json_line["cluster"]}", '
-                           f'"label": "{json_line["label"]}", '
-                           f'"factor": "{factor}", '
-                           f'"factor_value": {json_line[factor]}, '
-                           f'"beta": {json_line["beta"]}, '
-                           f'"beta_uncorrected": {json_line["beta_uncorrected"]}, '
-                           f'"rs_score": {rs_score},'
-                           f'"trait_group": "{trait_group}", '
-                           f'"phenotype": "{phenotype}", '
-                           f'"gene_set_size": "{gene_set_size}"}}\n')
+                description, program = gene_set_data_map.get(json_line["Gene_Set"], (json_line["Gene_Set"], 'N/A'))
+                if program != 'None':
+                    out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
+                               f'"gene_set_description": "{description}", '
+                               f'"gene_set_program": "{program}", '
+                               f'"label_factor": "{json_line["cluster"]}", '
+                               f'"label": "{json_line["label"]}", '
+                               f'"factor": "{factor}", '
+                               f'"factor_value": {json_line[factor]}, '
+                               f'"beta": {json_line["beta"]}, '
+                               f'"beta_uncorrected": {json_line["beta_uncorrected"]}, '
+                               f'"rs_score": {rs_score},'
+                               f'"trait_group": "{trait_group}", '
+                               f'"phenotype": "{phenotype}", '
+                               f'"gene_set_size": "{gene_set_size}"}}\n')
         return out
     return translate_gsc
 
