@@ -27,7 +27,7 @@ def fetch_dataset_metadata():
         return json.load(f)
 
 
-def fetch_metadata(cells):
+def fetch_metadata():
     with open('raw/metadata.tsv', 'rt') as f:
         header = f.readline().strip().split('\t')
         possible_label_dict = {label: idx for idx, label in enumerate(header)}
@@ -36,13 +36,12 @@ def fetch_metadata(cells):
         index_dict = {label: dict() for label in possible_label_dict}
         for line in f:
             split_line = [a.strip() for a in line.split('\t')]  # can have empty cells at the end of the line
-            if len(cells) == 0 or split_line[possible_label_dict[metadata_cell_key]] in cells:
-                for label in possible_label_dict:
-                    label_value = split_line[possible_label_dict[label]]
-                    if label_value not in index_dict[label]:
-                        index_dict[label][label_value] = len(set_lists[label])
-                        set_lists[label].append(label_value)
-                    index_lists[label].append(index_dict[label][label_value])
+            for label in possible_label_dict:
+                label_value = split_line[possible_label_dict[label]]
+                if label_value not in index_dict[label]:
+                    index_dict[label][label_value] = len(set_lists[label])
+                    set_lists[label].append(label_value)
+                index_lists[label].append(index_dict[label][label_value])
         return index_lists, set_lists, index_dict
 
 
@@ -77,7 +76,7 @@ def convert_dea():
                         json_line['datasetId'],
                         json_line['dea_comp_name'],
                         json_line['dea_comp_id'],
-                        json_line['gene'],
+                        json_line['Gene'],
                         json_line['gene_label'],
                         float(json_line['log_fold_change']),
                         float(json_line['-log10(p_value_adj)'])
@@ -107,8 +106,8 @@ def get_diff_exp(infile, dataset, cell_indexes, number_map):
                 if len(line_dict['p_value_adj'].strip()) > 0:
                     json_line = {
                         'dataset': dataset,
-                        'gene': line_dict['gene'],
-                        'gene_label': line_dict['gene_label'],
+                        'gene': line_dict['Gene'],
+                        'gene_label': line_dict.get('gene_label', line_dict['Gene']),
                         'comparison_field': line_dict['dea_comp_field'],
                         'comparison': line_dict['dea_comp_name'],
                         'comparison_id': line_dict['dea_comp_id'],
@@ -170,13 +169,8 @@ def main():
     metadata = fetch_dataset_metadata()
     max_categories = max(metadata.get('totalBiosamples', 100), metadata.get('totalDonors', 100))
 
-    cells = set()
-    if os.path.exists('raw/dea_for_heatmap.tsv.gz'):
-        with gzip.open('raw/dea_for_heatmap.tsv.gz', 'rt') as f_in:
-            cells = set(f_in.readline().strip().split('\t')[13:])
-
     os.makedirs('processed', exist_ok=True)
-    index_lists, set_lists, index_dict = fetch_metadata(cells)
+    index_lists, set_lists, index_dict = fetch_metadata()
     index_lists, set_lists, index_dict = filter_metadata(index_lists, set_lists, index_dict, max_categories)
     output_metadata(set_lists, index_lists)
 
