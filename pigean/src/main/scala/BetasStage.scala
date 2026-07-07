@@ -13,7 +13,7 @@ class BetasStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
-    stepConcurrency = 10
+    stepConcurrency = 5
   )
 
   val small_model: Input.Source = Input.Source.Raw("out/pigean/staging/pigean/*/*/mouse_msigdb/gs.out")
