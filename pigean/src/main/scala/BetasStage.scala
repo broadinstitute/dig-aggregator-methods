@@ -14,7 +14,7 @@ class BetasStage(implicit context: Context) extends Stage {
     instances = 1,
     masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
-    stepConcurrency = 5
+    stepConcurrency = 2
   )
 
   val small_model: Input.Source = Input.Source.Raw("out/pigean/staging/pigean/*/*/mouse_msigdb/gs.out")
