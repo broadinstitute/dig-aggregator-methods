@@ -12,6 +12,7 @@ class BetasStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
     stepConcurrency = 5
   )
