@@ -12,9 +12,9 @@ class BetasStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 64.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
-    stepConcurrency = 1
+    stepConcurrency = 10
   )
 
   val small_model: Input.Source = Input.Source.Raw("out/pigean/staging/pigean/*/*/mouse_msigdb/gs.out")
