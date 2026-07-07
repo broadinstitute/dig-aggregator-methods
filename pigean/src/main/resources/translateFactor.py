@@ -100,8 +100,6 @@ def get_translate_gsc():
                 description, program = gene_set_data_map.get(json_line["Gene_Set"], (json_line["Gene_Set"], 'N/A'))
                 if program != 'None':
                     out.append(f'{{"gene_set": "{json_line["Gene_Set"]}", '
-                               f'"gene_set_description": "{description}", '
-                               f'"gene_set_program": "{program}", '
                                f'"label_factor": "{json_line["cluster"]}", '
                                f'"label": "{json_line["label"]}", '
                                f'"factor": "{factor}", '

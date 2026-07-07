@@ -63,17 +63,13 @@ def translate_gs(json_line, trait_group, phenotype, gene_set_size):
 
 
 def get_translate_gss():
-    gene_set_data_map = get_gene_set_data_map()
     rs_score_fnc = get_rs_score_fnc()
     def translate_gss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
         beta_uncorrected = make_option(json_line["beta_uncorrected"])
         if beta != 'null' and beta_uncorrected != 'null' and float(beta_uncorrected) != 0.0:
-            description, program = gene_set_data_map.get(json_line["Gene_Set"], (json_line["Gene_Set"], json_line["label"]))
             rs_score = get_rs_score(float(beta_uncorrected), rs_score_fnc)
             return f'{{"gene_set": "{json_line["Gene_Set"]}", ' \
-                   f'"gene_set_description": "{description}", ' \
-                   f'"gene_set_program": "{program}", ' \
                    f'"source": "{json_line["label"]}", ' \
                    f'"beta": {beta}, ' \
                    f'"beta_uncorrected": {beta_uncorrected}, ' \
@@ -87,7 +83,6 @@ def get_translate_gss():
 
 def get_translate_ggss(trait_group, phenotype, gene_set_size):
     beta_uncorrected_map, source_map = get_ggss_maps(trait_group, phenotype, gene_set_size)
-    gene_set_data_map = get_gene_set_data_map()
     rs_score_fnc = get_rs_score_fnc()
     def translate_ggss(json_line, trait_group, phenotype, gene_set_size):
         beta = make_option(json_line["beta"])
@@ -96,11 +91,8 @@ def get_translate_ggss(trait_group, phenotype, gene_set_size):
             beta_uncorrected = beta_uncorrected_map.get((phenotype, json_line['gene_set']), '0.0')
             rs_score = get_rs_score(float(beta_uncorrected), rs_score_fnc)
             source = source_map[(phenotype, json_line['gene_set'])]
-            description, program = gene_set_data_map.get(json_line["gene_set"], (json_line["gene_set"], source))
             return f'{{"gene": "{json_line["Gene"]}", ' \
                    f'"gene_set": "{json_line["gene_set"]}", ' \
-                   f'"gene_set_description": "{description}", ' \
-                   f'"gene_set_program": "{program}", ' \
                    f'"source": "{source}", ' \
                    f'"prior": {make_option(json_line["prior"])}, ' \
                    f'"combined": {combined}, ' \
