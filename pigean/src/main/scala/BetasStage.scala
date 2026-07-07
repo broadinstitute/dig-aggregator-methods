@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class BetasStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val geneSetSizes = Seq("cfde-inc")
+  val geneSetSizes = Seq("cfde-inc-v2")
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
