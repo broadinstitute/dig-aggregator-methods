@@ -102,7 +102,10 @@ def get_diff_exp(infile, dataset, cell_indexes, number_map):
             split_line = line.strip().split('\t')
             if len(split_line) > max(genex_indexes.values()):
                 line_dict = dict(zip(cell_header, split_line))
-                sorted_expression = [number_maps[number_map](split_line[genex_indexes[i]]) for i in range(len(genex_indexes))]
+                sorted_expression = [0.0 for _ in range(len(cell_indexes))]
+                for i in range(len(cell_indexes)):
+                    if i in genex_indexes:
+                        sorted_expression[i] = number_maps[number_map](split_line[genex_indexes[i]])
                 if len(line_dict['p_value_adj'].strip()) > 0:
                     json_line = {
                         'dataset': dataset,

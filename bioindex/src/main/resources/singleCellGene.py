@@ -54,7 +54,7 @@ def get_dataset_to_species():
         with open(file, 'r') as f:
             metadata = json.load(f)
         dataset_to_species[metadata['datasetId']] = metadata['species']
-    return udf(lambda s: dataset_to_species[s])
+    return udf(lambda s: dataset_to_species.get(s))
 
 
 def get_genes(spark, dataset_to_species):
