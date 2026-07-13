@@ -8,7 +8,7 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class PigeanStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val geneSetSizes = Seq("cfde-inc")
+  val geneSetSizes = Seq("mouse_msigdb", "mouse", "pathways", "text_mining", "textmining_no_circularity")  // full_production after
 
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
