@@ -14,7 +14,7 @@ class PigeanStage(implicit context: Context) extends Stage {
     masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
     instances = 1,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
-    stepConcurrency = 4
+    stepConcurrency = 1
   )
 
   val inputs: Input.Source = Input.Source.Success("out/pigean/inputs/*/*/*/")
