@@ -11,7 +11,7 @@ class PigeanStage(implicit context: Context) extends Stage {
   val geneSetSizes = Seq("mouse_msigdb", "mouse", "pathways", "text_mining", "textmining_no_circularity", "full_production", "large")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 64.gb),
     instances = 1,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
     stepConcurrency = 1
