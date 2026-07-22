@@ -17,15 +17,15 @@ dataset_to_tissue = {
 
 
 def download_data(dataset, cell_type):
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/norm_counts.sample.tsv.gz', 'inputs/'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/sample_metadata.sample.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/norm_counts.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/norm_counts.metadata.tsv.gz', 'inputs/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/gene_loadings.tsv', 'inputs/'])
 
 
 def prepare_sparse_matrix():
     cmd = [
         'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/convert_expression_tsv_to_sparse_10x.py',
-        '--matrix-tsv', 'inputs/norm_counts.sample.tsv.gz',
+        '--matrix-tsv', 'inputs/norm_counts.tsv.gz',
         '--out-dir', 'outputs/rank_10x',
         '--orientation', 'gene_by_cell',
         '--value-type', 'raw_counts'
@@ -41,7 +41,7 @@ def prepare_metadata(cell_type, tissue):
             cells.append(line.strip())
     with gzip.open('outputs/metadata.tsv.gz', 'wt') as f_out:
         f_out.write('{}\n'.format('\t'.join(metadata_fields)))
-        with gzip.open('inputs/sample_metadata.sample.tsv.gz', 'rt') as f:
+        with gzip.open('inputs/norm_counts.metadata.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 out_line = {}
@@ -64,14 +64,14 @@ def prepare_metadata(cell_type, tissue):
             f.write(f'{cell}\tDUMMY_GENE\t0.0\n')
 
 
-def filter_cell_stats(tissue):
+def filter_cell_stats(tissue, cell_type):
     state_ids = set()
     curated_manifest_rows = []
     with open(f'{downloaded_files}/misc/curated_cell_state_manifest.tsv', 'r') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             dict_line = dict(zip(header, line.strip().split('\t')))
-            if dict_line['tissue_id'] == tissue:
+            if dict_line['tissue_id'] == tissue and dict_line['cell_type_id'] == cell_type:
                 state_ids |= {dict_line['state_id']}
                 curated_manifest_rows.append(
                     {
