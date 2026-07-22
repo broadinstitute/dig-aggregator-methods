@@ -17,8 +17,8 @@ dataset_to_tissue = {
 
 
 def download_data(dataset, cell_type):
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/norm_counts.tsv.gz', 'inputs/'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/norm_counts.metadata.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/norm_counts.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/norm_counts.metadata.tsv.gz', 'inputs/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/gene_loadings.tsv', 'inputs/'])
 
 
