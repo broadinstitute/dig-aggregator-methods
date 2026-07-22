@@ -14,7 +14,7 @@ class CellStateScoringStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-scoring.sh")))
   )
 
-  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/downsample/*/*/*")
+  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/split/*/*/*")
 
   override val sources: Seq[Input.Source] = Seq(singleCell)
 

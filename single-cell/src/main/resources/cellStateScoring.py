@@ -64,14 +64,14 @@ def prepare_metadata(cell_type, tissue):
             f.write(f'{cell}\tDUMMY_GENE\t0.0\n')
 
 
-def filter_cell_stats(tissue, cell_type):
+def filter_cell_stats(tissue):
     state_ids = set()
     curated_manifest_rows = []
     with open(f'{downloaded_files}/misc/curated_cell_state_manifest.tsv', 'r') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             dict_line = dict(zip(header, line.strip().split('\t')))
-            if dict_line['tissue_id'] == tissue and dict_line['cell_type_id'] == cell_type:
+            if dict_line['tissue_id'] == tissue:
                 state_ids |= {dict_line['state_id']}
                 curated_manifest_rows.append(
                     {

@@ -9,6 +9,7 @@ object SingleCell extends Method {
   override def initStages(implicit context: Context) = {
     addStage(new GenerateLigerBootstrapStage)
     addStage(new DownsampleStage)
+    addStage(new SplitByCellTypeStage)
     addStage(new MakeH5adStage)
     addStage(new LigerStage)
     addStage(new TranslateLigerStage)
