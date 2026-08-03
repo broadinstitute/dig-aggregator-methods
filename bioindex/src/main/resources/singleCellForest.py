@@ -12,6 +12,7 @@ FORESTPLOT_SCHEMA = StructType([
     StructField('standardized_outcome_id', StringType()),
     StructField('standardized_outcome_label', StringType()),
     StructField('outcome_type', StringType()),
+    StructField('recommended_visualization', StringType()),
     StructField('effect_metric', StringType()),
     StructField('effect_size', DoubleType()),
     StructField('ci_low', DoubleType()),
@@ -63,6 +64,8 @@ FORESTPLOT_SCHEMA = StructType([
     StructField('I2', DoubleType()),
     StructField('tau2', DoubleType()),
     StructField('notes', StringType()),
+    StructField('citation_label', StringType()),
+    StructField('display_label_with_citation', StringType()),
 ])
 
 
