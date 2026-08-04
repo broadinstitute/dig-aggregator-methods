@@ -21,7 +21,7 @@ class FalconStage(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("install-flacon.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-falcon.sh")))
   )
 
   override def make(output: String): Job = {
