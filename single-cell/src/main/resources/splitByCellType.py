@@ -29,14 +29,14 @@ def get_cells():
         header = f_in.readline().strip().split('\t')
         for line in f_in:
             json_line = dict(zip(header, line.strip().split('\t')))
-            cell_type = json_line['cell_type__kp']
+            cell_type = json_line['Cell Type']
             cell_type_str = format_cell_type(cell_type)
             if cell_type_str not in cell_type_cells:
                 cell_type_cells[cell_type_str] = set()
-            cell_type_cells[cell_type_str] |= {json_line['ID']}
-            n_count = json_line['QC:nCount_RNA']
+            cell_type_cells[cell_type_str] |= {json_line['NAME']}
+            n_count = json_line['ncount_rna']
             if len(n_count) > 0 and float(n_count) % 1 == 0:
-                ncount_map[json_line['ID']] = float(json_line['QC:nCount_RNA'])
+                ncount_map[json_line['NAME']] = float(json_line['ncount_rna'])
     return cell_type_cells, ncount_map
 
 
