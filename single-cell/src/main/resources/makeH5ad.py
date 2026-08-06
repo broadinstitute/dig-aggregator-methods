@@ -14,22 +14,22 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download_data(dataset, cell_type):
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/raw_counts.sample.tsv.gz', 'inputs/'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/downsample/{dataset}/{cell_type}/sample_metadata.sample.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/raw_counts.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/raw_counts.metadata.tsv.gz', 'inputs/'])
 
 
 def get_metadata_maps():
     donor_map = {}
-    with gzip.open('inputs/sample_metadata.sample.tsv.gz', 'rt') as f:
+    with gzip.open('inputs/raw_counts.metadata.tsv.gz', 'rt') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             json_line = dict(zip(header, line.strip().split('\t')))
-            donor_map[json_line['ID']] = json_line['DI:Dataset']
+            donor_map[json_line['NAME']] = json_line['study']
     return donor_map
 
 
 def get_sparse_array(cell_type, donor_map):
-    with gzip.open('inputs/raw_counts.sample.tsv.gz', 'rt') as f:
+    with gzip.open('inputs/raw_counts.tsv.gz', 'rt') as f:
         cells = f.readline().strip().split('\t')[1:]
         genes = []
         A_dict = []

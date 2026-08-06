@@ -14,7 +14,7 @@ class MakeH5adStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-h5ad.sh")))
   )
 
-  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/downsample/*/*/*")
+  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/split/*/*/*")
 
   override val sources: Seq[Input.Source] = Seq(singleCell)
 

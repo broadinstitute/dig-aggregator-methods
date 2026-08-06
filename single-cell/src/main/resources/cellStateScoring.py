@@ -67,7 +67,7 @@ def prepare_metadata(cell_type, tissue):
 def filter_cell_stats(tissue, cell_type):
     state_ids = set()
     curated_manifest_rows = []
-    with open(f'{downloaded_files}/misc/curated_cell_state_manifest.tsv', 'r') as f:
+    with open(f'{downloaded_files}/misc/{tissue}_cell_state_manifest.tsv', 'r') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             dict_line = dict(zip(header, line.strip().split('\t')))
