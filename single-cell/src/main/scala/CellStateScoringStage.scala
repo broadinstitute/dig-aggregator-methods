@@ -11,6 +11,7 @@ class CellStateScoringStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterVolumeSizeInGB = 100,
+    masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-scoring.sh")))
   )
 
