@@ -1,6 +1,6 @@
 val Versions = new {
-  val Aggregator = "0.3.5-SNAPSHOT"
-  val Scala = "2.13.2"
+  val Aggregator = "0.3.8-SNAPSHOT"
+  val Scala = "2.13.6"
 }
 
 // set the version of scala to compile with
