@@ -46,14 +46,14 @@ def prepare_metadata(cell_type, tissue):
             for line in f:
                 out_line = {}
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                if dict_line['ID'] in cells:
-                    out_line['cell_id'] = dict_line['ID']
+                if dict_line['NAME'] in cells:
+                    out_line['cell_id'] = dict_line['NAME']
                     out_line['map_id'] = tissue
                     out_line['tissue'] = tissue
                     out_line['cell_type'] = cell_type
                     out_line['annotated_cell_type'] = cell_type
-                    out_line['donor_id'] = dict_line['donor_id']
-                    out_line['sample_id'] = dict_line['donor_id']
+                    out_line['donor_id'] = dict_line['donor_accession']
+                    out_line['sample_id'] = dict_line['barcodes']
                     f_out.write('{}\n'.format(
                         '\t'.join([str(out_line[k]) for k in metadata_fields])
                     ))
