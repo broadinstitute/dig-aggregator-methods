@@ -72,7 +72,7 @@ def build_program_match_dir(cell_types):
 
 def build_portal_tables(dataset):
     cmd = [
-        'python', f'{downloaded_files}/scripts/build_portal_api_data_tables.py',
+        'python', f'{downloaded_files}/dig-cell-state-scoring/scripts/build_portal_api_data_tables.py',
         '--out-dir', 'outputs/portal',
         '--tissue', dataset_to_tissue[dataset],
         '--dataset', dataset,
