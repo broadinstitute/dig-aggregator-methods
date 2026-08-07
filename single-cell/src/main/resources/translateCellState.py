@@ -11,6 +11,10 @@ import pandas as pd
 downloaded_files = '/mnt/var/single_cell'
 s3_out = os.environ['OUTPUT_PATH']
 
+dataset_to_tissue = {
+    'islet_of_Langerhans_scRNA_v3-4': 'pancreas'
+}
+
 
 def extract_zips():
     cell_types = []
@@ -66,11 +70,11 @@ def build_program_match_dir(cell_types):
                 shutil.copy2(src, f'{match_dir}/{name}')
 
 
-def build_portal_tables(dataset, tissue):
+def build_portal_tables(dataset):
     cmd = [
         'python', f'{downloaded_files}/scripts/build_portal_api_data_tables.py',
         '--out-dir', 'outputs/portal',
-        '--tissue', tissue,
+        '--tissue', dataset_to_tissue[dataset],
         '--dataset', dataset,
         '--model', 'mouse_msigdb',
         '--cell-state-expression', 'outputs/combined/curated_state_expression.tsv.gz',
@@ -91,14 +95,14 @@ def build_qc_outputs(cell_types):
         .to_csv('outputs/portal/program_qc_enrichment.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
-def run_pipeline(dataset, tissue):
+def run_pipeline(dataset):
     os.makedirs('outputs', exist_ok=True)
     cell_types = extract_zips()
     combine_expression(cell_types)
     combine_pigean(cell_types)
     build_program_source_manifest(cell_types)
     build_program_match_dir(cell_types)
-    build_portal_tables(dataset, tissue)
+    build_portal_tables(dataset)
     build_qc_outputs(cell_types)
 
 
@@ -111,10 +115,9 @@ def upload_data(dataset):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument('--dataset')
-    ap.add_argument('--tissue')
     args = ap.parse_args()
 
-    run_pipeline(args.dataset, args.tissue)
+    run_pipeline(args.dataset)
     upload_data(args.dataset)
     shutil.rmtree('outputs')
     shutil.rmtree('work')

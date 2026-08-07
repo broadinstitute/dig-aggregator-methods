@@ -14,6 +14,7 @@ object SingleCell extends Method {
     addStage(new LigerStage)
     addStage(new TranslateLigerStage)
     addStage(new CellStateScoringStage)
+    addStage(new TranslateCellStateScoringStage)
     addStage(new FactorPhewasStage)
     addStage(new TranslatePhewasStage)
     addStage(new RegressionStage)
