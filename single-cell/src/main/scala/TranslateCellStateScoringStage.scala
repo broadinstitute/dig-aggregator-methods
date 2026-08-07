@@ -20,6 +20,6 @@ class TranslateCellStateScoringStage(implicit context: Context) extends Stage {
   }
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("translateLiger.py"), s"--dataset=$output"))
+    new Job(Job.Script(resourceUri("translateCellState.py"), s"--dataset=$output"))
   }
 }
