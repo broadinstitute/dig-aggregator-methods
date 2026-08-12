@@ -8,6 +8,7 @@ class TranslateCellStateScoringStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
+    masterVolumeSizeInGB = 100,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-scoring.sh")))
   )
 

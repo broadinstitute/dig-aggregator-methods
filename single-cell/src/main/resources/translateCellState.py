@@ -9,11 +9,17 @@ import zipfile
 import pandas as pd
 
 downloaded_files = '/mnt/var/single_cell'
+s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 dataset_to_tissue = {
     'islet_of_Langerhans_scRNA_v3-4': 'pancreas'
 }
+
+
+def download_data(dataset):
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/scoring/{dataset}/', 'inputs/', '--recursive']
+    subprocess.check_call(cmd)
 
 
 def extract_zips():
@@ -107,8 +113,8 @@ def run_pipeline(dataset):
 
 
 def upload_data(dataset):
-    subprocess.check_call(['zip', '-r', 'portal.zip', 'outputs/portal'])
-    subprocess.check_call(['aws', 's3', 'cp', 'portal.zip', f'{s3_out}/out/single_cell/staging/portal/{dataset}/'])
+    subprocess.check_call(['zip', '-j', '-r', 'portal.zip', 'outputs/portal'])
+    subprocess.check_call(['aws', 's3', 'cp', 'portal.zip', f'{s3_out}/out/single_cell/portal/{dataset}/'])
     os.remove('portal.zip')
 
 
@@ -117,6 +123,7 @@ def main() -> None:
     ap.add_argument('--dataset')
     args = ap.parse_args()
 
+    download_data(args.dataset)
     run_pipeline(args.dataset)
     upload_data(args.dataset)
     shutil.rmtree('outputs')

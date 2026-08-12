@@ -99,6 +99,14 @@ def filter_cell_stats(tissue, cell_type):
                 '\t'.join(row[2])
             ))
 
+    with open(f'outputs/pigean_gmt/curated/{cell_type}.gmt', 'w') as f:
+        for row in curated_rows:
+            f.write('{}\t{}\t{}\n'.format(
+                row[0],
+                row[1],
+                '\t'.join(row[2])
+            ))
+
     return curated_manifest_rows, curated_rows
 
 
@@ -138,11 +146,21 @@ def convert_program_loadings(dataset, tissue, cell_type):
                 '\t'.join(row[2])
             ))
 
+    with open(f'outputs/pigean_gmt/program/{cell_type}.gmt', 'w') as f:
+        for row in program_rows:
+            f.write('{}\t{}\t{}\n'.format(
+                row[0],
+                row[1],
+                '\t'.join(row[2])
+            ))
+
     return renamed, program_manifest_rows, program_rows
 
 
 def build_combined_gmt(dataset, tissue, cell_type):
     os.makedirs('outputs/combined_gmt', exist_ok=True)
+    os.makedirs('outputs/pigean_gmt/curated', exist_ok=True)
+    os.makedirs('outputs/pigean_gmt/program', exist_ok=True)
     curated_manifest_rows, curated_rows = filter_cell_stats(tissue, cell_type)
     renamed, program_manifest_rows, program_rows = convert_program_loadings(dataset, tissue, cell_type)
 
@@ -286,7 +304,7 @@ def run_program_state_matching(tissue, cell_type):
 def run_pigean(dataset, tissue, kind):
     cmd = [
         'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/run_api_pigean.py',
-        '--gmt-dir', 'outputs/combined_gmt',
+        '--gmt-dir', f'outputs/pigean_gmt/{kind}',
         '--out-dir', f'outputs/pigean/{kind}',
         '--combined-out', f'outputs/pigean/{kind}/combined_pigean.tsv.gz',
         '--kind', 'curated' if kind == 'curated' else 'program',
