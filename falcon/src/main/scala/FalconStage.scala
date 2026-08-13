@@ -3,8 +3,10 @@ package org.broadinstitute.dig.aggregator.methods.falcon
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class FalconStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
 
   val euBottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/ancestry=EU/")
 
@@ -21,6 +23,7 @@ class FalconStage(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
+    Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap_falcon.sh")))
   )
 
