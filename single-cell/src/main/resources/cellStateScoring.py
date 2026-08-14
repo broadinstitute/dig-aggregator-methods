@@ -230,13 +230,13 @@ def run_scoring():
 def run_expression_summary():
     cmd = [
         'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/summarize_state_expression.py',
-        '--raw-10x-dir', 'outputs_new/rank_10x',
+        '--raw-10x-dir', 'outputs/rank_10x',
         '--expression-value-type', 'log1p_cp10k',
-        '--metadata', 'outputs_new/metadata.tsv.gz',
-        '--cell-state-activity', 'outputs_new/scoring/cell_state_activity.tsv.gz',
+        '--metadata', 'outputs/metadata.tsv.gz',
+        '--cell-state-activity', 'outputs/scoring/cell_state_activity.tsv.gz',
         '--cell-type-col', 'annotated_cell_type',
         '--api-minimal-output',
-        '--out-dir', 'outputs_new/expression',
+        '--out-dir', 'outputs/expression',
     ]
     subprocess.check_call(cmd)
 
