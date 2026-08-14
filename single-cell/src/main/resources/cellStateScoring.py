@@ -28,7 +28,7 @@ def prepare_sparse_matrix():
         '--matrix-tsv', 'inputs/norm_counts.tsv.gz',
         '--out-dir', 'outputs/rank_10x',
         '--orientation', 'gene_by_cell',
-        '--value-type', 'raw_counts'
+        '--value-type', 'log1p_cp10k'
     ]
     subprocess.check_call(cmd)
 
@@ -137,7 +137,6 @@ def convert_program_loadings(dataset, tissue, cell_type):
         .reset_index(names='gene')\
         .to_csv('outputs/combined_gmt/program_loadings.tsv.gz', sep='\t', index=False, compression='gzip')
 
-
     with open('outputs/combined_gmt/program.gmt', 'w') as f:
         for row in program_rows:
             f.write('{}\t{}\t{}\n'.format(
@@ -208,9 +207,7 @@ def run_scoring():
     cmd = [
         'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/run_cmdkp_state_scoring.py',
         '--rank-10x-dir', 'outputs/rank_10x',
-        '--rank-value-type', 'raw_counts',
-        '--expression-matrix', 'outputs/minimal_expression.tsv.gz',
-        '--expression-kind', 'linear_normalized',
+        '--rank-value-type', 'log1p_cp10k',
         '--cell-metadata', 'outputs/metadata.tsv.gz',
         '--states-gmt', 'outputs/combined_gmt/combined_signatures.gmt',
         '--state-manifest', 'outputs/combined_gmt/combined_signature_manifest.tsv',
@@ -225,7 +222,6 @@ def run_scoring():
         '--progress-every-cells', '10000',
         '--legacy-selected-gene-summaries', 'skip',
         '--api-minimal-output',
-        '--allow-acceptance-failures',
         '--out-dir', 'outputs/scoring',
     ]
     subprocess.check_call(cmd)
@@ -233,19 +229,14 @@ def run_scoring():
 
 def run_expression_summary():
     cmd = [
-        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/summarize_state_expression.py',
-        '--raw-10x-dir', 'outputs/rank_10x',
-        '--expression-value-type', 'raw_counts',
-        '--metadata', 'outputs/metadata.tsv.gz',
-        '--cell-state-activity', 'outputs/scoring/cell_state_activity.tsv.gz',
-        '--states-gmt', 'outputs/combined_gmt/combined_signatures.gmt',
-        '--parent-group-cols', 'tissue,annotated_cell_type',
+        'python3', f'{downloaded_files}/dig-cell-state-scoring/scripts/summarize_state_expression.py',
+        '--raw-10x-dir', 'outputs_new/rank_10x',
+        '--expression-value-type', 'log1p_cp10k',
+        '--metadata', 'outputs_new/metadata.tsv.gz',
+        '--cell-state-activity', 'outputs_new/scoring/cell_state_activity.tsv.gz',
         '--cell-type-col', 'annotated_cell_type',
-        '--donor-col', 'donor_id',
-        '--donor-expression-genes', 'none',
-        '--no-write-donor-state-expression',
         '--api-minimal-output',
-        '--out-dir', 'outputs/expression',
+        '--out-dir', 'outputs_new/expression',
     ]
     subprocess.check_call(cmd)
 
@@ -254,19 +245,20 @@ def split_by_signature_kind():
     kind = pd.read_csv('outputs/combined_gmt/signature_kind.tsv', sep='\t')
     kind_lookup = kind[['state_name', 'signature_kind']].drop_duplicates()
 
-    expr = pd.read_csv('outputs/expression/all_gene_state_expression_specificity_cp10k.tsv.gz', sep='\t')\
+    expr = pd.read_csv('outputs/expression/all_gene_state_expression_specificity_cp10k.tsv.gz', sep='\t') \
         .merge(kind_lookup, on='state_name', how='left')
     curated_expr = expr[expr['signature_kind'].eq('curated_state')].copy()
     curated_expr.to_csv('outputs/expression/curated_state_expression.tsv.gz', sep='\t', index=False, compression='gzip')
     program_expr = expr[expr['signature_kind'].eq('program')].copy()
     program_expr.to_csv('outputs/expression/program_expression.tsv.gz', sep='\t', index=False, compression='gzip')
 
-    activity = pd.read_csv('outputs/scoring/cell_state_activity.tsv.gz', sep='\t')\
+    activity = pd.read_csv('outputs/scoring/cell_state_activity.tsv.gz', sep='\t') \
         .merge(kind_lookup, on='state_name', how='left')
     curated_activity = activity[activity['signature_kind'].eq('curated_state')].copy()
     curated_activity.to_csv('outputs/scoring/curated_state_activity.tsv.gz', sep='\t', index=False, compression='gzip')
-    curated_activity = activity[activity['signature_kind'].eq('program')].copy()
-    curated_activity.to_csv('outputs/scoring/program_activity.tsv.gz', sep='\t', index=False, compression='gzip')
+    program_activity = activity[activity['signature_kind'].eq('program')].copy()
+    program_activity = program_activity.rename(columns={'state_name': 'program_id', 'aucell_score': 'program_activity'})
+    program_activity.to_csv('outputs/scoring/program_activity.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
 
@@ -276,9 +268,7 @@ def run_program_state_matching(tissue, cell_type):
         '--program-loadings', 'outputs/combined_gmt/program_loadings.tsv.gz',
         '--state-gmt', 'outputs/combined_gmt/curated_state.gmt',
         '--cell-state-activity', 'outputs/scoring/curated_state_activity.tsv.gz',
-        '--state-expression', 'outputs/expression/curated_state_expression.tsv.gz',
         '--program-cell-activity', 'outputs/scoring/program_activity.tsv.gz',
-        '--metadata', 'outputs/metadata.tsv.gz',
         '--tissue', tissue,
         '--cell-type', cell_type,
         '--gsea-permutations', '1000',
