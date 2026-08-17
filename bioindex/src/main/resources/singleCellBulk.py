@@ -2,9 +2,6 @@
 import argparse
 import gzip
 import json
-import math
-from multiprocessing import Pool
-import numpy as np
 import os
 import shutil
 import subprocess
@@ -170,7 +167,7 @@ def main():
     subprocess.check_call(['aws', 's3', 'cp', f_in, 'raw', '--recursive'])
 
     metadata = fetch_dataset_metadata()
-    max_categories = max(metadata.get('totalBiosamples', 100), metadata.get('totalDonors', 100))
+    max_categories = max(metadata.get('totalBiosamples', 100) or 100, metadata.get('totalDonors', 100) or 100)
 
     os.makedirs('processed', exist_ok=True)
     index_lists, set_lists, index_dict = fetch_metadata()
