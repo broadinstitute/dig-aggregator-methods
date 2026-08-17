@@ -24,7 +24,8 @@ class FalconStage(implicit context: Context) extends Stage {
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
     masterInstanceType = Strategy.computeOptimized(),
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap_falcon.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap_falcon.sh"))),
+    stepConcurrency = 4
   )
 
   override def make(output: String): Job = {
