@@ -23,7 +23,7 @@ class FalconStage(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
-    masterInstanceType = Strategy.computeOptimized(),
+    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap_falcon.sh"))),
     stepConcurrency = 4
   )
