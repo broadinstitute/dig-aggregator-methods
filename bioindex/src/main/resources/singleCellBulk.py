@@ -67,19 +67,21 @@ def filter_metadata(index_lists, set_lists, index_dict, max_categories):
 
 def convert_dea():
     with gzip.open('processed/dea.tsv.gz', 'wt') as f_out:
-        f_out.write('datasetId\tcomparison\tcomparison_id\tgene\tgeneLabel\tlogFoldChange\n')
+        f_out.write('datasetId\tcomparison\tcomparison_id\tgene\tgeneLabel\tlogFoldChange\t-logP10\n')
         with gzip.open('raw/dea.tsv.gz', 'rt') as f_in:
             header = f_in.readline().strip().split('\t')
             for line in f_in:
                 json_line = dict(zip(header, line.strip().split('\t')))
-                f_out.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(
-                    json_line['datasetId'],
-                    json_line['dea_comp_name'],
-                    json_line['dea_comp_id'],
-                    json_line['gene'],
-                    json_line['gene_label'],
-                    float(json_line['log_fold_change'])
-                ))
+                if len(json_line['log_fold_change']) > 0 and len(json_line['-log10(p_value_adj)']) > 0:
+                    f_out.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(
+                        json_line['datasetId'],
+                        json_line['dea_comp_name'],
+                        json_line['dea_comp_id'],
+                        json_line['gene'],
+                        json_line['gene_label'],
+                        float(json_line['log_fold_change']),
+                        float(json_line['-log10(p_value_adj)'])
+                    ))
 
 
 def output_metadata(set_lists, index_lists):
