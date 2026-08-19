@@ -61,5 +61,6 @@ object BioIndex extends Method {
     addStage(new SingleCellGraphStage)
     addStage(new SingleCellFactorStage)
     addStage(new HistoricalTopAssociationsStage)
+    addStage(new FalconStage)
   }
 }
