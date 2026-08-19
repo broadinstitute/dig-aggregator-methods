@@ -45,7 +45,7 @@ def reformat_sumstats(snp_map):
             rsid = snp_map.get(row['varId'])
             if rsid is None:
                 continue
-            if row['beta'] / row['stdErr'] <= 5:
+            if abs(row['beta'] / row['stdErr']) <= 5:
                 continue
             if chrom not in out_files:
                 f = open(f'inputs/sumstats/{chrom}.sumstats', 'w')
