@@ -59,6 +59,7 @@ def reformat_sumstats(snp_map):
         proc.wait()
     for f in out_files.values():
         f.close()
+    shutil.rmtree('inputs/raw')
 
 
 def run_falcon(chrom):
