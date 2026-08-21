@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import argparse
 import glob
+import numpy as np
 import os
 import shutil
 import subprocess
@@ -41,13 +42,28 @@ def concat_tables(cell_types, relative_path):
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
+def add_log2fc_weighted_vs_all_parent(frame):
+    frame = frame.copy()
+    weighted_contribution = frame['weighted_mean_expression'] * frame['n_parent']
+    group_weighted_sum = weighted_contribution.groupby(frame['gene']).transform('sum')
+    group_n_parent_sum = frame['n_parent'].groupby(frame['gene']).transform('sum')
+    other_weighted_sum = group_weighted_sum - weighted_contribution
+    other_n_parent = group_n_parent_sum - frame['n_parent']
+    other_mean_expression = other_weighted_sum / other_n_parent.where(other_n_parent > 0)
+    frame['log2fc_weighted_vs_all_parent'] = np.log2(
+        (frame['weighted_mean_expression'] + 0.05) / (other_mean_expression + 0.05)
+    )
+    return frame
+
+
 def combine_expression(cell_types):
     os.makedirs('outputs/combined', exist_ok=True)
     concat_tables(cell_types, 'outputs/expression/curated_state_expression.tsv.gz') \
         .to_csv('outputs/combined/curated_state_expression.tsv.gz', sep='\t', index=False, compression='gzip')
     concat_tables(cell_types, 'outputs/expression/program_expression.tsv.gz') \
         .to_csv('outputs/combined/program_expression.tsv.gz', sep='\t', index=False, compression='gzip')
-    concat_tables(cell_types, 'outputs/expression/all_gene_cell_type_expression_cp10k.tsv.gz') \
+    cell_type_expression = concat_tables(cell_types, 'outputs/expression/all_gene_cell_type_expression_cp10k.tsv.gz')
+    add_log2fc_weighted_vs_all_parent(cell_type_expression) \
         .to_csv('outputs/combined/cell_type_expression.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
