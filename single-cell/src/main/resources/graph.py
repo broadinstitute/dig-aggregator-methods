@@ -31,6 +31,9 @@ def get_node_id(node_type, key):
     return nodes[node_type][key]
 
 
+clean = lambda s: s.replace(',', ';').encode('utf-8').decode('ascii', errors='ignore')
+
+
 def process_norm(dataset_celltype_models):
     dataset_celltypes = list(set([(dataset, celltype) for dataset, celltype, _ in dataset_celltype_models]))
     outputs = {
@@ -53,7 +56,7 @@ def process_norm(dataset_celltype_models):
                             'n1_type': 'cell',
                             'n2_type': 'gene',
                             'n1_value': '{};{}'.format(dataset, cells[idx]),
-                            'n2_value': gene,
+                            'n2_value': clean(gene),
                             'n1': get_node_id('cell', (dataset, cells[idx])),
                             'n2': get_node_id('gene', gene),
                             'value': float(split_cell_data[idx]),
@@ -62,7 +65,7 @@ def process_norm(dataset_celltype_models):
                         outputs['gene_to_cells'].write(json.dumps({
                             'n1_type': 'gene',
                             'n2_type': 'cell',
-                            'n1_value': gene,
+                            'n1_value': clean(gene),
                             'n2_value': '{};{}'.format(dataset, cells[idx]),
                             'n1': get_node_id('gene', gene),
                             'n2': get_node_id('cell', (dataset, cells[idx])),
@@ -170,7 +173,7 @@ def process_gene(dataset_celltype_models):
                             'n1_type': 'factor',
                             'n2_type': 'gene',
                             'n1_value': '{};{};{};{}'.format(dataset, cell_type, model, factor),
-                            'n2_value': gene,
+                            'n2_value': clean(gene),
                             'n1': get_node_id('factor', (dataset, cell_type, model, factor)),
                             'n2': get_node_id('gene', gene),
                             'value': float(factor_value),
@@ -179,7 +182,7 @@ def process_gene(dataset_celltype_models):
                         outputs['gene_to_factors'].write(json.dumps({
                             'n1_type': 'gene',
                             'n2_type': 'factor',
-                            'n1_value': gene,
+                            'n1_value': clean(gene),
                             'n2_value': '{};{};{};{}'.format(dataset, cell_type, model, factor),
                             'n1': get_node_id('gene', gene),
                             'n2': get_node_id('factor', (dataset, cell_type, model, factor)),
@@ -245,7 +248,7 @@ def process_phewas(dataset_cell_type_models):
                 header = f.readline().strip().split('\t')
                 for line in f:
                     json_line = dict(zip(header, line.strip().split('\t')))
-                    p = max([float(json_line['P']), float(json_line['P_robust'])])
+                    p = float(json_line['P'])
                     if p < 0.5:
                         outputs['factor_to_traits'].write(json.dumps({
                             'n1_type': 'factor',
@@ -253,7 +256,7 @@ def process_phewas(dataset_cell_type_models):
                             'n1': get_node_id('factor', (dataset, cell_type, model, json_line['Factor'])),
                             'n2': get_node_id('trait', json_line['Pheno']),
                             'n1_value': '{};{};{};{}'.format(dataset, cell_type, model, json_line['Factor']),
-                            'n2_value': json_line['Pheno'],
+                            'n2_value': clean(json_line['Pheno']),
                             'value': -math.log10(p) if p > 0 else np.nextafter(0, 1),
                             'value_field': '-log10(p)'
                         }) + '\n')
@@ -262,7 +265,7 @@ def process_phewas(dataset_cell_type_models):
                             'n2_type': 'factor',
                             'n1': get_node_id('trait', json_line['Pheno']),
                             'n2': get_node_id('factor', (dataset, cell_type, model, json_line['Factor'])),
-                            'n1_value': json_line['Pheno'],
+                            'n1_value': clean(json_line['Pheno']),
                             'n2_value': '{};{};{};{}'.format(dataset, cell_type, model, json_line['Factor']),
                             'value': -math.log10(p) if p > 0 else np.nextafter(0, 1),
                             'value_field': '-log10(p)'
@@ -316,35 +319,35 @@ def process_pigean(dataset_celltype_models):
         'gene_set_to_factors': gzip.open('outputs/gene_set_to_factors.json.gz', 'wt')
     }
     for dataset, cell_type, model in dataset_celltype_models:
-        file_in = f'{s3_in}/out/single_cell/pigean/{dataset}/{cell_type}/{model}/pigean.gene_sets.tsv'
+        file_in = f'{s3_in}/out/single_cell/pigean/{dataset}/{cell_type}/{model}/gene_set_stats.json'
         if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
             subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
-            with open('inputs/pigean.gene_sets.tsv', 'r') as f:
-                _ = f.readline().strip().split('\t')
+            with open('inputs/gene_set_stats.json', 'r') as f:
                 for line in f:
-                    factor_num, gene_set, beta = line.strip().split('\t')
+                    line_dict = json.loads(line.strip())
+                    beta = line_dict['beta']
                     if float(beta) > 0.01:
                         outputs['factor_to_gene_sets'].write(json.dumps({
                             'n1_type': 'factor',
                             'n2_type': 'gene_set',
-                            'n1': get_node_id('factor', (dataset, cell_type, model, 'Factor_{}'.format(factor_num))),
-                            'n2': get_node_id('geneset', gene_set),
-                            'n1_value': '{};{};{};{}'.format(dataset, cell_type, model, 'Factor_{}'.format(factor_num)),
-                            'n2_value': gene_set,
+                            'n1': get_node_id('factor', (dataset, cell_type, model, line_dict['factor'])),
+                            'n2': get_node_id('geneset', line_dict['gene_set']),
+                            'n1_value': '{};{};{};{}'.format(dataset, cell_type, model, line_dict['factor']),
+                            'n2_value': clean(line_dict['gene_set']),
                             'value': float(beta),
                             'value_field': 'beta'
                         }) + '\n')
                         outputs['gene_set_to_factors'].write(json.dumps({
                             'n1_type': 'gene_set',
                             'n2_type': 'factor',
-                            'n1': get_node_id('geneset', gene_set),
-                            'n2': get_node_id('factor', (dataset, cell_type, model, 'Factor_{}'.format(factor_num))),
-                            'n1_value': gene_set,
-                            'n2_value': '{};{};{};{}'.format(dataset, cell_type, model, 'Factor_{}'.format(factor_num)),
+                            'n1': get_node_id('geneset', line_dict['gene_set']),
+                            'n2': get_node_id('factor', (dataset, cell_type, model, line_dict['factor'])),
+                            'n1_value': clean(line_dict['gene_set']),
+                            'n2_value': '{};{};{};{}'.format(dataset, cell_type, model, line_dict['factor']),
                             'value': float(beta),
                             'value_field': 'beta'
                         }) + '\n')
-            os.remove('inputs/pigean.gene_sets.tsv')
+            os.remove('inputs/gene_set_stats.json')
     for f_out in outputs.values():
         f_out.close()
 
