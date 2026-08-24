@@ -268,7 +268,6 @@ def label_factor(dataset, cell_type, factor_data, llm_endpoint):
                          f'Return ONLY the label summary.\n\n{prompt_data}'
                 response = llm_endpoint.query(prompt)
                 if response is not None:
-                    print(format_response(response))
                     factor_data[i]['labels'][label_type] = format_response(response)
     return factor_data
 
