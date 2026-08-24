@@ -5,13 +5,14 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
-class MakeH5adStage(implicit context: Context) extends Stage {
+class CellStateScoringStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
+    masterVolumeSizeInGB = 100,
     masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-h5ad.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-scoring.sh")))
   )
 
   val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/split/*/*/*")
@@ -29,6 +30,6 @@ class MakeH5adStage(implicit context: Context) extends Stage {
           s"--dataset=$dataset",
           s"--cell-type=$cellType")
     }
-    new Job(Job.Script(resourceUri("makeH5ad.py"), flags:_*))
+    new Job(Job.Script(resourceUri("cellStateScoring.py"), flags:_*))
   }
 }

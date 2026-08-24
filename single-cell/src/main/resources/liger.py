@@ -10,7 +10,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download(dataset, cell_type):
-    path = f'{s3_in}/out/single_cell/staging/h5ad/{dataset}/{cell_type}.h5ad'
+    path = f'{s3_in}/out/single_cell/staging/h5ad/{dataset}/{cell_type}/data.h5ad'
     cmd = ['aws', 's3', 'cp', path, 'inputs/data.h5ad']
     subprocess.check_call(cmd)
 

@@ -83,16 +83,17 @@ def combine_gene_sets():
     with open('output/pigean.gene_sets.tsv', 'w') as f_out:
         f_out.write('factor\tgene_set\tbeta\tbeta_uncorrected\n')
         for idx in range(1, num_cols):
-            with open(f'staging/gss.Factor{idx}.out', 'r') as f:
-                header = f.readline().strip().split('\t')
-                for line in f:
-                    line_dict = dict(zip(header, line.strip().split('\t')))
-                    f_out.write('{}\t{}\t{}\t{}\n'.format(
-                        f'Factor{idx}',
-                        line_dict['Gene_Set'],
-                        line_dict['beta'],
-                        line_dict['beta_uncorrected']
-                    ))
+            if os.path.exists(f'staging/gss.Factor{idx}.out'):
+                with open(f'staging/gss.Factor{idx}.out', 'r') as f:
+                    header = f.readline().strip().split('\t')
+                    for line in f:
+                        line_dict = dict(zip(header, line.strip().split('\t')))
+                        f_out.write('{}\t{}\t{}\t{}\n'.format(
+                            f'Factor{idx}',
+                            line_dict['Gene_Set'],
+                            line_dict['beta'],
+                            line_dict['beta_uncorrected']
+                        ))
 
 
 def upload(dataset, cell_type, model):

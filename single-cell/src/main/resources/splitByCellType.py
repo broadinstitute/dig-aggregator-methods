@@ -22,44 +22,26 @@ def format_cell_type(cell_type):
     return re.sub(r'[^a-zA-Z0-9_-]', '', cell_type.replace(' ', '_').lower())
 
 
-def get_p_inv():
-    p_inv = {}
-    with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f_in:
-        header = f_in.readline().strip().split('\t')
-        for line in f_in:
-            json_line = dict(zip(header, line.strip().split('\t')))
-            n_count = json_line['QC:nCount_RNA']
-            if len(n_count) > 0 and float(n_count) % 1 == 0:
-                cell_type = json_line['cell_type__kp']
-                cell_type_str = format_cell_type(cell_type)
-                if cell_type_str not in p_inv:
-                    p_inv[cell_type_str] = 0
-                p_inv[cell_type_str] += 1 / 5000
-    return p_inv
-
-
 def get_cells():
-    p_inv = get_p_inv()
     cell_type_cells = {}
     ncount_map = {}
     with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f_in:
         header = f_in.readline().strip().split('\t')
         for line in f_in:
             json_line = dict(zip(header, line.strip().split('\t')))
-            n_count = json_line['QC:nCount_RNA']
+            cell_type = json_line['Cell Type']
+            cell_type_str = format_cell_type(cell_type)
+            if cell_type_str not in cell_type_cells:
+                cell_type_cells[cell_type_str] = set()
+            cell_type_cells[cell_type_str] |= {json_line['NAME']}
+            n_count = json_line['ncount_rna']
             if len(n_count) > 0 and float(n_count) % 1 == 0:
-                cell_type = json_line['cell_type__kp']
-                cell_type_str = format_cell_type(cell_type)
-                if np.random.rand() < 1 / p_inv[cell_type_str]:
-                    if cell_type_str not in cell_type_cells:
-                        cell_type_cells[cell_type_str] = set()
-                    cell_type_cells[cell_type_str] |= {json_line['ID']}
-                    ncount_map[json_line['ID']] = float(json_line['QC:nCount_RNA'])
+                ncount_map[json_line['NAME']] = float(json_line['ncount_rna'])
     return cell_type_cells, ncount_map
 
 
-def write_metadata(cell_type_cells):
-    f_outs = {cell_type: gzip.open(f'output/{cell_type}/sample_metadata.sample.tsv.gz', 'wt') for cell_type in cell_type_cells}
+def write_norm_metadata(cell_type_cells):
+    f_outs = {cell_type: gzip.open(f'output/{cell_type}/norm_counts.metadata.tsv.gz', 'wt') for cell_type in cell_type_cells}
     with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f:
         header = f.readline()
         for f_out in f_outs.values():
@@ -74,7 +56,7 @@ def write_metadata(cell_type_cells):
 
 
 def write_lognorm_counts(cell_type_cells):
-    f_outs = {cell_type: gzip.open(f'output/{cell_type}/norm_counts.sample.tsv.gz', 'wt') for cell_type in cell_type_cells}
+    f_outs = {cell_type: gzip.open(f'output/{cell_type}/norm_counts.tsv.gz', 'wt') for cell_type in cell_type_cells}
     with gzip.open('input/norm_counts.tsv.gz', 'rt') as f_in:
         header = f_in.readline().strip().split('\t')
         idxs = {}
@@ -91,13 +73,28 @@ def write_lognorm_counts(cell_type_cells):
         f_out.close()
 
 
+def write_raw_metadata(cell_type_cells, ncount_map):
+    f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.metadata.tsv.gz', 'wt') for cell_type in cell_type_cells}
+    with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f:
+        header = f.readline()
+        for f_out in f_outs.values():
+            f_out.write(header)
+        for line in f:
+            cell, _ = line.strip().split('\t', 1)
+            for cell_type, cells in cell_type_cells.items():
+                if cell in cells and cell in ncount_map:
+                    f_outs[cell_type].write(line)
+    for f_out in f_outs.values():
+        f_out.close()
+
+
 def write_raw_counts(cell_type_cells, ncount_map):
-    f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.sample.tsv.gz', 'wt') for cell_type in cell_type_cells}
+    f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.tsv.gz', 'wt') for cell_type in cell_type_cells}
     with gzip.open('input/norm_counts.tsv.gz', 'rt') as f_in:
         header = f_in.readline().strip().split('\t')
         idxs = {}
         for cell_type, f_out in f_outs.items():
-            idxs[cell_type] = [(idx, ncount_map[cell]) for idx, cell in enumerate(header[1:]) if cell in cell_type_cells[cell_type]]
+            idxs[cell_type] = [(idx, ncount_map[cell]) for idx, cell in enumerate(header[1:]) if cell in cell_type_cells[cell_type] and cell in ncount_map]
             stripped_line = 'gene\t{}'.format('\t'.join([header[idx + 1] for idx, _ in idxs[cell_type]]))
             f_out.write(f'{stripped_line}\n')
         for line in f_in:
@@ -111,8 +108,8 @@ def write_raw_counts(cell_type_cells, ncount_map):
 
 
 def upload(dataset):
-    subprocess.check_call(['aws', 's3', 'rm', f'{s3_out}/out/single_cell/staging/downsample/{dataset}/', '--recursive'])
-    subprocess.check_call(['aws', 's3', 'cp', 'output/', f'{s3_out}/out/single_cell/staging/downsample/{dataset}/', '--recursive'])
+    subprocess.check_call(['aws', 's3', 'rm', f'{s3_out}/out/single_cell/staging/split/{dataset}/', '--recursive'])
+    subprocess.check_call(['aws', 's3', 'cp', 'output/', f'{s3_out}/out/single_cell/staging/split/{dataset}/', '--recursive'])
 
 
 def main():
@@ -126,8 +123,9 @@ def main():
     for cell_type in cell_type_cells:
         os.makedirs(f'output/{cell_type}', exist_ok=True)
 
-    write_metadata(cell_type_cells)
+    write_norm_metadata(cell_type_cells)
     write_lognorm_counts(cell_type_cells)
+    write_raw_metadata(cell_type_cells, ncount_map)
     write_raw_counts(cell_type_cells, ncount_map)
 
     upload(args.dataset)
