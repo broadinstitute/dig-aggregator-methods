@@ -22,7 +22,7 @@ class FalconStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
-    masterVolumeSizeInGB = 100,
+    masterVolumeSizeInGB = 200,
     masterInstanceType = Strategy.computeOptimized(),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap_falcon.sh")))
   )
