@@ -2,6 +2,8 @@
 import argparse
 import anndata as ad
 import gzip
+import math
+import numpy as np
 import os
 from scipy.sparse import csc_matrix, vstack
 import shutil
@@ -11,88 +13,49 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download_data(dataset):
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/single_cell/{dataset}/norm_counts.tsv.gz', 'inputs/'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/single_cell/{dataset}/sample_metadata.tsv.gz', 'inputs/'])
+def download_data(dataset, cell_type):
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/raw_counts.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/raw_counts.metadata.tsv.gz', 'inputs/'])
 
 
 def get_metadata_maps():
-    cell_type_map = {}
     donor_map = {}
-    with gzip.open('inputs/sample_metadata.tsv.gz', 'rt') as f:
+    with gzip.open('inputs/raw_counts.metadata.tsv.gz', 'rt') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             json_line = dict(zip(header, line.strip().split('\t')))
-            cell_type_map[json_line['ID']] = json_line['cell_type__kp']
-            donor_map[json_line['ID']] = json_line['donor_id']
-    return cell_type_map, donor_map
+            donor_map[json_line['NAME']] = json_line['study']
+    return donor_map
 
 
-def get_sparse_array(cell_type_map, donor_map):
-    cell_types = list(set(cell_type_map.values()))
-    with gzip.open('inputs/norm_counts.tsv.gz', 'rt') as f:
+def get_sparse_array(cell_type, donor_map):
+    with gzip.open('inputs/raw_counts.tsv.gz', 'rt') as f:
         cells = f.readline().strip().split('\t')[1:]
-        cells_idx_dict = {cell_type: [idx for idx, cell in enumerate(cells) if cell_type_map[cell] == cell_type] for cell_type in cell_types}
-        gene, data = f.readline().strip().split('\t', 1)
-        genes = [gene]
-        formatted_data = list(map(float, data.split('\t')))
-        A = csc_matrix([formatted_data])
-        A_dict = {cell_type: csc_matrix([[formatted_data[idx] for idx in cells_idx_dict[cell_type]]]) for cell_type in cell_types}
-        count = 1
-        idx = 0
-        B = []
-        B_dict = {cell_type: [] for cell_type in cell_types}
+        genes = []
+        A_dict = []
         for line in f:
-            if count == 100:  # Just sufficiently small to reduce max memory load
-                A = vstack([A, csc_matrix(B)])
-                for cell_type in cell_types:
-                    A_dict[cell_type] = vstack([A_dict[cell_type], csc_matrix(B_dict[cell_type])])
-                B = []
-                B_dict = {cell_type: [] for cell_type in cell_types}
-                count = 0
-                idx += 1
             gene, data = line.strip().split('\t', 1)
             if gene not in genes:
-                line_to_append = list(map(float, data.split('\t')))
-                B.append(line_to_append)
-                for cell_type in cell_types:
-                    B_dict[cell_type].append([line_to_append[idx] for idx in cells_idx_dict[cell_type]])
-                count += 1
+                line_to_append = list(map(int, data.split('\t')))
+                A_dict.append(line_to_append)
                 genes.append(gene)
-        A = vstack([A, csc_matrix(B)])
-        for cell_type in cell_types:
-            A_dict[cell_type] = vstack([A_dict[cell_type], csc_matrix(B_dict[cell_type])])
     return ad.AnnData(
-        A.T,
+        csc_matrix(A_dict).T,
         obs={
             'obs_names': cells,
-            'cell_type__kp': [cell_type_map[cell] for cell in cells],
+            'cell_type__kp': [cell_type for _ in cells],
             'donor_id': [donor_map[cell] for cell in cells]
         },
         var={
             'var_names': genes
-        }), {
-        cell_type: ad.AnnData(
-            A_dict[cell_type].T,
-            obs={
-                'obs_names': [cells[idx] for idx in cells_idx_dict[cell_type]],
-                'cell_type__kp': [cell_type_map[cells[idx]] for idx in cells_idx_dict[cell_type]],
-                'donor_id': [donor_map[cells[idx]] for idx in cells_idx_dict[cell_type]]
-            },
-            var={
-                'var_names': genes
-            }) for cell_type in cell_types
-    }
+        }
+    )
 
 
-def upload(dataset, adata, cell_type_adata_map):
+def upload(dataset, cell_type, adata):
     adata.write_h5ad('data.h5ad')
-    subprocess.check_call(['aws', 's3', 'cp', 'data.h5ad', f'{s3_out}/out/single_cell/staging/h5ad/{dataset}/'])
+    subprocess.check_call(['aws', 's3', 'cp', 'data.h5ad', f'{s3_out}/out/single_cell/staging/h5ad/{dataset}/{cell_type}/'])
     os.remove('data.h5ad')
-    for cell_type, adata in cell_type_adata_map.items():
-        adata.write_h5ad(f'{cell_type}.h5ad')
-        subprocess.check_call(['aws', 's3', 'cp', f'{cell_type}.h5ad', f'{s3_out}/out/single_cell/staging/h5ad/{dataset}/'])
-        os.remove(f'{cell_type}.h5ad')
     shutil.rmtree('inputs')
 
 
@@ -100,12 +63,14 @@ def run():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default=None, required=True, type=str,
                         help="Dataset name")
+    parser.add_argument('--cell-type', default=None, required=True, type=str,
+                        help="Cell Type")
     args = parser.parse_args()
 
-    download_data(args.dataset)
-    cell_type_map, donor_map = get_metadata_maps()
-    adata, cell_type_adata_dict = get_sparse_array(cell_type_map, donor_map)
-    upload(args.dataset, adata, cell_type_adata_dict)
+    download_data(args.dataset, args.cell_type)
+    donor_map = get_metadata_maps()
+    adata = get_sparse_array(args.cell_type, donor_map)
+    upload(args.dataset, args.cell_type, adata)
 
 
 if __name__ == '__main__':
