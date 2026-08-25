@@ -10,6 +10,7 @@ object SingleCell extends Method {
     addStage(new GenerateLigerBootstrapStage)
     addStage(new DownsampleStage)
     addStage(new SplitByCellTypeStage)
+    addStage(new ConvertToMtxStage)
     addStage(new MakeH5adStage)
     addStage(new LigerStage)
     addStage(new TranslateLigerStage)

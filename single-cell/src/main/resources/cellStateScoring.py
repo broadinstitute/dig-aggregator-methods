@@ -17,26 +17,14 @@ dataset_to_tissue = {
 
 
 def download_data(dataset, cell_type):
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/norm_counts.tsv.gz', 'inputs/'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/norm_counts.metadata.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/mtx/{dataset}/{cell_type}/', 'inputs/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/gene_loadings.tsv', 'inputs/'])
-
-
-def prepare_sparse_matrix():
-    cmd = [
-        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/convert_expression_tsv_to_sparse_10x.py',
-        '--matrix-tsv', 'inputs/norm_counts.tsv.gz',
-        '--out-dir', 'outputs/rank_10x',
-        '--orientation', 'gene_by_cell',
-        '--value-type', 'log1p_cp10k'
-    ]
-    subprocess.check_call(cmd)
 
 
 metadata_fields = ['cell_id', 'map_id', 'tissue', 'cell_type', 'annotated_cell_type', 'donor_id', 'sample_id']
 def prepare_metadata(cell_type, tissue):
     cells = []
-    with gzip.open('outputs/rank_10x/barcodes.tsv.gz', 'rt') as f:
+    with gzip.open('inputs/barcodes.tsv.gz', 'rt') as f:
         for line in f:
             cells.append(line.strip())
     with gzip.open('outputs/metadata.tsv.gz', 'wt') as f_out:
@@ -206,7 +194,7 @@ def build_combined_gmt(dataset, tissue, cell_type):
 def run_scoring():
     cmd = [
         'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/run_cmdkp_state_scoring.py',
-        '--rank-10x-dir', 'outputs/rank_10x',
+        '--rank-10x-dir', 'inputs',
         '--rank-value-type', 'log1p_cp10k',
         '--cell-metadata', 'outputs/metadata.tsv.gz',
         '--states-gmt', 'outputs/combined_gmt/combined_signatures.gmt',
@@ -230,7 +218,7 @@ def run_scoring():
 def run_expression_summary():
     cmd = [
         'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/summarize_state_expression.py',
-        '--raw-10x-dir', 'outputs/rank_10x',
+        '--raw-10x-dir', 'inputs',
         '--expression-value-type', 'log1p_cp10k',
         '--metadata', 'outputs/metadata.tsv.gz',
         '--cell-state-activity', 'outputs/scoring/cell_state_activity.tsv.gz',
@@ -335,7 +323,6 @@ def build_qc_outputs(tissue, cell_type):
 
 def run_pipeline(dataset, tissue, cell_type):
     os.makedirs('outputs', exist_ok=True)
-    prepare_sparse_matrix()
     prepare_metadata(cell_type, tissue)
     build_combined_gmt(dataset, tissue, cell_type)
     run_scoring()
@@ -355,7 +342,6 @@ def upload_data(dataset, cell_type):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--tissue')  # probably just need to define this somewhere instead
     parser.add_argument('--dataset')
     parser.add_argument('--cell-type')
     args = parser.parse_args()

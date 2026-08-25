@@ -6,6 +6,7 @@ import math
 import os
 import random
 import re
+import shutil
 import subprocess
 
 import numpy as np
@@ -490,6 +491,8 @@ def main():
     build_program_qc_enrichment(datasets, labels)
 
     upload_bioindex_data()
+    shutil.rmtree('inputs')
+    shutil.rmtree('outputs')
 
 
 if __name__ == '__main__':
