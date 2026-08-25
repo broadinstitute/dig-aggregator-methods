@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "cell_state_test",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "cell_state_test"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "cell_state_test"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-private",
+            "subdir": "cell_state_test/bioindex"
         },
         "emr": {
             "subnetIds": [
