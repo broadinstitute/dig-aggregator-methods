@@ -23,7 +23,7 @@ def prepare_sparse_matrix():
     cmd = [
         'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/convert_expression_tsv_to_sparse_10x.py',
         '--matrix-tsv', 'inputs/norm_counts.tsv.gz',
-        '--out-dir', 'outputs/rank_10x',
+        '--out-dir', 'outputs',
         '--orientation', 'gene_by_cell',
         '--value-type', 'log1p_cp10k'
     ]
@@ -55,8 +55,7 @@ def prepare_metadata(cell_type, tissue):
 
 
 def upload_data(dataset, cell_type):
-    subprocess.check_call(['aws', 's3', 'cp', 'outputs/rank_10x', f'{s3_in}/out/single_cell/staging/mtx/{dataset}/{cell_type}/', '--recursive'])
-    subprocess.check_call(['aws', 's3', 'cp', 'outputs/metadata.tsv.gz', f'{s3_in}/out/single_cell/staging/mtx/{dataset}/{cell_type}/'])
+    subprocess.check_call(['aws', 's3', 'cp', 'outputs/', f'{s3_in}/out/single_cell/staging/mtx/{dataset}/{cell_type}/', '--recursive'])
 
 
 def main():

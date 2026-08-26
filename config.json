@@ -1,17 +1,17 @@
 {
     "aws": {
-        "project": "cell_state_test",
+        "project": "cell_state_test_2",
         "input": {
             "bucket": "dig-analysis-private",
-            "subdir": "cell_state_test"
+            "subdir": "cell_state_test_2"
         },
         "output": {
             "bucket": "dig-analysis-private",
-            "subdir": "cell_state_test"
+            "subdir": "cell_state_test_2"
         },
         "bioindex": {
             "bucket": "dig-analysis-private",
-            "subdir": "cell_state_test/bioindex"
+            "subdir": "cell_state_test_2/bioindex"
         },
         "emr": {
             "subnetIds": [

@@ -52,7 +52,7 @@ def build_program_labels(datasets):
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
                 key = (dataset, dict_line['cell_type'], dict_line['model'], dict_line['factor'])
-                labels[key] = dict_line['label']
+                labels[key] = (dict_line['label'], dict_line['quality'])
     return labels
 
 
@@ -186,11 +186,13 @@ def build_cell_state_heatmap(datasets, labels):
                 dict_line = dict(zip(header, line.strip().split('\t')))
                 modified_factor = 'Factor{}'.format(re.findall(r'factor_([0-9]*)', dict_line['program_id'])[0])
                 key = (dataset, dict_line['cell_type'], model, modified_factor)
+                label, quality = labels.get(key, (None, None))
                 lines.append(
                     {
                         'state_name': dict_line['state_name'],
                         'program_id': modified_factor,
-                        'program_label': labels.get(key),
+                        'program_label': label,
+                        'program_quality': quality,
                         'dataset': dataset,
                         'model': model,
                         'cell_type': dict_line['cell_type'],
@@ -235,13 +237,15 @@ def build_program_pigean(datasets, labels):
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
                 key = (dataset, dict_line['cell_type'], model, dict_line['factor'])
+                label, quality = labels.get(key, (None, None))
                 lines.append(
                     {
                         'dataset': dataset,
                         'model': model,
                         'cell_type': dict_line['cell_type'],
                         'factor': dict_line['factor'],
-                        'factor_label': labels.get(key),
+                        'factor_label': label,
+                        'factor_quality': quality,
                         'trait': dict_line['trait'],
                         'beta': float(dict_line['beta']),
                         'beta_uncorrected': float(dict_line['beta_uncorrected'])
@@ -266,6 +270,7 @@ def build_program_expression_by_dataset(datasets, labels):
                     log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
                     p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
                     key = (dataset, dict_line['cell_type'], model, dict_line['factor'])
+                    label, quality = labels.get(key, (None, None))
                     lines.append(
                         {
                             'gene': dict_line['gene'],
@@ -273,7 +278,8 @@ def build_program_expression_by_dataset(datasets, labels):
                             'model': model,
                             'cell_type': dict_line['cell_type'],
                             'factor': dict_line['factor'],
-                            'factor_label': labels.get(key),
+                            'factor_label': label,
+                            'factor_quality': quality,
                             'log10_cpk': math.log10(log10_cpk),
                             'log2fc_weighted_vs_all_parent': log2fc,
                             'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
@@ -339,6 +345,7 @@ def build_program_expression_by_gene(datasets, labels):
                     log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
                     p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
                     key = (dataset, dict_line['cell_type'], model, dict_line['factor'])
+                    label, quality = labels.get(key, (None, None))
                     lines.append(
                         {
                             'gene': dict_line['gene'],
@@ -346,7 +353,8 @@ def build_program_expression_by_gene(datasets, labels):
                             'model': model,
                             'cell_type': dict_line['cell_type'],
                             'factor': dict_line['factor'],
-                            'factor_label': labels.get(key),
+                            'factor_label': label,
+                            'factor_quality': quality,
                             'log10_cpk': math.log10(log10_cpk),
                             'log2fc_weighted_vs_all_parent': log2fc,
                             'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
@@ -389,12 +397,14 @@ def build_program_gene_loadings(datasets, labels):
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
                 key = (dataset, dict_line['cell_type'], model, dict_line['factor'])
+                label, quality = labels.get(key, (None, None))
                 lines.append({
                     'dataset': dataset,
                     'model': model,
                     'cell_type': dict_line['cell_type'],
                     'factor': dict_line['factor'],
-                    'factor_label': labels.get(key),
+                    'factor_label': label,
+                    'factor_quality': quality,
                     'gene': dict_line['gene'],
                     'value': float(dict_line['value']),
                 })
@@ -415,13 +425,15 @@ def build_program_qc_gene_set_factor(datasets, labels):
                     dict_line = dict(zip(header, line.strip().split('\t')))
                     if dict_line['beta'] != 'NA' and dict_line['beta'] != '' and dataset is not None:
                         key = (dataset, cell_type, model, dict_line['factor'])
+                        label, quality = labels.get(key, (None, None))
                         lines.append(
                             {
                                 'dataset': dataset,
                                 'model': model,
                                 'cell_type': cell_type,
                                 'factor': dict_line['factor'],
-                                'factor_label': labels.get(key),
+                                'factor_label': label,
+                                'factor_quality': quality,
                                 'gene_set': dict_line['gene_set'],
                                 'beta': float(dict_line['beta']),
                                 'beta_uncorrected': float(dict_line['beta_uncorrected'])
@@ -444,13 +456,15 @@ def build_program_qc_enrichment(datasets, labels):
                     continue
                 modified_factor = 'Factor{}'.format(re.findall(r'factor_([0-9]*)', dict_line['program_id'])[0])
                 key = (dataset, dict_line['cell_type'], model, modified_factor)
+                label, quality = labels.get(key, (None, None))
                 lines.append(
                     {
                         'dataset': dataset,
                         'model': model,
                         'cell_type': dict_line['cell_type'],
                         'factor': modified_factor,
-                        'factor_label': labels.get(key),
+                        'factor_label': label,
+                        'factor_quality': quality,
                         'state_name': dict_line['state_id'],
                         'gsea_p': float(dict_line['gsea_p']),
                         'gsea_q': float(dict_line['gsea_q'])

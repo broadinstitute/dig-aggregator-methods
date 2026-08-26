@@ -9,7 +9,7 @@ class SplitByCellTypeStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterVolumeSizeInGB = 100,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-downsample.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-numpy.sh")))
   )
 
   val singleCell: Input.Source = Input.Source.Raw("single_cell/*/dataset_metadata.json")

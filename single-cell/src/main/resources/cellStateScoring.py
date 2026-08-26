@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import argparse
-import gzip
+import glob
 import os
 import shutil
 import subprocess
@@ -19,145 +19,35 @@ dataset_to_tissue = {
 def download_data(dataset, cell_type):
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/mtx/{dataset}/{cell_type}/', 'inputs/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/gene_loadings.tsv', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/gene_sets/', 'gene_sets/', '--recursive'])
 
 
-def filter_cell_stats(tissue, cell_type):
-    state_ids = set()
-    curated_manifest_rows = []
-    with open(f'{downloaded_files}/misc/{tissue}_cell_state_manifest.tsv', 'r') as f:
-        header = f.readline().strip().split('\t')
-        for line in f:
-            dict_line = dict(zip(header, line.strip().split('\t')))
-            if dict_line['tissue_id'] == tissue and dict_line['cell_type_id'] == cell_type:
-                state_ids |= {dict_line['state_id']}
-                curated_manifest_rows.append(
-                    {
-                        'state_name': dict_line['state_id'],
-                        'tissue': dict_line['tissue_id'],
-                        'cell_type': dict_line['cell_type_id'],
-                        'state_class': dict_line.get('state_class', 'unknown'),
-                        'is_composite_required': str(dict_line.get('is_composite_required', 'false')).lower(),
-                        'signature_kind': 'curated_state',
-                    }
-                )
+def build_combined(tissue, cell_type):
+    os.makedirs('combined', exist_ok=True)
 
-    curated_rows = []
-    with open(f'{downloaded_files}/misc/{tissue}_cell_state_markers.gmt', 'r') as f:
-        for line in f:
-            split_line = line.strip().split('\t')
-            if split_line[0] in state_ids:
-                curated_rows.append((split_line[0], split_line[1], [g for g in split_line[2:] if g]))
+    with open('combined/gene_sets.gmt', 'w') as f:
+        header = None
+        for file in glob.glob(f'gene_sets/*/{tissue}/{cell_type}/*/gene_sets.gmt'):
+            with open(file, 'r') as f_in:
+                if header is None:
+                    header = f_in.readline()
+                    f.write(header)
+                else:
+                    _ = f_in.readline()
+                for line in f_in:
+                    f.write(line)
 
-    with open('outputs/combined_gmt/curated_state.gmt', 'w') as f:
-        for row in curated_rows:
-            f.write('{}\t{}\t{}\n'.format(
-                row[0],
-                row[1],
-                '\t'.join(row[2])
-            ))
-
-    with open(f'outputs/pigean_gmt/curated/{cell_type}.gmt', 'w') as f:
-        for row in curated_rows:
-            f.write('{}\t{}\t{}\n'.format(
-                row[0],
-                row[1],
-                '\t'.join(row[2])
-            ))
-
-    return curated_manifest_rows, curated_rows
-
-
-def convert_program_loadings(dataset, tissue, cell_type):
-    program_rows = []
-    program_manifest_rows = []
-    loadings_path = 'inputs/gene_loadings.tsv'
-
-    loadings = pd.read_csv(loadings_path, sep='\t', index_col=0)
-    renamed = {}
-    for factor in loadings.columns:
-        factor_id = factor.replace('Factor_', 'factor_')
-        state_name = f'{tissue}_{cell_type}_program_{factor_id}'
-        renamed[factor] = state_name
-        top = loadings[factor].sort_values(ascending=False).head(100) # take top 100 genes
-        genes = [str(g) for g, v in top.items() if pd.notna(v) and float(v) > 0]
-        if genes:
-            program_rows.append((state_name, f'type=program;cell_type={cell_type};source={dataset}', genes))
-            program_manifest_rows.append({
-                'state_name': state_name,
-                'tissue': tissue,
-                'cell_type': cell_type,
-                'state_class': 'broad_function_gradient',
-                'is_composite_required': 'false',
-                'signature_kind': 'program',
-            })
-    loadings.rename(columns=renamed)\
-        .reset_index(names='gene')\
-        .to_csv('outputs/combined_gmt/program_loadings.tsv.gz', sep='\t', index=False, compression='gzip')
-
-    with open('outputs/combined_gmt/program.gmt', 'w') as f:
-        for row in program_rows:
-            f.write('{}\t{}\t{}\n'.format(
-                row[0],
-                row[1],
-                '\t'.join(row[2])
-            ))
-
-    with open(f'outputs/pigean_gmt/program/{cell_type}.gmt', 'w') as f:
-        for row in program_rows:
-            f.write('{}\t{}\t{}\n'.format(
-                row[0],
-                row[1],
-                '\t'.join(row[2])
-            ))
-
-    return renamed, program_manifest_rows, program_rows
-
-
-def build_combined_gmt(dataset, tissue, cell_type):
-    os.makedirs('outputs/combined_gmt', exist_ok=True)
-    os.makedirs('outputs/pigean_gmt/curated', exist_ok=True)
-    os.makedirs('outputs/pigean_gmt/program', exist_ok=True)
-    curated_manifest_rows, curated_rows = filter_cell_stats(tissue, cell_type)
-    renamed, program_manifest_rows, program_rows = convert_program_loadings(dataset, tissue, cell_type)
-
-    combined_rows = curated_rows + program_rows
-    with open('outputs/combined_gmt/combined_signatures.gmt', 'w') as f:
-        for row in combined_rows:
-            f.write('{}\t{}\t{}\n'.format(
-                row[0],
-                row[1],
-                '\t'.join(row[2])
-            ))
-
-    with open('outputs/combined_gmt/combined_signature_manifest.tsv', 'w') as f:
-        f.write('state_name\ttissue\tcell_type\tstate_class\tis_composite_required\tsignature_kind\n')
-        for row in curated_manifest_rows + program_manifest_rows:
-            f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(
-                row['state_name'],
-                row['tissue'],
-                row['cell_type'],
-                row['state_class'],
-                row['is_composite_required'],
-                row['signature_kind'])
-            )
-
-    with open('outputs/combined_gmt/signature_kind.tsv', 'w') as f:
-        f.write('state_name\tcell_type\tsignature_kind\n')
-        for row in curated_manifest_rows + program_manifest_rows:
-            f.write('{}\t{}\t{}\n'.format(
-                row['state_name'],
-                row['cell_type'],
-                row['signature_kind'])
-            )
-
-    with open('outputs/program_source.manifest.tsv', 'w') as f:
-        f.write('cell_type\tprogram_dir\tprogram_loadings\tprogram_cell_activity\n')
-        f.write('{}\t{}\t{}\t{}\n'.format(
-            cell_type,
-            'inputs',
-            'outputs/combined_gmt/program_loadings.tsv.gz',
-            'outputs/scoring/program_cell_activity.tsv.gz',
-        ))
+    with open('combined/manifest.tsv', 'w') as f:
+        header = None
+        for file in glob.glob(f'gene_sets/*/{tissue}/{cell_type}/*/manifest.tsv'):
+            with open(file, 'r') as f_in:
+                if header is None:
+                    header = f_in.readline()
+                    f.write(header)
+                else:
+                    _ = f_in.readline()
+                for line in f_in:
+                    f.write(line)
 
 
 def run_scoring():
@@ -166,14 +56,13 @@ def run_scoring():
         '--rank-10x-dir', 'inputs',
         '--rank-value-type', 'log1p_cp10k',
         '--cell-metadata', 'inputs/metadata.tsv.gz',
-        '--states-gmt', 'outputs/combined_gmt/combined_signatures.gmt',
-        '--state-manifest', 'outputs/combined_gmt/combined_signature_manifest.tsv',
+        '--states-gmt', 'combined/gene_sets.gmt',
+        '--state-manifest', 'combined/manifest.tsv',
         '--require-state-manifest',
         '--qc-gmt', f'{downloaded_files}/misc/cmdkp_all_tissues_minimal_bad_cell_qc_signatures.gmt',
         '--allow-small-rank-universe',
-        '--map-id-col', 'map_id',
         '--tissue-col', 'tissue',
-        '--cell-type-col', 'annotated_cell_type',
+        '--cell-type-col', 'cell_type',
         '--donor-col', 'donor_id',
         '--sample-col', 'sample_id',
         '--progress-every-cells', '10000',
@@ -199,7 +88,7 @@ def run_expression_summary():
 
 
 def split_by_signature_kind():
-    kind = pd.read_csv('outputs/combined_gmt/signature_kind.tsv', sep='\t')
+    kind = pd.read_csv('combined/manifest.tsv', sep='\t')
     kind_lookup = kind[['state_name', 'signature_kind']].drop_duplicates()
 
     expr = pd.read_csv('outputs/expression/all_gene_state_expression_specificity_cp10k.tsv.gz', sep='\t') \
@@ -248,30 +137,6 @@ def run_program_state_matching(tissue, cell_type):
         heat.to_csv('outputs/match/program_state_heatmap_long.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
-def run_pigean(dataset, tissue, kind):
-    cmd = [
-        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/run_api_pigean.py',
-        '--gmt-dir', f'outputs/pigean_gmt/{kind}',
-        '--out-dir', f'outputs/pigean/{kind}',
-        '--combined-out', f'outputs/pigean/{kind}/combined_pigean.tsv.gz',
-        '--kind', 'curated' if kind == 'curated' else 'program',
-        '--tissue', tissue,
-        '--dataset', dataset,
-        '--model', 'mouse_msigdb',
-        '--python', 'python3.11',
-        '--pythonpath', f'{downloaded_files}/pigean/pigean/src',
-        '--multi-y-in', f'{downloaded_files}/pigean/gs_mouse_msigdb.tsv',
-        '--multi-y-id-col', 'gene',
-        '--multi-y-pheno-col', 'trait',
-        '--multi-y-log-bf-col', 'log_bf',
-        '--multi-y-combined-col', 'combined',
-        '--multi-y-prior-col', 'huge',
-        '--trait-blacklist-in', 'auto',
-        '--gene-universe-in', f'{downloaded_files}/pigean/NCBI37.3.plink.gene.loc',
-    ]
-    subprocess.check_call(cmd)
-
-
 def build_qc_outputs(tissue, cell_type):
     qc_match_frames = []
     qc_enrichment_frames = []
@@ -290,16 +155,14 @@ def build_qc_outputs(tissue, cell_type):
     out_qc_enrichment.to_csv('outputs/match/program_qc_enrichment.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
-def run_pipeline(dataset, tissue, cell_type):
+def run_pipeline(tissue, cell_type):
     os.makedirs('outputs', exist_ok=True)
-    build_combined_gmt(dataset, tissue, cell_type)
+    build_combined(tissue, cell_type)
     run_scoring()
     run_expression_summary()
     split_by_signature_kind()
     run_program_state_matching(tissue, cell_type)
     build_qc_outputs(tissue, cell_type)
-    run_pigean(dataset, tissue, 'curated')
-    run_pigean(dataset, tissue, 'program')
 
 
 def upload_data(dataset, cell_type):
@@ -317,7 +180,7 @@ def main():
     tissue = dataset_to_tissue[args.dataset]
 
     download_data(args.dataset, args.cell_type)
-    run_pipeline(args.dataset, tissue, args.cell_type)
+    run_pipeline(tissue, args.cell_type)
     upload_data(args.dataset, args.cell_type)
     shutil.rmtree('outputs')
     shutil.rmtree('inputs')

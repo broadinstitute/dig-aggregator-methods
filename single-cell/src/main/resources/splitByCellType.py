@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import argparse
 import gzip
+import json
+
 import numpy as np
 import math
 import os
@@ -15,6 +17,7 @@ s3_out = os.environ['OUTPUT_PATH']
 def download(dataset):
     path_in = f'{s3_in}/single_cell/{dataset}'
     subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/sample_metadata.tsv.gz', 'input/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/column_map.json', 'input/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/norm_counts.tsv.gz', 'input/'])
 
 
@@ -22,21 +25,27 @@ def format_cell_type(cell_type):
     return re.sub(r'[^a-zA-Z0-9_-]', '', cell_type.replace(' ', '_').lower())
 
 
+def get_column_map():
+    with open('input/column_map.json', 'r') as f:
+        return json.load(f)
+
+
 def get_cells():
+    col_map = get_column_map()
     cell_type_cells = {}
     ncount_map = {}
     with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f_in:
         header = f_in.readline().strip().split('\t')
         for line in f_in:
             json_line = dict(zip(header, line.strip().split('\t')))
-            cell_type = json_line['Cell Type']
+            cell_type = json_line[col_map['cell_type']]
             cell_type_str = format_cell_type(cell_type)
             if cell_type_str not in cell_type_cells:
                 cell_type_cells[cell_type_str] = set()
-            cell_type_cells[cell_type_str] |= {json_line['NAME']}
-            n_count = json_line['ncount_rna']
+            cell_type_cells[cell_type_str] |= {json_line[col_map['cell_id']]}
+            n_count = json_line[col_map['ncount']]
             if len(n_count) > 0 and float(n_count) % 1 == 0:
-                ncount_map[json_line['NAME']] = float(json_line['ncount_rna'])
+                ncount_map[json_line[col_map['cell_id']]] = float(json_line[col_map['ncount']])
     return cell_type_cells, ncount_map
 
 

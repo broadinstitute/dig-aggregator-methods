@@ -245,7 +245,7 @@ def convert_gene_programs(cell_type):
         _ = f.readline()
         importances = []
         for line in f:
-            importances.append(float(line.strip()))
+            importances.append(float(line.strip().split('\t')[-1]))
     with open(f'outputs/{cell_type}/factor_matrix_factors.tsv', 'w') as f_out:
         f_out.write('factor\texp_lambdak\ttop_genes\ttop_cells\n')
         for idx, importance in enumerate(importances):
