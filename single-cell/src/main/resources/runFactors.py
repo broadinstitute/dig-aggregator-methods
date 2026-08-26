@@ -155,6 +155,7 @@ def get_gene_loading_data(dataset, cell_type, model):
         top_50_genes[factor_key] = [gene_datum[1] for gene_datum in sorted(gene_data, reverse=True)[:50]]
     return top_50_genes
 
+
 def get_gene_set_data(dataset, cell_type, model):
     file_in = f'{s3_in}/out/single_cell/pigean/{dataset}/{cell_type}/{model}/pigean.gene_sets.tsv'
     factor_data = {}
@@ -164,9 +165,10 @@ def get_gene_set_data(dataset, cell_type, model):
             _ = f.readline().strip().split('\t')
             for line in f:
                 factor, gene_set, beta, beta_uncorrected = line.strip().split('\t')
-                if factor not in factor_data:
-                    factor_data[factor] = []
-                factor_data[factor].append((float(beta), gene_set))
+                if beta not in ['N/A', 'NA', '']:
+                    if factor not in factor_data:
+                        factor_data[factor] = []
+                    factor_data[factor].append((float(beta), gene_set))
     return {factor: [gene_set for value, gene_set in sorted(values, reverse=True)[:20]] for factor, values in factor_data.items()}
 
 

@@ -21,6 +21,8 @@ dataset_to_tissue = {
 def download_data(dataset):
     cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/scoring/{dataset}/', 'inputs/', '--recursive']
     subprocess.check_call(cmd)
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/factors/{dataset}/', f'inputs/factors/{dataset}/', '--recursive']
+    subprocess.check_call(cmd)
 
 
 def extract_zips():
@@ -106,6 +108,7 @@ def build_portal_tables(dataset):
         '--program-match-dir', 'outputs/combined/program_state_matches',
         '--cell-state-pigean', 'outputs/combined/cell_state_pigean.tsv.gz',
         '--program-pigean', 'outputs/combined/program_pigean.tsv.gz',
+        '--program-factors', f'inputs/factors/{dataset}'
     ]
     subprocess.check_call(cmd)
 
