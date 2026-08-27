@@ -242,7 +242,6 @@ def convert_gene_programs(cell_type):
     top_genes = get_top_genes(cell_type)
     top_cells = get_top_cells(cell_type)
     with open(f'inputs/factor_importance.txt', 'r') as f:
-        _ = f.readline()
         importances = []
         for line in f:
             importances.append(float(line.strip()))
