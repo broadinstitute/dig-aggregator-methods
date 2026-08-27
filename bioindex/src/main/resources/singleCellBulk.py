@@ -51,7 +51,7 @@ def get_is_float(example):
 
 
 def filter_metadata(index_lists, set_lists, index_dict, max_categories):
-    for label in list(index_lists.keys()):
+    for label in list(index_lists.keys() - {metadata_cell_key}):
         is_float = get_is_float(next(iter(set_lists[label])))
         if (is_float and len(set_lists[label]) > max_categories) or len(set_lists[label]) <= 1:
             print(f'Popping {label}')
