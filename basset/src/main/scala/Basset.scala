@@ -22,6 +22,6 @@ object Basset extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
-    addStage(new BassetStage)
+    addStage(new BassetVariantsStage)
   }
 }

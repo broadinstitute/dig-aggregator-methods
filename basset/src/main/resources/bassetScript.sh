@@ -24,10 +24,12 @@ cd "${BASSET_DIR}"
 # run pytorch script
 python3 "fullBassetScript.py" -i "${STEP_DIR}/$VARIANTS" -b 100 -o "${STEP_DIR}/$OUTFILE"
 
-# copy the output of VEP back to S3
-aws s3 cp "${STEP_DIR}/${OUTFILE}" "$S3DIR/basset/${OUTFILE}"
+# compress and copy the output of VEP back to S3
+zstd "${STEP_DIR}/${OUTFILE}"
+aws s3 cp "${STEP_DIR}/${OUTFILE}.zst" "$S3DIR/basset/variants/${OUTFILE}.zst"
 
 # delete the files to save space for future steps
 rm "${STEP_DIR}/${OUTFILE}"
+rm "${STEP_DIR}/${OUTFILE}.zst"
 rm "${STEP_DIR}/${VARIANTS}"
 rm "${STEP_DIR}/${PART}"
