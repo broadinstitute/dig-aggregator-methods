@@ -15,7 +15,7 @@ def download_data(dataset):
 
 def get_tissue_cell_types(dataset):
     tissue_cell_types = []
-    with open(f'inputs/{dataset}/cell_state_manifest.tsv', 'r') as f:
+    with open(f'inputs/cell_state_manifest.tsv', 'r') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             dict_line = dict(zip(header, line.strip().split('\t')))
@@ -26,7 +26,7 @@ def get_tissue_cell_types(dataset):
 def filter_cell_stats(dataset, tissue, cell_type):
     state_ids = set()
     curated_manifest_rows = []
-    with open(f'inputs/{dataset}/cell_state_manifest.tsv', 'r') as f:
+    with open(f'inputs/cell_state_manifest.tsv', 'r') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             dict_line = dict(zip(header, line.strip().split('\t')))
@@ -43,6 +43,7 @@ def filter_cell_stats(dataset, tissue, cell_type):
                     }
                 )
 
+    os.makedirs(f'outputs/cell_state/{tissue}/{cell_type}/{dataset}', exist_ok=True)
     with open(f'outputs/cell_state/{tissue}/{cell_type}/{dataset}/manifest.tsv', 'w') as f:
         f.write('state_name\ttissue\tcell_type\tstate_class\tis_composite_required\tsignature_kind\n')
         for row in curated_manifest_rows:
@@ -56,7 +57,7 @@ def filter_cell_stats(dataset, tissue, cell_type):
             )
 
     curated_rows = []
-    with open(f'inputs/{dataset}/cell_state_markers.gmt', 'r') as f:
+    with open(f'inputs/cell_state_markers.gmt', 'r') as f:
         for line in f:
             split_line = line.strip().split('\t')
             if split_line[0] in state_ids:

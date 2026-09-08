@@ -3,7 +3,6 @@ import argparse
 import gzip
 import json
 
-import numpy as np
 import math
 import os
 import re

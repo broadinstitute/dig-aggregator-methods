@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import argparse
 import gzip
+import json
 import os
 import shutil
 import subprocess
@@ -10,13 +11,15 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-4': 'pancreas'
+    'islet_of_Langerhans_scRNA_v3-4': 'pancreas',
+    'FNIH_Liver_scRNA_v3.2': 'liver'
 }
 
 
 def download_data(dataset, cell_type):
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/norm_counts.tsv.gz', 'inputs/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/norm_counts.metadata.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/single_cell/{dataset}/column_map.json', 'inputs/'])
 
 
 def prepare_sparse_matrix():
@@ -30,8 +33,14 @@ def prepare_sparse_matrix():
     subprocess.check_call(cmd)
 
 
-metadata_fields = ['cell_id', 'tissue', 'cell_type', 'donor_id', 'sample_id']
-def prepare_metadata(cell_type, tissue):
+def get_column_map():
+    with open('inputs/column_map.json', 'r') as f:
+        return json.load(f)
+
+
+metadata_fields = ['cell_id', 'tissue', 'cell_type', 'dataset_id', 'donor_id', 'sample_id']
+def prepare_metadata(tissue, cell_type, dataset):
+    col_map = get_column_map()
     cells = []
     with gzip.open('outputs/barcodes.tsv.gz', 'rt') as f:
         for line in f:
@@ -43,19 +52,20 @@ def prepare_metadata(cell_type, tissue):
             for line in f:
                 out_line = {}
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                if dict_line['NAME'] in cells:
-                    out_line['cell_id'] = dict_line['NAME']
+                if dict_line[col_map['cell_id']] in cells:
+                    out_line['cell_id'] = dict_line[col_map['cell_id']]
                     out_line['tissue'] = tissue
                     out_line['cell_type'] = cell_type
-                    out_line['donor_id'] = dict_line['donor_accession']
-                    out_line['sample_id'] = dict_line['barcodes']
+                    out_line['dataset_id'] = dataset
+                    out_line['donor_id'] = dict_line[col_map['donor_id']]
+                    out_line['sample_id'] = dict_line[col_map['sample_id']]
                     f_out.write('{}\n'.format(
                         '\t'.join([str(out_line[k]) for k in metadata_fields])
                     ))
 
 
-def upload_data(dataset, cell_type):
-    subprocess.check_call(['aws', 's3', 'cp', 'outputs/', f'{s3_in}/out/single_cell/staging/mtx/{dataset}/{cell_type}/', '--recursive'])
+def upload_data(tissue, cell_type, dataset):
+    subprocess.check_call(['aws', 's3', 'cp', 'outputs/', f'{s3_in}/out/single_cell/staging/mtx/{tissue}/{cell_type}/{dataset}/', '--recursive'])
 
 
 def main():
@@ -64,10 +74,12 @@ def main():
     parser.add_argument('--cell-type')
     args = parser.parse_args()
 
+    tissue = dataset_to_tissue[args.dataset]
+
     download_data(args.dataset, args.cell_type)
     prepare_sparse_matrix()
-    prepare_metadata(args.cell_type, dataset_to_tissue[args.dataset])
-    upload_data(args.dataset, args.cell_type)
+    prepare_metadata(tissue, args.cell_type, args.dataset)
+    upload_data(tissue, args.cell_type, args.dataset)
     shutil.rmtree('outputs')
     shutil.rmtree('inputs')
 
