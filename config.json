@@ -1,14 +1,15 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "sysbio",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-sysbio-proj"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-sysbio-proj"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-sysbio-proj",
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [
