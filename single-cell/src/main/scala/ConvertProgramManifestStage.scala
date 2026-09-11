@@ -4,19 +4,19 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 
-class TranslateLigerStage(implicit context: Context) extends Stage {
+class ConvertProgramManifestStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-translate-liger.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-numpy.sh")))
   )
 
-  val liger: Input.Source = Input.Source.Raw("out/single_cell/staging/liger/*/*/metadata.txt")
+  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/*")
 
-  override val sources: Seq[Input.Source] = Seq(liger)
+  override val sources: Seq[Input.Source] = Seq(singleCell)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case liger(dataset, cellType) => Outputs.Named(s"$dataset/$cellType")
+    case singleCell(dataset, cellType, _) => Outputs.Named(s"$dataset/$cellType")
   }
 
   override def make(output: String): Job = {
@@ -27,6 +27,6 @@ class TranslateLigerStage(implicit context: Context) extends Stage {
           s"--cell-type=$cellType"
         )
     }
-    new Job(Job.Script(resourceUri("translateLiger.py"), flags:_*))
+    new Job(Job.Script(resourceUri("convertProgramManifest.py"), flags:_*))
   }
 }

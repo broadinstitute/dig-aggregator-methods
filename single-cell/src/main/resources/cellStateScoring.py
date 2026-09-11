@@ -7,27 +7,28 @@ import subprocess
 
 import pandas as pd
 
-downloaded_files = '/mnt/var/single_cell'
+downloaded_files = '.'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-4': 'pancreas'
-}
 
-
-def download_data(dataset, cell_type):
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/mtx/{dataset}/{cell_type}/', 'inputs/', '--recursive'])
+def download_data(tissue, cell_type, dataset):
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/mtx/{tissue}/{cell_type}/{dataset}/', 'inputs/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/gene_loadings.tsv', 'inputs/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/gene_sets/', 'gene_sets/', '--recursive'])
 
 
-def build_combined(tissue, cell_type):
+def all_files(tissue, cell_type, dataset, file_type):
+    return glob.glob(f'gene_sets/cell_state/{tissue}/{cell_type}/*/{file_type}') + \
+        glob.glob(f'gene_sets/programs/{tissue}/{cell_type}/{dataset}/{file_type}')
+
+
+def build_combined(tissue, cell_type, dataset):
     os.makedirs('combined', exist_ok=True)
 
     with open('combined/gene_sets.gmt', 'w') as f:
         header = None
-        for file in glob.glob(f'gene_sets/*/{tissue}/{cell_type}/*/gene_sets.gmt'):
+        for file in all_files(tissue, cell_type, dataset, 'gene_sets.gmt'):
             with open(file, 'r') as f_in:
                 if header is None:
                     header = f_in.readline()
@@ -39,7 +40,7 @@ def build_combined(tissue, cell_type):
 
     with open('combined/manifest.tsv', 'w') as f:
         header = None
-        for file in glob.glob(f'gene_sets/*/{tissue}/{cell_type}/*/manifest.tsv'):
+        for file in all_files(tissue, cell_type, dataset, 'manifest.tsv'):
             with open(file, 'r') as f_in:
                 if header is None:
                     header = f_in.readline()
@@ -52,7 +53,7 @@ def build_combined(tissue, cell_type):
 
 def run_scoring():
     cmd = [
-        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/run_cmdkp_state_scoring.py',
+        'python3', f'{downloaded_files}/dig-cell-state-scoring/scripts/run_cmdkp_state_scoring.py',
         '--rank-10x-dir', 'inputs',
         '--rank-value-type', 'log1p_cp10k',
         '--cell-metadata', 'inputs/metadata.tsv.gz',
@@ -75,12 +76,12 @@ def run_scoring():
 
 def run_expression_summary():
     cmd = [
-        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/summarize_state_expression.py',
+        'python3', f'{downloaded_files}/dig-cell-state-scoring/scripts/summarize_state_expression.py',
         '--raw-10x-dir', 'inputs',
         '--expression-value-type', 'log1p_cp10k',
         '--metadata', 'inputs/metadata.tsv.gz',
         '--cell-state-activity', 'outputs/scoring/cell_state_activity.tsv.gz',
-        '--cell-type-col', 'annotated_cell_type',
+        '--cell-type-col', 'cell_type',
         '--api-minimal-output',
         '--out-dir', 'outputs/expression',
     ]
@@ -108,11 +109,23 @@ def split_by_signature_kind():
 
 
 
-def run_program_state_matching(tissue, cell_type):
+def run_program_state_matching(tissue, cell_type, dataset):
+    with open('combined/curated_state.gmt', 'w') as f:
+        header = None
+        for file in glob.glob(f'gene_sets/cell_state/{tissue}/{cell_type}/*/gene_sets.gmt'):
+            with open(file, 'r') as f_in:
+                if header is None:
+                    header = f_in.readline()
+                    f.write(header)
+                else:
+                    _ = f_in.readline()
+                for line in f_in:
+                    f.write(line)
+
     cmd = [
-        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/match_programs_to_cell_states.py',
-        '--program-loadings', 'outputs/combined_gmt/program_loadings.tsv.gz',
-        '--state-gmt', 'outputs/combined_gmt/curated_state.gmt',
+        'python3', f'{downloaded_files}/dig-cell-state-scoring/scripts/match_programs_to_cell_states.py',
+        '--program-loadings', f'gene_sets/programs/{tissue}/{cell_type}/{dataset}/program_loadings.tsv.gz',
+        '--state-gmt', 'combined/curated_state.gmt',
         '--cell-state-activity', 'outputs/scoring/curated_state_activity.tsv.gz',
         '--program-cell-activity', 'outputs/scoring/program_activity.tsv.gz',
         '--tissue', tissue,
@@ -155,35 +168,36 @@ def build_qc_outputs(tissue, cell_type):
     out_qc_enrichment.to_csv('outputs/match/program_qc_enrichment.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
-def run_pipeline(tissue, cell_type):
+def run_pipeline(tissue, cell_type, dataset):
     os.makedirs('outputs', exist_ok=True)
-    build_combined(tissue, cell_type)
+    build_combined(tissue, cell_type, dataset)
     run_scoring()
     run_expression_summary()
     split_by_signature_kind()
-    run_program_state_matching(tissue, cell_type)
+    run_program_state_matching(tissue, cell_type, dataset)
     build_qc_outputs(tissue, cell_type)
 
 
-def upload_data(dataset, cell_type):
+def upload_data(tissue, cell_type, dataset):
     subprocess.check_call(['zip', '-r', 'raw_cell_scoring.zip', 'outputs/'])
-    subprocess.check_call(['aws', 's3', 'cp', 'raw_cell_scoring.zip', f'{s3_in}/out/single_cell/staging/scoring/{dataset}/{cell_type}/'])
+    subprocess.check_call(['aws', 's3', 'cp', 'raw_cell_scoring.zip', f'{s3_in}/out/single_cell/staging/scoring/{tissue}/{cell_type}/{dataset}/'])
     os.remove('raw_cell_scoring.zip')
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset')
+    parser.add_argument('--tissue')
     parser.add_argument('--cell-type')
+    parser.add_argument('--dataset')
     args = parser.parse_args()
 
-    tissue = dataset_to_tissue[args.dataset]
-
-    download_data(args.dataset, args.cell_type)
-    run_pipeline(tissue, args.cell_type)
-    upload_data(args.dataset, args.cell_type)
+    download_data(args.tissue, args.cell_type, args.dataset)
+    run_pipeline(args.tissue, args.cell_type, args.dataset)
+    upload_data(args.tissue, args.cell_type, args.dataset)
     shutil.rmtree('outputs')
     shutil.rmtree('inputs')
+    shutil.rmtree('gene_sets')
+    shutil.rmtree('combined')
 
 if __name__ == '__main__':
     main()

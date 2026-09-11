@@ -9,7 +9,8 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-4': 'pancreas'
+    'islet_of_Langerhans_scRNA_v3-4': 'pancreas',
+    'FNIH_Liver_scRNA_v3.2': 'liver'
 }
 
 
@@ -43,6 +44,7 @@ def convert_program_loadings(dataset, tissue, cell_type):
                 'signature_kind': 'program',
             })
 
+    os.makedirs(f'outputs/programs/{tissue}/{cell_type}/{dataset}', exist_ok=True)
     with open(f'outputs/programs/{tissue}/{cell_type}/{dataset}/manifest.tsv', 'w') as f:
         f.write('state_name\ttissue\tcell_type\tstate_class\tis_composite_required\tsignature_kind\n')
         for row in program_manifest_rows:
