@@ -11,7 +11,6 @@ class CellStateScoringStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterVolumeSizeInGB = 100,
-    masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-scoring.sh")))
   )
 
@@ -20,7 +19,7 @@ class CellStateScoringStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(singleCell)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case singleCell(tissue, cellType, dataset) => Outputs.Named(s"$tissue/$cellType/$dataset")
+    case singleCell(tissue, cellType, dataset, _) => Outputs.Named(s"$tissue/$cellType/$dataset")
   }
 
   override def make(output: String): Job = {

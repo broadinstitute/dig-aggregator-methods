@@ -7,7 +7,7 @@ import subprocess
 
 import pandas as pd
 
-downloaded_files = '.'
+downloaded_files = '/mnt/var/single_cell'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
@@ -53,7 +53,7 @@ def build_combined(tissue, cell_type, dataset):
 
 def run_scoring():
     cmd = [
-        'python3', f'{downloaded_files}/dig-cell-state-scoring/scripts/run_cmdkp_state_scoring.py',
+        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/run_cmdkp_state_scoring.py',
         '--rank-10x-dir', 'inputs',
         '--rank-value-type', 'log1p_cp10k',
         '--cell-metadata', 'inputs/metadata.tsv.gz',
@@ -76,7 +76,7 @@ def run_scoring():
 
 def run_expression_summary():
     cmd = [
-        'python3', f'{downloaded_files}/dig-cell-state-scoring/scripts/summarize_state_expression.py',
+        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/summarize_state_expression.py',
         '--raw-10x-dir', 'inputs',
         '--expression-value-type', 'log1p_cp10k',
         '--metadata', 'inputs/metadata.tsv.gz',
@@ -123,7 +123,7 @@ def run_program_state_matching(tissue, cell_type, dataset):
                     f.write(line)
 
     cmd = [
-        'python3', f'{downloaded_files}/dig-cell-state-scoring/scripts/match_programs_to_cell_states.py',
+        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/match_programs_to_cell_states.py',
         '--program-loadings', f'gene_sets/programs/{tissue}/{cell_type}/{dataset}/program_loadings.tsv.gz',
         '--state-gmt', 'combined/curated_state.gmt',
         '--cell-state-activity', 'outputs/scoring/curated_state_activity.tsv.gz',
