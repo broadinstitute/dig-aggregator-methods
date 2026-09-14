@@ -12,7 +12,8 @@ s3_out = os.environ['OUTPUT_PATH']
 
 dataset_to_tissue = {
     'islet_of_Langerhans_scRNA_v3-4': 'pancreas',
-    'FNIH_Liver_scRNA_v3.2': 'liver'
+    'FNIH_Liver_scRNA_v3.2': 'liver',
+    'FNIH_Liver_scRNA_v4.0': 'liver'
 }
 
 

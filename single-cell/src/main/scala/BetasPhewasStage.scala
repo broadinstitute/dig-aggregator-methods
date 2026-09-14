@@ -5,7 +5,7 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
-class CellStateScoringStage(implicit context: Context) extends Stage {
+class BetasPhewasStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
@@ -13,7 +13,7 @@ class CellStateScoringStage(implicit context: Context) extends Stage {
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-scoring.sh")))
   )
 
-  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/mtx/*/*/*/*")
+  val singleCell: Input.Source = Input.Source.Raw("out/single_cell/staging/scoring/*/*/*/*")
 
   override val sources: Seq[Input.Source] = Seq(singleCell)
 
@@ -30,6 +30,6 @@ class CellStateScoringStage(implicit context: Context) extends Stage {
           s"--dataset=$dataset"
         )
     }
-    new Job(Job.Script(resourceUri("cellStateScoring.py"), flags:_*))
+    new Job(Job.Script(resourceUri("betasPhewas.py"), flags:_*))
   }
 }

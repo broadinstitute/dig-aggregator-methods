@@ -16,6 +16,7 @@ object SingleCell extends Method {
     addStage(new TranslateLigerStage)
     addStage(new ConvertProgramManifestStage)
     addStage(new CellStateScoringStage)
+    addStage(new BetasPhewasStage)
     addStage(new TranslateCellStateScoringStage)
     addStage(new FactorPhewasStage)
     addStage(new TranslatePhewasStage)

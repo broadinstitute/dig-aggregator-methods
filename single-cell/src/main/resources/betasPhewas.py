@@ -9,10 +9,6 @@ downloaded_files = '/mnt/var/single_cell'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-4': 'pancreas'
-}
-
 def download_data():
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/gene_sets/', 'gene_sets/', '--recursive'])
 
@@ -58,24 +54,23 @@ def run_pigean(dataset, kind, tissue, cell_type):
         subprocess.check_call(cmd)
 
 
-def upload_data(dataset, cell_type):
-    subprocess.check_call(['aws', 's3', 'cp', 'outputs/', f'{s3_in}/out/single_cell/staging/betas_phewas/{dataset}/{cell_type}/'])
+def upload_data(tissue, cell_type, dataset):
+    subprocess.check_call(['aws', 's3', 'cp', 'outputs/', f'{s3_in}/out/single_cell/staging/betas_phewas/{tissue}/{cell_type}/{dataset}/', '--recursive'])
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset')
+    parser.add_argument('--tissue')
     parser.add_argument('--cell-type')
+    parser.add_argument('--dataset')
     args = parser.parse_args()
 
-    tissue = dataset_to_tissue[args.dataset]
-
     download_data()
-    run_pigean(args.dataset, 'cell_state', tissue, args.cell_type)
-    run_pigean(args.dataset, 'program', tissue, args.cell_type)
-    upload_data(args.dataset, args.cell_type)
+    run_pigean(args.dataset, 'cell_state', args.tissue, args.cell_type)
+    run_pigean(args.dataset, 'program', args.tissue, args.cell_type)
+    upload_data(args.tissue, args.cell_type, args.dataset)
     shutil.rmtree('outputs')
-    shutil.rmtree('inputs')
+    shutil.rmtree('gene_sets')
 
 
 if __name__ == '__main__':
