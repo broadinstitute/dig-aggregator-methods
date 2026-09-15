@@ -10,7 +10,7 @@ class FactorStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val factors: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/*/factor_matrix_factors.tsv")
+  val factors: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/factor_matrix_factors.tsv")
 
   override val sources: Seq[Input.Source] = Seq(factors)
 
