@@ -12,13 +12,8 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-model_to_gene_stats = {
-    'mouse_msigdb': 'mouse_msigdb'
-}
-
-
-def download_files(dataset, cell_type, model):
-    file = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_gene_probs.tsv'
+def download_files(dataset, cell_type):
+    file = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/factor_matrix_gene_probs.tsv'
     subprocess.check_call(['aws', 's3', 'cp', f'{file}', 'input/'])
 
 
@@ -56,7 +51,7 @@ def make_positive_controls(idx):
                 f_out.write(f'{split_line[0]}\t{prob}\n')
 
 
-def run(model):
+def run():
     with open('input/factor_matrix_gene_probs.tsv', 'r') as f:
         header = f.readline().strip().split('\t')
     for idx in range(1, len(header)):
@@ -71,7 +66,7 @@ def run(model):
                         '--positive-controls-all-id-col', '6',
                         '--positive-controls-all-no-header',
                         '--gene-set-stats-out', os.path.abspath(f'staging/gss.{header[idx]}.out')]
-                       + get_gene_sets(model_to_gene_stats[model]),
+                       + get_gene_sets('mouse_msigdb'),
                        cwd=f'{downloaded_files}/pigean/src')
     os.remove('positive_controls_in.txt')
     return
@@ -96,11 +91,11 @@ def combine_gene_sets():
                         ))
 
 
-def upload(dataset, cell_type, model):
-    staging_output = f'{s3_out}/out/single_cell/staging/pigean/{dataset}/{cell_type}/{model}'
+def upload(dataset, cell_type):
+    staging_output = f'{s3_out}/out/single_cell/staging/pigean/{dataset}/{cell_type}'
     subprocess.check_call(['aws', 's3', 'cp', 'staging/', f'{staging_output}/', '--recursive'])
 
-    output = f'{s3_out}/out/single_cell/pigean/{dataset}/{cell_type}/{model}'
+    output = f'{s3_out}/out/single_cell/pigean/{dataset}/{cell_type}'
     subprocess.check_call(['aws', 's3', 'cp', 'output/', f'{output}/', '--recursive'])
 
 
@@ -108,18 +103,17 @@ def main():
     opts = argparse.ArgumentParser()
     opts.add_argument('--dataset', type=str, required=True)
     opts.add_argument('--cell-type', type=str, required=True)
-    opts.add_argument('--model', type=str, required=True)
     args = opts.parse_args()
 
-    download_files(args.dataset, args.cell_type, args.model)
+    download_files(args.dataset, args.cell_type)
 
     os.makedirs('staging', exist_ok=True)
-    run(args.model)
+    run()
 
     if len(glob.glob('staging/gss.*')) > 0:
         os.makedirs('output', exist_ok=True)
         combine_gene_sets()
-        upload(args.dataset, args.cell_type, args.model)
+        upload(args.dataset, args.cell_type)
         shutil.rmtree('output')
     shutil.rmtree('input')
     shutil.rmtree('staging')

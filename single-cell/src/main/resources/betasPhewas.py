@@ -67,7 +67,7 @@ def main():
 
     download_data()
     run_pigean(args.dataset, 'cell_state', args.tissue, args.cell_type)
-    run_pigean(args.dataset, 'program', args.tissue, args.cell_type)
+    run_pigean(args.dataset, 'programs', args.tissue, args.cell_type)
     upload_data(args.tissue, args.cell_type, args.dataset)
     shutil.rmtree('outputs')
     shutil.rmtree('gene_sets')

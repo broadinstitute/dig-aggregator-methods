@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import argparse
 from boto3.session import Session
+import gzip
 import json
 import os
 import requests
@@ -35,8 +36,8 @@ class LLMSecrets:
         return self.config['internalEndpoint']
 
 
-def translate_gene_loading_data(dataset, cell_type, model):
-    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_gene_loadings.tsv'
+def translate_gene_loading_data(tissue, cell_type, dataset):
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/factor_matrix_gene_loadings.tsv'
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
         subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
         with open('outputs/factor_genes.json', 'w') as f_out:
@@ -52,9 +53,9 @@ def translate_gene_loading_data(dataset, cell_type, model):
                             if json_line[factor] > 0:
                                 f_out.write(json.dumps(
                                     {
-                                        'dataset': dataset,
+                                        'tissue': tissue,
                                         'cell_type': cell_type,
-                                        'model': model,
+                                        'dataset': dataset,
                                         'factor': factor,
                                         'gene': gene,
                                         'value': json_line[factor]
@@ -63,8 +64,8 @@ def translate_gene_loading_data(dataset, cell_type, model):
                             factor_values[factor].append((json_line[factor], gene))
 
 
-def translate_cell_loading_data(dataset, cell_type, model):
-    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_cell_loadings.tsv'
+def translate_cell_loading_data(tissue, cell_type, dataset):
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/factor_matrix_cell_loadings.tsv'
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
         subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
         with open('outputs/factor_cells.json', 'w') as f_out:
@@ -79,9 +80,9 @@ def translate_cell_loading_data(dataset, cell_type, model):
                             if json_line[factor] > 0:
                                 f_out.write(json.dumps(
                                     {
-                                        'dataset': dataset,
+                                        'tissue': tissue,
                                         'cell_type': cell_type,
-                                        'model': model,
+                                        'dataset': dataset,
                                         'factor': factor,
                                         'cell': cell,
                                         'value': json_line[factor]
@@ -89,9 +90,9 @@ def translate_cell_loading_data(dataset, cell_type, model):
                                 ) + '\n')
 
 
-def translate_factors(dataset, cell_type, model, factor_data):
+def translate_factors(tissue, cell_type, dataset, factor_data):
     factor_map = {factor['factor']: factor for factor in factor_data}
-    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_factors.tsv'
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/factor_matrix_factors.tsv'
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
         subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
         with open('outputs/factors.json', 'w') as f_out:
@@ -102,9 +103,9 @@ def translate_factors(dataset, cell_type, model, factor_data):
                     factor = json_line['factor']
                     f_out.write(json.dumps(
                         {
-                            'dataset': dataset,
+                            'tissue': tissue,
                             'cell_type': cell_type,
-                            'model': model,
+                            'dataset': dataset,
                             'factor': factor,
                             'importance': float(json_line['exp_lambdak']),
                             'top_cells': json_line['top_cells'],
@@ -116,14 +117,14 @@ def translate_factors(dataset, cell_type, model, factor_data):
                     ) + '\n')
 
 
-def translate_data(dataset, cell_type, model, factor_data):
-    translate_gene_loading_data(dataset, cell_type, model)
-    translate_cell_loading_data(dataset, cell_type, model)
-    translate_factors(dataset, cell_type, model, factor_data)
+def translate_data(tissue, cell_type, dataset, factor_data):
+    translate_gene_loading_data(tissue, cell_type, dataset)
+    translate_cell_loading_data(tissue, cell_type, dataset)
+    translate_factors(tissue, cell_type, dataset, factor_data)
 
 
-def get_gene_data(dataset, cell_type, model):
-    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_factors.tsv'
+def get_gene_data(dataset, cell_type):
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/factor_matrix_factors.tsv'
     factor_data = {}
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
         subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
@@ -137,8 +138,8 @@ def get_gene_data(dataset, cell_type, model):
                 }
     return factor_data
 
-def get_gene_loading_data(dataset, cell_type, model):
-    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}/factor_matrix_gene_loadings.tsv'
+def get_gene_loading_data(dataset, cell_type):
+    file_in = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/factor_matrix_gene_loadings.tsv'
     gene_loading_data = {}
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
         subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
@@ -156,8 +157,8 @@ def get_gene_loading_data(dataset, cell_type, model):
     return top_50_genes
 
 
-def get_gene_set_data(dataset, cell_type, model):
-    file_in = f'{s3_in}/out/single_cell/pigean/{dataset}/{cell_type}/{model}/pigean.gene_sets.tsv'
+def get_gene_set_data(dataset, cell_type):
+    file_in = f'{s3_in}/out/single_cell/pigean/{dataset}/{cell_type}/pigean.gene_sets.tsv'
     factor_data = {}
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
         subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
@@ -184,29 +185,29 @@ def get_trait_display_map():
     return trait_display_map
 
 
-def get_trait_data(dataset, cell_type, model):
-    file_in = f'{s3_in}/out/single_cell/staging/factor_phewas/{dataset}/{cell_type}/{model}/phewas_gene_loadings.txt'
+def get_trait_data(tissue, cell_type, dataset):
+    file_in = f'{s3_in}/out/single_cell/staging/betas_phewas/{tissue}/{cell_type}/{dataset}/programs/combined_pigean.tsv.gz'
     factor_data = {}
     trait_display_map = get_trait_display_map()
     if subprocess.call(['aws', 's3', 'ls', f'{file_in}']) == 0:
         subprocess.check_call(['aws', 's3', 'cp', f'{file_in}', 'inputs/'])
-        with open('inputs/phewas_gene_loadings.txt', 'r') as f:
+        with gzip.open('inputs/combined_pigean.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 json_line = dict(zip(header, line.strip().split('\t')))
-                p = float(json_line['P'])
-                if json_line['Factor'] not in factor_data:
-                    factor_data[json_line['Factor']] = []
-                trait = trait_display_map.get(json_line['Pheno'], json_line['Pheno'])
-                factor_data[json_line['Factor']].append((p, trait))
-    return {factor: [trait for value, trait in sorted(values)[:20]] for factor, values in factor_data.items()}
+                beta_uncorrected = float(json_line[beta_uncorrected])
+                if json_line['state_name'] not in factor_data:
+                    factor_data[json_line['state_name']] = []
+                trait = trait_display_map.get(json_line['trait'], json_line['trait'])
+                factor_data[json_line['state_name']].append((beta_uncorrected, trait))
+    return {factor: [trait for value, trait in sorted(values, reverse=True)[:20]] for factor, values in factor_data.items()}
 
 
-def get_data(dataset, cell_type, model):
-    gene_data = get_gene_data(dataset, cell_type, model)
-    gene_loading_data = get_gene_loading_data(dataset, cell_type, model)
-    gene_set_data = get_gene_set_data(dataset, cell_type, model)
-    trait_data = get_trait_data(dataset, cell_type, model)
+def get_data(tissue, cell_type, dataset):
+    gene_data = get_gene_data(dataset, cell_type)
+    gene_loading_data = get_gene_loading_data(dataset, cell_type)
+    gene_set_data = get_gene_set_data(dataset, cell_type)
+    trait_data = get_trait_data(tissue, cell_type, dataset)
     factors = list(gene_data.keys())# | gene_set_data.keys() | trait_data.keys())
     return [{
         'factor': factor,
@@ -253,15 +254,16 @@ def format_response(response):
         .decode('ascii', errors='ignore')
 
 
-def label_factor(dataset, cell_type, factor_data, llm_endpoint):
+def label_factor(tissue, cell_type, dataset, factor_data, llm_endpoint):
     for label_type in ['genes', 'gene_sets', 'traits']:
         key = f'top_{label_type}'
         filtered_data = [data for data in factor_data if len(data[key]) > 0]
         if len(filtered_data) > 0:
             for i, data in enumerate(filtered_data):
-                prompt_data = '{} {} - Top {}: {}'.format(
-                    dataset,
+                prompt_data = '{} {} {} - Top {}: {}'.format(
+                    tissue,
                     cell_type,
+                    dataset,
                     label_type,
                     ', '.join(data[key])
                 )
@@ -274,8 +276,8 @@ def label_factor(dataset, cell_type, factor_data, llm_endpoint):
     return factor_data
 
 
-def upload_data(dataset, cell_type, model):
-    path = f'{s3_out}/out/single_cell/factors/{dataset}/{cell_type}/{model}/'
+def upload_data(tissue, cell_type, dataset, model):
+    path = f'{s3_out}/out/single_cell/factors/{tissue}/{cell_type}/{dataset}/'
     subprocess.check_call(['aws', 's3', 'cp', 'outputs/', path, '--recursive'])
 
 
@@ -283,17 +285,16 @@ def main():
     opts = argparse.ArgumentParser()
     opts.add_argument('--dataset', type=str, required=True)
     opts.add_argument('--cell-type', type=str, required=True)
-    opts.add_argument('--model', type=str, required=True)
     args = opts.parse_args()
 
     llm_secrets = LLMSecrets()
     llm_endpoint = LLMEndpoint(llm_secrets.get_endpoint(), llm_secrets.get_key())
-    factor_data = get_data(args.dataset, args.cell_type, args.model)
-    factor_data = label_factor(args.dataset, args.cell_type, factor_data, llm_endpoint)
+    factor_data = get_data(args.tissue, args.cell_type, args.dataset)
+    factor_data = label_factor(args.tissue, args.cell_type, args.dataset, factor_data, llm_endpoint)
 
     os.makedirs('outputs', exist_ok=True)
-    translate_data(args.dataset, args.cell_type, args.model, factor_data)
-    upload_data(args.dataset, args.cell_type, args.model)
+    translate_data(args.tissue, args.cell_type, args.dataset, factor_data)
+    upload_data(args.tissue, args.cell_type, args.dataset, args.model)
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')
 
