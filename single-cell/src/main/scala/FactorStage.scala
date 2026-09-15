@@ -15,16 +15,15 @@ class FactorStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(factors)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case factors(dataset, cellType, model) => Outputs.Named(s"$dataset/$cellType/$model")
+    case factors(dataset, cellType) => Outputs.Named(s"$dataset/$cellType")
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(dataset, cellType, model) =>
+      case Seq(dataset, cellType) =>
         Seq(
           s"--dataset=$dataset",
-          s"--cell-type=$cellType",
-          s"--model=$model")
+          s"--cell-type=$cellType")
     }
     new Job(Job.Script(resourceUri("runFactors.py"), flags:_*))
   }
