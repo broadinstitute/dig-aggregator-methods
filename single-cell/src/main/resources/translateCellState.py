@@ -18,6 +18,8 @@ s3_out = os.environ['OUTPUT_PATH']
 def download_data(tissue):
     cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/scoring/{tissue}/', 'inputs/', '--recursive']
     subprocess.check_call(cmd)
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/betas_phewas/{tissue}/', 'betas_phewas/', '--recursive']
+    subprocess.check_call(cmd)
     cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/factors/{tissue}/', f'factors/', '--recursive']
     subprocess.check_call(cmd)
 
@@ -29,6 +31,10 @@ def extract_zips(dataset):
         cell_types.append(cell_type)
         with zipfile.ZipFile(zip_path) as z:
             z.extractall(f'work/{cell_type}')
+    for betas_path in glob.glob(f'betas_phewas/*/{dataset}/*/combined_pigean.tsv.gz'):
+        cell_type, kind = re.findall(f'betas_phewas/([^/]*)/{dataset}/([^/]*)/combined_pigean.tsv.gz', betas_path)[0]
+        os.makedirs(f'work/{cell_type}/outputs/pigean/{kind}', exist_ok=True)
+        shutil.copy2(betas_path, f'work/{cell_type}/outputs/pigean/{kind}/combined_pigean.tsv.gz')
     for factor_path in glob.glob(f'factors/*/{dataset}/*'):
         cell_type, file_name = re.findall(f'factors/([^/]*)/{dataset}/([^/]*)', factor_path)[0]
         os.makedirs(f'factor_work/{cell_type}', exist_ok=True)
@@ -72,7 +78,7 @@ def combine_expression(cell_types):
 
 def combine_pigean(cell_types):
     # PIGEAN already ran per cell type inside each raw zip; no need to rerun it here.
-    concat_tables(cell_types, 'outputs/pigean/curated/combined_pigean.tsv.gz') \
+    concat_tables(cell_types, 'outputs/pigean/cell_state/combined_pigean.tsv.gz') \
         .to_csv('outputs/combined/cell_state_pigean.tsv.gz', sep='\t', index=False, compression='gzip')
     concat_tables(cell_types, 'outputs/pigean/program/combined_pigean.tsv.gz') \
         .to_csv('outputs/combined/program_pigean.tsv.gz', sep='\t', index=False, compression='gzip')
