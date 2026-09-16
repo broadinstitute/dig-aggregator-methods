@@ -25,7 +25,7 @@ def download_data(tissue):
 def extract_zips(dataset):
     cell_types = []
     for zip_path in glob.glob(f'inputs/*/{dataset}/raw_cell_scoring.zip'):
-        cell_type = os.path.basename(os.path.dirname(zip_path))
+        cell_type = re.findall(f'inputs/([^/]*)/{dataset}/raw_cell_scoring.zip', zip_path)[0]
         cell_types.append(cell_type)
         with zipfile.ZipFile(zip_path) as z:
             z.extractall(f'work/{cell_type}')
