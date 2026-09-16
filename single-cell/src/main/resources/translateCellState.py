@@ -30,7 +30,7 @@ def extract_zips(dataset):
         with zipfile.ZipFile(zip_path) as z:
             z.extractall(f'work/{cell_type}')
     for factor_path in glob.glob(f'factors/*/{dataset}/*'):
-        cell_type, file_name = re.findall(f'inputs/([^/]*)/{dataset}/([^/]*)', factor_path)[0]
+        cell_type, file_name = re.findall(f'factors/([^/]*)/{dataset}/([^/]*)', factor_path)[0]
         os.makedirs(f'factor_work/{cell_type}', exist_ok=True)
         shutil.copy2(factor_path, f'factor_work/{cell_type}/{file_name}')
     return cell_types

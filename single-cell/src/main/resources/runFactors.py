@@ -195,11 +195,11 @@ def get_trait_data(tissue, cell_type, dataset):
             header = f.readline().strip().split('\t')
             for line in f:
                 json_line = dict(zip(header, line.strip().split('\t')))
-                beta_uncorrected = float(json_line[beta_uncorrected])
-                if json_line['state_name'] not in factor_data:
-                    factor_data[json_line['state_name']] = []
+                beta_uncorrected = float(json_line['beta_uncorrected'])
+                if json_line['factor'] not in factor_data:
+                    factor_data[json_line['factor']] = []
                 trait = trait_display_map.get(json_line['trait'], json_line['trait'])
-                factor_data[json_line['state_name']].append((beta_uncorrected, trait))
+                factor_data[json_line['factor']].append((beta_uncorrected, trait))
     return {factor: [trait for value, trait in sorted(values, reverse=True)[:20]] for factor, values in factor_data.items()}
 
 
@@ -276,15 +276,16 @@ def label_factor(tissue, cell_type, dataset, factor_data, llm_endpoint):
     return factor_data
 
 
-def upload_data(tissue, cell_type, dataset, model):
+def upload_data(tissue, cell_type, dataset):
     path = f'{s3_out}/out/single_cell/factors/{tissue}/{cell_type}/{dataset}/'
     subprocess.check_call(['aws', 's3', 'cp', 'outputs/', path, '--recursive'])
 
 
 def main():
     opts = argparse.ArgumentParser()
-    opts.add_argument('--dataset', type=str, required=True)
+    opts.add_argument('--tissue', type=str, required=True)
     opts.add_argument('--cell-type', type=str, required=True)
+    opts.add_argument('--dataset', type=str, required=True)
     args = opts.parse_args()
 
     llm_secrets = LLMSecrets()
@@ -294,7 +295,7 @@ def main():
 
     os.makedirs('outputs', exist_ok=True)
     translate_data(args.tissue, args.cell_type, args.dataset, factor_data)
-    upload_data(args.tissue, args.cell_type, args.dataset, args.model)
+    upload_data(args.tissue, args.cell_type, args.dataset)
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')
 

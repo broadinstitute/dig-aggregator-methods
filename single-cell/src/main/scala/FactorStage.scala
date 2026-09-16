@@ -10,20 +10,21 @@ class FactorStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val factors: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/factor_matrix_factors.tsv")
+  val factors: Input.Source = Input.Source.Raw("out/single_cell/staging/betas_phewas/*/*/*/programs/combined_pigean.tsv.gz")
 
   override val sources: Seq[Input.Source] = Seq(factors)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case factors(dataset, cellType) => Outputs.Named(s"$dataset/$cellType")
+    case factors(tissue, cellType, dataset) => Outputs.Named(s"$tissue/$cellType/$dataset")
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(dataset, cellType) =>
+      case Seq(tissue, cellType, dataset) =>
         Seq(
-          s"--dataset=$dataset",
-          s"--cell-type=$cellType")
+          s"--tissue=$tissue",
+          s"--cell-type=$cellType",
+          s"--dataset=$dataset")
     }
     new Job(Job.Script(resourceUri("runFactors.py"), flags:_*))
   }
