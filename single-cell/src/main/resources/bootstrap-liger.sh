@@ -13,6 +13,10 @@ sudo yum install -y R-4.3.2-1.amzn2023.0.1
 sudo aws s3 cp s3://dig-analysis-bin/single_cell/liger_packages/latest/liger-packages.zip ./
 sudo unzip -o liger-packages.zip -d /
 
+sudo R -e "install.packages('optparse', repos='http://cran.rstudio.com/')"
+sudo R -e "install.packages('readr', repos='http://cran.rstudio.com/')"
+sudo R -e "install.packages('pheatmap', repos='http://cran.rstudio.com/')"
+
 # Needed for RcppPlanc
 sudo yum -y install hwloc-devel
 
@@ -27,6 +31,7 @@ sudo rm hdf5-1.14.4-3.tar.gz
 sudo rm -r hdf5-1.14.4-3
 
 sudo aws s3 cp s3://dig-analysis-bin/single_cell/run_inmf.R ./
+sudo aws s3 cp s3://dig-analysis-bin/single_cell/liger/ ./ --recursive
 
 sudo yum install -y python3-devel
 sudo pip3 install pandas --no-deps

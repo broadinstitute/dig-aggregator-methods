@@ -3,6 +3,7 @@ import argparse
 import anndata as ad
 import gzip
 import json
+import numpy as np
 import os
 from scipy.sparse import csc_matrix, vstack
 import shutil
@@ -10,6 +11,8 @@ import subprocess
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
+
+MAX_CELLS_PER_TYPE = 20000
 
 
 def download_data(dataset, cell_type):
@@ -23,35 +26,43 @@ def get_column_map():
         return json.load(f)
 
 
-def get_metadata_maps():
+def get_metadata_map():
     col_map = get_column_map()
-    study_map = {}
+    metadata_map = {'study': {}}
     with gzip.open('inputs/raw_counts.metadata.tsv.gz', 'rt') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             json_line = dict(zip(header, line.strip().split('\t')))
-            study_map[json_line[col_map['cell_id']]] = json_line[col_map['study_id']]
-    return study_map
+            metadata_map['study'][json_line[col_map['cell_id']]] = json_line[col_map['study_id']]
+            for k, v in json_line.items():
+                if k not in [col_map['cell_id'], col_map['study_id']]:
+                    if k not in metadata_map:
+                        metadata_map[k] = {}
+                    metadata_map[k][json_line[col_map['cell_id']]] = v
+    return metadata_map
 
 
-def get_sparse_array(cell_type, study_map):
+def get_sparse_array(cell_type, metadata_map):
+    rng = np.random.default_rng(1)
     with gzip.open('inputs/raw_counts.tsv.gz', 'rt') as f:
-        cells = f.readline().strip().split('\t')[1:]
+        all_cells = f.readline().strip().split('\t')[1:]
+        keep = np.sort(rng.choice(len(all_cells), size=min(len(all_cells), MAX_CELLS_PER_TYPE), replace=False))
+        cells = [all_cells[idx] for idx in keep]
         genes = []
         A_dict = []
         for line in f:
             gene, data = line.strip().split('\t', 1)
             if gene not in genes:
-                line_to_append = list(map(int, data.split('\t')))
+                values = data.split('\t')
+                line_to_append = [int(values[idx]) for idx in keep]
                 A_dict.append(line_to_append)
                 genes.append(gene)
+    metadata_obs = {k: [v[cell] for cell in cells] for k, v in metadata_map.items()}
+    metadata_obs['cell_type'] = [cell_type for _ in cells]
+    metadata_obs['obs_names'] = cells
     return ad.AnnData(
         csc_matrix(A_dict).T,
-        obs={
-            'obs_names': cells,
-            'cell_type': [cell_type for _ in cells],
-            'study': [study_map[cell] for cell in cells]
-        },
+        obs=metadata_obs,
         var={
             'var_names': genes
         }
@@ -74,8 +85,8 @@ def run():
     args = parser.parse_args()
 
     download_data(args.dataset, args.cell_type)
-    study_map = get_metadata_maps()
-    adata = get_sparse_array(args.cell_type, study_map)
+    metadata_map = get_metadata_map()
+    adata = get_sparse_array(args.cell_type, metadata_map)
     upload(args.dataset, args.cell_type, adata)
 
 

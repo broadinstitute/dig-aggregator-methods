@@ -21,7 +21,6 @@ object SingleCell extends Method {
     addStage(new FactorPhewasStage)
     addStage(new TranslatePhewasStage)
     addStage(new PigeanStage)
-    addStage(new TranslatePigeanStage)
     addStage(new GraphStage)
     addStage(new FactorStage)
   }
