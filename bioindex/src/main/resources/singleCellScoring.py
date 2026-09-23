@@ -16,7 +16,7 @@ s3_bioindex = os.environ['BIOINDEX_PATH']
 
 
 prod_datasets = {
-    'liver': 'FNIH_Liver_scRNA_v3.2'
+    'liver': 'FNIH_Liver_scRNA_v4.0'
 }
 
 
@@ -493,9 +493,9 @@ def upload_bioindex_data():
 
 def main():
     tissues = list_tissues()
-    # download_portal_data(tissues)
-    # download_metadata()
-    # download_pigean_gene_set()
+    download_portal_data(tissues)
+    download_metadata()
+    download_pigean_gene_set()
     labels = build_program_labels(tissues)
 
     build_cell_state_metadata(tissues)
@@ -515,9 +515,9 @@ def main():
     build_program_qc_gene_set_factor(tissues, labels)
     build_program_qc_enrichment(tissues, labels)
 
-    # upload_bioindex_data()
-    # shutil.rmtree('inputs')
-    # shutil.rmtree('outputs')
+    upload_bioindex_data()
+    shutil.rmtree('inputs')
+    shutil.rmtree('outputs')
 
 
 if __name__ == '__main__':

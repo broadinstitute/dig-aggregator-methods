@@ -8,19 +8,14 @@ import pandas as pd
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-4': 'pancreas',
-    'FNIH_Liver_scRNA_v3.2': 'liver'
-}
 
-
-def download_data(dataset, cell_type):
-    path = f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/'
+def download_data(tissue, cell_type, dataset):
+    path = f'{s3_in}/out/single_cell/staging/nmf/liger/{tissue}/{cell_type}/{dataset}/'
     cmd = ['aws', 's3', 'cp', path, 'inputs/', '--recursive']
     subprocess.check_call(cmd)
 
 
-def convert_program_loadings(dataset, tissue, cell_type):
+def convert_program_loadings(tissue, cell_type, dataset):
     program_rows = []
     program_manifest_rows = []
     loadings_path = 'inputs/gene_loadings.tsv'
@@ -79,14 +74,16 @@ def upload_data():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', default=None, required=True, type=str,
-                        help="Dataset name")
+    parser.add_argument('--tissue', default=None, required=True, type=str,
+                        help="Tissue")
     parser.add_argument('--cell-type', default=None, required=True, type=str,
                         help="Cell Type")
+    parser.add_argument('--dataset', default=None, required=True, type=str,
+                        help="Dataset name")
     args = parser.parse_args()
 
-    download_data(args.dataset, args.cell_type)
-    convert_program_loadings(args.dataset, dataset_to_tissue[args.dataset], args.cell_type)
+    download_data(args.tissue, args.cell_type, args.dataset)
+    convert_program_loadings(args.tissue, args.cell_type, args.dataset)
     upload_data()
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')

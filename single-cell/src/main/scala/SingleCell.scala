@@ -13,15 +13,13 @@ object SingleCell extends Method {
     addStage(new ConvertToMtxStage)
     addStage(new MakeH5adStage)
     addStage(new LigerStage)
+    addStage(new NMFLigerStage)
     addStage(new TranslateLigerStage)
     addStage(new ConvertProgramManifestStage)
     addStage(new CellStateScoringStage)
     addStage(new BetasPhewasStage)
-    addStage(new TranslateCellStateScoringStage)
-    addStage(new FactorPhewasStage)
-    addStage(new TranslatePhewasStage)
     addStage(new PigeanStage)
-    addStage(new GraphStage)
     addStage(new FactorStage)
+    addStage(new TranslateCellStateScoringStage)
   }
 }

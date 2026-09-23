@@ -11,9 +11,20 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-4': 'pancreas',
+    'FNIH_Artery_scRNA_v3': 'artery',
+    'FNIH_BoneMarrow_scRNA_v1': 'bone_marrow',
+    'FNIH_Bone_scRNA_v1.0': 'bone',
+    'FNIH_Heart_scRNA_v4.0': 'heart',
+    'FNIH_Hypothalamus_scRNA_v2.2': 'hypothalamus',
+    'FNIH_Kidney_scRNA_v2.2': 'kidney',
     'FNIH_Liver_scRNA_v3.2': 'liver',
-    'FNIH_Liver_scRNA_v4.0': 'liver'
+    'FNIH_Liver_scRNA_v4.0': 'liver',
+    'FNIH_Muscle_scRNA_v2.2': 'muscle',
+    'FNIH_PLN_scRNA_v1.0': 'pln',
+    'FNIH_Pancreas_scRNA_v3': 'pancreas',
+    'FNIH_SAT_scRNA_v2.2': 'sat',
+    'FNIH_TendonLigament_scRNA_v2': 'tendon',
+    'FNIH_VAT_scRNA_v2.2': 'vat',
 }
 
 
