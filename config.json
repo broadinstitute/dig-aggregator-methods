@@ -1,14 +1,14 @@
 {
     "aws": {
-        "project": "pigean-paper-regression",
+        "project": "pigean-paper-regression-2",
         "input": {
-            "bucket": "dig-pigean-paper-regression"
+            "bucket": "dig-pigean-paper-regression-2"
         },
         "output": {
-            "bucket": "dig-pigean-paper-regression"
+            "bucket": "dig-pigean-paper-regression-2"
         },
         "bioindex": {
-            "bucket": "dig-pigean-paper-regression",
+            "bucket": "dig-pigean-paper-regression-2",
             "subdir": "bioindex"
         },
         "emr": {

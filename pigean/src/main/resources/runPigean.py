@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 import subprocess
+import time
 
 downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
@@ -89,7 +90,21 @@ base_cmd = [
     '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
     '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
     '--exons-loc-file-huge', f'{downloaded_files}/NCBI37.3.plink.gene.exons.loc',
-    '--gene-universe-in', f'{downloaded_files}/gene-universe.txt',
+    '--seed', '1', '--deterministic',
+    '--sigma-power', '-2',
+    '--update-hyper', 'none',
+    '--filter-gene-set-p', '0.005',
+    '--max-num-gene-sets', '5000',
+    '--min-gwas-inverse-variance-ratio', '0',
+    '--num-chains', '10',
+    '--gibbs-reruns', '2',
+    '--disable-stall-detection',
+    '--max-num-iter', '500',
+    '--min-num-burn-in', '100',
+    '--max-num-burn-in', '100',
+    '--min-num-post-burn-in', '400',
+    '--max-num-post-burn-in', '400',
+    '--debug-level', '3',
     '--gene-stats-out', os.path.abspath('outputs/gs.out'),
     '--gene-set-stats-out', os.path.abspath('outputs/gss.out'),
     '--gene-gene-set-stats-out', os.path.abspath('outputs/ggss.out'),
@@ -125,6 +140,7 @@ def upload_data(trait_type, trait_group, phenotype, gene_set_size):
 
 
 def main():
+    t = time.time()
     parser = argparse.ArgumentParser()
     parser.add_argument('--trait-type', default=None, required=True, type=str,
                         help="sumstats or gene_lists")
@@ -143,6 +159,7 @@ def main():
             os.remove(file_name)
     except:
         print('ERROR')
+    print(f'FULL TIME TEST: {time.time() - t}')
 
 
 if __name__ == '__main__':
