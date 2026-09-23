@@ -10,7 +10,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 dataset_to_tissue = {
     'FNIH_Artery_scRNA_v3': 'artery',
-    'FNIH_BoneMarrow_scRNA_v1': 'bone_marrow',
+    'FNIH_BoneMarrow_scRNA_v1': 'bonemarrow',
     'FNIH_Bone_scRNA_v1.0': 'bone',
     'FNIH_Heart_scRNA_v4.0': 'heart',
     'FNIH_Hypothalamus_scRNA_v2.2': 'hypothalamus',
