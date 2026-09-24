@@ -59,6 +59,7 @@ def main():
     # write associations sorted by variant and then pValue
     df.orderBy(['chromosome', 'position', 'pValue']) \
         .write \
+        .option("maxRecordsPerFile", 100000) \
         .mode('overwrite') \
         .json(outdir)
 
