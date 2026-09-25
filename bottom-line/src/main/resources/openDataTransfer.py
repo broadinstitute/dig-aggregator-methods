@@ -6,7 +6,7 @@ import shutil
 import subprocess
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, udf
+from pyspark.sql.functions import col, udf, abs
 from pyspark.sql.types import DoubleType
 
 
@@ -55,7 +55,7 @@ def main():
     df = spark.read \
         .json(srcdir)
     # replace stdErr (from naive metaanalysis) with back calculated value (from overlap aware metaanalysis)
-    df = df.withColumn('stdErr', df.beta / p_to_z(df.pValue))
+    df = df.withColumn('stdErr', abs(df.beta / p_to_z(df.pValue)))
 
     min_p = spark.read \
         .json(minp_dir) \
