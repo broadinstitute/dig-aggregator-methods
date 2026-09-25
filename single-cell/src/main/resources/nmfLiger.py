@@ -40,24 +40,28 @@ def get_num_cells():
 
 
 def run_nmf_liger(tissue, cell_type):
-    subprocess.check_call([
-        'Rscript', f'{downloaded_files}/run_liger_nmf_h5ad.R',
-        '--h5ad', 'inputs/data.h5ad',
-        '--signatures', f'{downloaded_files}/{tissue}_liger.gmt',
-        '--outdir', 'outputs',
-        '--auto_k',
-        '--blacklist_gmt', f'{downloaded_files}/cmdkp_all_tissues_minimal_bad_cell_qc_signatures.with_celltypes.gmt',
-        '--batch_col', 'study',
-        '--celltype_label', f'{cell_type}',
-        '--umi_col', 'QC:nCount_RNA',
-        '--mito_col', 'QC:percent.mt',
-        '--min_umi', '500',
-        '--max_umi','50000',
-        '--max_mito', '10',
-        '--min_cells_per_gene', f'{MIN_CELLS}',
-        '--min_genes_per_cell', '200',
-        '--scale_factor', '10000'
-    ])
+    try:
+        subprocess.check_call([
+            'Rscript', f'{downloaded_files}/run_liger_nmf_h5ad.R',
+            '--h5ad', 'inputs/data.h5ad',
+            '--signatures', f'{downloaded_files}/{tissue}_liger.gmt',
+            '--outdir', 'outputs',
+            '--auto_k',
+            '--blacklist_gmt', f'{downloaded_files}/cmdkp_all_tissues_minimal_bad_cell_qc_signatures.with_celltypes.gmt',
+            '--batch_col', 'study',
+            '--celltype_label', f'{cell_type}',
+            '--umi_col', 'QC:nCount_RNA',
+            '--mito_col', 'QC:percent.mt',
+            '--min_umi', '500',
+            '--max_umi','50000',
+            '--max_mito', '10',
+            '--min_cells_per_gene', f'{MIN_CELLS}',
+            '--min_genes_per_cell', '200',
+            '--scale_factor', '10000'
+        ])
+    except Exception as e:
+        print(e)
+        print('ERROR in Liger subprocess')
 
 
 def upload_data(tissue, cell_type, dataset):
@@ -77,8 +81,11 @@ def main():
     num_cells = get_num_cells()
     if num_cells > MIN_CELLS:
         run_nmf_liger(tissue, args.cell_type)
-        upload_data(tissue, args.cell_type, args.dataset)
+        if os.path.exists('outputs/factor_report.txt'):
+            upload_data(tissue, args.cell_type, args.dataset)
     shutil.rmtree('inputs')
+    if os.path.exists('outputs'):
+        shutil.rmtree('outputs')
 
 
 if __name__ == '__main__':
