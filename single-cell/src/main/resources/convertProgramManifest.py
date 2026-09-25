@@ -10,20 +10,20 @@ s3_out = os.environ['OUTPUT_PATH']
 
 
 def download_data(tissue, cell_type, dataset):
-    path = f'{s3_in}/out/single_cell/staging/nmf/liger/{tissue}/{cell_type}/{dataset}/'
-    cmd = ['aws', 's3', 'cp', path, 'inputs/', '--recursive']
+    path = f'{s3_in}/out/single_cell/staging/nmf/liger/{tissue}/{cell_type}/{dataset}/factor_gene_programs.csv'
+    cmd = ['aws', 's3', 'cp', path, 'inputs/']
     subprocess.check_call(cmd)
 
 
 def convert_program_loadings(tissue, cell_type, dataset):
     program_rows = []
     program_manifest_rows = []
-    loadings_path = 'inputs/gene_loadings.tsv'
+    loadings_path = 'inputs/factor_gene_programs.csv'
 
-    loadings = pd.read_csv(loadings_path, sep='\t', index_col=0)
+    loadings = pd.read_csv(loadings_path, sep=',', index_col=0)
     renamed = {}
     for factor in loadings.columns:
-        factor_id = factor.replace('Factor_', 'factor_')
+        factor_id = factor.replace('Factor_factor', 'factor_')
         state_name = f'{tissue}_{cell_type}_program_{factor_id}'
         renamed[factor] = state_name
         top = loadings[factor].sort_values(ascending=False).head(100) # take top 100 genes

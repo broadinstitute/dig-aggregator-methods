@@ -87,12 +87,13 @@ def run():
     download_data(args.dataset, args.cell_type)
     metadata_map = get_metadata_map()
 
-    adata = get_sparse_array(args.cell_type, metadata_map)
-    adata.obsm['X_umap'] = adata.obs[['X', 'Y']].to_numpy(dtype='float32')
-    adata.obs['QC:nCount_RNA'] = adata.obs['QC:nCount_RNA'].astype(float)
-    adata.obs['QC:percent.mt'] = adata.obs['QC:percent.mt'].astype(float)
+    if len(metadata_map['study']) > 0:
+        adata = get_sparse_array(args.cell_type, metadata_map)
+        adata.obsm['X_umap'] = adata.obs[['X', 'Y']].to_numpy(dtype='float32')
+        adata.obs['QC:nCount_RNA'] = adata.obs['QC:nCount_RNA'].astype(float)
+        adata.obs['QC:percent.mt'] = adata.obs['QC:percent.mt'].astype(float)
 
-    upload(args.dataset, args.cell_type, adata)
+        upload(args.dataset, args.cell_type, adata)
 
 
 if __name__ == '__main__':

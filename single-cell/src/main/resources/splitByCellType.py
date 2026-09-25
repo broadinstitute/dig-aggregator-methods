@@ -33,19 +33,28 @@ def get_cells():
     col_map = get_column_map()
     cell_type_cells = {}
     ncount_map = {}
+    raw_study = {}
+    study_map = {}
     with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f_in:
         header = f_in.readline().strip().split('\t')
         for line in f_in:
             json_line = dict(zip(header, line.strip().split('\t')))
             cell_type = json_line[col_map['cell_type']]
+            cell_id = json_line[col_map['cell_id']]
             cell_type_str = format_cell_type(cell_type)
             if cell_type_str not in cell_type_cells:
                 cell_type_cells[cell_type_str] = set()
-            cell_type_cells[cell_type_str] |= {json_line[col_map['cell_id']]}
+            cell_type_cells[cell_type_str] |= {cell_id}
+            study = json_line[col_map['study_id']]
+            study_map[cell_id] = study
+            if study not in raw_study:
+                raw_study[study] = True
             n_count = json_line[col_map['ncount']]
             if len(n_count) > 0 and float(n_count) % 1 == 0:
-                ncount_map[json_line[col_map['cell_id']]] = float(json_line[col_map['ncount']])
-    return cell_type_cells, ncount_map
+                ncount_map[cell_id] = float(json_line[col_map['ncount']])
+            else:
+                raw_study[study] = False
+    return cell_type_cells, ncount_map, raw_study, study_map
 
 
 def write_norm_metadata(cell_type_cells):
@@ -81,7 +90,7 @@ def write_lognorm_counts(cell_type_cells):
         f_out.close()
 
 
-def write_raw_metadata(cell_type_cells, ncount_map):
+def write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.metadata.tsv.gz', 'wt') for cell_type in cell_type_cells}
     with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f:
         header = f.readline()
@@ -90,19 +99,19 @@ def write_raw_metadata(cell_type_cells, ncount_map):
         for line in f:
             cell, _ = line.strip().split('\t', 1)
             for cell_type, cells in cell_type_cells.items():
-                if cell in cells and cell in ncount_map:
+                if cell in cells and raw_study[study_map[cell]]:
                     f_outs[cell_type].write(line)
     for f_out in f_outs.values():
         f_out.close()
 
 
-def write_raw_counts(cell_type_cells, ncount_map):
+def write_raw_counts(cell_type_cells, ncount_map, raw_study, study_map):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.tsv.gz', 'wt') for cell_type in cell_type_cells}
     with gzip.open('input/norm_counts.tsv.gz', 'rt') as f_in:
         header = f_in.readline().strip().split('\t')
         idxs = {}
         for cell_type, f_out in f_outs.items():
-            idxs[cell_type] = [(idx, ncount_map[cell]) for idx, cell in enumerate(header[1:]) if cell in cell_type_cells[cell_type] and cell in ncount_map]
+            idxs[cell_type] = [(idx, ncount_map[cell]) for idx, cell in enumerate(header[1:]) if cell in cell_type_cells[cell_type] and raw_study[study_map[cell]]]
             stripped_line = 'gene\t{}'.format('\t'.join([header[idx + 1] for idx, _ in idxs[cell_type]]))
             f_out.write(f'{stripped_line}\n')
         for line in f_in:
@@ -127,14 +136,14 @@ def main():
     args = parser.parse_args()
     download(args.dataset)
 
-    cell_type_cells, ncount_map = get_cells()
+    cell_type_cells, ncount_map, raw_study, study_map = get_cells()
     for cell_type in cell_type_cells:
         os.makedirs(f'output/{cell_type}', exist_ok=True)
 
     write_norm_metadata(cell_type_cells)
     write_lognorm_counts(cell_type_cells)
-    write_raw_metadata(cell_type_cells, ncount_map)
-    write_raw_counts(cell_type_cells, ncount_map)
+    write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map)
+    write_raw_counts(cell_type_cells, ncount_map, raw_study, study_map)
 
     upload(args.dataset)
     shutil.rmtree('input')
