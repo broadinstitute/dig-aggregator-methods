@@ -24,6 +24,7 @@ dataset_to_tissue = {
     'FNIH_PLN_scRNA_v1.0': 'pancreas',
     'FNIH_Pancreas_scRNA_v3': 'pancreas',
     'FNIH_SAT_scRNA_v2.2': 'sat',
+    'FNIH_Spleen_scRNA_v2': 'spleen',
     'FNIH_TendonLigament_scRNA_v2': 'tendon',
     'FNIH_VAT_scRNA_v2.2': 'vat',
 }
