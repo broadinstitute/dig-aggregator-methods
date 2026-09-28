@@ -6,7 +6,7 @@ import shutil
 import subprocess
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, udf, abs
+from pyspark.sql.functions import col, udf
 from pyspark.sql.types import DoubleType
 
 
@@ -14,8 +14,8 @@ s3_in = os.environ['INPUT_PATH']
 s3_open_data = 's3://dig-open-bottom-line-analysis-stg'
 
 @udf(returnType=DoubleType())
-def p_to_z(p_value: float) -> float:
-    return float(abs(norm.ppf(p_value / 2.0)))
+def stdErr(beta: float, p_value: float) -> float:
+    return abs(beta / float(abs(norm.ppf(p_value / 2.0))))
 
 def check_existence(path):
     return subprocess.call(['aws', 's3', 'ls', path, '--recursive'])
@@ -55,7 +55,7 @@ def main():
     df = spark.read \
         .json(srcdir)
     # replace stdErr (from naive metaanalysis) with back calculated value (from overlap aware metaanalysis)
-    df = df.withColumn('stdErr', abs(df.beta / p_to_z(df.pValue)))
+    df = df.withColumn('stdErr', stdErr(df.beta , df.pValue))
 
     min_p = spark.read \
         .json(minp_dir) \
