@@ -14,7 +14,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 def download_data(tissue, cell_type, dataset):
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/mtx/{tissue}/{cell_type}/{dataset}/', 'inputs/', '--recursive'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/gene_loadings.tsv', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/nmf/liger/{tissue}/{cell_type}/{dataset}/', 'inputs/', '--recursive'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/gene_sets/', 'gene_sets/', '--recursive'])
 
 
@@ -26,9 +26,11 @@ def all_files(tissue, cell_type, dataset, file_type):
 def build_combined(tissue, cell_type, dataset):
     os.makedirs('combined', exist_ok=True)
 
+    gene_set_files = all_files(tissue, cell_type, dataset, 'gene_sets.gmt')
+
     with open('combined/gene_sets.gmt', 'w') as f:
         header = None
-        for file in all_files(tissue, cell_type, dataset, 'gene_sets.gmt'):
+        for file in gene_set_files:
             with open(file, 'r') as f_in:
                 if header is None:
                     header = f_in.readline()
@@ -38,9 +40,11 @@ def build_combined(tissue, cell_type, dataset):
                 for line in f_in:
                     f.write(line)
 
+    manifest_files = all_files(tissue, cell_type, dataset, 'manifest.tsv')
+
     with open('combined/manifest.tsv', 'w') as f:
         header = None
-        for file in all_files(tissue, cell_type, dataset, 'manifest.tsv'):
+        for file in manifest_files:
             with open(file, 'r') as f_in:
                 if header is None:
                     header = f_in.readline()
@@ -49,6 +53,8 @@ def build_combined(tissue, cell_type, dataset):
                     _ = f_in.readline()
                 for line in f_in:
                     f.write(line)
+
+    return min(len(gene_set_files), len(manifest_files))
 
 
 def run_scoring():
@@ -108,8 +114,12 @@ def split_by_signature_kind():
     program_activity.to_csv('outputs/scoring/program_activity.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
+def safe_pd_open(file):
+    return pd.read_csv(file, sep='\t', compression='infer', low_memory=False) if os.path.exists(file) else pd.DataFrame()
+
 
 def run_program_state_matching(tissue, cell_type, dataset):
+    os.makedirs('outputs/match', exist_ok=True)
     with open('combined/curated_state.gmt', 'w') as f:
         header = None
         for file in glob.glob(f'gene_sets/cell_state/{tissue}/{cell_type}/*/gene_sets.gmt'):
@@ -122,21 +132,22 @@ def run_program_state_matching(tissue, cell_type, dataset):
                 for line in f_in:
                     f.write(line)
 
-    cmd = [
-        'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/match_programs_to_cell_states.py',
-        '--program-loadings', f'gene_sets/programs/{tissue}/{cell_type}/{dataset}/program_loadings.tsv.gz',
-        '--state-gmt', 'combined/curated_state.gmt',
-        '--cell-state-activity', 'outputs/scoring/curated_state_activity.tsv.gz',
-        '--program-cell-activity', 'outputs/scoring/program_activity.tsv.gz',
-        '--tissue', tissue,
-        '--cell-type', cell_type,
-        '--gsea-permutations', '1000',
-        '--qc-gmt', f'{downloaded_files}/misc/cmdkp_all_tissues_minimal_bad_cell_qc_signatures.gmt',
-        '--out-dir', 'outputs/match',
-    ]
-    subprocess.check_call(cmd)
+    if os.path.exists(f'gene_sets/programs/{tissue}/{cell_type}/{dataset}/program_loadings.tsv.gz'):
+        cmd = [
+            'python3.11', f'{downloaded_files}/dig-cell-state-scoring/scripts/match_programs_to_cell_states.py',
+            '--program-loadings', f'gene_sets/programs/{tissue}/{cell_type}/{dataset}/program_loadings.tsv.gz',
+            '--state-gmt', 'combined/curated_state.gmt',
+            '--cell-state-activity', 'outputs/scoring/curated_state_activity.tsv.gz',
+            '--program-cell-activity', 'outputs/scoring/program_activity.tsv.gz',
+            '--tissue', tissue,
+            '--cell-type', cell_type,
+            '--gsea-permutations', '1000',
+            '--qc-gmt', f'{downloaded_files}/misc/cmdkp_all_tissues_minimal_bad_cell_qc_signatures.gmt',
+            '--out-dir', 'outputs/match',
+        ]
+        subprocess.check_call(cmd)
 
-    summary = pd.read_csv('outputs/match/program_state_match_summary.tsv.gz', sep='\t', compression='infer', low_memory=False)
+    summary = safe_pd_open('outputs/match/program_state_match_summary.tsv.gz')
     if not summary.empty:
         heat = pd.DataFrame({
             'tissue': tissue,
@@ -153,12 +164,12 @@ def run_program_state_matching(tissue, cell_type, dataset):
 def build_qc_outputs(tissue, cell_type):
     qc_match_frames = []
     qc_enrichment_frames = []
-    qc_match = pd.read_csv('outputs/match/program_qc_match_summary.tsv.gz', sep='\t', compression='infer', low_memory=False)
+    qc_match = safe_pd_open('outputs/match/program_qc_match_summary.tsv.gz')
     if not qc_match.empty:
         qc_match.insert(0, 'cell_type', cell_type)
         qc_match.insert(0, 'tissue', tissue)
         qc_match_frames.append(qc_match)
-    enrichment = pd.read_csv('outputs/match/program_state_marker_enrichment.tsv.gz', sep='\t', compression='infer', low_memory=False)
+    enrichment = safe_pd_open('outputs/match/program_state_marker_enrichment.tsv.gz')
     if not enrichment.empty and 'state_type' in enrichment.columns:
         qc_enrichment_frames.append(enrichment[enrichment['state_type'].eq('qc_state')].copy())
 
@@ -169,19 +180,22 @@ def build_qc_outputs(tissue, cell_type):
 
 
 def run_pipeline(tissue, cell_type, dataset):
-    os.makedirs('outputs', exist_ok=True)
-    build_combined(tissue, cell_type, dataset)
-    run_scoring()
-    run_expression_summary()
-    split_by_signature_kind()
-    run_program_state_matching(tissue, cell_type, dataset)
-    build_qc_outputs(tissue, cell_type)
+    min_file_num = build_combined(tissue, cell_type, dataset)
+    if min_file_num > 0:
+        os.makedirs('outputs', exist_ok=True)
+        run_scoring()
+        run_expression_summary()
+        split_by_signature_kind()
+        run_program_state_matching(tissue, cell_type, dataset)
+        build_qc_outputs(tissue, cell_type)
 
 
 def upload_data(tissue, cell_type, dataset):
-    subprocess.check_call(['zip', '-r', 'raw_cell_scoring.zip', 'outputs/'])
-    subprocess.check_call(['aws', 's3', 'cp', 'raw_cell_scoring.zip', f'{s3_in}/out/single_cell/staging/scoring/{tissue}/{cell_type}/{dataset}/'])
-    os.remove('raw_cell_scoring.zip')
+    if os.path.exists('outputs'):
+        subprocess.check_call(['zip', '-r', 'raw_cell_scoring.zip', 'outputs/'])
+        subprocess.check_call(['aws', 's3', 'cp', 'raw_cell_scoring.zip', f'{s3_in}/out/single_cell/staging/scoring/{tissue}/{cell_type}/{dataset}/'])
+        os.remove('raw_cell_scoring.zip')
+        shutil.rmtree('outputs')
 
 
 def main():
@@ -194,7 +208,6 @@ def main():
     download_data(args.tissue, args.cell_type, args.dataset)
     run_pipeline(args.tissue, args.cell_type, args.dataset)
     upload_data(args.tissue, args.cell_type, args.dataset)
-    shutil.rmtree('outputs')
     shutil.rmtree('inputs')
     shutil.rmtree('gene_sets')
     shutil.rmtree('combined')

@@ -12,8 +12,8 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download_files(dataset, cell_type):
-    file = f'{s3_in}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/factor_matrix_gene_probs.tsv'
+def download_files(tissue, cell_type, dataset):
+    file = f'{s3_in}/out/single_cell/staging/factor_matrix/{tissue}/{cell_type}/{dataset}/factor_matrix_gene_probs.tsv'
     subprocess.check_call(['aws', 's3', 'cp', f'{file}', 'input/'])
 
 
@@ -91,21 +91,25 @@ def combine_gene_sets():
                         ))
 
 
-def upload(dataset, cell_type):
-    staging_output = f'{s3_out}/out/single_cell/staging/pigean/{dataset}/{cell_type}'
+def upload(tissue, cell_type, dataset):
+    staging_output = f'{s3_out}/out/single_cell/staging/pigean/{tissue}/{cell_type}/{dataset}'
     subprocess.check_call(['aws', 's3', 'cp', 'staging/', f'{staging_output}/', '--recursive'])
 
-    output = f'{s3_out}/out/single_cell/pigean/{dataset}/{cell_type}'
+    output = f'{s3_out}/out/single_cell/pigean/{tissue}/{cell_type}/{dataset}'
     subprocess.check_call(['aws', 's3', 'cp', 'output/', f'{output}/', '--recursive'])
 
 
 def main():
-    opts = argparse.ArgumentParser()
-    opts.add_argument('--dataset', type=str, required=True)
-    opts.add_argument('--cell-type', type=str, required=True)
-    args = opts.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--tissue', default=None, required=True, type=str,
+                        help="Tissue")
+    parser.add_argument('--cell-type', default=None, required=True, type=str,
+                        help="Cell Type")
+    parser.add_argument('--dataset', default=None, required=True, type=str,
+                        help="Dataset name")
+    args = parser.parse_args()
 
-    download_files(args.dataset, args.cell_type)
+    download_files(args.tissue, args.cell_type, args.dataset)
 
     os.makedirs('staging', exist_ok=True)
     run()
@@ -113,7 +117,7 @@ def main():
     if len(glob.glob('staging/gss.*')) > 0:
         os.makedirs('output', exist_ok=True)
         combine_gene_sets()
-        upload(args.dataset, args.cell_type)
+        upload(args.tissue, args.cell_type, args.dataset)
         shutil.rmtree('output')
     shutil.rmtree('input')
     shutil.rmtree('staging')

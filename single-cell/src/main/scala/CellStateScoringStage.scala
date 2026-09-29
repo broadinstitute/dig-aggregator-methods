@@ -6,11 +6,12 @@ import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class CellStateScoringStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
 
   override val cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     masterVolumeSizeInGB = 100,
-    masterInstanceType = Strategy.memoryOptimized(),
+    masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap-scoring.sh")))
   )
 

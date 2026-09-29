@@ -10,12 +10,12 @@ class FactorStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val factors: Input.Source = Input.Source.Raw("out/single_cell/staging/betas_phewas/*/*/*/programs/combined_pigean.tsv.gz")
+  val factors: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/*/*")
 
   override val sources: Seq[Input.Source] = Seq(factors)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case factors(tissue, cellType, dataset) => Outputs.Named(s"$tissue/$cellType/$dataset")
+    case factors(tissue, cellType, dataset, _) => Outputs.Named(s"$tissue/$cellType/$dataset")
   }
 
   override def make(output: String): Job = {

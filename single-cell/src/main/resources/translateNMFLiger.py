@@ -169,43 +169,42 @@ def loadings_to_probabilities(
     return P
 
 
-def download(dataset, cell_type):
-    path = f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/'
+def download(tissue, cell_type, dataset):
+    path = f'{s3_in}/out/single_cell/staging/nmf/liger/{tissue}/{cell_type}/{dataset}/'
     cmd = ['aws', 's3', 'cp', path, 'inputs/', '--recursive']
     subprocess.check_call(cmd)
 
 
-def convert_cell_loadings(cell_type):
-    with open(f'outputs/{cell_type}/factor_matrix_cell_loadings.tsv', 'w') as f_out:
-        with open(f'inputs/cell_scores.tsv', 'r') as f_in:
-            factors = f_in.readline().strip().split('\t')
+def convert_cell_loadings():
+    with open(f'outputs/factor_matrix_cell_loadings.tsv', 'w') as f_out:
+        with open(f'inputs/cell_factor_scores.csv', 'r') as f_in:
+            factors = f_in.readline().strip().split(',')[1:]
             f_out.write('Cell\t{}\n'.format('\t'.join([f'Factor{idx + 1}' for idx in range(len(factors))])))
             for line in f_in:
-                batch_plus_cell, data = line.split('\t', 1)
-                batch, cell = batch_plus_cell.split('_', 1)  # Will have to actually do right somehow?
-                f_out.write('{}\t{}'.format(cell, data))
+                cell, data = line.split(',', 1)
+                f_out.write('{}\t{}\n'.format(cell, '\t'.join(data.strip().split(','))))
 
 
-def convert_gene_loadings(cell_type):
-    with open(f'outputs/{cell_type}/factor_matrix_gene_loadings.tsv', 'w') as f_out:
-        with open(f'inputs/gene_loadings.tsv', 'r') as f_in:
-            factors = f_in.readline().strip().split('\t')
+def convert_gene_loadings():
+    with open(f'outputs/factor_matrix_gene_loadings.tsv', 'w') as f_out:
+        with open(f'inputs/factor_gene_programs.csv', 'r') as f_in:
+            factors = f_in.readline().strip().split(',')[1:]
             f_out.write('Gene\t{}\n'.format('\t'.join([f'Factor{idx + 1}' for idx in range(len(factors))])))
             for line in f_in:
-                f_out.write(line)
+                f_out.write('\t'.join(line.strip().split(',')) + '\n')
 
 
-def convert_gene_probabilities(cell_type):
-    with open(f'inputs/gene_loadings.tsv', 'r') as f_in:
-        factors = f_in.readline().strip().split('\t')
+def convert_gene_probabilities():
+    with open(f'inputs/factor_gene_programs.csv', 'r') as f_in:
+        factors = f_in.readline().strip().split(',')[1:]
         genes = []
         W = []
         for line in f_in:
-            gene, data = line.strip().split('\t', 1)
-            W.append(list(map(float, data.split('\t'))))
+            gene, data = line.strip().split(',', 1)
+            W.append(list(map(float, data.split(','))))
             genes.append(gene)
         P = loadings_to_probabilities(W, alpha=0.5)
-    with open(f'outputs/{cell_type}/factor_matrix_gene_probs.tsv', 'w') as f_out:
+    with open(f'outputs/factor_matrix_gene_probs.tsv', 'w') as f_out:
         f_out.write('Gene\t{}\n'.format('\t'.join([f'Factor{idx + 1}' for idx in range(len(factors))])))
         for gene_idx, gene in enumerate(genes):
             f_out.write('{}\t{}\n'.format(
@@ -214,8 +213,8 @@ def convert_gene_probabilities(cell_type):
             ))
 
 
-def get_top_genes(cell_type):
-    with open(f'outputs/{cell_type}/factor_matrix_gene_loadings.tsv', 'r') as f_in:
+def get_top_genes():
+    with open(f'outputs/factor_matrix_gene_loadings.tsv', 'r') as f_in:
         header = f_in.readline().strip().split('\t')[1:]
         top_genes = {f'Factor{idx + 1}': [] for idx in range(len(header))}
         for line in f_in:
@@ -226,8 +225,8 @@ def get_top_genes(cell_type):
     return {factor: [a[1] for a in sorted(top_genes[factor], reverse=True)[:5]] for factor in top_genes}
 
 
-def get_top_cells(cell_type):
-    with open(f'outputs/{cell_type}/factor_matrix_cell_loadings.tsv', 'r') as f_in:
+def get_top_cells():
+    with open(f'outputs/factor_matrix_cell_loadings.tsv', 'r') as f_in:
         header = f_in.readline().strip().split('\t')[1:]
         top_cells = {f'Factor{idx + 1}': [] for idx in range(len(header))}
         for line in f_in:
@@ -238,14 +237,16 @@ def get_top_cells(cell_type):
     return {factor: [a[1] for a in sorted(top_cells[factor], reverse=True)[:5]] for factor in top_cells}
 
 
-def convert_gene_programs(cell_type):
-    top_genes = get_top_genes(cell_type)
-    top_cells = get_top_cells(cell_type)
-    with open(f'inputs/factor_importance.txt', 'r') as f:
+def convert_gene_programs():
+    top_genes = get_top_genes()
+    top_cells = get_top_cells()
+    with open(f'inputs/factor_summary.csv', 'r') as f:
         importances = []
+        header = f.readline()
         for line in f:
-            importances.append(float(line.strip().split('\t')[-1]))
-    with open(f'outputs/{cell_type}/factor_matrix_factors.tsv', 'w') as f_out:
+            line_dict = dict(zip(header.strip().split(','), line.strip().split(',')))
+            importances.append(float(line_dict['max_gene_loading']))
+    with open(f'outputs//factor_matrix_factors.tsv', 'w') as f_out:
         f_out.write('factor\texp_lambdak\ttop_genes\ttop_cells\n')
         for idx, importance in enumerate(importances):
             f_out.write('{}\t{}\t{}\t{}\n'.format(
@@ -256,31 +257,33 @@ def convert_gene_programs(cell_type):
             ))
 
 
-def convert(cell_type):
-    os.makedirs(f'outputs/{cell_type}/', exist_ok=True)
-    convert_cell_loadings(cell_type)
-    convert_gene_loadings(cell_type)
-    convert_gene_probabilities(cell_type)
-    convert_gene_programs(cell_type)
+def convert():
+    os.makedirs(f'outputs', exist_ok=True)
+    convert_cell_loadings()
+    convert_gene_loadings()
+    convert_gene_probabilities()
+    convert_gene_programs()
 
 
-def upload(dataset, cell_type):
-    path = f'{s3_out}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}'
-    cmd = ['aws', 's3', 'cp', f'outputs/{cell_type}/', path, '--recursive']
+def upload(tissue, cell_type, dataset):
+    path = f'{s3_out}/out/single_cell/staging/factor_matrix/{tissue}/{cell_type}/{dataset}'
+    cmd = ['aws', 's3', 'cp', f'outputs/', path, '--recursive']
     subprocess.check_call(cmd)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', default=None, required=True, type=str,
-                        help="Dataset name")
+    parser.add_argument('--tissue', default=None, required=True, type=str,
+                        help="Tissue")
     parser.add_argument('--cell-type', default=None, required=True, type=str,
                         help="Cell Type")
+    parser.add_argument('--dataset', default=None, required=True, type=str,
+                        help="Dataset name")
     args = parser.parse_args()
 
-    download(args.dataset, args.cell_type)
-    convert(args.cell_type)
-    upload(args.dataset, args.cell_type)
+    download(args.tissue, args.cell_type, args.dataset)
+    convert()
+    upload(args.tissue, args.cell_type, args.dataset)
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')
 
