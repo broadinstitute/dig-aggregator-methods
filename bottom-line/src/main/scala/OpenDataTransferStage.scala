@@ -7,7 +7,8 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class OpenDataTransferStage(implicit context: Context) extends Stage {
 
   override val cluster: ClusterDef = super.cluster.copy(
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("open_data_transfer_bootstrap.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("open_data_transfer_bootstrap.sh"))),
+    instances = 5
   )
 
   val transEthnicInputs: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
