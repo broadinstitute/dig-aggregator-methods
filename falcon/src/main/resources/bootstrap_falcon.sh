@@ -29,6 +29,9 @@ sudo unzip annotations.zip -d ./annotations
 sudo rm annotations.zip
 
 cd "$HOME"
+# Generated from (in the falcon repo):
+#cd falcon && tar czf falcon-src.tar.gz --exclude=target --exclude=.git .
+
 sudo aws s3 cp s3://dig-analysis-bin/rust_builds/falcon-src.tar.gz ./
 sudo mkdir -p falcon_src
 sudo tar xzf falcon-src.tar.gz -C falcon_src
