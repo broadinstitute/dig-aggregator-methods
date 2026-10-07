@@ -28,16 +28,26 @@ sudo aws s3 cp s3://dig-analysis-bin/falcon/annotations.zip ./
 sudo unzip annotations.zip -d ./annotations
 sudo rm annotations.zip
 
-cd "$HOME"
+sudo aws s3 cp s3://dig-analysis-bin/falcon/dummy.coeff.tsv ./coeff/
+
+cd "$BIN_ROOT"
 # Generated from (in the falcon repo):
 #cd falcon && tar czf falcon-src.tar.gz --exclude=target --exclude=.git .
 
-sudo aws s3 cp s3://dig-analysis-bin/rust_builds/falcon-src.tar.gz ./
+sudo aws s3 cp s3://dig-analysis-bin/falcon/falcon-src.tar.gz ./
 sudo mkdir -p falcon_src
 sudo tar xzf falcon-src.tar.gz -C falcon_src
 
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sudo sh -s -- -y
-sudo /root/.cargo/bin/cargo build --release --locked --manifest-path falcon_src/falcon-rs/Cargo.toml
+#curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sudo sh -s -- -y
+#sudo /root/.cargo/bin/cargo build --release --locked --manifest-path falcon_src/falcon-rs/Cargo.toml
+#
+#sudo mkdir -p "$BIN_ROOT"
+#sudo cp falcon_src/falcon-rs/target/release/falcon "$BIN_ROOT/falcon"
 
-sudo mkdir -p "$BIN_ROOT"
-sudo cp falcon_src/falcon-rs/target/release/falcon "$BIN_ROOT/falcon"
+sudo pip3.11 install numba
+sudo pip3.11 install tabulate
+sudo pip3.11 install plotly
+sudo pip3.11 install pandas
+sudo pip3.11 install scikit-learn
+
+sudo pip3 install scipy

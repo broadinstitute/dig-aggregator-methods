@@ -1,15 +1,13 @@
 #!/usr/bin/python3
 import argparse
 import json
-import numpy as np
 import os
 import shutil
 from scipy.stats import norm
 import subprocess
 
-binary_path = '/mnt/var/falcon/falcon'
-config_file = '/mnt/var/falcon/ref/falcon.ini'
-snp_map_file = '/mnt/var/falcon/ref/snp.csv'
+falcon_path = '/mnt/var/falcon'
+pigean_path = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
@@ -24,7 +22,7 @@ def download_sumstats(phenotype):
 
 def load_snp_map():
     snp_map = {}
-    with open(snp_map_file) as f:
+    with open(f'{falcon_path}/ref/snp.csv') as f:
         next(f)  # header: dbSNP, varId
         for line in f:
             rsid, var_id = line.rstrip('\n').split('\t')
@@ -71,15 +69,33 @@ def reformat_sumstats(snp_map):
     shutil.rmtree('inputs/raw')
 
 
-def run_falcon(chrom):
+def run_falcon(phenotype):
+    custom_env = {
+        **os.environ,
+        'MODELS_YAML': f'{pigean_path}/aws_pigean_models_s3.falcon.yaml',
+        'FALCON_PYTHON_LIB': '/usr/local/lib64/python3.11/site-packages',
+        'GENE_FOLDER': f'{falcon_path}/ref/genes/',
+        'LD_FOLDER': f'{falcon_path}/ref/LD/',
+        'S2G_FOLDER': f'{falcon_path}/ref/V2G/',
+        'ANNOTATIONS': f'{falcon_path}/ref/annotations/atac',
+        'GENESET_DIR': f'{pigean_path}/',
+        f'GENE_MAP': f'{pigean_path}/portal_gencode.gene.map',
+        'GENE_LOC': f'{pigean_path}/NCBI37.3.plink.gene.loc',
+        'GENE_LOC_HUGE': f'{pigean_path}/NCBI37.3.plink.gene.exons.loc',
+        'PIGEAN_PROFILE': f'{pigean_path}/gwas.default.json',
+        'PIGEAN_NO_TRACK_FILTERED': '1'
+    }
     cmd = [
-        binary_path,
-        '--config-file', config_file,
-        '--chr-to-update', str(chrom),
-        '--sumstats-folder', 'inputs/sumstats/',
-        '--out-base-name', 'outputs/falcon',
+        f'{falcon_path}/falcon_src/scripts/falcon_pigean/falcon_pigean.sh',
+        '--trait', phenotype,
+        '--pigean-src', f'{pigean_path}/pigean/src',
+        '--falcon-python', '/usr/bin/python3.11',
+        '--pigean-python', '/usr/bin/python3.11',
+        '--coeff', f'{falcon_path}/ref/coeff/dummy.coeff.tsv',
+        '--sumstats-dir', 'inputs/sumstats',
+        '--out-dir', 'outputs'
     ]
-    subprocess.check_call(cmd)
+    subprocess.check_call(cmd, env=custom_env)
 
 
 def upload(phenotype):
@@ -93,14 +109,11 @@ def main():
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Phenotype to process; selects which sumstats to download from S3")
     args = parser.parse_args()
-    import time
-    time.sleep(3600 * 6)
 
     download_sumstats(args.phenotype)
     reformat_sumstats(load_snp_map())
 
-    for chrom in range(1, 23):
-        run_falcon(chrom)
+    run_falcon(args.phenotype)
 
     upload(args.phenotype)
 
