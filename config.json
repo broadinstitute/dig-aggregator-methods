@@ -1,14 +1,15 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "regression-test",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-pigean-paper-regression-2"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-pigean-paper-regression-2"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-pigean-paper-regression-2",
+            "subdir": "bioindex"
         },
         "emr": {
             "subnetIds": [
