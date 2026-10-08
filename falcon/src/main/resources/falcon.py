@@ -95,10 +95,14 @@ def run_falcon(phenotype):
         '--sumstats-dir', 'inputs/sumstats',
         '--out-dir', 'outputs'
     ]
-    subprocess.check_call(cmd, env=custom_env)
+    try:
+        subprocess.check_call(cmd, env=custom_env)
+    except Exception as e:
+        print('ERROR: ' + e)
 
 
 def upload(phenotype):
+    os.makedirs(f'outputs/{phenotype}', exist_ok=True)
     path = f'{s3_out}/out/falcon/staging/falcon/{phenotype}/mouse_msigdb/'
     cmd = ['aws', 's3', 'cp', f'outputs/{phenotype}/', path, '--recursive']
     subprocess.check_call(cmd)
