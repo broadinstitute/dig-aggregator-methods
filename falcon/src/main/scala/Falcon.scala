@@ -23,6 +23,7 @@ object Falcon extends Method {
     */
   override def initStages(implicit context: Context) = {
     addStage(new FalconStage)
+    addStage(new EagglStage)
     addStage(new TranslateFalconStage)
   }
 }

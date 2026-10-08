@@ -98,12 +98,12 @@ def run_falcon(phenotype):
     try:
         subprocess.check_call(cmd, env=custom_env)
     except Exception as e:
-        print('ERROR: ' + e)
+        print(e)
 
 
 def upload(phenotype):
     os.makedirs(f'outputs/{phenotype}', exist_ok=True)
-    path = f'{s3_out}/out/falcon/staging/falcon/{phenotype}/mouse_msigdb/'
+    path = f'{s3_out}/out/falcon/staging/falcon/portal/{phenotype}/mouse_msigdb/'
     cmd = ['aws', 's3', 'cp', f'outputs/{phenotype}/', path, '--recursive']
     subprocess.check_call(cmd)
 
