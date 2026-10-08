@@ -8,14 +8,14 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class FalconStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val euBottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/ancestry-specific/*/ancestry=EU/")
+  val bottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(euBottomLine)
+  override val sources: Seq[Input.Source] = Seq(bottomLine)
 
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case euBottomLine(phenotype) => Outputs.Named(phenotype)
+    case bottomLine(phenotype) => Outputs.Named(phenotype)
   }
 
   /** Just need a single machine with no applications, but a good drive. */
