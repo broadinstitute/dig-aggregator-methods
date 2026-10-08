@@ -15,7 +15,7 @@ chroms = {str(c) for c in range(1, 23)}
 
 
 def download_sumstats(phenotype):
-    prefix = f'{s3_in}/out/metaanalysis/bottom-line/ancestry-specific/{phenotype}/ancestry=EU/'
+    prefix = f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/{phenotype}/'
     cmd = ['aws', 's3', 'cp', prefix, 'inputs/raw/', '--recursive']
     subprocess.check_call(cmd)
 
@@ -99,8 +99,8 @@ def run_falcon(phenotype):
 
 
 def upload(phenotype):
-    path = f'{s3_out}/out/falcon/staging/falcon/{phenotype}/'
-    cmd = ['aws', 's3', 'cp', 'outputs/', path, '--recursive']
+    path = f'{s3_out}/out/falcon/staging/falcon/{phenotype}/mouse_msigdb/'
+    cmd = ['aws', 's3', 'cp', f'outputs/{phenotype}/', path, '--recursive']
     subprocess.check_call(cmd)
 
 
