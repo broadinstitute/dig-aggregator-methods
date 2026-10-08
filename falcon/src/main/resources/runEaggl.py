@@ -39,7 +39,7 @@ def get_model_data():
 
 
 def download_data(trait_group, phenotype, model):
-    file_path = f'{s3_in}/out/falcon/staging/falcon/{phenotype}/{model}/pigean'
+    file_path = f'{s3_in}/out/falcon/staging/falcon/{trait_group}/{phenotype}/{model}/pigean'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/', 'pigean/', '--recursive'])
 
 
@@ -75,8 +75,8 @@ def run_factor(model, openapi_key):
               '--deterministic',
               '--factor-runs', '5',
               '--consensus-nmf',
-              '--gene-set-stats-in', os.path.abspath(gs_file),
-              '--gene-stats-in', os.path.abspath(gss_file),
+              '--gene-set-stats-in', os.path.abspath(gss_file),
+              '--gene-stats-in', os.path.abspath(gs_file),
               '--factors-out', os.path.abspath('factors.out.gz'),
               '--factor-metrics-out', os.path.abspath('factor_metrics.out.gz'),
               '--consensus-stats-out', os.path.abspath('consensus_stats.out.gz'),
