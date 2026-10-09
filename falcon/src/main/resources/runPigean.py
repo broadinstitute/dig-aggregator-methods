@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 import argparse
+import glob
 import json
 import os
+import shutil
 import subprocess
 import time
 
@@ -16,23 +18,10 @@ def get_model_data():
             {gene_set['name']: gene_set for gene_set in models['gene_sets']})
 
 
-def file_names(trait_type):
-    if trait_type == 'sumstats':
-        return ['pigean.sumstats.gz']
-    elif trait_type == 'gene_lists':
-        return ['gene_list.tsv']
-    elif trait_type == 'exomes':
-        return ['exomes.sumstats.gz']
-    elif trait_type == 'exomes___sumstats':
-        return ['exomes.sumstats.gz', 'pigean.sumstats.gz']
-    else:
-        raise ValueError(f'Invalid trait_type: {trait_type}')
-
-
-def download_data(trait_type, trait_group, phenotype):
-    for file_name in file_names(trait_type):
-        file_path = f'{s3_in}/out/pigean/inputs/{trait_type}/{trait_group}/{phenotype}/{file_name}'
-        subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
+def download_data(trait_group, phenotype):
+    file_path = f'{s3_in}/out/falcon/staging/falcon/{trait_group}/{phenotype}/bundle/'
+    subprocess.check_call(['aws', 's3', 'cp', file_path, 'inputs', '--recursive'])
+    os.rename(glob.glob('inputs/*.tar.gz')[0], 'inputs/pigean.tar.gz')
 
 
 def get_gene_sets(model):
@@ -53,39 +42,9 @@ def get_gene_sets(model):
         raise Exception(f'Invalid gene set size {model}')
 
 
-def trait_type_command(trait_type):
-    cmds = []
-    files_names = file_names(trait_type)
-    for file_name in files_names:
-        if file_name == 'pigean.sumstats.gz':
-            cmds += ['--gwas-in', os.path.abspath(file_name),
-                     '--gwas-chrom-col', 'CHROM',
-                     '--gwas-pos-col', 'POS',
-                     '--gwas-p-col', 'P',
-                     '--gwas-n-col', 'N'
-                     ]
-        elif file_name == 'gene_list.tsv':
-            cmds += [
-                '--positive-controls-in', os.path.abspath(file_name),
-                '--positive-controls-id-col', '1',
-                '--positive-controls-prob-col', '2',
-                '--positive-controls-no-header', 'True',
-                '--positive-controls-all-in', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
-                '--positive-controls-all-no-header', 'True',
-                '--positive-controls-all-id-col', '1'
-            ]
-        elif file_name == 'exomes.sumstats.gz':
-            cmds += [
-                '--exomes-in', os.path.abspath(file_name),
-                '--exomes-gene-col', 'Gene',
-                '--exomes-p-col', 'P-value',
-                '--exomes-beta-col', 'Effect'
-            ]
-    return cmds
-
-
 base_cmd = [
     'python3.11', '-m', 'pigean', 'gibbs',
+    '--huge-statistics-in', os.path.abspath('inputs/pigean.tar.gz'),
     '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
     '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
     '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
@@ -105,7 +64,11 @@ base_cmd = [
     '--min-num-post-burn-in', '400',
     '--max-num-post-burn-in', '400',
     '--debug-level', '3',
-    '--no-track-filtered-beta-uncorrected',
+    '--track-filtered-beta-uncorrected-mode', 'none',
+    '--max-gb', '32',
+    '--output-detail', 'full',
+    '--ols',
+    '--cached-high-power-calibration', 'skip',
     '--gene-stats-out', os.path.abspath('outputs/gs.out'),
     '--gene-set-stats-out', os.path.abspath('outputs/gss.out'),
     '--gene-gene-set-stats-out', os.path.abspath('outputs/ggss.out'),
@@ -114,9 +77,9 @@ base_cmd = [
 ]
 
 
-def run_pigean(trait_type, model):
+def run_pigean(model):
     os.makedirs('outputs', exist_ok=True)
-    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(model)
+    cmd = base_cmd + get_gene_sets(model)
     subprocess.check_call(cmd, cwd=f'{downloaded_files}/pigean/src')
 
 
@@ -131,8 +94,9 @@ def upload(file_name, file_path):
         subprocess.check_call(['aws', 's3', 'cp', file_name, file_path])
         os.remove(file_name)
 
+
 def upload_data(trait_group, phenotype, model):
-    file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}/'
+    file_path = f'{s3_out}/out/falcon/staging/pigean/{trait_group}/{phenotype}/{model}/'
     upload('outputs/gs.out', file_path)
     upload('outputs/gss.out', file_path)
     upload('outputs/ggss.out', file_path)
@@ -143,8 +107,6 @@ def upload_data(trait_group, phenotype, model):
 def main():
     t = time.time()
     parser = argparse.ArgumentParser()
-    parser.add_argument('--trait-type', default=None, required=True, type=str,
-                        help="sumstats or gene_lists")
     parser.add_argument('--trait-group', default=None, required=True, type=str,
                         help="Trait group")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
@@ -152,14 +114,10 @@ def main():
     parser.add_argument('--model', default=None, required=True, type=str,
                         help="model (mouse_msigdb).")
     args = parser.parse_args()
-    download_data(args.trait_type, args.trait_group, args.phenotype)
-    try:
-        run_pigean(args.trait_type, args.model)
-        upload_data(args.trait_group, args.phenotype, args.model)
-        for file_name in file_names(args.trait_type):
-            os.remove(file_name)
-    except:
-        print('ERROR')
+    download_data(args.trait_group, args.phenotype)
+    run_pigean(args.model)
+    upload_data(args.trait_group, args.phenotype, args.model)
+    shutil.rmtree('inputs')
     print(f'FULL TIME TEST: {time.time() - t}')
 
 

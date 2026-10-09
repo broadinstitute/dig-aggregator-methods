@@ -13,11 +13,11 @@ class PigeanStage(implicit context: Context) extends Stage {
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.memoryOptimized(mem = 64.gb),
     instances = 1,
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap_pigean.sh"))),
     stepConcurrency = 1
   )
 
-  val falcon: Input.Source = Input.Source.Success("out/falcon/staging/falcon/*/*/gwas/*.gwas.tsv.gz")
+  val falcon: Input.Source = Input.Source.Raw("out/falcon/staging/falcon/*/*/gwas/*.gwas.tsv.gz")
 
   override val sources: Seq[Input.Source] = Seq(falcon)
 
@@ -29,7 +29,7 @@ class PigeanStage(implicit context: Context) extends Stage {
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(traitType, traitGroup, phenotype, model) =>
+      case Seq(traitGroup, phenotype, model) =>
         Seq(
           s"--trait-group=$traitGroup",
           s"--phenotype=$phenotype",
