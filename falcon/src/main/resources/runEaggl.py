@@ -72,6 +72,7 @@ def run_factor(model, openapi_key):
     cmd = [
               'python3.11', '-m', 'eaggl', 'factor',
               '--discovery-model', 'gene_by_gene',
+              '--full-gene-projection-method', 'direct_gene_gene',
               '--deterministic',
               '--factor-runs', '5',
               '--consensus-nmf',

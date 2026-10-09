@@ -8,14 +8,13 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 class FalconStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val bottomLine: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
-
+  val inputs: Input.Source = Input.Source.Success("out/falcon/inputs/*/*/*/")
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(bottomLine)
+  override val sources: Seq[Input.Source] = Seq(inputs)
 
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case bottomLine(phenotype) => Outputs.Named(phenotype)
+    case inputs(traitType, traitGroup, phenotype) => Outputs.Named(s"$traitType/$traitGroup/$phenotype")
   }
 
   /** Just need a single machine with no applications, but a good drive. */
@@ -23,7 +22,7 @@ class FalconStage(implicit context: Context) extends Stage {
     instances = 1,
     applications = Seq.empty,
     masterVolumeSizeInGB = 100,
-    masterInstanceType = Strategy.memoryOptimized(mem = 128.gb),
+    masterInstanceType = Strategy.memoryOptimized(mem = 64.gb),
     bootstrapScripts = Seq(
       new BootstrapScript(resourceUri("bootstrap_falcon.sh")),
       new BootstrapScript(resourceUri("bootstrap_pigean.sh"))
@@ -31,6 +30,13 @@ class FalconStage(implicit context: Context) extends Stage {
   )
 
   override def make(output: String): Job = {
-    new Job(Job.Script(resourceUri("falcon.py"), s"--phenotype=$output"))
+    val flags: Seq[String] = output.split("/").toSeq match {
+      case Seq(traitType, traitGroup, phenotype) =>
+        Seq(
+          s"--trait-type=$traitType",
+          s"--trait-group=$traitGroup",
+          s"--phenotype=$phenotype")
+    }
+    new Job(Job.Script(resourceUri("falcon.py"), flags:_*))
   }
 }

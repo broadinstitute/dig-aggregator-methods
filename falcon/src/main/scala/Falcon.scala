@@ -22,6 +22,7 @@ object Falcon extends Method {
     * order they should be serially executed.
     */
   override def initStages(implicit context: Context) = {
+    addStage(new MakeSumstatsStage)
     addStage(new FalconStage)
     addStage(new EagglStage)
     addStage(new TranslateFalconStage)

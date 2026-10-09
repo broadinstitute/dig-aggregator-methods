@@ -11,62 +11,11 @@ pigean_path = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-chroms = {str(c) for c in range(1, 23)}
 
-
-def download_sumstats(phenotype):
-    prefix = f'{s3_in}/out/metaanalysis/bottom-line/trans-ethnic/{phenotype}/'
-    cmd = ['aws', 's3', 'cp', prefix, 'inputs/raw/', '--recursive']
+def download_sumstats(trait_type, trait_group, phenotype):
+    prefix = f'{s3_in}/out/falcon/inputs/{trait_type}/{trait_group}/{phenotype}/'
+    cmd = ['aws', 's3', 'cp', prefix, 'inputs/sumstats/', '--recursive']
     subprocess.check_call(cmd)
-
-
-def load_snp_map():
-    snp_map = {}
-    with open(f'{falcon_path}/ref/snp.csv') as f:
-        next(f)  # header: dbSNP, varId
-        for line in f:
-            rsid, var_id = line.rstrip('\n').split('\t')
-            snp_map[var_id] = rsid
-    return snp_map
-
-
-def reformat_sumstats(snp_map):
-    os.makedirs('inputs/sumstats', exist_ok=True)
-    out_files = {}
-    for chrom in chroms:
-        f = open(f'inputs/sumstats/{chrom}.sumstats', 'w')
-        f.write('varId\tCHROM\tPOS\tREF\tALT\tpVALUE\tBETA\tSE\tZ\tN\trsID\n')
-        out_files[chrom] = f
-    for fname in sorted(os.listdir('inputs/raw')):
-        if not fname.endswith('.json.zst'):
-            continue
-        proc = subprocess.Popen(['zstd', '-d', '-c', f'inputs/raw/{fname}'], stdout=subprocess.PIPE, text=True)
-        for line in proc.stdout:
-            row = json.loads(line)
-            chrom = row['chromosome']
-            if chrom not in chroms:
-                continue
-            rsid = snp_map.get(row['varId'])
-            if rsid is None:
-                continue
-            if row['pValue'] == 1:
-                continue
-            if row['pValue'] < 1E-300:
-                row['pValue'] = 1E-300
-            row['Z'] = abs(norm.ppf(row['pValue'] / 2.0))
-            row['Z'] = row['Z'] if row['beta'] > 0 else -row['Z']
-            row['stdErr'] = row['beta'] / row['Z']
-            if row['stdErr'] == 0 or abs(row['Z']) <= 5:
-                continue
-            out_files[chrom].write(
-                f"{row['varId']}\t{chrom}\t{row['position']}\t{row['reference']}\t{row['alt']}\t"
-                f"{row['pValue']}\t{row['beta']}\t{row['stdErr']}\t{row['Z']}\t{row['n']}\t{rsid}\n"
-            )
-        proc.stdout.close()
-        proc.wait()
-    for f in out_files.values():
-        f.close()
-    shutil.rmtree('inputs/raw')
 
 
 def run_falcon(phenotype):
@@ -93,7 +42,8 @@ def run_falcon(phenotype):
         '--pigean-python', '/usr/bin/python3.11',
         '--coeff', f'{falcon_path}/ref/coeff/dummy.coeff.tsv',
         '--sumstats-dir', 'inputs/sumstats',
-        '--out-dir', 'outputs'
+        '--out-dir', 'outputs',
+        '--to-step', '9'
     ]
     try:
         subprocess.check_call(cmd, env=custom_env)
@@ -101,25 +51,26 @@ def run_falcon(phenotype):
         print(e)
 
 
-def upload(phenotype):
+def upload(trait_group, phenotype):
     os.makedirs(f'outputs/{phenotype}', exist_ok=True)
-    path = f'{s3_out}/out/falcon/staging/falcon/portal/{phenotype}/mouse_msigdb/'
+    path = f'{s3_out}/out/falcon/staging/falcon/{trait_group}/{phenotype}'
     cmd = ['aws', 's3', 'cp', f'outputs/{phenotype}/', path, '--recursive']
     subprocess.check_call(cmd)
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--trait-type', default=None, required=True, type=str,
+                        help="sumstats or gene_lists")
+    parser.add_argument('--trait-group', default=None, required=True, type=str,
+                        help="Trait group")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
-                        help="Phenotype to process; selects which sumstats to download from S3")
+                        help="Input phenotype.")
     args = parser.parse_args()
 
-    download_sumstats(args.phenotype)
-    reformat_sumstats(load_snp_map())
-
+    download_sumstats(args.trait_type, args.trait_group, args.phenotype)
     run_falcon(args.phenotype)
-
-    upload(args.phenotype)
+    upload(args.trait_group, args.phenotype)
 
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')
