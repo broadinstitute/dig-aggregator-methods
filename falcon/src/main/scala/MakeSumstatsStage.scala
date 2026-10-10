@@ -24,7 +24,7 @@ class MakeSumstatsStage(implicit context: Context) extends Stage {
   override def cluster: ClusterDef = super.cluster.copy(
     instances = 1,
     applications = Seq.empty,
-    masterVolumeSizeInGB = 100,
+    masterVolumeSizeInGB = 200,
     masterInstanceType = Strategy.memoryOptimized(mem = 64.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap_sumstats.sh"))),
     stepConcurrency = 8
