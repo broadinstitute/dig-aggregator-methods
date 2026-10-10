@@ -27,7 +27,7 @@ class MakeSumstatsStage(implicit context: Context) extends Stage {
     masterVolumeSizeInGB = 200,
     masterInstanceType = Strategy.memoryOptimized(mem = 64.gb),
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("bootstrap_sumstats.sh"))),
-    stepConcurrency = 8
+    stepConcurrency = 6
   )
 
   override def make(output: String): Job = {
