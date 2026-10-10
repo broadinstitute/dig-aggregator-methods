@@ -14,12 +14,12 @@ class EagglStage(implicit context: Context) extends Stage {
     stepConcurrency = 8
   )
 
-  val pigean: Input.Source = Input.Source.Raw("out/falcon/staging/falcon/*/*/*/pigean/*.gene_stats.tsv")
+  val pigean: Input.Source = Input.Source.Success("out/falcon/staging/pigean/*/*/*/")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(traitGroup, phenotype, model, _) => Outputs.Named(s"$traitGroup/$phenotype/$model")
+    case pigean(traitGroup, phenotype, model) => Outputs.Named(s"$traitGroup/$phenotype/$model")
   }
 
   override def make(output: String): Job = {

@@ -2,7 +2,6 @@
 import argparse
 from boto3.session import Session
 import datetime
-import glob
 import json
 import os
 import shutil
@@ -39,7 +38,7 @@ def get_model_data():
 
 
 def download_data(trait_group, phenotype, model):
-    file_path = f'{s3_in}/out/falcon/staging/falcon/{trait_group}/{phenotype}/{model}/pigean'
+    file_path = f'{s3_in}/out/falcon/staging/pigean/{trait_group}/{phenotype}/{model}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/', 'pigean/', '--recursive'])
 
 
@@ -67,8 +66,6 @@ def open_ai_cmd(openapi_key):
 
 
 def run_factor(model, openapi_key):
-    gs_file = glob.glob('pigean/*.gene_stats.tsv')[0]
-    gss_file = glob.glob('pigean/*.gene_set_stats.tsv')[0]
     cmd = [
               'python3.11', '-m', 'eaggl', 'factor',
               '--discovery-model', 'gene_by_gene',
@@ -76,8 +73,8 @@ def run_factor(model, openapi_key):
               '--deterministic',
               '--factor-runs', '5',
               '--consensus-nmf',
-              '--gene-set-stats-in', os.path.abspath(gss_file),
-              '--gene-stats-in', os.path.abspath(gs_file),
+              '--gene-set-stats-in', os.path.abspath('pigean/gss.out'),
+              '--gene-stats-in', os.path.abspath('pigean/gs.out'),
               '--factors-out', os.path.abspath('factors.out.gz'),
               '--factor-metrics-out', os.path.abspath('factor_metrics.out.gz'),
               '--consensus-stats-out', os.path.abspath('consensus_stats.out.gz'),
