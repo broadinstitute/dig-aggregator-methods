@@ -17,7 +17,7 @@ class PigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 1
   )
 
-  val falcon: Input.Source = Input.Source.Raw("out/falcon/staging/falcon/*/*/bundle/*.tar.gz")
+  val falcon: Input.Source = Input.Source.Raw("out/falcon/staging/falcon/*/*/bundle/*.huge_statistics.tar.gz")
 
   override val sources: Seq[Input.Source] = Seq(falcon)
 
