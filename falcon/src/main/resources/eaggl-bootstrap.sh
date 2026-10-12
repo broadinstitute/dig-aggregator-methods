@@ -15,9 +15,11 @@ sudo aws s3 cp s3://dig-analysis-bin/pigean/misc/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/methods/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/models/ . --recursive
 
-sudo yum -y install git
-sudo git clone https://github.com/flannick/pigean.git pigean
-sudo git -C pigean checkout ca12beeba4a80fb829695ec992718e05465c4e73
+#sudo yum -y install git
+#sudo git clone https://github.com/flannick/pigean.git pigean
+#sudo git -C pigean checkout ca12beeba4a80fb829695ec992718e05465c4e73
+sudo aws s3 cp s3://dig-analysis-bin/eaggl/eaggl_release_2026-10-09.zip .
+sudo unzip eaggl_release_2026-10-09.zip -d pigean
 sudo aws s3 cp s3://dig-analysis-data/out/pigean/staging/combined/ . --recursive
 
 # install dependencies
