@@ -37,8 +37,9 @@ def translate_f(json_line, trait_group, phenotype, model, factors):
         f'"label": "{json_line["label"]}", '
         f'"top_genes": "{json_line["top_genes"].replace(",", ";")}", '
         f'"top_gene_sets": "{json_line["top_gene_sets"].replace(",", ";")}", '
-        f'"gene_score": {json_line["gene_score"]}, '
-        f'"gene_set_score": {json_line["gene_set_score"]}, '
+        f'"lambda": {json_line["lambda"]}, '
+        f'"anchor_any_joint": {json_line["anchor_any_joint"]}, '
+        f'"anchor_any_marginal": {json_line["anchor_any_marginal"]}, '
         f'"trait_group": "{trait_group}", '
         f'"phenotype": "{phenotype}", '
         f'"gene_set_size": "{model}", ' \
