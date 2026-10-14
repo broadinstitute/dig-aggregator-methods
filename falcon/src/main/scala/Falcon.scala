@@ -29,5 +29,6 @@ object Falcon extends Method {
     addStage(new TranslateFalconStage)
     addStage(new TranslatePigeanStage)
     addStage(new TranslateEagglStage)
+    addStage(new CombinePigeanFactorStage)
   }
 }

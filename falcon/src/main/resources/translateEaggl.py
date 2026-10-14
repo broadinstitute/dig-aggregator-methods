@@ -2,18 +2,17 @@
 import argparse
 import gzip
 import os
+import re
 import subprocess
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-# Temp bodge
-idxs = {'gene_clusters.out.gz': 7, 'gene_set_clusters.out,gz': 6}
 def get_factors(filename):
-    if filename in idxs:
+    if filename in ['gene_clusters.out.gz', 'gene_set_clusters.out.gz']:
         with gzip.open(filename, 'rt') as f:
-            return f.readline().strip().split('\t')[idxs[filename]:]
+            return [a for a in f.readline().strip().split('\t') if re.match(r'Factor[0-9]*', a) is not None]
     else:
         return []
 
