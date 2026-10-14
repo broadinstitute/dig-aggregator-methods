@@ -141,6 +141,7 @@ def success(file_path):
 
 
 def upload_data(trait_group, phenotype, model):
+    os.makedirs('outputs', exist_ok=True)
     file_path = f'{s3_out}/out/falcon/staging/eaggl/{trait_group}/{phenotype}/{model}/'
     # for file in ['factors.out.gz', 'factor_metrics.out.gz', 'consensus_stats.out.gz',
     #              'gene_clusters.out.gz', 'gene_set_clusters.out.gz',
@@ -170,9 +171,9 @@ def main():
         run_factor(args.trait_group, args.phenotype, args.model, open_api_key)
         # finished = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
         # make_metadata(args.trait_group, args.phenotype, args.model, started, finished)
-        upload_data(args.trait_group, args.phenotype, args.model)
     except Exception:
         print('Error')
+    upload_data(args.trait_group, args.phenotype, args.model)
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')
 
