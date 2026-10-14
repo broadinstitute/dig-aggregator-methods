@@ -12,7 +12,7 @@ s3_out = os.environ['OUTPUT_PATH']
 idxs = {'gene_clusters.out.gz': 7, 'gene_set_clusters.out,gz': 6}
 def get_factors(filename):
     if filename in idxs:
-        with open(filename, 'r') as f:
+        with gzip.open(filename, 'rt') as f:
             return f.readline().strip().split('\t')[idxs[filename]:]
     else:
         return []

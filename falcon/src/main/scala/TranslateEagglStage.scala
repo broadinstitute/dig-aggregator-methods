@@ -10,7 +10,7 @@ class TranslateEagglStage(implicit context: Context) extends Stage {
     instances = 1
   )
 
-  val pigean: Input.Source = Input.Source.Raw("out/pigean/staging/eaggl/*/*/*/factors.out.gz")
+  val pigean: Input.Source = Input.Source.Raw("out/falcon/staging/eaggl/*/*/*/factors.out.gz")
 
   override val sources: Seq[Input.Source] = Seq(pigean)
 
