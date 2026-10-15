@@ -23,7 +23,7 @@ class CombineStage(implicit context: Context) extends Stage {
   override def make(output: String): Job = {
     new Job(Seq(
       Job.Script(resourceUri("combineGS.py"), s"--model=$output"),
-      Job.Script(resourceUri("combineGSS.py"), s"--modele=$output")
+      Job.Script(resourceUri("combineGSS.py"), s"--model=$output")
     ), parallelSteps=true)
   }
 }
