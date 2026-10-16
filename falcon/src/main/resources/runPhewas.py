@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 import argparse
-import glob
 import gzip
 import os
 import re
-import shutil
 import subprocess
 
 downloaded_files = '/mnt/var/pigean'
@@ -26,12 +24,28 @@ def get_factor_cols():
         return [a for a in f.readline().strip().split('\t') if re.match(r'Factor[0-9]*', a) is not None]
 
 
+def filter_factors(factors):
+    max_values = {f: 0 for f in factors}
+    with gzip.open('gene_clusters.out.gz', 'rt') as f:
+        header = f.readline().strip().split('\t')
+        for line in f:
+            json_line = dict(zip(header, line.strip().split('\t')))
+            factor_values = [float(json_line[f]) for f in factors]
+            max_factor_value = max(factor_values)
+            for f, fv in zip(factors, factor_values):
+                if fv == max_factor_value:
+                    max_values[f] += 1
+    return [f for f in factors if max_values[f] > 0]
+
+
 def run_phewas():
+    factor_cols = get_factor_cols()
+    filtered_factor_cols = filter_factors(factor_cols)
     cmd = [
         'python3', f'{downloaded_files}/factor_phewas.py',
         '--factors-in', 'gene_clusters.out.gz',
         '--factors-gene-id-col', 'Gene',
-        '--factors-gene-factor-cols', ','.join(get_factor_cols()),
+        '--factors-gene-factor-cols', ','.join(filtered_factor_cols),
         '--filter-to-factor-genes',
         '--gene-stats-in', 'gs.tsv',
         '--gene-stats-id-col', 'gene',
