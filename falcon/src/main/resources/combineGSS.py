@@ -59,7 +59,7 @@ def combine(model):
 
 
 def upload_data(model):
-    subprocess.check_call(['aws', 's3', 'cp', f'out/gss_{model}.tsv', f'{s3_out}/out/pigean/staging/combined/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'out/gss_{model}.tsv', f'{s3_out}/out/falcon/staging/combined/'])
     shutil.rmtree('out')
 
 
