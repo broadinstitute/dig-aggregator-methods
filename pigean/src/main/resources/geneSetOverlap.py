@@ -69,7 +69,7 @@ def get_overlaps(file_list: List) -> Dict:
     for main_idx in range(len(file_list)):
         main_name, main_file = file_list[main_idx]
         main_sets = get_gene_sets(main_file)
-        for other_idx in range(main_idx, len(file_list)):
+        for other_idx in range(main_idx + 1, len(file_list)):
             other_name, other_file = file_list[other_idx]
             other_sets = get_gene_sets(other_file)
             for main_set_name, main_set in main_sets.items():
@@ -80,9 +80,10 @@ def get_overlaps(file_list: List) -> Dict:
                         if len(overlap) > 0 and p < 1E-3:
                             if (main_name, other_name) not in overlap_gene_sets:
                                 overlap_gene_sets[(main_name, other_name)] = []
-                            heapq.heappush(overlap_gene_sets[(main_name, other_name)], (-p, overlap, main_set_name, other_set_name))
-                            if len(overlap_gene_sets[(main_name, other_name)]) > 5000:
-                                heapq.heappop(overlap_gene_sets[(main_name, other_name)])
+                            overlap_gene_sets[(main_name, other_name)].append((-p, overlap, main_set_name, other_set_name))
+                            # heapq.heappush(overlap_gene_sets[(main_name, other_name)], (-p, overlap, main_set_name, other_set_name))
+                            # if len(overlap_gene_sets[(main_name, other_name)]) > 5000:
+                            #     heapq.heappop(overlap_gene_sets[(main_name, other_name)])
     return overlap_gene_sets
 
 
@@ -90,11 +91,11 @@ def upload_data(list_group: str, overlap_gene_sets: Dict) -> None:
     os.makedirs('overlap_files', exist_ok=True)
     with open(f'overlap_files/{list_group}_overlap.gene_sets.list', 'w') as f_list:
         for (main_name, other_name), overlap_sets in overlap_gene_sets.items():
-            file_name = f'{main_name}.x.{other_name}.gmt.gz'
-            f_list.write(f'{main_name}_x_{other_name}:/mnt/var/pigean/{list_group}_overlap/{file_name}\n')
+            file_name = f'{main_name}___{other_name}.gmt.gz'
+            f_list.write(f'{main_name}___{other_name}:/mnt/var/pigean/{list_group}_overlap/{file_name}\n')
             with gzip.open(f'overlap_files/{file_name}', 'wt') as f:
                 for (p, gene_set, main_set_name, other_set_name) in sorted(overlap_sets, key=lambda x: x[0]):
-                    set_name = f'{main_set_name}_{other_set_name}'
+                    set_name = f'{main_set_name}___{other_set_name}'
                     gene_str = '\t'.join(gene_set)
                     f.write(f'{set_name}\t{gene_str}\n')
     subprocess.check_call(f'aws s3 cp overlap_files/ {s3_out}/out/pigean/gene_lists/{list_group}_overlap/ --recursive', shell=True)
