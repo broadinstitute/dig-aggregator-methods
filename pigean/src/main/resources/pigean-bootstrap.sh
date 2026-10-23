@@ -12,6 +12,7 @@ cd "${PIGEAN_ROOT}"
 sudo aws s3 cp s3://dig-analysis-data/out/pigean/gene_lists/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/gene_sets/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/misc/ . --recursive
+sudo aws s3 cp s3://dig-analysis-bin/pigean/methods/ . --recursive
 sudo aws s3 cp s3://dig-analysis-bin/pigean/models/ . --recursive
 
 sudo yum -y install git

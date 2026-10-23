@@ -17,20 +17,20 @@ def get_factors(filename):
         return []
 
 
-def download_data(trait_group, phenotype, file_name, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}/{file_name}'
+def download_data(trait_group, phenotype, file_name, model):
+    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/{model}/{file_name}'
     subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
 
-def upload_data(trait_group, phenotype, data_type, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/{data_type}/{gene_set_size}/{trait_group}/{phenotype}/'
+def upload_data(trait_group, phenotype, data_type, model):
+    file_path = f'{s3_out}/out/pigean/{data_type}/{model}/{trait_group}/{phenotype}/'
     file_out = f'{data_type}.json'
     subprocess.check_call(['aws', 's3', 'cp', file_out, file_path])
     success(file_path)
     os.remove(file_out)
 
 
-def translate_f(json_line, trait_group, phenotype, gene_set_size, factors):
+def translate_f(json_line, trait_group, phenotype, model, factors):
     return [
         f'{{"factor": "{json_line["Factor"]}", '
         f'"label": "{json_line["label"]}", '
@@ -40,11 +40,11 @@ def translate_f(json_line, trait_group, phenotype, gene_set_size, factors):
         f'"gene_set_score": {json_line["gene_set_score"]}, '
         f'"trait_group": "{trait_group}", '
         f'"phenotype": "{phenotype}", '
-        f'"gene_set_size": "{gene_set_size}"}}\n'
+        f'"model": "{model}"}}\n'
     ]
 
 
-def translate_gc(json_line, trait_group, phenotype, gene_set_size, factors):
+def translate_gc(json_line, trait_group, phenotype, model, factors):
     out = []
     for factor in factors:
         if float(json_line[factor]) > 0:
@@ -58,11 +58,11 @@ def translate_gc(json_line, trait_group, phenotype, gene_set_size, factors):
                        f'"log_bf": {json_line["log_bf"]}, '
                        f'"trait_group": "{trait_group}", '
                        f'"phenotype": "{phenotype}", '
-                       f'"gene_set_size": "{gene_set_size}"}}\n')
+                       f'"model": "{model}"}}\n')
     return out
 
 
-def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
+def translate_gsc(json_line, trait_group, phenotype, model, factors):
     out = []
     for factor in factors:
         if float(json_line[factor]) > 0:
@@ -75,22 +75,22 @@ def translate_gsc(json_line, trait_group, phenotype, gene_set_size, factors):
                        f'"beta_uncorrected": {json_line["beta_uncorrected"]}, '
                        f'"trait_group": "{trait_group}", '
                        f'"phenotype": "{phenotype}", '
-                       f'"gene_set_size": "{gene_set_size}"}}\n')
+                       f'"model": "{model}"}}\n')
     return out
 
 
-def translate(trait_group, phenotype, gene_set_size, data_type, file_name, line_fnc):
-    download_data(trait_group, phenotype, file_name, gene_set_size)
+def translate(trait_group, phenotype, model, data_type, file_name, line_fnc):
+    download_data(trait_group, phenotype, file_name, model)
     factors = get_factors(file_name)
     with open(f'{data_type}.json', 'w') as f_out:
         with open(file_name, 'r') as f_in:
             header = f_in.readline().strip().split('\t')
             for line in f_in:
                 json_line = dict(zip(header, line.strip().split('\t')))
-                str_lines = line_fnc(json_line, trait_group, phenotype, gene_set_size, factors)
+                str_lines = line_fnc(json_line, trait_group, phenotype, model, factors)
                 for str_line in str_lines:
                     f_out.write(str_line)
-    upload_data(trait_group, phenotype, data_type, gene_set_size)
+    upload_data(trait_group, phenotype, data_type, model)
     os.remove(file_name)
 
 
@@ -106,13 +106,13 @@ def main():
                         help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
-    parser.add_argument('--gene-set-size', default=None, required=True, type=str,
-                        help="gene-set-size (small, medium, or large).")
+    parser.add_argument('--model', default=None, required=True, type=str,
+                        help="model (e.g. mouse_msigdb).")
     args = parser.parse_args()
 
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'factor', 'f.out', translate_f)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_factor', 'gc.out', translate_gc)
-    translate(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_factor', 'gsc.out', translate_gsc)
+    translate(args.trait_group, args.phenotype, args.model, 'factor', 'f.out', translate_f)
+    translate(args.trait_group, args.phenotype, args.model, 'gene_factor', 'gc.out', translate_gc)
+    translate(args.trait_group, args.phenotype, args.model, 'gene_set_factor', 'gsc.out', translate_gsc)
 
 
 if __name__ == '__main__':

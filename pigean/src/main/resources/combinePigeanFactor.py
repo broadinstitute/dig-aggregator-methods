@@ -53,14 +53,14 @@ def upload(data_file, out_file, out_path):
     os.remove('_SUCCESS')
 
 
-def run(trait_group, phenotype, gene_set_size, data_name, label_name, out_name, combine_key):
+def run(trait_group, phenotype, model, data_name, label_name, out_name, combine_key):
     label_file = f'{label_name}.json'
     data_file = f'{data_name}.json'
     out_file = f'{out_name}.json'
 
-    label_path = f'{s3_in}/out/pigean/{label_name}/{gene_set_size}/{trait_group}/{phenotype}'
-    data_path = f'{s3_in}/out/pigean/{data_name}/{gene_set_size}/{trait_group}/{phenotype}'
-    out_path = f'{s3_out}/out/pigean/{out_name}/{gene_set_size}/{trait_group}/{phenotype}'
+    label_path = f'{s3_in}/out/pigean/{label_name}/{model}/{trait_group}/{phenotype}'
+    data_path = f'{s3_in}/out/pigean/{data_name}/{model}/{trait_group}/{phenotype}'
+    out_path = f'{s3_out}/out/pigean/{out_name}/{model}/{trait_group}/{phenotype}'
 
     download_file(label_file, label_path)
     download_file(data_file, data_path)
@@ -80,12 +80,12 @@ def main():
                         help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
-    parser.add_argument('--gene-set-size', default=None, required=True, type=str,
-                        help="gene-set-size (small, medium, or large).")
+    parser.add_argument('--model', default=None, required=True, type=str,
+                        help="model (mouse_msigdb).")
     args = parser.parse_args()
 
-    run(args.trait_group, args.phenotype, args.gene_set_size, 'gene_stats', 'gene_factor', 'combined_gene_stats', 'gene')
-    run(args.trait_group, args.phenotype, args.gene_set_size, 'gene_set_stats', 'gene_set_factor', 'combined_gene_set_stats', 'gene_set')
+    run(args.trait_group, args.phenotype, args.model, 'gene_stats', 'gene_factor', 'combined_gene_stats', 'gene')
+    run(args.trait_group, args.phenotype, args.model, 'gene_set_stats', 'gene_set_factor', 'combined_gene_set_stats', 'gene_set')
 
 
 if __name__ == '__main__':
