@@ -44,12 +44,29 @@ def gene_set_factor(spark):
     bioindex(df, 'gene_set_factor', bioindex_order)
 
 
+def factor_gene(spark):
+    srcdir = f'{s3_in}/out/old-pigean/factor/*/*/*/*/*.json'
+    factor_df = spark.read.json(srcdir)
+    factor_df = factor_df.withColumn('top_genes', clean(factor_df.top_genes))
+    factor_df = factor_df.withColumn('top_gene_sets', clean(factor_df.top_gene_sets))
+
+    srcdir = f'{s3_in}/out/old-pigean/gene_factor/*/*/*/*/*.json'
+    gene_df = spark.read.json(srcdir)
+    gene_df = gene_df.withColumn('gene', clean(gene_df.gene)) \
+        .select('phenotype', 'gene_set_size', 'factor', 'gene', 'factor_value')
+
+    df = gene_df.join(factor_df, ['phenotype', 'gene_set_size', 'factor'])
+    bioindex_order = [col('phenotype'), col('gene_set_size'), col('gene'), col('factor_value').desc()]
+    bioindex(df, 'factor_gene', bioindex_order)
+
+
 def main():
     spark = SparkSession.builder.appName('bioindex').getOrCreate()
 
     factor(spark)
     gene_factor(spark)
     gene_set_factor(spark)
+    factor_gene(spark)
 
     spark.stop()
 
