@@ -2,8 +2,7 @@
 import argparse
 import anndata as ad
 import gzip
-import math
-import numpy as np
+import json
 import os
 from scipy.sparse import csc_matrix, vstack
 import shutil
@@ -16,19 +15,26 @@ s3_out = os.environ['OUTPUT_PATH']
 def download_data(dataset, cell_type):
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/raw_counts.tsv.gz', 'inputs/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/split/{dataset}/{cell_type}/raw_counts.metadata.tsv.gz', 'inputs/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/single_cell/{dataset}/column_map.json', 'inputs/'])
+
+
+def get_column_map():
+    with open('inputs/column_map.json', 'r') as f:
+        return json.load(f)
 
 
 def get_metadata_maps():
-    donor_map = {}
+    col_map = get_column_map()
+    study_map = {}
     with gzip.open('inputs/raw_counts.metadata.tsv.gz', 'rt') as f:
         header = f.readline().strip().split('\t')
         for line in f:
             json_line = dict(zip(header, line.strip().split('\t')))
-            donor_map[json_line['NAME']] = json_line['study']
-    return donor_map
+            study_map[json_line[col_map['cell_id']]] = json_line[col_map['study_id']]
+    return study_map
 
 
-def get_sparse_array(cell_type, donor_map):
+def get_sparse_array(cell_type, study_map):
     with gzip.open('inputs/raw_counts.tsv.gz', 'rt') as f:
         cells = f.readline().strip().split('\t')[1:]
         genes = []
@@ -43,8 +49,8 @@ def get_sparse_array(cell_type, donor_map):
         csc_matrix(A_dict).T,
         obs={
             'obs_names': cells,
-            'cell_type__kp': [cell_type for _ in cells],
-            'donor_id': [donor_map[cell] for cell in cells]
+            'cell_type': [cell_type for _ in cells],
+            'study': [study_map[cell] for cell in cells]
         },
         var={
             'var_names': genes
@@ -68,8 +74,8 @@ def run():
     args = parser.parse_args()
 
     download_data(args.dataset, args.cell_type)
-    donor_map = get_metadata_maps()
-    adata = get_sparse_array(args.cell_type, donor_map)
+    study_map = get_metadata_maps()
+    adata = get_sparse_array(args.cell_type, study_map)
     upload(args.dataset, args.cell_type, adata)
 
 

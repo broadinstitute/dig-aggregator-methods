@@ -242,10 +242,9 @@ def convert_gene_programs(cell_type):
     top_genes = get_top_genes(cell_type)
     top_cells = get_top_cells(cell_type)
     with open(f'inputs/factor_importance.txt', 'r') as f:
-        _ = f.readline()
         importances = []
         for line in f:
-            importances.append(float(line.strip()))
+            importances.append(float(line.strip().split('\t')[-1]))
     with open(f'outputs/{cell_type}/factor_matrix_factors.tsv', 'w') as f_out:
         f_out.write('factor\texp_lambdak\ttop_genes\ttop_cells\n')
         for idx, importance in enumerate(importances):
@@ -265,8 +264,8 @@ def convert(cell_type):
     convert_gene_programs(cell_type)
 
 
-def upload(dataset, cell_type, model):
-    path = f'{s3_out}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}/{model}'
+def upload(dataset, cell_type):
+    path = f'{s3_out}/out/single_cell/staging/factor_matrix/{dataset}/{cell_type}'
     cmd = ['aws', 's3', 'cp', f'outputs/{cell_type}/', path, '--recursive']
     subprocess.check_call(cmd)
 
@@ -277,13 +276,11 @@ def main():
                         help="Dataset name")
     parser.add_argument('--cell-type', default=None, required=True, type=str,
                         help="Cell Type")
-    parser.add_argument('--model', default=None, required=True, type=str,
-                        help="Model")
     args = parser.parse_args()
 
     download(args.dataset, args.cell_type)
     convert(args.cell_type)
-    upload(args.dataset, args.cell_type, args.model)
+    upload(args.dataset, args.cell_type)
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')
 
