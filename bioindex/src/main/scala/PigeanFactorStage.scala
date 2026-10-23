@@ -3,13 +3,14 @@ package org.broadinstitute.dig.aggregator.methods.bioindex
 import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class PigeanFactorStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
-  val factor: Input.Source = Input.Source.Success("out/pigean/factor/*/")
-  val geneFactor: Input.Source = Input.Source.Success("out/pigean/gene_factor/*/")
-  val genesetFactor: Input.Source = Input.Source.Success("out/pigean/gene_set_factor/*/")
+  val factor: Input.Source = Input.Source.Success("out/old-pigean/factor/*/")
+  val geneFactor: Input.Source = Input.Source.Success("out/old-pigean/gene_factor/*/")
+  val genesetFactor: Input.Source = Input.Source.Success("out/old-pigean/gene_set_factor/*/")
 
   override val sources: Seq[Input.Source] = Seq(factor, geneFactor, genesetFactor)
 
@@ -20,7 +21,9 @@ class PigeanFactorStage(implicit context: Context) extends Stage {
   }
 
   override val cluster: ClusterDef = super.cluster.copy(
-    instances = 5
+    instances = 5,
+    masterInstanceType = Strategy.memoryOptimized(mem = 64.gb),
+    slaveInstanceType = Strategy.memoryOptimized(mem = 64.gb)
   )
 
   /** Output to Job steps. */

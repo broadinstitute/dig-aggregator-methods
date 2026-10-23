@@ -11,6 +11,10 @@ import org.broadinstitute.dig.aws.emr._
 class VariantsStage(implicit context: Context) extends Stage {
   val common: Input.Source = Input.Source.Success("out/varianteffect/variants/common/")
 
+  override val cluster: ClusterDef = super.cluster.copy(
+    instances = 5
+  )
+
   /** Input sources. */
   override val sources: Seq[Input.Source] = Seq(common)
 

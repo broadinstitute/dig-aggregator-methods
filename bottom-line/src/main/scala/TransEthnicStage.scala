@@ -12,6 +12,7 @@ class TransEthnicStage(implicit context: Context) extends Stage {
   // NOTE: If jobs report a mem_alloc issue bump the instance memory. For disk space errors increase the volume size
   override val cluster: ClusterDef = super.cluster.copy(
     masterInstanceType = Strategy.memoryOptimized(),
+    masterVolumeSizeInGB = 100,
     instances = 1,
     applications = Seq.empty,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("cluster-bootstrap.sh")))

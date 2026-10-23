@@ -1,13 +1,20 @@
 package org.broadinstitute.dig.aggregator.methods.bottomline
 
 import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class OpenDataTransferStage(implicit context: Context) extends Stage {
+  import MemorySize.Implicits._
 
   override val cluster: ClusterDef = super.cluster.copy(
-    bootstrapScripts = Seq(new BootstrapScript(resourceUri("open_data_transfer_bootstrap.sh")))
+    bootstrapScripts = Seq(new BootstrapScript(resourceUri("open_data_transfer_bootstrap.sh"))),
+    masterInstanceType = Strategy.memoryOptimized(mem = 64.gb),
+    slaveInstanceType = Strategy.memoryOptimized(mem = 64.gb),
+    instances = 5,
+    masterVolumeSizeInGB = 100,
+    slaveVolumeSizeInGB = 100
   )
 
   val transEthnicInputs: Input.Source = Input.Source.Success("out/metaanalysis/bottom-line/trans-ethnic/*/")
