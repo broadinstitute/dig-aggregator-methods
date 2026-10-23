@@ -3,6 +3,7 @@ import argparse
 import glob
 import numpy as np
 import os
+import re
 import shutil
 import subprocess
 import zipfile
@@ -13,23 +14,31 @@ downloaded_files = '/mnt/var/single_cell'
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-4': 'pancreas'
-}
 
-
-def download_data(dataset):
-    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/scoring/{dataset}/', 'inputs/', '--recursive']
+def download_data(tissue):
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/scoring/{tissue}/', 'inputs/', '--recursive']
+    subprocess.check_call(cmd)
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/betas_phewas/{tissue}/', 'betas_phewas/', '--recursive']
+    subprocess.check_call(cmd)
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/factors/{tissue}/', f'factors/', '--recursive']
     subprocess.check_call(cmd)
 
 
-def extract_zips():
+def extract_zips(dataset):
     cell_types = []
-    for zip_path in glob.glob('inputs/*/raw_cell_scoring.zip'):
-        cell_type = os.path.basename(os.path.dirname(zip_path))
+    for zip_path in glob.glob(f'inputs/*/{dataset}/raw_cell_scoring.zip'):
+        cell_type = re.findall(f'inputs/([^/]*)/{dataset}/raw_cell_scoring.zip', zip_path)[0]
         cell_types.append(cell_type)
         with zipfile.ZipFile(zip_path) as z:
             z.extractall(f'work/{cell_type}')
+    for betas_path in glob.glob(f'betas_phewas/*/{dataset}/*/combined_pigean.tsv.gz'):
+        cell_type, kind = re.findall(f'betas_phewas/([^/]*)/{dataset}/([^/]*)/combined_pigean.tsv.gz', betas_path)[0]
+        os.makedirs(f'work/{cell_type}/outputs/pigean/{kind}', exist_ok=True)
+        shutil.copy2(betas_path, f'work/{cell_type}/outputs/pigean/{kind}/combined_pigean.tsv.gz')
+    for factor_path in glob.glob(f'factors/*/{dataset}/*'):
+        cell_type, file_name = re.findall(f'factors/([^/]*)/{dataset}/([^/]*)', factor_path)[0]
+        os.makedirs(f'factor_work/{cell_type}', exist_ok=True)
+        shutil.copy2(factor_path, f'factor_work/{cell_type}/{file_name}')
     return cell_types
 
 
@@ -69,7 +78,7 @@ def combine_expression(cell_types):
 
 def combine_pigean(cell_types):
     # PIGEAN already ran per cell type inside each raw zip; no need to rerun it here.
-    concat_tables(cell_types, 'outputs/pigean/curated/combined_pigean.tsv.gz') \
+    concat_tables(cell_types, 'outputs/pigean/cell_state/combined_pigean.tsv.gz') \
         .to_csv('outputs/combined/cell_state_pigean.tsv.gz', sep='\t', index=False, compression='gzip')
     concat_tables(cell_types, 'outputs/pigean/program/combined_pigean.tsv.gz') \
         .to_csv('outputs/combined/program_pigean.tsv.gz', sep='\t', index=False, compression='gzip')
@@ -92,11 +101,11 @@ def build_program_match_dir(cell_types):
                 shutil.copy2(src, f'{match_dir}/{name}')
 
 
-def build_portal_tables(dataset):
+def build_portal_tables(tissue, dataset):
     cmd = [
         'python', f'{downloaded_files}/dig-cell-state-scoring/scripts/build_portal_api_data_tables.py',
         '--out-dir', 'outputs/portal',
-        '--tissue', dataset_to_tissue[dataset],
+        '--tissue', tissue,
         '--dataset', dataset,
         '--model', 'mouse_msigdb',
         '--cell-state-expression', 'outputs/combined/curated_state_expression.tsv.gz',
@@ -106,6 +115,7 @@ def build_portal_tables(dataset):
         '--program-match-dir', 'outputs/combined/program_state_matches',
         '--cell-state-pigean', 'outputs/combined/cell_state_pigean.tsv.gz',
         '--program-pigean', 'outputs/combined/program_pigean.tsv.gz',
+        '--program-factors', f'factor_work'
     ]
     subprocess.check_call(cmd)
 
@@ -117,33 +127,35 @@ def build_qc_outputs(cell_types):
         .to_csv('outputs/portal/program_qc_enrichment.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
-def run_pipeline(dataset):
+def run_pipeline(tissue, dataset):
     os.makedirs('outputs', exist_ok=True)
-    cell_types = extract_zips()
+    cell_types = extract_zips(dataset)
     combine_expression(cell_types)
     combine_pigean(cell_types)
     build_program_source_manifest(cell_types)
     build_program_match_dir(cell_types)
-    build_portal_tables(dataset)
+    build_portal_tables(tissue, dataset)
     build_qc_outputs(cell_types)
 
 
-def upload_data(dataset):
+def upload_data(tissue, dataset):
     subprocess.check_call(['zip', '-j', '-r', 'portal.zip', 'outputs/portal'])
-    subprocess.check_call(['aws', 's3', 'cp', 'portal.zip', f'{s3_out}/out/single_cell/portal/{dataset}/'])
+    subprocess.check_call(['aws', 's3', 'cp', 'portal.zip', f'{s3_out}/out/single_cell/portal/{tissue}/{dataset}/'])
     os.remove('portal.zip')
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument('--tissue')
     ap.add_argument('--dataset')
     args = ap.parse_args()
 
-    download_data(args.dataset)
-    run_pipeline(args.dataset)
-    upload_data(args.dataset)
+    download_data(args.tissue)
+    run_pipeline(args.tissue, args.dataset)
+    upload_data(args.tissue, args.dataset)
     shutil.rmtree('outputs')
     shutil.rmtree('work')
+    shutil.rmtree('factor_work')
 
 
 if __name__ == '__main__':

@@ -6,6 +6,7 @@ import math
 import os
 import random
 import re
+import shutil
 import subprocess
 
 import numpy as np
@@ -13,18 +14,21 @@ import numpy as np
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
-model = 'mouse_msigdb'
+
+prod_datasets = {
+    'liver': 'FNIH_Liver_scRNA_v3.2'
+}
 
 
-def list_datasets():
+def list_tissues():
     out = subprocess.check_output(['aws', 's3', 'ls', f'{s3_in}/out/single_cell/portal/']).decode()
     return sorted(line.split()[-1].rstrip('/') for line in out.splitlines() if line.strip().endswith('/'))
 
 
-def download_portal_data(datasets):
-    for dataset in datasets:
-        subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/portal/{dataset}/portal.zip', f'inputs/portal/{dataset}/portal.zip'])
-        subprocess.check_call(['unzip', '-o', '-q', f'inputs/portal/{dataset}/portal.zip', '-d', f'inputs/portal/{dataset}'])
+def download_portal_data(tissues):
+    for tissue in tissues:
+        subprocess.check_call(['aws', 's3', 'cp', f'{s3_in}/out/single_cell/portal/{tissue}/{prod_datasets[tissue]}/portal.zip', f'inputs/portal/{tissue}/portal.zip'])
+        subprocess.check_call(['unzip', '-o', '-q', f'inputs/portal/{tissue}/portal.zip', '-d', f'inputs/portal/{tissue}'])
 
 
 def download_metadata():
@@ -43,52 +47,54 @@ def part_path(subdir, num=0, hash_=None):
     return f'outputs/gene_program/{subdir}/part-{str(num).zfill(5)}-{hex(hash_)[2:-1]}.json'
 
 
-def build_program_labels(datasets):
+def build_program_labels(tissues):
     labels = {}
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/program_factor_metadata.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/program_factor_metadata.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                key = (dataset, dict_line['cell_type'], dict_line['model'], dict_line['factor'])
-                labels[key] = dict_line['label']
+                key = (tissue, dict_line['cell_type'], dict_line['factor'])
+                labels[key] = (dict_line['label'], dict_line['quality'])
     return labels
 
 
-def build_cell_state_metadata():
-    with open('inputs/misc/pancreas_index.json', 'r') as f:
-        data = json.load(f)
-
+def build_cell_state_metadata(tissues):
     lines = []
-    for tissue_data in data['tissues']:
-        tissue = tissue_data['tissue_id']
-        tissue_label = tissue_data['tissue_label']
-        for cell_type_data in tissue_data['cell_types']:
-            cell_type = cell_type_data['cell_type_id']
-            cell_type_label = cell_type_data['cell_type_label']
-            for cell_state in cell_type_data['states']:
-                cell_state['tissue'] = tissue
-                cell_state['tissue_label'] = tissue_label
-                cell_state['cell_type'] = cell_type
-                cell_state['cell_type_label'] = cell_type_label
-                lines.append(cell_state)
+    for tissue in tissues:
+        with open(f'inputs/misc/{tissue}_index.json', 'r') as f:
+            data = json.load(f)
+
+        for tissue_data in data['tissues']:
+            tissue = tissue_data['tissue_id']
+            tissue_label = tissue_data['tissue_label']
+            for cell_type_data in tissue_data['cell_types']:
+                cell_type = cell_type_data['cell_type_id']
+                cell_type_label = cell_type_data['cell_type_label']
+                for cell_state in cell_type_data['states']:
+                    cell_state['tissue'] = tissue
+                    cell_state['tissue_label'] = tissue_label
+                    cell_state['cell_type'] = cell_type
+                    cell_state['cell_type_label'] = cell_type_label
+                    lines.append(cell_state)
 
     with open(part_path('metadata/cell_state'), 'w') as f_out:
         for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['state_id'])):
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_cell_state_metadata_extended():
-    with open('inputs/misc/pancreas_details_by_id.json', 'r') as f:
-        data = json.load(f)
-
+def build_cell_state_metadata_extended(tissues):
     lines = []
-    for cell_state_data in data.values():
-        cell_state_data['tissue_label'] = cell_state_data['tissue']['label']
-        cell_state_data['tissue'] = cell_state_data['tissue']['id']
-        cell_state_data['cell_type_label'] = cell_state_data['cell_type']['label']
-        cell_state_data['cell_type'] = cell_state_data['cell_type']['id']
-        lines.append(cell_state_data)
+    for tissue in tissues:
+        with open(f'inputs/misc/{tissue}_details_by_id.json', 'r') as f:
+            data = json.load(f)
+
+        for cell_state_data in data.values():
+            cell_state_data['tissue_label'] = cell_state_data['tissue']['label']
+            cell_state_data['tissue'] = cell_state_data['tissue']['id']
+            cell_state_data['cell_type_label'] = cell_state_data['cell_type']['label']
+            cell_state_data['cell_type'] = cell_state_data['cell_type']['id']
+            lines.append(cell_state_data)
 
     with open(part_path('metadata/cell_state_extended'), 'w') as f_out:
         for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'])):
@@ -123,11 +129,11 @@ def build_qc_metadata_extended():
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_cell_state_expression_by_dataset(datasets):
+def build_cell_state_expression_by_tissue(tissues):
     hash_ = random.getrandbits(128)
-    for idx, dataset in enumerate(datasets):
+    for idx, tissue in enumerate(tissues):
         lines = []
-        with gzip.open(f'inputs/portal/{dataset}/cell_state_expression.tsv.gz', 'rt') as f:
+        with gzip.open(f'inputs/portal/{tissue}/cell_state_expression.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
@@ -138,8 +144,8 @@ def build_cell_state_expression_by_dataset(datasets):
                     lines.append(
                         {
                             'gene': dict_line['gene'],
-                            'dataset': dataset,
-                            'model': model,
+                            'dataset': prod_datasets[tissue],
+                            'tissue': tissue,
                             'cell_type': dict_line['cell_type'],
                             'state_name': dict_line['state_name'],
                             'log10_cpk': math.log10(log10_cpk),
@@ -148,22 +154,22 @@ def build_cell_state_expression_by_dataset(datasets):
                         }
                     )
         with open(part_path('expression/cell_state', num=idx, hash_=hash_), 'w') as f_out:
-            for line in sorted(lines, key=lambda x: (x['dataset'], x['cell_type'], x['gene'], x['p_value'])):
+            for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['gene'], x['p_value'])):
                 f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_cell_state_pigean(datasets):
+def build_cell_state_pigean(tissues):
     lines = []
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/cell_state_pigean_trait_results.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/cell_state_pigean_trait_results.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
                 lines.append(
                     {
                         'state_name': dict_line['state_name'],
-                        'dataset': dataset,
-                        'model': model,
+                        'dataset': prod_datasets[tissue],
+                        'tissue': tissue,
                         'cell_type': dict_line['cell_type'],
                         'trait': dict_line['trait'],
                         'beta': float(dict_line['beta']),
@@ -171,27 +177,30 @@ def build_cell_state_pigean(datasets):
                     }
                 )
 
+    # No model?
     with open(part_path('factors/cell_state/trait'), 'w') as f_out:
-        for line in sorted(lines, key=lambda x: (x['dataset'], x['cell_type'], x['state_name'], -x['beta'])):
+        for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['state_name'], -x['beta'])):
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_cell_state_heatmap(datasets, labels):
+def build_cell_state_heatmap(tissues, labels):
     lines = []
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/program_state_heatmap.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/program_state_heatmap.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
                 modified_factor = 'Factor{}'.format(re.findall(r'factor_([0-9]*)', dict_line['program_id'])[0])
-                key = (dataset, dict_line['cell_type'], model, modified_factor)
+                key = (tissue, dict_line['cell_type'], modified_factor)
+                label, quality = labels.get(key, (None, None))
                 lines.append(
                     {
                         'state_name': dict_line['state_name'],
                         'program_id': modified_factor,
-                        'program_label': labels.get(key),
-                        'dataset': dataset,
-                        'model': model,
+                        'program_label': label,
+                        'program_quality': quality,
+                        'dataset': prod_datasets[tissue],
+                        'tissue': tissue,
                         'cell_type': dict_line['cell_type'],
                         #'correlation': float(dict_line['correlation']), need to look at this
                         'gsea_p': float(dict_line['gsea_p']) if dict_line.get('gsea_p', '') != '' else None,
@@ -204,43 +213,47 @@ def build_cell_state_heatmap(datasets, labels):
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_program_factor_metadata(datasets):
+def build_program_factor_metadata(tissues):
     lines = {}
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/program_factor_metadata.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/program_factor_metadata.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                key = (dataset, dict_line['cell_type'], dict_line['model'], dict_line['factor'])
+                key = (tissue, dict_line['cell_type'], dict_line['factor'])
                 lines[key] = {
-                    'dataset': dataset,
+                    'dataset': prod_datasets[tissue],
+                    'tissue': tissue,
                     'model': dict_line['model'],
                     'cell_type': dict_line['cell_type'],
                     'factor': dict_line['factor'],
                     'top_genes': dict_line['top_genes'],
                     'label': dict_line['label']
-                }  # midding rationale?
+                }  # missing rationale?
 
     with open(part_path('factors/program/factor'), 'w') as f_out:
         for key in sorted(lines):
             f_out.write('{}\n'.format(json.dumps(lines[key])))
 
 
-def build_program_pigean(datasets, labels):
+def build_program_pigean(tissues, labels):
     lines = []
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/program_pigean_trait_results.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/program_pigean_trait_results.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                key = (dataset, dict_line['cell_type'], model, dict_line['factor'])
+                key = (tissue, dict_line['cell_type'], dict_line['factor'])
+                label, quality = labels.get(key, (None, None))
                 lines.append(
                     {
-                        'dataset': dataset,
-                        'model': model,
+                        'dataset': prod_datasets[tissue],
+                        'tissue': tissue,
+                        'model': dict_line['model'],
                         'cell_type': dict_line['cell_type'],
                         'factor': dict_line['factor'],
-                        'factor_label': labels.get(key),
+                        'factor_label': label,
+                        'factor_quality': quality,
                         'trait': dict_line['trait'],
                         'beta': float(dict_line['beta']),
                         'beta_uncorrected': float(dict_line['beta_uncorrected'])
@@ -248,15 +261,15 @@ def build_program_pigean(datasets, labels):
                 )
 
     with open(part_path('factors/program/trait'), 'w') as f_out:
-        for line in sorted(lines, key=lambda x: (x['dataset'], x['cell_type'], x['model'], x['factor'], -x['beta'])):
+        for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['factor'], -x['beta'])):
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_program_expression_by_dataset(datasets, labels):
+def build_program_expression_by_dataset(tissues, labels):
     hash_ = random.getrandbits(128)
-    for idx, dataset in enumerate(datasets):
+    for idx, tissue in enumerate(tissues):
         lines = []
-        with gzip.open(f'inputs/portal/{dataset}/program_expression.tsv.gz', 'rt') as f:
+        with gzip.open(f'inputs/portal/{tissue}/program_expression.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
@@ -264,30 +277,33 @@ def build_program_expression_by_dataset(datasets, labels):
                 if log10_cpk > 0.0:
                     log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
                     p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
-                    key = (dataset, dict_line['cell_type'], model, dict_line['factor'])
+                    key = (tissue, dict_line['cell_type'], dict_line['factor'])
+                    label, quality = labels.get(key, (None, None))
                     lines.append(
                         {
                             'gene': dict_line['gene'],
-                            'dataset': dataset,
-                            'model': model,
+                            'dataset': prod_datasets[tissue],
+                            'tissue': tissue,
+                            'model': dict_line['model'],
                             'cell_type': dict_line['cell_type'],
                             'factor': dict_line['factor'],
-                            'factor_label': labels.get(key),
+                            'factor_label': label,
+                            'factor_quality': quality,
                             'log10_cpk': math.log10(log10_cpk),
                             'log2fc_weighted_vs_all_parent': log2fc,
                             'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
                         }
                     )
         with open(part_path('expression/program', num=idx, hash_=hash_), 'w') as f_out:
-            for line in sorted(lines, key=lambda x: (x['dataset'], x['cell_type'], x['model'], x['gene'], x['p_value'])):
+            for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['gene'], x['p_value'])):
                 f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_cell_type_expression(datasets):
+def build_cell_type_expression(tissues):
     hash_ = random.getrandbits(128)
-    for idx, dataset in enumerate(datasets):
+    for idx, tissue in enumerate(tissues):
         lines = []
-        with gzip.open(f'inputs/portal/{dataset}/cell_type_expression.tsv.gz', 'rt') as f:
+        with gzip.open(f'inputs/portal/{tissue}/cell_type_expression.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
@@ -298,8 +314,8 @@ def build_cell_type_expression(datasets):
                     lines.append(
                         {
                             'gene': dict_line['gene'],
-                            'dataset': dataset,
-                            'model': model,
+                            'dataset': prod_datasets[tissue],
+                            'tissue': tissue,
                             'cell_type': dict_line['cell_type'],
                             'log10_cpk': math.log10(log10_cpk),
                             'log2fc_weighted_vs_all_parent': log2fc,
@@ -307,7 +323,7 @@ def build_cell_type_expression(datasets):
                         }
                     )
         with open(part_path('expression/cell_type', num=idx, hash_=hash_), 'w') as f_out:
-            for line in sorted(lines, key=lambda x: (x['dataset'], x['gene'], -x['log10_cpk'])):
+            for line in sorted(lines, key=lambda x: (x['tissue'], x['gene'], -x['log10_cpk'])):
                 f_out.write('{}\n'.format(json.dumps(line)))
 
 
@@ -326,10 +342,10 @@ def write_gene_blocked(lines, subdir):
         file.close()
 
 
-def build_program_expression_by_gene(datasets, labels):
+def build_program_expression_by_gene(tissues, labels):
     lines = []
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/program_expression.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/program_expression.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
@@ -337,15 +353,18 @@ def build_program_expression_by_gene(datasets, labels):
                 if log10_cpk > 0.0:
                     log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
                     p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
-                    key = (dataset, dict_line['cell_type'], model, dict_line['factor'])
+                    key = (tissue, dict_line['cell_type'], dict_line['factor'])
+                    label, quality = labels.get(key, (None, None))
                     lines.append(
                         {
                             'gene': dict_line['gene'],
-                            'dataset': dataset,
-                            'model': model,
+                            'dataset': prod_datasets[tissue],
+                            'tissue': tissue,
+                            'model': dict_line['model'],
                             'cell_type': dict_line['cell_type'],
                             'factor': dict_line['factor'],
-                            'factor_label': labels.get(key),
+                            'factor_label': label,
+                            'factor_quality': quality,
                             'log10_cpk': math.log10(log10_cpk),
                             'log2fc_weighted_vs_all_parent': log2fc,
                             'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
@@ -354,10 +373,10 @@ def build_program_expression_by_gene(datasets, labels):
     write_gene_blocked(lines, 'expression-all/program')
 
 
-def build_cell_state_expression_by_gene(datasets):
+def build_cell_state_expression_by_gene(tissues):
     lines = []
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/cell_state_expression.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/cell_state_expression.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
@@ -368,8 +387,8 @@ def build_cell_state_expression_by_gene(datasets):
                     lines.append(
                         {
                             'gene': dict_line['gene'],
-                            'dataset': dataset,
-                            'model': model,
+                            'dataset': prod_datasets[tissue],
+                            'tissue': tissue,
                             'cell_type': dict_line['cell_type'],
                             'state_name': dict_line['state_name'],
                             'log10_cpk': math.log10(log10_cpk),
@@ -380,47 +399,52 @@ def build_cell_state_expression_by_gene(datasets):
     write_gene_blocked(lines, 'expression-all/cell_state')
 
 
-def build_program_gene_loadings(datasets, labels):
+def build_program_gene_loadings(tissues, labels):
     lines = []
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/program_gene_loadings.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/program_gene_loadings.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                key = (dataset, dict_line['cell_type'], model, dict_line['factor'])
+                key = (tissue, dict_line['cell_type'], dict_line['factor'])
+                label, quality = labels.get(key, (None, None))
                 lines.append({
-                    'dataset': dataset,
-                    'model': model,
+                    'dataset': prod_datasets[tissue],
+                    'tissue': tissue,
+                    'model': dict_line['model'],
                     'cell_type': dict_line['cell_type'],
                     'factor': dict_line['factor'],
-                    'factor_label': labels.get(key),
+                    'factor_label': label,
+                    'factor_quality': quality,
                     'gene': dict_line['gene'],
                     'value': float(dict_line['value']),
                 })
 
     with open(part_path('factors/program/gene'), 'w') as f_out:
-        for line in sorted(lines, key=lambda x: (x['dataset'], x['cell_type'], x['model'], x['factor'], -x['value'])):
+        for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['factor'], -x['value'])):
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_program_qc_gene_set_factor(datasets, labels):
+def build_program_qc_gene_set_factor(tissues, labels):
     lines = []
-    for dataset in datasets:
-        for file in glob.glob(f'inputs/pigean/{dataset}/*/*/pigean.gene_sets.tsv'):
-            cell_type, model = re.findall(r'inputs/pigean/[^/]*/([^/]*)/([^/]*)/pigean.gene_sets.tsv', file)[0]
+    for tissue in tissues:
+        for file in glob.glob(f'inputs/pigean/{prod_datasets[tissue]}/*/pigean.gene_sets.tsv'):
+            cell_type = re.findall(r'inputs/pigean/[^/]*/([^/]*)/pigean.gene_sets.tsv', file)[0]
             with open(file, 'rt') as f:
                 header = f.readline().strip().split('\t')
                 for line in f:
                     dict_line = dict(zip(header, line.strip().split('\t')))
-                    if dict_line['beta'] != 'NA' and dict_line['beta'] != '' and dataset is not None:
-                        key = (dataset, cell_type, model, dict_line['factor'])
+                    if dict_line['beta'] != 'NA' and dict_line['beta'] != '':
+                        key = (tissue, cell_type, dict_line['factor'])
+                        label, quality = labels.get(key, (None, None))
                         lines.append(
                             {
-                                'dataset': dataset,
-                                'model': model,
+                                'dataset': prod_datasets[tissue],
+                                'tissue': tissue,
                                 'cell_type': cell_type,
                                 'factor': dict_line['factor'],
-                                'factor_label': labels.get(key),
+                                'factor_label': label,
+                                'factor_quality': quality,
                                 'gene_set': dict_line['gene_set'],
                                 'beta': float(dict_line['beta']),
                                 'beta_uncorrected': float(dict_line['beta_uncorrected'])
@@ -428,28 +452,30 @@ def build_program_qc_gene_set_factor(datasets, labels):
                         )
 
     with open(part_path('factors/program/gene_set'), 'w') as f_out:
-        for line in sorted(lines, key=lambda x: (x['dataset'], x['cell_type'], x['model'], x['factor'], -x['beta'])):
+        for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['factor'], -x['beta'])):
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
-def build_program_qc_enrichment(datasets, labels):
+def build_program_qc_enrichment(tissues, labels):
     lines = []
-    for dataset in datasets:
-        with gzip.open(f'inputs/portal/{dataset}/program_qc_enrichment.tsv.gz', 'rt') as f:
+    for tissue in tissues:
+        with gzip.open(f'inputs/portal/{tissue}/program_qc_enrichment.tsv.gz', 'rt') as f:
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
                 if dict_line.get('gsea_p', '') == '':
                     continue
                 modified_factor = 'Factor{}'.format(re.findall(r'factor_([0-9]*)', dict_line['program_id'])[0])
-                key = (dataset, dict_line['cell_type'], model, modified_factor)
+                key = (tissue, dict_line['cell_type'], modified_factor)
+                label, quality = labels.get(key, (None, None))
                 lines.append(
                     {
-                        'dataset': dataset,
-                        'model': model,
+                        'dataset': prod_datasets[tissue],
+                        'tissue': tissue,
                         'cell_type': dict_line['cell_type'],
                         'factor': modified_factor,
-                        'factor_label': labels.get(key),
+                        'factor_label': label,
+                        'factor_quality': quality,
                         'state_name': dict_line['state_id'],
                         'gsea_p': float(dict_line['gsea_p']),
                         'gsea_q': float(dict_line['gsea_q'])
@@ -457,7 +483,7 @@ def build_program_qc_enrichment(datasets, labels):
                 )
 
     with open(part_path('factors/program/qc'), 'w') as f_out:
-        for line in sorted(lines, key=lambda x: (x['dataset'], x['cell_type'], x['model'], x['factor'], x['gsea_p'])):
+        for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['factor'], x['gsea_p'])):
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
@@ -466,30 +492,32 @@ def upload_bioindex_data():
 
 
 def main():
-    datasets = list_datasets()
-    download_portal_data(datasets)
-    download_metadata()
-    download_pigean_gene_set()
-    labels = build_program_labels(datasets)
+    tissues = list_tissues()
+    # download_portal_data(tissues)
+    # download_metadata()
+    # download_pigean_gene_set()
+    labels = build_program_labels(tissues)
 
-    build_cell_state_metadata()
-    build_cell_state_metadata_extended()
+    build_cell_state_metadata(tissues)
+    build_cell_state_metadata_extended(tissues)
     build_qc_metadata()
     build_qc_metadata_extended()
-    build_cell_state_expression_by_dataset(datasets)
-    build_cell_state_pigean(datasets)
-    build_cell_state_heatmap(datasets, labels)
-    build_program_factor_metadata(datasets)
-    build_program_pigean(datasets, labels)
-    build_program_expression_by_dataset(datasets, labels)
-    build_cell_type_expression(datasets)
-    build_program_expression_by_gene(datasets, labels)
-    build_cell_state_expression_by_gene(datasets)
-    build_program_gene_loadings(datasets, labels)
-    build_program_qc_gene_set_factor(datasets, labels)
-    build_program_qc_enrichment(datasets, labels)
+    build_cell_state_expression_by_tissue(tissues)
+    build_cell_state_pigean(tissues)
+    build_cell_state_heatmap(tissues, labels)
+    build_program_factor_metadata(tissues)
+    build_program_pigean(tissues, labels)
+    build_program_expression_by_dataset(tissues, labels)
+    build_cell_type_expression(tissues)
+    build_program_expression_by_gene(tissues, labels)
+    build_cell_state_expression_by_gene(tissues)
+    build_program_gene_loadings(tissues, labels)
+    build_program_qc_gene_set_factor(tissues, labels)
+    build_program_qc_enrichment(tissues, labels)
 
-    upload_bioindex_data()
+    # upload_bioindex_data()
+    # shutil.rmtree('inputs')
+    # shutil.rmtree('outputs')
 
 
 if __name__ == '__main__':
