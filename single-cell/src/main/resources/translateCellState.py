@@ -15,20 +15,20 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download_data(tissue):
-    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/scoring/{tissue}/', 'inputs/', '--recursive']
+def download_data(tissue, dataset):
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/scoring/{tissue}/', 'inputs/', '--recursive', '--exclude="*"', f'--include="*/{dataset}/*"']
     subprocess.check_call(cmd)
-    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/betas_phewas/{tissue}/', 'betas_phewas/', '--recursive']
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/staging/betas_phewas/{tissue}/', 'betas_phewas/', '--recursive', '--exclude="*"', f'--include="*/{dataset}/*"']
     subprocess.check_call(cmd)
-    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/factors/{tissue}/', f'factors/', '--recursive']
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/factors/{tissue}/', f'factors/', '--recursive', '--exclude="*"', f'--include="*/{dataset}/*"']
+    subprocess.check_call(cmd)
+    cmd = ['aws', 's3', 'cp', f'{s3_in}/out/single_cell/gene_sets/programs/{tissue}/', f'program_loadings/', '--recursive', '--exclude="*"', f'--include="*/{dataset}/*"']
     subprocess.check_call(cmd)
 
 
 def extract_zips(dataset):
-    cell_types = []
     for zip_path in glob.glob(f'inputs/*/{dataset}/raw_cell_scoring.zip'):
         cell_type = re.findall(f'inputs/([^/]*)/{dataset}/raw_cell_scoring.zip', zip_path)[0]
-        cell_types.append(cell_type)
         with zipfile.ZipFile(zip_path) as z:
             z.extractall(f'work/{cell_type}')
     for betas_path in glob.glob(f'betas_phewas/*/{dataset}/*/combined_pigean.tsv.gz'):
@@ -39,7 +39,10 @@ def extract_zips(dataset):
         cell_type, file_name = re.findall(f'factors/([^/]*)/{dataset}/([^/]*)', factor_path)[0]
         os.makedirs(f'factor_work/{cell_type}', exist_ok=True)
         shutil.copy2(factor_path, f'factor_work/{cell_type}/{file_name}')
-    return cell_types
+    for loadings_path in glob.glob(f'program_loadings/*/{dataset}/program_loadings.tsv.gz'):
+        cell_type = re.findall(f'program_loadings/([^/]*)/{dataset}/program_loadings.tsv.gz', loadings_path)[0]
+        os.makedirs(f'work/{cell_type}/outputs/loadings', exist_ok=True)
+        shutil.copy2(loadings_path, f'work/{cell_type}/outputs/loadings/program_loadings.tsv.gz')
 
 
 def concat_tables(cell_types, relative_path):
@@ -47,7 +50,10 @@ def concat_tables(cell_types, relative_path):
     for cell_type in cell_types:
         path = f'work/{cell_type}/{relative_path}'
         if os.path.exists(path):
-            frames.append(pd.read_csv(path, sep='\t', compression='infer', low_memory=False))
+            try:
+                frames.append(pd.read_csv(path, sep='\t', compression='infer', low_memory=False))
+            except:
+                print(f'Failed on cell_type: {cell_type}')
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
@@ -80,7 +86,7 @@ def combine_pigean(cell_types):
     # PIGEAN already ran per cell type inside each raw zip; no need to rerun it here.
     concat_tables(cell_types, 'outputs/pigean/cell_state/combined_pigean.tsv.gz') \
         .to_csv('outputs/combined/cell_state_pigean.tsv.gz', sep='\t', index=False, compression='gzip')
-    concat_tables(cell_types, 'outputs/pigean/program/combined_pigean.tsv.gz') \
+    concat_tables(cell_types, 'outputs/pigean/programs/combined_pigean.tsv.gz') \
         .to_csv('outputs/combined/program_pigean.tsv.gz', sep='\t', index=False, compression='gzip')
 
 
@@ -88,7 +94,7 @@ def build_program_source_manifest(cell_types):
     with open('outputs/combined/program_source_manifest.tsv', 'w') as f:
         f.write('cell_type\tprogram_dir\tprogram_loadings\n')
         for cell_type in cell_types:
-            f.write(f'{cell_type}\t{cell_type}\twork/{cell_type}/outputs/combined_gmt/program_loadings.tsv.gz\n')
+            f.write(f'{cell_type}\t{cell_type}\twork/{cell_type}/outputs/loadings/program_loadings.tsv.gz\n')
 
 
 def build_program_match_dir(cell_types):
@@ -129,7 +135,11 @@ def build_qc_outputs(cell_types):
 
 def run_pipeline(tissue, dataset):
     os.makedirs('outputs', exist_ok=True)
-    cell_types = extract_zips(dataset)
+    cell_types = []
+    for zip_path in glob.glob(f'inputs/*/{dataset}/raw_cell_scoring.zip'):
+        cell_type = re.findall(f'inputs/([^/]*)/{dataset}/raw_cell_scoring.zip', zip_path)[0]
+        cell_types.append(cell_type)
+    extract_zips(dataset)
     combine_expression(cell_types)
     combine_pigean(cell_types)
     build_program_source_manifest(cell_types)
@@ -150,7 +160,7 @@ def main() -> None:
     ap.add_argument('--dataset')
     args = ap.parse_args()
 
-    download_data(args.tissue)
+    download_data(args.tissue, args.dataset)
     run_pipeline(args.tissue, args.dataset)
     upload_data(args.tissue, args.dataset)
     shutil.rmtree('outputs')

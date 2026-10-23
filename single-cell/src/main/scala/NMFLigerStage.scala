@@ -5,7 +5,7 @@ import org.broadinstitute.dig.aws._
 import org.broadinstitute.dig.aws.emr._
 import org.broadinstitute.dig.aws.Ec2.Strategy
 
-class LigerStage(implicit context: Context) extends Stage {
+class NMFLigerStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
 
   override val cluster: ClusterDef = super.cluster.copy(
@@ -30,6 +30,6 @@ class LigerStage(implicit context: Context) extends Stage {
           s"--cell-type=$cellType"
         )
     }
-    new Job(Job.Script(resourceUri("liger.py"), flags:_*))
+    new Job(Job.Script(resourceUri("nmfLiger.py"), flags:_*))
   }
 }
