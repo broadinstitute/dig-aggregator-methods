@@ -17,18 +17,18 @@ class CombinePigeanFactorStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(geneStats, geneSetStats)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case geneStats(geneSetSize, traitGroup, phenotype) => Outputs.Named(
-      s"$traitGroup/$phenotype/$geneSetSize"
+    case geneStats(model, traitGroup, phenotype) => Outputs.Named(
+      s"$traitGroup/$phenotype/$model"
     )
-    case geneSetStats(geneSetSize, traitGroup, phenotype) => Outputs.Named(
-      s"$traitGroup/$phenotype/$geneSetSize"
+    case geneSetStats(model, traitGroup, phenotype) => Outputs.Named(
+      s"$traitGroup/$phenotype/$model"
     )
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(traitGroup, phenotype, geneSetSize) =>
-        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--gene-set-size=$geneSetSize")
+      case Seq(traitGroup, phenotype, model) =>
+        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--model=$model")
     }
     new Job(Job.Script(resourceUri("combinePigeanFactor.py"), flags:_*))
   }

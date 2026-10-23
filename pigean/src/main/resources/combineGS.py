@@ -12,9 +12,9 @@ s3_out = os.environ['OUTPUT_PATH']
 cpus = 8
 
 
-def download_all_data(gene_set_size):
+def download_all_data(model):
     cmd = ['aws', 's3', 'cp', f'{s3_in}/out/pigean/staging/pigean/', './data/', '--recursive',
-           '--exclude="*"', f'--include="*/*/{gene_set_size}/gs.out"']
+           '--exclude="*"', f'--include="*/*/{model}/gs.out"']
     subprocess.check_call(' '.join(cmd), shell=True)
 
 
@@ -43,15 +43,15 @@ def convert(file):
     os.remove(file)
 
 
-def convert_all_data(gene_set_size):
+def convert_all_data(model):
     with Pool(cpus) as p:
-        p.map(convert, glob.glob(f'data/*/*/{gene_set_size}/gs.out'))
+        p.map(convert, glob.glob(f'data/*/*/{model}/gs.out'))
 
 
-def combine(gene_set_size):
+def combine(model):
     os.makedirs('out', exist_ok=True)
-    all_files = glob.glob(f'data/*/*/{gene_set_size}/gs.tsv')
-    with open(f'out/gs_{gene_set_size}.tsv', 'w') as f_out:
+    all_files = glob.glob(f'data/*/*/{model}/gs.tsv')
+    with open(f'out/gs_{model}.tsv', 'w') as f_out:
         f_out.write('trait\tgene\tcombined\thuge\tlog_bf\n')
         for file in all_files:
             with open(file, 'r') as f_in:
@@ -61,20 +61,20 @@ def combine(gene_set_size):
                         f_out.write(line)
 
 
-def upload_data(gene_set_size):
-    subprocess.check_call(['aws', 's3', 'cp', f'out/gs_{gene_set_size}.tsv', f'{s3_out}/out/pigean/staging/combined/'])
+def upload_data(model):
+    subprocess.check_call(['aws', 's3', 'cp', f'out/gs_{model}.tsv', f'{s3_out}/out/pigean/staging/combined/'])
     shutil.rmtree('out')
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gene-set-size', type=str, required=True)
+    parser.add_argument('--model', type=str, required=True)
     args = parser.parse_args()
 
-    download_all_data(args.gene_set_size)
-    convert_all_data(args.gene_set_size)
-    combine(args.gene_set_size)
-    upload_data(args.gene_set_size)
+    download_all_data(args.model)
+    convert_all_data(args.model)
+    combine(args.model)
+    upload_data(args.model)
 
 
 if __name__ == '__main__':

@@ -7,14 +7,14 @@ import org.broadinstitute.dig.aws.Ec2.Strategy
 
 class PigeanStage(implicit context: Context) extends Stage {
   import MemorySize.Implicits._
-
-  val geneSetSizes = Seq("cfde-inc")
+  
+  val models = Seq("mouse_msigdb", "mouse", "pathways", "text_mining", "textmining_no_circularity", "full_production", "large")
 
   override val cluster: ClusterDef = super.cluster.copy(
-    masterInstanceType = Strategy.computeOptimized(vCPUs = 16, mem = 32.gb),
+    masterInstanceType = Strategy.memoryOptimized(vCPUs = 16, mem = 128.gb),
     instances = 1,
     bootstrapScripts = Seq(new BootstrapScript(resourceUri("pigean-bootstrap.sh"))),
-    stepConcurrency = 10
+    stepConcurrency = 1
   )
 
   val inputs: Input.Source = Input.Source.Success("out/pigean/inputs/*/*/*/")
@@ -22,19 +22,19 @@ class PigeanStage(implicit context: Context) extends Stage {
   override val sources: Seq[Input.Source] = Seq(inputs)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case inputs(traitType, traitGroup, phenotype) => Outputs.Named(geneSetSizes.map { geneSetSize =>
-        s"$traitType/$traitGroup/$phenotype/$geneSetSize"
+    case inputs(traitType, traitGroup, phenotype) => Outputs.Named(models.map { model =>
+        s"$traitType/$traitGroup/$phenotype/$model"
       }: _*)
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(traitType, traitGroup, phenotype, geneSetSize) =>
+      case Seq(traitType, traitGroup, phenotype, model) =>
         Seq(
           s"--trait-type=$traitType",
           s"--trait-group=$traitGroup",
           s"--phenotype=$phenotype",
-          s"--gene-set-size=$geneSetSize")
+          s"--model=$model")
     }
     new Job(Job.Script(resourceUri("runPigean.py"), flags:_*))
   }

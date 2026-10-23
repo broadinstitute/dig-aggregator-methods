@@ -11,8 +11,8 @@ s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
 
-def download_data(trait_group, phenotype, gene_set_size):
-    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/{gene_set_size}'
+def download_data(trait_group, phenotype, model):
+    file_path = f'{s3_in}/out/pigean/staging/factor/{trait_group}/{phenotype}/{model}'
     subprocess.check_call(['aws', 's3', 'cp', f'{file_path}/gc.out', '.'])
 
 
@@ -64,8 +64,8 @@ def success(file_path):
     os.remove('_SUCCESS')
 
 
-def upload_data(trait_group, phenotype, sigma, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/staging/phewas/{trait_group}/{phenotype}/{gene_set_size}/'
+def upload_data(trait_group, phenotype, model):
+    file_path = f'{s3_out}/out/pigean/staging/phewas/{trait_group}/{phenotype}/{model}/'
     for file in ['phewas.out', 'phewas.provenance.out', 'phewas.log']:
         subprocess.check_call(['aws', 's3', 'cp', file, file_path])
         os.remove(file)
@@ -78,16 +78,16 @@ def main():
                         help="Input phenotype group.")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
-    parser.add_argument('--gene-set-size', default=None, required=True, type=str,
-                        help="gene-set-size (small, medium, or large).")
+    parser.add_argument('--model', default=None, required=True, type=str,
+                        help="model (e.g. mouse_msigdb).")
     args = parser.parse_args()
 
-    download_data(args.trait_group, args.phenotype, args.gene_set_size)
-    gs_files = glob.glob(f'{downloaded_files}/gs_{args.gene_set_size}_*.tsv')
+    download_data(args.trait_group, args.phenotype, args.model)
+    gs_files = glob.glob(f'{downloaded_files}/gs_{args.model}_*.tsv')
     try:
         run_phewas(args.trait_group, gs_files)
         combine_phewas()
-        upload_data(args.trait_group, args.phenotype, args.gene_set_size)
+        upload_data(args.trait_group, args.phenotype, args.model)
     except Exception as e:
         print(e)
         print('Error')

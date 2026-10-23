@@ -24,15 +24,15 @@ class PhewasPigeanStage(implicit context: Context) extends Stage {
   var outputSet: Set[String] = Set[String]()
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case pigean(traitGroup, phenotype, geneSetSize) =>
-      outputSet += s"$traitGroup/$phenotype/$geneSetSize"
+    case pigean(traitGroup, phenotype, model) =>
+      outputSet += s"$traitGroup/$phenotype/$model"
       Outputs.Null
     case gsCombined(_) => Outputs.Named("phewas")
   }
 
   def toFlags(output: String): Seq[String] = output.split("/").toSeq match {
-    case Seq(traitGroup, phenotype, geneSetSize) =>
-      Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--gene-set-size=$geneSetSize")
+    case Seq(traitGroup, phenotype, model) =>
+      Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--model=$model")
   }
 
   def filterByTrait(traitGroup: String): String => Boolean = {

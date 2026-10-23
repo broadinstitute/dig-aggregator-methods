@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 import subprocess
+import time
 
 downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
@@ -34,9 +35,9 @@ def download_data(trait_type, trait_group, phenotype):
         subprocess.check_call(['aws', 's3', 'cp', file_path, '.'])
 
 
-def get_gene_sets(gene_set_size):
+def get_gene_sets(model):
     models, gene_sets = get_model_data()
-    model_info = models[gene_set_size]
+    model_info = models[model]
     inputs = []
     p_infs = []
     for gene_set in model_info['gene_sets']:
@@ -49,7 +50,7 @@ def get_gene_sets(gene_set_size):
     if len(inputs) > 0:
         return inputs + p_infs
     else:
-        raise Exception(f'Invalid gene set size {gene_set_size}')
+        raise Exception(f'Invalid gene set size {model}')
 
 
 def trait_type_command(trait_type):
@@ -89,7 +90,22 @@ base_cmd = [
     '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
     '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
     '--exons-loc-file-huge', f'{downloaded_files}/NCBI37.3.plink.gene.exons.loc',
-    '--gene-universe-in', f'{downloaded_files}/gene-universe.txt',
+    '--seed', '1', '--deterministic',
+    '--sigma-power', '-2',
+    '--update-hyper', 'none',
+    '--filter-gene-set-p', '0.005',
+    '--max-num-gene-sets', '5000',
+    '--min-gwas-inverse-variance-ratio', '0',
+    '--num-chains', '10',
+    '--gibbs-reruns', '2',
+    '--disable-stall-detection',
+    '--max-num-iter', '500',
+    '--min-num-burn-in', '100',
+    '--max-num-burn-in', '100',
+    '--min-num-post-burn-in', '400',
+    '--max-num-post-burn-in', '400',
+    '--debug-level', '3',
+    '--no-track-filtered-beta-uncorrected',
     '--gene-stats-out', os.path.abspath('outputs/gs.out'),
     '--gene-set-stats-out', os.path.abspath('outputs/gss.out'),
     '--gene-gene-set-stats-out', os.path.abspath('outputs/ggss.out'),
@@ -98,9 +114,9 @@ base_cmd = [
 ]
 
 
-def run_pigean(trait_type, phenotype, gene_set_size):
+def run_pigean(trait_type, model):
     os.makedirs('outputs', exist_ok=True)
-    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(gene_set_size)
+    cmd = base_cmd + trait_type_command(trait_type) + get_gene_sets(model)
     subprocess.check_call(cmd, cwd=f'{downloaded_files}/pigean/src')
 
 
@@ -115,8 +131,9 @@ def upload(file_name, file_path):
         subprocess.check_call(['aws', 's3', 'cp', file_name, file_path])
         os.remove(file_name)
 
-def upload_data(trait_type, trait_group, phenotype, gene_set_size):
-    file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{gene_set_size}/'
+
+def upload_data(trait_group, phenotype, model):
+    file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}/'
     upload('outputs/gs.out', file_path)
     upload('outputs/gss.out', file_path)
     upload('outputs/ggss.out', file_path)
@@ -125,6 +142,7 @@ def upload_data(trait_type, trait_group, phenotype, gene_set_size):
 
 
 def main():
+    t = time.time()
     parser = argparse.ArgumentParser()
     parser.add_argument('--trait-type', default=None, required=True, type=str,
                         help="sumstats or gene_lists")
@@ -132,17 +150,18 @@ def main():
                         help="Trait group")
     parser.add_argument('--phenotype', default=None, required=True, type=str,
                         help="Input phenotype.")
-    parser.add_argument('--gene-set-size', default=None, required=True, type=str,
-                        help="gene-set-size (small, medium, or large).")
+    parser.add_argument('--model', default=None, required=True, type=str,
+                        help="model (mouse_msigdb).")
     args = parser.parse_args()
     download_data(args.trait_type, args.trait_group, args.phenotype)
     try:
-        run_pigean(args.trait_type, args.phenotype, args.gene_set_size)
-        upload_data(args.trait_type, args.trait_group, args.phenotype, args.gene_set_size)
+        run_pigean(args.trait_type, args.model)
+        upload_data(args.trait_group, args.phenotype, args.model)
         for file_name in file_names(args.trait_type):
             os.remove(file_name)
     except:
         print('ERROR')
+    print(f'FULL TIME TEST: {time.time() - t}')
 
 
 if __name__ == '__main__':
