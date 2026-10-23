@@ -12,20 +12,22 @@ class PigeanStage(implicit context: Context) extends Stage {
     stepConcurrency = 4
   )
 
-  val factorMatrix: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/factor_matrix_gene_probs.tsv")
+  val factorMatrix: Input.Source = Input.Source.Raw("out/single_cell/staging/factor_matrix/*/*/*/factor_matrix_gene_probs.tsv")
 
   override val sources: Seq[Input.Source] = Seq(factorMatrix)
 
   override val rules: PartialFunction[Input, Outputs] = {
-    case factorMatrix(dataset, cellType) => Outputs.Named(s"$dataset/$cellType")
+    case factorMatrix(tissue, cellType, dataset) => Outputs.Named(s"$tissue/$cellType/$dataset")
   }
 
   override def make(output: String): Job = {
     val flags: Seq[String] = output.split("/").toSeq match {
-      case Seq(dataset, cellType) =>
+      case Seq(tissue, cellType, dataset) =>
         Seq(
+          s"--tissue=$tissue",
           s"--dataset=$dataset",
-          s"--cell-type=$cellType")
+          s"--cell-type=$cellType"
+        )
     }
     new Job(Job.Script(resourceUri("runPigean.py"), flags:_*))
   }

@@ -14,9 +14,19 @@ import numpy as np
 s3_in = os.environ['INPUT_PATH']
 s3_bioindex = os.environ['BIOINDEX_PATH']
 
-
 prod_datasets = {
-    'liver': 'FNIH_Liver_scRNA_v3.2'
+    "artery": "FNIH_Artery_scRNA_v3",
+    "bone": "FNIH_Bone_scRNA_v1.0",
+    "bonemarrow": "FNIH_BoneMarrow_scRNA_v1",
+    "heart": "FNIH_Heart_scRNA_v4.0",
+    "hypothalamus": "FNIH_Hypothalamus_scRNA_v2.2",
+    "kidney": "FNIH_Kidney_scRNA_v2.2",
+    "liver": "FNIH_Liver_scRNA_v4.0",
+    "muscle": "FNIH_Muscle_scRNA_v2.2",
+    "pancreas": "FNIH_Pancreas_scRNA_v3",
+    "sat": "FNIH_SAT_scRNA_v2.2",
+    "tendon": "FNIH_TendonLigament_scRNA_v2",
+    "vat": "FNIH_VAT_scRNA_v2.2"
 }
 
 
@@ -41,6 +51,11 @@ def download_pigean_gene_set():
     subprocess.check_call(['aws', 's3', 'cp', path, 'inputs/pigean/', '--recursive'])
 
 
+def download_nmf_liger():
+    path = f'{s3_in}/out/single_cell/staging/nmf/liger/'
+    subprocess.check_call(['aws', 's3', 'cp', path, 'inputs/nmf/liger/', '--recursive'])
+
+
 def part_path(subdir, num=0, hash_=None):
     os.makedirs(f'outputs/gene_program/{subdir}', exist_ok=True)
     hash_ = random.getrandbits(128) if hash_ is None else hash_
@@ -62,21 +77,22 @@ def build_program_labels(tissues):
 def build_cell_state_metadata(tissues):
     lines = []
     for tissue in tissues:
-        with open(f'inputs/misc/{tissue}_index.json', 'r') as f:
-            data = json.load(f)
+        if os.path.exists(f'inputs/misc/{tissue}_index.json'):
+            with open(f'inputs/misc/{tissue}_index.json', 'r') as f:
+                data = json.load(f)
 
-        for tissue_data in data['tissues']:
-            tissue = tissue_data['tissue_id']
-            tissue_label = tissue_data['tissue_label']
-            for cell_type_data in tissue_data['cell_types']:
-                cell_type = cell_type_data['cell_type_id']
-                cell_type_label = cell_type_data['cell_type_label']
-                for cell_state in cell_type_data['states']:
-                    cell_state['tissue'] = tissue
-                    cell_state['tissue_label'] = tissue_label
-                    cell_state['cell_type'] = cell_type
-                    cell_state['cell_type_label'] = cell_type_label
-                    lines.append(cell_state)
+            for tissue_data in data['tissues']:
+                tissue = tissue_data['tissue_id']
+                tissue_label = tissue_data['tissue_label']
+                for cell_type_data in tissue_data['cell_types']:
+                    cell_type = cell_type_data['cell_type_id']
+                    cell_type_label = cell_type_data['cell_type_label']
+                    for cell_state in cell_type_data['states']:
+                        cell_state['tissue'] = tissue
+                        cell_state['tissue_label'] = tissue_label
+                        cell_state['cell_type'] = cell_type
+                        cell_state['cell_type_label'] = cell_type_label
+                        lines.append(cell_state)
 
     with open(part_path('metadata/cell_state'), 'w') as f_out:
         for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['state_id'])):
@@ -86,15 +102,16 @@ def build_cell_state_metadata(tissues):
 def build_cell_state_metadata_extended(tissues):
     lines = []
     for tissue in tissues:
-        with open(f'inputs/misc/{tissue}_details_by_id.json', 'r') as f:
-            data = json.load(f)
+        if os.path.exists(f'inputs/misc/{tissue}_details_by_id.json'):
+            with open(f'inputs/misc/{tissue}_details_by_id.json', 'r') as f:
+                data = json.load(f)
 
-        for cell_state_data in data.values():
-            cell_state_data['tissue_label'] = cell_state_data['tissue']['label']
-            cell_state_data['tissue'] = cell_state_data['tissue']['id']
-            cell_state_data['cell_type_label'] = cell_state_data['cell_type']['label']
-            cell_state_data['cell_type'] = cell_state_data['cell_type']['id']
-            lines.append(cell_state_data)
+            for cell_state_data in data.values():
+                cell_state_data['tissue_label'] = cell_state_data['tissue']['label']
+                cell_state_data['tissue'] = cell_state_data['tissue']['id']
+                cell_state_data['cell_type_label'] = cell_state_data['cell_type']['label']
+                cell_state_data['cell_type'] = cell_state_data['cell_type']['id']
+                lines.append(cell_state_data)
 
     with open(part_path('metadata/cell_state_extended'), 'w') as f_out:
         for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'])):
@@ -137,22 +154,23 @@ def build_cell_state_expression_by_tissue(tissues):
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                log10_cpk = float(dict_line['log10_cpk'])
-                if log10_cpk > 0.0:
-                    log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
-                    p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
-                    lines.append(
-                        {
-                            'gene': dict_line['gene'],
-                            'dataset': prod_datasets[tissue],
-                            'tissue': tissue,
-                            'cell_type': dict_line['cell_type'],
-                            'state_name': dict_line['state_name'],
-                            'log10_cpk': math.log10(log10_cpk),
-                            'log2fc_weighted_vs_all_parent': log2fc,
-                            'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
-                        }
-                    )
+                if len(header) == len(dict_line):
+                    log10_cpk = float(dict_line['log10_cpk'])
+                    if log10_cpk > 0.0:
+                        log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
+                        p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
+                        lines.append(
+                            {
+                                'gene': dict_line['gene'],
+                                'dataset': prod_datasets[tissue],
+                                'tissue': tissue,
+                                'cell_type': dict_line['cell_type'],
+                                'state_name': dict_line['state_name'],
+                                'log10_cpk': math.log10(log10_cpk),
+                                'log2fc_weighted_vs_all_parent': log2fc,
+                                'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
+                            }
+                        )
         with open(part_path('expression/cell_state', num=idx, hash_=hash_), 'w') as f_out:
             for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['gene'], x['p_value'])):
                 f_out.write('{}\n'.format(json.dumps(line)))
@@ -273,27 +291,28 @@ def build_program_expression_by_dataset(tissues, labels):
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                log10_cpk = float(dict_line['log10_cpk'])
-                if log10_cpk > 0.0:
-                    log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
-                    p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
-                    key = (tissue, dict_line['cell_type'], dict_line['factor'])
-                    label, quality = labels.get(key, (None, None))
-                    lines.append(
-                        {
-                            'gene': dict_line['gene'],
-                            'dataset': prod_datasets[tissue],
-                            'tissue': tissue,
-                            'model': dict_line['model'],
-                            'cell_type': dict_line['cell_type'],
-                            'factor': dict_line['factor'],
-                            'factor_label': label,
-                            'factor_quality': quality,
-                            'log10_cpk': math.log10(log10_cpk),
-                            'log2fc_weighted_vs_all_parent': log2fc,
-                            'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
-                        }
-                    )
+                if len(header) == len(dict_line):
+                    log10_cpk = float(dict_line['log10_cpk'])
+                    if log10_cpk > 0.0:
+                        log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
+                        p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
+                        key = (tissue, dict_line['cell_type'], dict_line['factor'])
+                        label, quality = labels.get(key, (None, None))
+                        lines.append(
+                            {
+                                'gene': dict_line['gene'],
+                                'dataset': prod_datasets[tissue],
+                                'tissue': tissue,
+                                'model': dict_line['model'],
+                                'cell_type': dict_line['cell_type'],
+                                'factor': dict_line['factor'],
+                                'factor_label': label,
+                                'factor_quality': quality,
+                                'log10_cpk': math.log10(log10_cpk),
+                                'log2fc_weighted_vs_all_parent': log2fc,
+                                'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
+                            }
+                        )
         with open(part_path('expression/program', num=idx, hash_=hash_), 'w') as f_out:
             for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['gene'], x['p_value'])):
                 f_out.write('{}\n'.format(json.dumps(line)))
@@ -307,21 +326,20 @@ def build_cell_type_expression(tissues):
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                log10_cpk = float(dict_line['log10_cpk'])
-                if log10_cpk > 0.0:
-                    log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line.get('log2fc_weighted_vs_all_parent', '') != '' else None
-                    p_value = float(dict_line['p_value']) if dict_line.get('p_value', '') != '' else None
-                    lines.append(
-                        {
-                            'gene': dict_line['gene'],
-                            'dataset': prod_datasets[tissue],
-                            'tissue': tissue,
-                            'cell_type': dict_line['cell_type'],
-                            'log10_cpk': math.log10(log10_cpk),
-                            'log2fc_weighted_vs_all_parent': log2fc,
-                            'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
-                        }
-                    )
+                if len(header) - 1 == len(dict_line):  # All pValues are null?
+                    log10_cpk = float(dict_line['log10_cpk'])
+                    log2fc = float(dict_line['log2fc_weighted_vs_all_parent'])
+                    if log10_cpk > 0.0 and abs(log2fc) < math.inf:
+                        lines.append(
+                            {
+                                'gene': dict_line['gene'],
+                                'dataset': prod_datasets[tissue],
+                                'tissue': tissue,
+                                'cell_type': dict_line['cell_type'],
+                                'log10_cpk': math.log10(log10_cpk),
+                                'log2fc_weighted_vs_all_parent': log2fc
+                            }
+                        )
         with open(part_path('expression/cell_type', num=idx, hash_=hash_), 'w') as f_out:
             for line in sorted(lines, key=lambda x: (x['tissue'], x['gene'], -x['log10_cpk'])):
                 f_out.write('{}\n'.format(json.dumps(line)))
@@ -349,27 +367,28 @@ def build_program_expression_by_gene(tissues, labels):
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                log10_cpk = float(dict_line['log10_cpk'])
-                if log10_cpk > 0.0:
-                    log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
-                    p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
-                    key = (tissue, dict_line['cell_type'], dict_line['factor'])
-                    label, quality = labels.get(key, (None, None))
-                    lines.append(
-                        {
-                            'gene': dict_line['gene'],
-                            'dataset': prod_datasets[tissue],
-                            'tissue': tissue,
-                            'model': dict_line['model'],
-                            'cell_type': dict_line['cell_type'],
-                            'factor': dict_line['factor'],
-                            'factor_label': label,
-                            'factor_quality': quality,
-                            'log10_cpk': math.log10(log10_cpk),
-                            'log2fc_weighted_vs_all_parent': log2fc,
-                            'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
-                        }
-                    )
+                if len(header) == len(dict_line):
+                    log10_cpk = float(dict_line['log10_cpk'])
+                    if log10_cpk > 0.0:
+                        log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
+                        p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
+                        key = (tissue, dict_line['cell_type'], dict_line['factor'])
+                        label, quality = labels.get(key, (None, None))
+                        lines.append(
+                            {
+                                'gene': dict_line['gene'],
+                                'dataset': prod_datasets[tissue],
+                                'tissue': tissue,
+                                'model': dict_line['model'],
+                                'cell_type': dict_line['cell_type'],
+                                'factor': dict_line['factor'],
+                                'factor_label': label,
+                                'factor_quality': quality,
+                                'log10_cpk': math.log10(log10_cpk),
+                                'log2fc_weighted_vs_all_parent': log2fc,
+                                'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
+                            }
+                        )
     write_gene_blocked(lines, 'expression-all/program')
 
 
@@ -380,22 +399,23 @@ def build_cell_state_expression_by_gene(tissues):
             header = f.readline().strip().split('\t')
             for line in f:
                 dict_line = dict(zip(header, line.strip().split('\t')))
-                log10_cpk = float(dict_line['log10_cpk'])
-                if log10_cpk > 0.0:
-                    log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
-                    p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
-                    lines.append(
-                        {
-                            'gene': dict_line['gene'],
-                            'dataset': prod_datasets[tissue],
-                            'tissue': tissue,
-                            'cell_type': dict_line['cell_type'],
-                            'state_name': dict_line['state_name'],
-                            'log10_cpk': math.log10(log10_cpk),
-                            'log2fc_weighted_vs_all_parent': log2fc,
-                            'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
-                        }
-                    )
+                if len(header) == len(dict_line):
+                    log10_cpk = float(dict_line['log10_cpk'])
+                    if log10_cpk > 0.0:
+                        log2fc = float(dict_line['log2fc_weighted_vs_all_parent']) if dict_line['log2fc_weighted_vs_all_parent'] != '' else None
+                        p_value = float(dict_line['p_value']) if dict_line['p_value'] != '' else None
+                        lines.append(
+                            {
+                                'gene': dict_line['gene'],
+                                'dataset': prod_datasets[tissue],
+                                'tissue': tissue,
+                                'cell_type': dict_line['cell_type'],
+                                'state_name': dict_line['state_name'],
+                                'log10_cpk': math.log10(log10_cpk),
+                                'log2fc_weighted_vs_all_parent': log2fc,
+                                'p_value': np.nextafter(0, 1) if p_value == 0 else p_value
+                            }
+                        )
     write_gene_blocked(lines, 'expression-all/cell_state')
 
 
@@ -428,8 +448,8 @@ def build_program_gene_loadings(tissues, labels):
 def build_program_qc_gene_set_factor(tissues, labels):
     lines = []
     for tissue in tissues:
-        for file in glob.glob(f'inputs/pigean/{prod_datasets[tissue]}/*/pigean.gene_sets.tsv'):
-            cell_type = re.findall(r'inputs/pigean/[^/]*/([^/]*)/pigean.gene_sets.tsv', file)[0]
+        for file in glob.glob(f'inputs/pigean/{tissue}/*/{prod_datasets[tissue]}/pigean.gene_sets.tsv'):
+            cell_type = re.findall(r'inputs/pigean/[^/]*/([^/]*)/[^/]*/pigean.gene_sets.tsv', file)[0]
             with open(file, 'rt') as f:
                 header = f.readline().strip().split('\t')
                 for line in f:
@@ -487,37 +507,81 @@ def build_program_qc_enrichment(tissues, labels):
             f_out.write('{}\n'.format(json.dumps(line)))
 
 
+def build_factor_report(tissues):
+    lines = []
+    for tissue in tissues:
+        for file in glob.glob(f'inputs/nmf/liger/{tissue}/*/*/factor_report_table.csv'):
+            cell_type, dataset = re.findall('inputs/nmf/liger/[^/]*/([^/]*)/([^/]*)/factor_report_table.csv', file)[0]
+            if dataset == prod_datasets[tissue]:
+                with open(file, 'r') as f:
+                    header = f.readline().strip().split(',')
+                    for line in f:
+                        dict_line = dict(zip(header, line.strip().split(',')))
+                        dict_line['factor'] = 'Factor{}'.format(re.findall(r'Factor_factor([0-9]*)', dict_line['factor'])[0])
+                        dict_line['most_correlated_factor'] = 'Factor{}'.format(re.findall(r'Factor_factor([0-9]*)', dict_line['most_correlated_factor'])[0])
+                        for field in ['max_gene_loading', 'mean_cell_score', 'max_other_factor_corr', 'best_match_corr', 'top_technical_corr', 'blacklist_match_corr', 'contaminant_gene_loading_corr', 'contaminant_cellscore_corr']:
+                            dict_line[field] = float(dict_line[field]) if dict_line[field] != 'NA' else None
+                        dict_line['n_flags'] = int(dict_line['n_flags'])
+                        dict_line['tissue'] = tissue
+                        dict_line['cell_type'] = cell_type
+                        dict_line['dataset'] = dataset
+                        lines.append(dict_line)
+
+    with open(part_path('factors/nmf/liger/report'), 'w') as f_out:
+        for line in sorted(lines, key=lambda x: (x['tissue'], x['cell_type'], x['factor'])):
+            f_out.write('{}\n'.format(json.dumps(line)))
+
+
 def upload_bioindex_data():
     subprocess.check_call(['aws', 's3', 'cp', '--recursive', 'outputs/gene_program/', f'{s3_bioindex}/gene_program/'])
 
 
 def main():
     tissues = list_tissues()
-    # download_portal_data(tissues)
-    # download_metadata()
-    # download_pigean_gene_set()
+    download_portal_data(tissues)
+    download_metadata()
+    download_pigean_gene_set()
+    download_nmf_liger()
     labels = build_program_labels(tissues)
 
     build_cell_state_metadata(tissues)
+    print('cell_state_metadata DONE')
     build_cell_state_metadata_extended(tissues)
+    print('cell_state_metadata_extended DONE')
     build_qc_metadata()
+    print('qc_metadata DONE')
     build_qc_metadata_extended()
+    print('qc_metadata_extended DONE')
     build_cell_state_expression_by_tissue(tissues)
+    print('cell_state_expression_by_tissue DONE')
     build_cell_state_pigean(tissues)
+    print('cell_state_pigean DONE')
     build_cell_state_heatmap(tissues, labels)
+    print('cell_state_heatmap DONE')
     build_program_factor_metadata(tissues)
+    print('program_factor_metadata DONE')
     build_program_pigean(tissues, labels)
+    print('program_pigean DONE')
     build_program_expression_by_dataset(tissues, labels)
+    print('program_expression_by_dataset DONE')
     build_cell_type_expression(tissues)
+    print('cell_type_expression DONE')
     build_program_expression_by_gene(tissues, labels)
+    print('program_expression_by_gene DONE')
     build_cell_state_expression_by_gene(tissues)
+    print('cell_state_expression_by_gene DONE')
     build_program_gene_loadings(tissues, labels)
+    print('program_gene_loadings DONE')
     build_program_qc_gene_set_factor(tissues, labels)
+    print('program_qc_gene_set_factor DONE')
     build_program_qc_enrichment(tissues, labels)
+    print('program_qc_enrichment DONE')
+    build_factor_report(tissues)
+    print('factor_report DONE')
 
-    # upload_bioindex_data()
-    # shutil.rmtree('inputs')
-    # shutil.rmtree('outputs')
+    upload_bioindex_data()
+    shutil.rmtree('inputs')
+    shutil.rmtree('outputs')
 
 
 if __name__ == '__main__':

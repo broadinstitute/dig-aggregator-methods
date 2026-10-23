@@ -8,27 +8,22 @@ import pandas as pd
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
 
-dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-4': 'pancreas',
-    'FNIH_Liver_scRNA_v3.2': 'liver'
-}
 
-
-def download_data(dataset, cell_type):
-    path = f'{s3_in}/out/single_cell/staging/liger/{dataset}/{cell_type}/'
-    cmd = ['aws', 's3', 'cp', path, 'inputs/', '--recursive']
+def download_data(tissue, cell_type, dataset):
+    path = f'{s3_in}/out/single_cell/staging/nmf/liger/{tissue}/{cell_type}/{dataset}/factor_gene_programs.csv'
+    cmd = ['aws', 's3', 'cp', path, 'inputs/']
     subprocess.check_call(cmd)
 
 
-def convert_program_loadings(dataset, tissue, cell_type):
+def convert_program_loadings(tissue, cell_type, dataset):
     program_rows = []
     program_manifest_rows = []
-    loadings_path = 'inputs/gene_loadings.tsv'
+    loadings_path = 'inputs/factor_gene_programs.csv'
 
-    loadings = pd.read_csv(loadings_path, sep='\t', index_col=0)
+    loadings = pd.read_csv(loadings_path, sep=',', index_col=0)
     renamed = {}
     for factor in loadings.columns:
-        factor_id = factor.replace('Factor_', 'factor_')
+        factor_id = factor.replace('Factor_factor', 'factor_')
         state_name = f'{tissue}_{cell_type}_program_{factor_id}'
         renamed[factor] = state_name
         top = loadings[factor].sort_values(ascending=False).head(100) # take top 100 genes
@@ -79,14 +74,16 @@ def upload_data():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', default=None, required=True, type=str,
-                        help="Dataset name")
+    parser.add_argument('--tissue', default=None, required=True, type=str,
+                        help="Tissue")
     parser.add_argument('--cell-type', default=None, required=True, type=str,
                         help="Cell Type")
+    parser.add_argument('--dataset', default=None, required=True, type=str,
+                        help="Dataset name")
     args = parser.parse_args()
 
-    download_data(args.dataset, args.cell_type)
-    convert_program_loadings(args.dataset, dataset_to_tissue[args.dataset], args.cell_type)
+    download_data(args.tissue, args.cell_type, args.dataset)
+    convert_program_loadings(args.tissue, args.cell_type, args.dataset)
     upload_data()
     shutil.rmtree('inputs')
     shutil.rmtree('outputs')

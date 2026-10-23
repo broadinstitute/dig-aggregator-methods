@@ -60,6 +60,7 @@ object BioIndex extends Method {
     addStage(new SingleCellGeneStage)
     addStage(new SingleCellGraphStage)
     addStage(new SingleCellFactorStage)
+    addStage(new SingleCellScoringStage)
     addStage(new HistoricalTopAssociationsStage)
   }
 }
