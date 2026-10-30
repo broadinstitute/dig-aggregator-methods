@@ -1,14 +1,17 @@
 {
     "aws": {
-        "project": "portal",
+        "project": "test-METAL",
         "input": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "test-METAL"
         },
         "output": {
-            "bucket": "dig-analysis-data"
+            "bucket": "dig-analysis-private",
+            "subdir": "test-METAL"
         },
         "bioindex": {
-            "bucket": "dig-bio-index"
+            "bucket": "dig-analysis-private",
+            "subdir": "test-METAL/bioindex"
         },
         "emr": {
             "subnetIds": [
