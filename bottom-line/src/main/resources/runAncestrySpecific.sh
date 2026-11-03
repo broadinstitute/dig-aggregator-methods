@@ -34,7 +34,7 @@ ANCESTRY_DIR="${OUTDIR}/ancestry=${ANCESTRY}"
 ANALYSIS_DIR="${ANCESTRY_DIR}/_analysis"
 
 # get all the unique datasets for this ancestry
-DATASETS=($(printf '%s\n' "${PARTS[@]}" | xargs dirname | xargs dirname | xargs dirname | awk -F "=" '{print $NF}' | sort | uniq | shuf))
+DATASETS=($(printf '%s\n' "${PARTS[@]}" | xargs dirname | xargs dirname | xargs dirname | awk -F "=" '{print $NF}' | sort | uniq))
 
 # collect all the common variants for each dataset together
 for DATASET in "${DATASETS[@]}"; do
@@ -56,8 +56,8 @@ sudo zstd --rm "${ANALYSIS_DIR}/scheme=SAMPLESIZE/METAANALYSIS1.tbl"
 sudo zstd --rm "${ANALYSIS_DIR}/scheme=STDERR/METAANALYSIS1.tbl"
 
 # upload the resuts to S3
-sudo aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_OUT}/bottom-line/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=SAMPLESIZE_4/" --recursive
-sudo aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_OUT}/bottom-line/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=STDERR_4/" --recursive
+sudo aws s3 cp "${ANALYSIS_DIR}/scheme=SAMPLESIZE/" "${S3_OUT}/bottom-line/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=SAMPLESIZE/" --recursive
+sudo aws s3 cp "${ANALYSIS_DIR}/scheme=STDERR/" "${S3_OUT}/bottom-line/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/scheme=STDERR/" --recursive
 sudo touch "${ANALYSIS_DIR}/_SUCCESS"
 sudo aws s3 cp "${ANALYSIS_DIR}/_SUCCESS" "${S3_OUT}/bottom-line/staging/ancestry-specific/${PHENOTYPE}/ancestry=${ANCESTRY}/"
 

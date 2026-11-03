@@ -39,7 +39,7 @@ done
 # set the output file and finish script
 cat >> "${SCRIPT_FILE}" <<EOF
 OUTFILE ${SCRIPT_DIR}/METAANALYSIS .tbl
-ANALYZE
+ANALYZE HETEROGENEITY
 QUIT
 EOF
 
