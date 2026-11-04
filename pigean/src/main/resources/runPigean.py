@@ -62,17 +62,19 @@ def trait_type_command(trait_type):
                      '--gwas-chrom-col', 'CHROM',
                      '--gwas-pos-col', 'POS',
                      '--gwas-p-col', 'P',
-                     '--gwas-n-col', 'N'
+                     '--gwas-n-col', 'N',
+                     '--gwas-z-source', 'p'
                      ]
         elif file_name == 'gene_list.tsv':
             cmds += [
-                '--positive-controls-in', os.path.abspath(file_name),
-                '--positive-controls-id-col', '1',
-                '--positive-controls-prob-col', '2',
-                '--positive-controls-no-header', 'True',
-                '--positive-controls-all-in', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
-                '--positive-controls-all-no-header', 'True',
-                '--positive-controls-all-id-col', '1'
+                '--gene-list-in', os.path.abspath(file_name),
+                '--gene-list-id-col', '1',
+                '--gene-list-prob-col', '2',
+                '--gene-list-no-header',
+                '--gene-universe-in', f'{downloaded_files}/validation_main.refGene_hg19_TSS.subset.loc',
+                '--gene-universe-no-header',
+                '--gene-universe-id-col', '1',
+                '--background-prior', '0.05'
             ]
         elif file_name == 'exomes.sumstats.gz':
             cmds += [
@@ -86,16 +88,18 @@ def trait_type_command(trait_type):
 
 base_cmd = [
     'python3.11', '-m', 'pigean', 'gibbs',
-    '--gene-loc-file', f'{downloaded_files}/NCBI37.3.plink.gene.loc',
-    '--gene-map-in', f'{downloaded_files}/portal_gencode.gene.map',
-    '--gene-loc-file-huge', f'{downloaded_files}/refGene_hg19_TSS.subset.loc',
-    '--exons-loc-file-huge', f'{downloaded_files}/NCBI37.3.plink.gene.exons.loc',
+    '--gene-loc-file', f'{downloaded_files}/validation_main.NCBI37.3.plink.gene.loc',
+    '--gene-map-in', f'{downloaded_files}/validation_main.portal_gencode.gene.map',
+    '--gene-loc-file-huge', f'{downloaded_files}/validation_main.refGene_hg19_TSS.subset.loc',
+    '--exons-loc-file-huge', f'{downloaded_files}/validation_main.NCBI37.3.plink.gene.exons.loc',
     '--seed', '1', '--deterministic',
     '--sigma-power', '-2',
     '--update-hyper', 'none',
     '--filter-gene-set-p', '0.005',
     '--max-num-gene-sets', '5000',
     '--min-gwas-inverse-variance-ratio', '0',
+    '--output-detail', 'full',
+    '--write-gibbs-global-filtered-summaries',
     '--num-chains', '10',
     '--gibbs-reruns', '2',
     '--disable-stall-detection',
@@ -104,8 +108,9 @@ base_cmd = [
     '--max-num-burn-in', '100',
     '--min-num-post-burn-in', '400',
     '--max-num-post-burn-in', '400',
+    '--max-gb', '32.0',
     '--debug-level', '3',
-    '--no-track-filtered-beta-uncorrected',
+    '--track-filtered-beta-uncorrected-mode', 'none',
     '--gene-stats-out', os.path.abspath('outputs/gs.out'),
     '--gene-set-stats-out', os.path.abspath('outputs/gss.out'),
     '--gene-gene-set-stats-out', os.path.abspath('outputs/ggss.out'),
