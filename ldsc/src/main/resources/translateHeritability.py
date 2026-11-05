@@ -17,7 +17,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 def download_data(phenotype):
     path_in = f'{s3_in}/out/ldsc/staging/heritability/{phenotype}'
-    subprocess.check_call(f'aws s3 cp {path_in}/ data/ --recursive', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/', 'data/', '--recursive'])
 
 
 def z_to_p(z):

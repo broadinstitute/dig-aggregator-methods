@@ -25,7 +25,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 def download_file(ancestry, phenotype):
     path_in = f'{s3_in}/out/ldsc/sumstats/{phenotype}/ancestry={ancestry}'
-    subprocess.check_call(f'aws s3 cp {path_in}/{phenotype}_{ancestry}.sumstats.gz .', shell=True)
+    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/{phenotype}_{ancestry}.sumstats.gz', '.'])
 
 
 def run_heritability(ancestry, phenotype):
