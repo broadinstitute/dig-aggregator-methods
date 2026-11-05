@@ -1,0 +1,36 @@
+package org.broadinstitute.dig.aggregator.methods.falcon
+
+import org.broadinstitute.dig.aggregator.core._
+import org.broadinstitute.dig.aws._
+import org.broadinstitute.dig.aws.emr._
+import org.broadinstitute.dig.aws.Ec2.Strategy
+
+class CombinePigeanFactorStage(implicit context: Context) extends Stage {
+
+  override val cluster: ClusterDef = super.cluster.copy(
+    instances = 1,
+    stepConcurrency = 8
+  )
+
+  val geneStats: Input.Source = Input.Source.Success("out/falcon/gene_stats/*/*/*/")
+  val geneSetStats: Input.Source = Input.Source.Success("out/falcon/gene_set_stats/*/*/*/")
+
+  override val sources: Seq[Input.Source] = Seq(geneStats, geneSetStats)
+
+  override val rules: PartialFunction[Input, Outputs] = {
+    case geneStats(model, traitGroup, phenotype) => Outputs.Named(
+      s"$traitGroup/$phenotype/$model"
+    )
+    case geneSetStats(model, traitGroup, phenotype) => Outputs.Named(
+      s"$traitGroup/$phenotype/$model"
+    )
+  }
+
+  override def make(output: String): Job = {
+    val flags: Seq[String] = output.split("/").toSeq match {
+      case Seq(traitGroup, phenotype, model) =>
+        Seq(s"--trait-group=$traitGroup", s"--phenotype=$phenotype", s"--model=$model")
+    }
+    new Job(Job.Script(resourceUri("combinePigeanFactor.py"), flags:_*))
+  }
+}
