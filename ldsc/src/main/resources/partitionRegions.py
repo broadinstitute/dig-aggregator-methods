@@ -73,8 +73,8 @@ def main():
     partitions = ['annotation', 'tissue', 'biosample', 'dataset']
 
     # get the source and output directories
-    srcdir = f'{s3_in}/annotated_regions/cis-regulatory_elements/{args.dataset}/part-*'
-    outdir = f'{s3_out}/out/ldsc/regions/partitioned/{args.dataset}'
+    srcdir = f'{s3_in}/annotated_regions/cis-regulatory_elements/{args.project}/{args.dataset}/part-*'
+    outdir = f'{s3_out}/out/ldsc/regions/partitioned/{args.project}/{args.dataset}'
 
     # create a spark session
     spark = SparkSession.builder.appName('ldsc').getOrCreate()
