@@ -4,7 +4,7 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws.emr._
 
 class PartitionRegionsStage(implicit context: Context) extends Stage {
-  val cisReg: Input.Source = Input.Source.raw("annotated_regions/cis-regulatory_elements/*/*/part-00000*")
+  val cisReg: Input.Source = Input.Source.Raw("annotated_regions/cis-regulatory_elements/*/*/part-00000*")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(cisReg)
