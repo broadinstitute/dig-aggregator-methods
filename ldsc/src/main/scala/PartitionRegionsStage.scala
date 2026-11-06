@@ -4,14 +4,14 @@ import org.broadinstitute.dig.aggregator.core._
 import org.broadinstitute.dig.aws.emr._
 
 class PartitionRegionsStage(implicit context: Context) extends Stage {
-  val cisReg: Input.Source = Input.Source.Dataset("annotated_regions/cis-regulatory_elements/*/*/")
+  val cisReg: Input.Source = Input.Source.raw("annotated_regions/cis-regulatory_elements/*/*/part-00000*")
 
   /** Source inputs. */
   override val sources: Seq[Input.Source] = Seq(cisReg)
 
   /** Map inputs to their outputs. */
   override val rules: PartialFunction[Input, Outputs] = {
-    case cisReg(project, dataset) => Outputs.Named(s"$project/$dataset")
+    case cisReg(project, dataset, _) => Outputs.Named(s"$project/$dataset")
    }
 
   // Partitioning is quick and easy, so do many of them in parallel.
