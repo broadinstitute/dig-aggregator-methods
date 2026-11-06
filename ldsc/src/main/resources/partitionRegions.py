@@ -65,6 +65,7 @@ def main():
     print('Python version: %s' % platform.python_version())
 
     opts = argparse.ArgumentParser()
+    opts.add_argument('project')
     opts.add_argument('dataset')
 
     # extract the dataset from the command line
