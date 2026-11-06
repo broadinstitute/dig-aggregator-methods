@@ -59,17 +59,12 @@ def get_optional_column(df, col_name):
 
 
 def main():
-    """
-    Arguments: type/dataset, partitions
-    """
-    print('Python version: %s' % platform.python_version())
-
-    opts = argparse.ArgumentParser()
-    opts.add_argument('project')
-    opts.add_argument('dataset')
-
-    # extract the dataset from the command line
-    args = opts.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--project', default=None, required=True, type=str,
+                        help="Project")
+    parser.add_argument('--dataset', default=None, required=True, type=str,
+                        help="Dataset ID")
+    args = parser.parse_args()
 
     partitions = ['annotation', 'tissue', 'biosample', 'dataset']
 
