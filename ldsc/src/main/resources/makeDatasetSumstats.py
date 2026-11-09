@@ -26,6 +26,7 @@ downloaded_files = '/mnt/var/ldsc'
 ldsc_files = f'{downloaded_files}/ldsc'
 phenotype_files = '.'
 snp_file = f'{downloaded_files}/snps'
+frq_files = f'{downloaded_files}/frq'
 
 s3_in = os.environ['INPUT_PATH']
 s3_out = os.environ['OUTPUT_PATH']
@@ -76,17 +77,29 @@ def get_snp_map():
     return snp_map
 
 
-def stream_to_txt(snp_map):
+def get_frq_map(ancestry):
+    frq_map = {}
+    for chromosome in range(1, 23):
+        with open(f'{downloaded_files}/frq/{ancestry_map[ancestry]}/chr.{chromosome}.frq', 'r') as f:
+            header = f.readline().strip().split('\t')
+            for full_row in f.readlines():
+                json_row = dict(zip(header, full_row.strip().split('\t')))
+                frq_map[json_row['SNP']] = float(json_row['MAF'])
+    return frq_map
+
+
+def stream_to_txt(snp_map, frq_map):
     line_count = 0
     with open(f'{phenotype_files}/input.csv', 'r') as f_in:
         header = f_in.readline().strip().split('\t')
         with open(f'{phenotype_files}/input.txt', 'w') as f_out:
-            line_template = '{}\t{}\t{}\t{}\t{}\t{}\n'
-            f_out.write(line_template.format('MarkerName', 'Allele1', 'Allele2', 'p', 'beta', 'N'))
+            line_template = '{}\t{}\t{}\t{}\t{}\t{}\t{}\n'
+            f_out.write(line_template.format('MarkerName', 'Allele1', 'Allele2', 'p', 'beta', 'N', 'FRQ'))
             for raw_line in f_in:
                 line = dict(zip(header, raw_line.strip().split('\t')))
                 if 'varId' in line and \
                         line['varId'] in snp_map \
+                        and snp_map[line['varId']] in frq_map \
                         and line['beta'] is not None and \
                         line['chromosome'] in valid_chromosomes:
                     line_string = line_template.format(
@@ -95,7 +108,8 @@ def stream_to_txt(snp_map):
                         line['alt'].lower(),
                         line['pValue'],
                         line['beta'],
-                        line['n']
+                        line['n'],
+                        frq_map[snp_map[line['varId']]]
                     )
                     f_out.write(line_string)
                     line_count += 1
@@ -106,16 +120,17 @@ def create_sumstats():
     subprocess.check_call([
         'python3', f'{ldsc_files}/munge_sumstats.py',
         '--sumstats', f'{phenotype_files}/input.txt',
+        '--keep-maf',
         '--out', f'{phenotype_files}/output',
         '--merge-alleles', f'{snp_file}/w_hm3.snplist'
     ])
 
 
-def run(phenotype, ancestry, dataset, snp_map):
+def run(phenotype, ancestry, dataset, snp_map, frq_map):
     for s3_dir in get_s3_dirs(phenotype, ancestry, dataset):
         print(f'Using directory: {s3_dir}')
         get_single_csv(s3_dir)
-        total_lines = stream_to_txt(snp_map)
+        total_lines = stream_to_txt(snp_map, frq_map)
         if total_lines > 0:
             create_sumstats()
             upload(phenotype, ancestry, dataset)
@@ -138,9 +153,10 @@ def main():
         raise Exception(f'Invalid ancestry ({ancestry}), must be one of {", ".join(ancestry_map.keys())}')
 
     snp_map = get_snp_map()
+    frq_map = get_frq_map(ancestry)
     print(f'Created SNP map ({len(snp_map)} variants)')
 
-    run(phenotype, ancestry, dataset, snp_map)
+    run(phenotype, ancestry, dataset, snp_map, frq_map)
     remove_files()
 
 

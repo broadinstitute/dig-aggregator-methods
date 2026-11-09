@@ -20,6 +20,15 @@ sudo bunzip2 w_hm3.snplist.bz2
 sudo mkdir ./snps
 sudo mv w_hm3.snplist ./snps/
 
+sudo mkdir -p ./frq
+for ANCESTRY in AFR AMR EAS EUR SAS
+do
+  sudo mkdir -p ./frq/$ANCESTRY
+  sudo aws s3 cp s3://dig-analysis-bin/ldsc/frq/frq_$ANCESTRY.zip ./
+  sudo unzip frq_$ANCESTRY.zip -d ./frq/$ANCESTRY/
+  sudo rm frq_$ANCESTRY.zip
+done
+
 # install dependencies
 sudo yum install -y python3-devel
 
