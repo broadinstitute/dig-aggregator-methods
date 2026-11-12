@@ -8,11 +8,12 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   import Implicits.S3Key
 
   val partitionFiles: Input.Source = Input.Source.Success(s"out/ldsc/regions/partitioned/*/")
+  val datasetPartitions: Input.Source = Input.Source.Success(s"out/ldsc/regions/merged/annotation-tissue-biosample-dataset/*/")
   val biosamplePartitions: Input.Source = Input.Source.Success(s"out/ldsc/regions/merged/annotation-tissue-biosample/*/")
   val tissuePartitions: Input.Source = Input.Source.Success(s"out/ldsc/regions/merged/annotation-tissue/*/")
 
   /** Source inputs. */
-  override val sources: Seq[Input.Source] = Seq(partitionFiles, biosamplePartitions, tissuePartitions)
+  override val sources: Seq[Input.Source] = Seq(partitionFiles, datasetPartitions, biosamplePartitions, tissuePartitions)
 
   /** Just need a single machine with no applications, but a good drive. */
   override def cluster: ClusterDef = super.cluster.copy(
@@ -32,7 +33,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
   lazy val datasetToBiosampleMergeOutputMap: Map[String, Seq[String]] = datasetMatches
     .groupBy(_.group(1))
     .map { case (dataset, partitions) =>
-      dataset -> partitions.map(m => BiosampleMergeOutput(m.group(2)).toOutput).distinct
+      dataset -> partitions.map(m => PartitionMergeOutput(dataset, m.group(2)).toOutput).distinct
     }
 
   // This is a pattern we can reuse: it is a cascade of runs of the same job which drills down
@@ -47,6 +48,7 @@ class MergeRegionsStage(implicit context: Context) extends Stage {
         case Nil => Outputs.Null
         case partitionOutputs => Outputs.Named(partitionOutputs: _*)
       }
+    case datasetPartitions(partition) => Outputs.Named(BiosampleMergeOutput(partition).toOutput)
     case biosamplePartitions(partition) => Outputs.Named(TissueMergeOutput(partition).toOutput)
     case tissuePartitions(partition) => Outputs.Named(AnnotationMergeOutput(partition).toOutput)
   }
@@ -77,12 +79,24 @@ case class MergeOutput(
   def outputDirectory: String = s"out/ldsc/regions/$partitionOut"
 }
 
+case class PartitionMergeOutput(dataset_key: String, partition: String) {
+  val Seq(annotation, tissue, biosample, dataset) = partition.split("___").toSeq
+  val inputPartition: String = s"${annotation}___${tissue}___${biosample}___${dataset}/part-*"
+  val outputPartition: String = s"${annotation}___${tissue}___${biosample}___${dataset}"
+
+  val partitionIn: String = s"partitioned/$dataset_key/partition=$inputPartition"
+  val partitionOut: String = s"merged/annotation-tissue-biosample-dataset/$outputPartition"
+
+  def toOutput: String = s"dataset/$dataset_key/$outputPartition"
+  def toMergeOutput: MergeOutput = MergeOutput(outputPartition, partitionIn, partitionOut)
+}
+
 case class BiosampleMergeOutput(partition: String) {
   val Seq(annotation, tissue, biosample, _) = partition.split("___").toSeq
-  val inputPartition: String = s"${annotation}___${tissue}___${biosample}___*/part-*"
+  val inputPartition: String = s"${annotation}___${tissue}___${biosample}___*/*.csv"
   val outputPartition: String = s"${annotation}___${tissue}___${biosample}"
 
-  val partitionIn: String = s"partitioned/*/partition=$inputPartition"
+  val partitionIn: String = s"merged/annotation-tissue-biosample-dataset/$inputPartition"
   val partitionOut: String = s"merged/annotation-tissue-biosample/$outputPartition"
 
   def toOutput: String = s"biosample/$outputPartition"
@@ -116,6 +130,8 @@ case class AnnotationMergeOutput(partition: String) {
 object MergeOutput {
   def fromOutput(output: String): MergeOutput = {
     output.split("/").toSeq match {
+      case Seq(subRegion, dataset_key, outputPartition) if subRegion == "dataset" =>
+        PartitionMergeOutput(dataset_key, outputPartition).toMergeOutput
       case Seq(subRegion, outputPartition) if subRegion == "biosample" =>
         BiosampleMergeOutput(s"${outputPartition}___*").toMergeOutput
       case Seq(subRegion, outputPartition) if subRegion == "tissue" =>
