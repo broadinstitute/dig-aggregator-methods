@@ -2,12 +2,10 @@
   "aws": {
     "project": "giant",
     "input": {
-      "bucket": "dig-giant-sandbox",
-      "subdir": "frozen-portal-20260610"
+      "bucket": "dig-giant-sandbox"
     },
     "output": {
-      "bucket": "dig-giant-sandbox",
-      "subdir": "frozen-portal-20260610"
+      "bucket": "dig-giant-sandbox"
     },
     "bioindex": {
       "bucket": "dig-giant-sandbox",
