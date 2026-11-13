@@ -18,7 +18,6 @@ class C2CTStage(implicit context: Context) extends Stage {
   )
 
   val credibleSets: Input.Source = Input.Source.Success("out/credible_sets/merged/*/*/")
-  val projects = Set(context.project, "portal")
 
   override val sources: Seq[Input.Source] = Seq(credibleSets)
 
