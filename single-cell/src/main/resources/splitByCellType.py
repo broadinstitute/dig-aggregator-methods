@@ -15,9 +15,9 @@ s3_out = os.environ['OUTPUT_PATH']
 
 def download(dataset):
     path_in = f'{s3_in}/single_cell/{dataset}'
-    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/sample_metadata.tsv.gz', 'input/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/metadata.tsv', 'input/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/column_map.json', 'input/'])
-    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/norm_counts.tsv.gz', 'input/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/lognorm_counts.tsv.gz', 'input/'])
 
 
 def format_cell_type(cell_type):
@@ -35,7 +35,7 @@ def get_cells():
     ncount_map = {}
     raw_study = {}
     study_map = {}
-    with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f_in:
+    with open('input/metadata.tsv', 'r') as f_in:
         header = f_in.readline().strip().split('\t')
         for line in f_in:
             json_line = dict(zip(header, line.strip().split('\t')))
@@ -59,7 +59,7 @@ def get_cells():
 
 def write_norm_metadata(cell_type_cells):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/norm_counts.metadata.tsv.gz', 'wt') for cell_type in cell_type_cells}
-    with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f:
+    with open('input/metadata.tsv', 'r') as f:
         header = f.readline()
         for f_out in f_outs.values():
             f_out.write(header)
@@ -74,7 +74,7 @@ def write_norm_metadata(cell_type_cells):
 
 def write_lognorm_counts(cell_type_cells):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/norm_counts.tsv.gz', 'wt') for cell_type in cell_type_cells}
-    with gzip.open('input/norm_counts.tsv.gz', 'rt') as f_in:
+    with gzip.open('input/lognorm_counts.tsv.gz', 'rt') as f_in:
         header = f_in.readline().strip().split('\t')
         idxs = {}
         for cell_type, f_out in f_outs.items():
@@ -92,7 +92,7 @@ def write_lognorm_counts(cell_type_cells):
 
 def write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.metadata.tsv.gz', 'wt') for cell_type in cell_type_cells}
-    with gzip.open('input/sample_metadata.tsv.gz', 'rt') as f:
+    with open('input/metadata.tsv.gz', 'r') as f:
         header = f.readline()
         for f_out in f_outs.values():
             f_out.write(header)
@@ -107,7 +107,7 @@ def write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map):
 
 def write_raw_counts(cell_type_cells, ncount_map, raw_study, study_map):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.tsv.gz', 'wt') for cell_type in cell_type_cells}
-    with gzip.open('input/norm_counts.tsv.gz', 'rt') as f_in:
+    with gzip.open('input/lognorm_counts.tsv.gz', 'rt') as f_in:
         header = f_in.readline().strip().split('\t')
         idxs = {}
         for cell_type, f_out in f_outs.items():
