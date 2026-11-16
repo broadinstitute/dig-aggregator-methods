@@ -92,7 +92,7 @@ def write_lognorm_counts(cell_type_cells):
 
 def write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.metadata.tsv.gz', 'wt') for cell_type in cell_type_cells}
-    with open('input/metadata.tsv.gz', 'r') as f:
+    with open('input/metadata.tsv', 'r') as f:
         header = f.readline()
         for f_out in f_outs.values():
             f_out.write(header)
