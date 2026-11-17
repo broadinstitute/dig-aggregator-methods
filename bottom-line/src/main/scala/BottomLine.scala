@@ -23,6 +23,7 @@ object BottomLine extends Method {
     */
   override def initStages(implicit context: Context) = {
     addStage(new PartitionStage)
+    addStage(new HierarchicalMetalStage)
     addStage(new AncestrySpecificStage)
     addStage(new LoadAncestrySpecificStage)
     addStage(new TransEthnicStage)
