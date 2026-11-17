@@ -90,8 +90,8 @@ def run():
     if len(metadata_map['study']) > 0:
         adata = get_sparse_array(args.cell_type, metadata_map)
         adata.obsm['X_umap'] = adata.obs[['X', 'Y']].to_numpy(dtype='float32')
-        adata.obs['QC:nCount_RNA'] = adata.obs['QC:nCount_RNA'].astype(float)
-        adata.obs['QC:percent.mt'] = adata.obs['QC:percent.mt'].astype(float)
+        adata.obs['QC:nCount_RNA'] = adata.obs['ncount_rna'].astype(float)
+        adata.obs['QC:percent.mt'] = adata.obs['rna_pct_mitochondrial'].astype(float)
 
         upload(args.dataset, args.cell_type, adata)
 

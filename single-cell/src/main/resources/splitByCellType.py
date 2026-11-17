@@ -57,17 +57,29 @@ def get_cells():
     return cell_type_cells, ncount_map, raw_study, study_map
 
 
-def write_norm_metadata(cell_type_cells):
+def get_coordinates():
+    coordinates = {}
+    with open('input/coordinates.tsv', 'r') as f_in:
+        header = f_in.readline().strip().split('\t')
+        for line in f_in:
+            json_line = dict(zip(header, line.strip().split('\t')))
+            coordinates[json_line['NAME']] = (float(json_line['X']), float(json_line['Y']))
+    return coordinates
+
+
+def write_norm_metadata(cell_type_cells, coordinates):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/norm_counts.metadata.tsv.gz', 'wt') for cell_type in cell_type_cells}
     with open('input/metadata.tsv', 'r') as f:
         header = f.readline()
+        modified_header = f'{header.strip()}\tX\tY\n'
         for f_out in f_outs.values():
-            f_out.write(header)
+            f_out.write(modified_header)
         for line in f:
             cell, _ = line.strip().split('\t', 1)
             for cell_type, cells in cell_type_cells.items():
                 if cell in cells:
-                    f_outs[cell_type].write(line)
+                    modified_line = f'{line.strip()}\t{coordinates[cell][0]}\t{coordinates[cell][1]}\n'
+                    f_outs[cell_type].write(modified_line)
     for f_out in f_outs.values():
         f_out.close()
 
@@ -90,17 +102,19 @@ def write_lognorm_counts(cell_type_cells):
         f_out.close()
 
 
-def write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map):
+def write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map, coordinates):
     f_outs = {cell_type: gzip.open(f'output/{cell_type}/raw_counts.metadata.tsv.gz', 'wt') for cell_type in cell_type_cells}
     with open('input/metadata.tsv', 'r') as f:
         header = f.readline()
+        modified_header = f'{header.strip()}\tX\tY\n'
         for f_out in f_outs.values():
-            f_out.write(header)
+            f_out.write(modified_header)
         for line in f:
             cell, _ = line.strip().split('\t', 1)
             for cell_type, cells in cell_type_cells.items():
                 if cell in cells and raw_study[study_map[cell]]:
-                    f_outs[cell_type].write(line)
+                    modified_line = f'{line.strip()}\t{coordinates[cell][0]}\t{coordinates[cell][1]}\n'
+                    f_outs[cell_type].write(modified_line)
     for f_out in f_outs.values():
         f_out.close()
 
@@ -140,9 +154,11 @@ def main():
     for cell_type in cell_type_cells:
         os.makedirs(f'output/{cell_type}', exist_ok=True)
 
-    write_norm_metadata(cell_type_cells)
+    coordinates = get_coordinates()
+
+    write_norm_metadata(cell_type_cells, coordinates)
     write_lognorm_counts(cell_type_cells)
-    write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map)
+    write_raw_metadata(cell_type_cells, ncount_map, raw_study, study_map, coordinates)
     write_raw_counts(cell_type_cells, ncount_map, raw_study, study_map)
 
     upload(args.dataset)
