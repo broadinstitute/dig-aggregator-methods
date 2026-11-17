@@ -128,11 +128,11 @@ def run_METAL(phenotype, ancestry):
 
 
 def upload(phenotype, ancestry, final_file):
-    f_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/hierarchical/{phenotype}/{ancestry}/'
-    subprocess.check_call(['aws', 's3', 'cp', 'recipe.txt', f_out])
-    subprocess.check_call(['aws', 's3', 'cp', final_file, f_out + 'bottom-line.tsv'])
-    subprocess.check_call('touch', '_SUCCESS')
-    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f_out])
+    f_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/hierarchical/{phenotype}/{ancestry}'
+    subprocess.check_call(['aws', 's3', 'cp', 'outputs/recipe.txt', f'{f_out}/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'outputs/{final_file}.tsv', f'{f_out}/bottom-line.tsv'])
+    subprocess.check_call(['touch', '_SUCCESS'])
+    subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{f_out}/'])
     os.remove('_SUCCESS')
 
 
