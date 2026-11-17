@@ -15,6 +15,7 @@ s3_out = os.environ['OUTPUT_PATH']
 
 def download(dataset):
     path_in = f'{s3_in}/single_cell/{dataset}'
+    subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/coordinates.tsv', 'input/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/metadata.tsv', 'input/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/column_map.json', 'input/'])
     subprocess.check_call(['aws', 's3', 'cp', f'{path_in}/lognorm_counts.tsv.gz', 'input/'])
