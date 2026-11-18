@@ -114,8 +114,6 @@ def run_METAL_step(phenotype, ancestry, input_1, input_2, output):
         QUIT
         """.strip() + '\n')
     subprocess.check_call([f'{downloaded_files}/metal/build/metal/metal', 'metal.script'])
-    os.remove(f'outputs/{input_1}.tsv')
-    os.remove(f'outputs/{input_2}.tsv')
     os.rename('METAANALYSIS1.TBL', f'outputs/{output}.tsv')
 
 
@@ -127,10 +125,47 @@ def run_METAL(phenotype, ancestry):
             run_METAL_step(phenotype, ancestry, input_1, input_2, output)
 
 
+def run_METAL_metadata():
+    input_files = []
+    output_files = set()
+    with open('outputs/recipe.txt', 'r') as f:
+        _ = f.readline()
+        for line in f:
+            output, input_1, input_2 = line.strip().split('\t')[:3]
+            input_files.append(input_1)
+            input_files.append(input_2)
+            output_files.add(output)
+    only_input_files = [file for file in input_files if file not in output_files]
+
+    processes = '\n'.join([f'PROCESS outputs/{file}.tsv' for file in only_input_files])
+    with open('metal.script', 'w') as f:
+        f.write(
+            f"""
+        SCHEME SAMPLESIZE
+        OVERLAP ON
+        SEPARATOR TAB
+        COLUMNCOUNTING LENIENT
+        MARKER MarkerName
+        ALLELE Allele1 Allele2
+        PVAL P-value
+        EFFECT Zscore
+        WEIGHT Weight
+        SAMPLE N
+        CUSTOMVARIABLE TotalSampleSize
+        LABEL TotalSampleSize AS n
+        {processes}
+        ANALYZE HETEROGENEITY
+        QUIT
+        """.strip() + '\n')
+    subprocess.check_call([f'{downloaded_files}/metal/build/metal/metal', 'metal.script'])
+    os.rename('METAANALYSIS1.TBL', f'outputs/metadata_run.tsv')
+
+
 def upload(phenotype, ancestry, final_file):
     f_out = f'{s3_out}/out/metaanalysis/bottom-line/staging/hierarchical/{phenotype}/{ancestry}'
     subprocess.check_call(['aws', 's3', 'cp', 'outputs/recipe.txt', f'{f_out}/'])
-    subprocess.check_call(['aws', 's3', 'cp', f'outputs/{final_file}.tsv', f'{f_out}/bottom-line.tsv'])
+    subprocess.check_call(['aws', 's3', 'cp', f'outputs/{final_file}.tsv', f'{f_out}/'])
+    subprocess.check_call(['aws', 's3', 'cp', f'outputs/metadata_run.tsv', f'{f_out}/'])
     subprocess.check_call(['touch', '_SUCCESS'])
     subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', f'{f_out}/'])
     os.remove('_SUCCESS')
