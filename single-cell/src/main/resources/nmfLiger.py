@@ -12,7 +12,7 @@ s3_out = os.environ['OUTPUT_PATH']
 MIN_CELLS = 10
 
 dataset_to_tissue = {
-    'islet_of_Langerhans_scRNA_v3-5': 'pancreas'
+    'islet_of_Langerhans_scRNA_v3-5': 'islet'
 }
 
 
