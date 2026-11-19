@@ -184,6 +184,7 @@ def main():
     names, gcov = parse_logs()
     final_file = write_recipe(names, gcov)
     run_METAL(args.phenotype, args.ancestry)
+    run_METAL_metadata()
     upload(args.phenotype, args.ancestry, final_file)
 
     shutil.rmtree('inputs')
