@@ -127,7 +127,8 @@ def make_metadata(trait_type, trait_group, phenotype, model, started, finished, 
         f.write(f'trait_group={trait_group}\n')
         f.write(f'phenotype={phenotype}\n')
         f.write(f'model={model}\n')
-        f.write(f'input={s3_in}/out/pigean/inputs/{trait_type}/{trait_group}/{phenotype}/{file_name}\n')
+        for file_name in file_names(trait_type):
+            f.write(f'input={s3_in}/out/pigean/inputs/{trait_type}/{trait_group}/{phenotype}/{file_name}\n')
         f.write(f'eaggl_output={s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}\n')
         f.write(f'started_utc={started}\n')
         f.write(f'completed_utc={finished}\n')
