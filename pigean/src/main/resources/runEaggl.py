@@ -96,7 +96,7 @@ def make_metadata(trait_group, phenotype, model, started, finished):
         f.write(f'trait_group={trait_group}\n')
         f.write(f'phenotype={phenotype}\n')
         f.write(f'model={model}\n')
-        f.write(f'pigean_intput={s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}\n')
+        f.write(f'pigean_input={s3_in}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}\n')
         f.write(f'eaggl_output={s3_out}/out/pigean/staging/eaggl/{trait_group}/{phenotype}/{model}\n')
         f.write(f'started_utc={started}\n')
         f.write(f'completed_utc={finished}\n')

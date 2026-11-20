@@ -101,13 +101,8 @@ base_cmd = [
     '--output-detail', 'full',
     '--write-gibbs-global-filtered-summaries',
     '--num-chains', '10',
-    '--gibbs-reruns', '2',
     '--disable-stall-detection',
-    '--max-num-iter', '500',
-    '--min-num-burn-in', '100',
-    '--max-num-burn-in', '100',
-    '--min-num-post-burn-in', '400',
-    '--max-num-post-burn-in', '400',
+    '--gibbs-schedule', 'retained',
     '--max-gb', '32.0',
     '--debug-level', '3',
     '--track-filtered-beta-uncorrected-mode', 'none',
@@ -125,6 +120,20 @@ def run_pigean(trait_type, model):
     subprocess.check_call(cmd, cwd=f'{downloaded_files}/pigean/src')
 
 
+def make_metadata(trait_type, trait_group, phenotype, model, started, finished, success):
+    with open('run_metadata.txt', 'w') as f:
+        f.write('repository=https://github.com/flannick/pigean.git\n')
+        f.write('commit=8f4c619c2c946b62fc303dc60af82989820bc727\n')
+        f.write(f'trait_group={trait_group}\n')
+        f.write(f'phenotype={phenotype}\n')
+        f.write(f'model={model}\n')
+        f.write(f'input={s3_in}/out/pigean/inputs/{trait_type}/{trait_group}/{phenotype}/{file_name}\n')
+        f.write(f'eaggl_output={s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}\n')
+        f.write(f'started_utc={started}\n')
+        f.write(f'completed_utc={finished}\n')
+        f.write(f'status={success}\n')
+
+
 def success(file_path):
     subprocess.check_call(['touch', '_SUCCESS'])
     subprocess.check_call(['aws', 's3', 'cp', '_SUCCESS', file_path])
@@ -139,11 +148,15 @@ def upload(file_name, file_path):
 
 def upload_data(trait_group, phenotype, model):
     file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}/'
-    upload('outputs/gs.out', file_path)
-    upload('outputs/gss.out', file_path)
-    upload('outputs/ggss.out', file_path)
-    upload('outputs/ge.out', file_path)
+    for file in ['gs.out', 'gss.out', 'ggss.out', 'ge.out', 'p.out']:
+        upload(f'outputs/{file}', file_path)
     success(file_path)
+
+
+def upload_metadata(trait_group, phenotype, model):
+    file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}/'
+    upload('run_metadata.txt', file_path)
+    os.remove('run_metadata.txt')
 
 
 def main():
@@ -164,9 +177,11 @@ def main():
         upload_data(args.trait_group, args.phenotype, args.model)
         for file_name in file_names(args.trait_type):
             os.remove(file_name)
+        success = 'success'
     except:
         print('ERROR')
-    print(f'FULL TIME TEST: {time.time() - t}')
+        success = 'failed'
+    make_metadata(args.trait_type, args.trait_group, args.phenotype, args.model, t, time.time() - t, success)
 
 
 if __name__ == '__main__':

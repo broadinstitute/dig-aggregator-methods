@@ -17,6 +17,7 @@ sudo aws s3 cp s3://dig-analysis-bin/pigean/models/ . --recursive
 
 sudo yum -y install git
 sudo git clone https://github.com/flannick/pigean.git
+sudo git -C pigean checkout 8f4c619c2c946b62fc303dc60af82989820bc727
 sudo aws s3 cp s3://dig-analysis-data/out/pigean/staging/combined/ . --recursive
 
 # install dependencies
