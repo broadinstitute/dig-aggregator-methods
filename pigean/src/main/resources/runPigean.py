@@ -183,7 +183,7 @@ def main():
         print('ERROR')
         success = 'failed'
     make_metadata(args.trait_type, args.trait_group, args.phenotype, args.model, t, time.time() - t, success)
-    upload_data(args.trait_group, args.phenotype, args.model)
+    upload_metadata(args.trait_group, args.phenotype, args.model)
 
 
 if __name__ == '__main__':
