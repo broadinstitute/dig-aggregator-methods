@@ -157,7 +157,6 @@ def upload_data(trait_group, phenotype, model):
 def upload_metadata(trait_group, phenotype, model):
     file_path = f'{s3_out}/out/pigean/staging/pigean/{trait_group}/{phenotype}/{model}/'
     upload('run_metadata.txt', file_path)
-    os.remove('run_metadata.txt')
 
 
 def main():
