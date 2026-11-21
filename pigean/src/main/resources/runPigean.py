@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 import argparse
+import datetime
 import json
 import os
 import subprocess
-import time
 
 downloaded_files = '/mnt/var/pigean'
 s3_in = os.environ['INPUT_PATH']
@@ -160,7 +160,6 @@ def upload_metadata(trait_group, phenotype, model):
 
 
 def main():
-    t = time.time()
     parser = argparse.ArgumentParser()
     parser.add_argument('--trait-type', default=None, required=True, type=str,
                         help="sumstats or gene_lists")
@@ -172,6 +171,7 @@ def main():
                         help="model (mouse_msigdb).")
     args = parser.parse_args()
     download_data(args.trait_type, args.trait_group, args.phenotype)
+    started = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
     try:
         run_pigean(args.trait_type, args.model)
         upload_data(args.trait_group, args.phenotype, args.model)
@@ -181,7 +181,8 @@ def main():
     except:
         print('ERROR')
         success = 'failed'
-    make_metadata(args.trait_type, args.trait_group, args.phenotype, args.model, t, time.time() - t, success)
+    finished = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+    make_metadata(args.trait_type, args.trait_group, args.phenotype, args.model, started, finished, success)
     upload_metadata(args.trait_group, args.phenotype, args.model)
 
 
