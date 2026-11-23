@@ -106,6 +106,8 @@ base_cmd = [
     '--max-gb', '32.0',
     '--debug-level', '3',
     '--track-filtered-beta-uncorrected-mode', 'none',
+    '--gibbs-engine', 'parallel-prefilter',
+    '--gibbs-enable', 'inner-matmul,inner-fused,inner-batching,compiled-prefilter,inner-cache64,huge-prior-softmax,static-correlation,compiled-moments',
     '--gene-stats-out', os.path.abspath('outputs/gs.out'),
     '--gene-set-stats-out', os.path.abspath('outputs/gss.out'),
     '--gene-gene-set-stats-out', os.path.abspath('outputs/ggss.out'),
