@@ -23,3 +23,4 @@ sudo aws s3 cp s3://dig-analysis-data/out/pigean/staging/combined/ . --recursive
 # install dependencies
 sudo pip3.11 install numpy
 sudo pip3.11 install scipy
+sudo pip3.11 install numba
