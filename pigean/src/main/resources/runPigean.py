@@ -97,7 +97,6 @@ base_cmd = [
     '--update-hyper', 'none',
     '--filter-gene-set-p', '0.005',
     '--max-num-gene-sets', '5000',
-    '--min-gwas-inverse-variance-ratio', '0',
     '--output-detail', 'full',
     '--write-gibbs-global-filtered-summaries',
     '--num-chains', '10',
